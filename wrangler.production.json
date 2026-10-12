@@ -71,7 +71,9 @@
     "UNIFIED_LEDGER": "true",
     "DAILY_PROVIDER_CALLS": "200",
     "AZRAIL_MISSION_BUDGET_USD": "1",
-    "AI_GATEWAY_ID": "default"
+    "AI_GATEWAY_ID": "default",
+    "OIDC_ADMIN_GROUPS": "pulse-admins",
+    "OIDC_GROUPS_CLAIM": "groups"
   },
   "observability": {
     "enabled": true

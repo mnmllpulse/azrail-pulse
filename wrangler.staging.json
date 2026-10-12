@@ -65,7 +65,9 @@
     "AZRAIL_WRITE_BUDGET": "1000",
     "AI_GATEWAY_ID": "default",
     "OIDC_CLIENT_ID": "5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a",
-    "OIDC_ISSUER": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a"
+    "OIDC_ISSUER": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a",
+    "OIDC_ADMIN_GROUPS": "pulse-admins",
+    "OIDC_GROUPS_CLAIM": "groups"
   },
   "observability": {
     "enabled": true

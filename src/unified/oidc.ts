@@ -15,6 +15,28 @@ function cookie(name:string,value:string,seconds:number) {
 function random() { return crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-',''); }
 const validateOidcEndpoint=(value:string,label='OIDC endpoint')=>validateTrustedHttpsUrl(value,label,{allowSearch:true});
 
+/** Default admin group when OIDC_ADMIN_GROUPS is unset. An explicitly empty value disables admin entirely. */
+export const DEFAULT_OIDC_ADMIN_GROUPS='pulse-admins';
+export function oidcAdminGroups(env:Env):string[] {
+ const raw=env.OIDC_ADMIN_GROUPS===undefined?DEFAULT_OIDC_ADMIN_GROUPS:env.OIDC_ADMIN_GROUPS;
+ return [...new Set(String(raw).split(',').map(s=>s.trim()).filter(Boolean))];
+}
+/**
+ * Role for a verified ID token. Fail closed: admin only when the configured
+ * claim (OIDC_GROUPS_CLAIM, default "groups"; falls back to "roles" when that
+ * claim is absent) is an array of strings containing a configured admin group.
+ * Missing, empty or wrongly typed claims, or an empty group list, give editor.
+ */
+export function oidcRoleFromClaims(payload:Record<string,unknown>,env:Env):'admin'|'editor' {
+ const groups=oidcAdminGroups(env);
+ if(!groups.length)return 'editor';
+ const claimName=(env.OIDC_GROUPS_CLAIM??'').trim()||'groups';
+ const claim=Object.hasOwn(payload,claimName)?payload[claimName]:Object.hasOwn(payload,'roles')?payload.roles:undefined;
+ if(!Array.isArray(claim)||!claim.length)return 'editor';
+ const member=new Set(claim.filter((v):v is string=>typeof v==='string'));
+ return groups.some(g=>member.has(g))?'admin':'editor';
+}
+
 export function trustedOrigin(request:Request,env:Env) {
  const origin=new URL(request.url).origin;
  return (env.PUBLIC_ORIGINS ?? '').split(',').map(s=>s.trim()).includes(origin);
@@ -47,9 +69,12 @@ export async function sessionPrincipal(request:Request,env:Env):Promise<Principa
  .bind(await hashToken(token),new URL(request.url).origin,Date.now(),Date.now()).first<Principal>();
  if(!row)return null;
  // Preserve a server-side downgrade. A legacy admin role must not grant global
- // access through the public OIDC application.
+ // access through the public OIDC application. Admin survives only for OIDC
+ // identities whose last verified login carried a configured admin group, and
+ // only while an admin group is configured (emptying OIDC_ADMIN_GROUPS revokes at once).
  if(!['viewer','editor','admin'].includes(row.role))return null;
- const role=row.role==='viewer'?'viewer':'editor';
+ const oidcAdmin=row.role==='admin'&&row.id.startsWith('oidc_')&&oidcAdminGroups(env).length>0;
+ const role=row.role==='viewer'?'viewer':oidcAdmin?'admin':'editor';
  return {...row,role,operator:role!=='viewer'&&(env.OPERATOR_ACCOUNT_IDS??'').split(',').map(s=>s.trim()).includes(row.id)};
 }
 export async function authRoute(request:Request,env:Env):Promise<Response|null> {
@@ -99,9 +124,11 @@ export async function authRoute(request:Request,env:Env):Promise<Response|null> 
    const id=`oidc_${(await hashToken(`${d.issuer}\n${payload.sub}`)).slice(0,48)}`;
    const name=String(payload.name??payload.preferred_username??'Пользователь').slice(0,100);
    // Random unusable API key hash: OIDC identities never get a shared owner key.
-   await env.AZRAIL_D1.prepare(`INSERT INTO access_accounts(id,name,role,token_hash,expires_at) VALUES(?,?,'editor',?,?)
-    ON CONFLICT(id) DO UPDATE SET name=excluded.name,expires_at=excluded.expires_at`)
-    .bind(id,name,await hashToken(random()),Date.now()+365*86400000).run();
+   // Role is recomputed from the group claim on every login; a manual viewer downgrade is kept.
+   const role=oidcRoleFromClaims(payload as Record<string,unknown>,env);
+   await env.AZRAIL_D1.prepare(`INSERT INTO access_accounts(id,name,role,token_hash,expires_at) VALUES(?,?,?,?,?)
+    ON CONFLICT(id) DO UPDATE SET name=excluded.name,expires_at=excluded.expires_at,role=CASE WHEN access_accounts.role='viewer' THEN 'viewer' ELSE excluded.role END`)
+    .bind(id,name,role,await hashToken(random()),Date.now()+365*86400000).run();
    const account=await env.AZRAIL_D1.prepare('SELECT disabled FROM access_accounts WHERE id=?').bind(id).first<{disabled:number}>();
    if(account?.disabled)return reply({error:'Аккаунт отключён.'},403);
    const session=random(),sessionHash=await hashToken(session),expires=Date.now()+12*3600000;

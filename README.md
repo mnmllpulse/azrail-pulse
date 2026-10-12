@@ -87,6 +87,19 @@ Read the runbooks before any remote mutation: [`DEPLOY_RU.md`](DEPLOY_RU.md) and
 
 Production OIDC identifiers are intentionally **not invented** in source. A production release remains blocked until the real production OIDC client/issuer and preview-access policy are explicitly verified.
 
+### OIDC admin groups
+
+Web (OIDC) users are `editor` by default. An OIDC user becomes `admin` (can decide approvals, manage accounts/backups) only when the verified ID token carries a configured admin group:
+
+| Var | Default | Meaning |
+| --- | --- | --- |
+| `OIDC_ADMIN_GROUPS` | `pulse-admins` | Comma-separated group names that grant admin. Set to an empty string to disable admin for OIDC entirely. |
+| `OIDC_GROUPS_CLAIM` | `groups` | ID-token claim holding the groups. If that claim is absent, `roles` is checked. |
+
+Fail closed: a missing, empty or non-array claim (or non-string entries) gives `editor`. The role is recomputed on every login (removing a user from the group takes effect at their next login; existing sessions last up to 12 h). Emptying `OIDC_ADMIN_GROUPS` downgrades all live OIDC sessions immediately. A manual `viewer` downgrade is kept. API-key accounts are unaffected; non-OIDC accounts never get admin through a web session.
+
+The IdP must put the groups into the **ID token** (Cloudflare Access: enable the `groups` claim for the OIDC SaaS application). Both values live in `config/environments.json` → `vars` and are generated into `wrangler.*.json` by `npm run config:generate`.
+
 ## Historical material
 
 Historical changelogs, previous RC receipts, old audits and legacy source snapshots remain in this Full Archive source package for traceability, but are excluded from the runtime/release bundle by `release-manifest.json`. Current operational truth lives only in `docs/current/`, `docs/runbooks/`, `docs/product/`, `docs/releases/` and `verification/`.

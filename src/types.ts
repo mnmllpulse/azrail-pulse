@@ -5,6 +5,10 @@ export interface Env {
   AUTH_MODE?: 'oidc' | 'legacy';
   PUBLIC_ORIGINS?: string;
   OIDC_ISSUER?: string;
+  /** Comma-separated OIDC groups granted admin (default "pulse-admins"; empty disables admin). */
+  OIDC_ADMIN_GROUPS?: string;
+  /** ID-token claim holding groups (default "groups", falls back to "roles"). */
+  OIDC_GROUPS_CLAIM?: string;
   OIDC_CLIENT_ID?: string;
   OIDC_CLIENT_SECRET?: string;
   OPERATOR_ACCOUNT_IDS?: string;

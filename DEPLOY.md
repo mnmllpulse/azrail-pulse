@@ -72,3 +72,16 @@ Stage D #36 is fail-closed and local-only. `npm run production:approval:check` v
 ## GitHub main → Cloudflare staging
 
 The repository includes `.github/workflows/staging-auto-deploy.yml`. After this source is actually published and the GitHub `staging` Environment contains `CLOUDFLARE_ACCOUNT_ID`, `CLOUDFLARE_API_TOKEN`, and `OIDC_CLIENT_SECRET`, a push to `main` runs the complete Node24 Verify job and only then executes the guarded `deploy:ci` path against **staging**. Production remains disabled and requires the separate Stage D #38 release path.
+
+## OIDC admin groups
+
+Web (OIDC) users are `editor` by default. An OIDC user becomes `admin` (can decide approvals, manage accounts/backups) only when the verified ID token carries a configured admin group:
+
+| Var | Default | Meaning |
+| --- | --- | --- |
+| `OIDC_ADMIN_GROUPS` | `pulse-admins` | Comma-separated group names that grant admin. Set to an empty string to disable admin for OIDC entirely. |
+| `OIDC_GROUPS_CLAIM` | `groups` | ID-token claim holding the groups. If that claim is absent, `roles` is checked. |
+
+Fail closed: a missing, empty or non-array claim (or non-string entries) gives `editor`. The role is recomputed on every login (removing a user from the group takes effect at their next login; existing sessions last up to 12 h). Emptying `OIDC_ADMIN_GROUPS` downgrades all live OIDC sessions immediately. A manual `viewer` downgrade is kept. API-key accounts are unaffected; non-OIDC accounts never get admin through a web session.
+
+The IdP must put the groups into the **ID token** (Cloudflare Access: enable the `groups` claim for the OIDC SaaS application). Both values live in `config/environments.json` → `vars` and are generated into `wrangler.*.json` by `npm run config:generate`.
