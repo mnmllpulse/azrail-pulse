@@ -482,10 +482,6 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     if(approvalDecision && request.method === "POST") {
       const decision = String(parsedBody.decision ?? "");
       if(decision !== "approved" && decision !== "rejected") return json({error:"decision должен быть approved или rejected."},env,400);
-      // Non-admin accounts may decide only approvals raised for their own account
-      // (the UI confirmation flow for connectors / web workbench). Others look absent.
-      const target = await getApproval(env,decodeURIComponent(approvalDecision[1]));
-      if(!target || (principal.role !== "admin" && target.account_id !== principal.id)) return json({error:"Approval не найден."},env,404);
       const approval = await decideApproval(env,{
         id:decodeURIComponent(approvalDecision[1]),
         actor:`account:${principal.id}`,
