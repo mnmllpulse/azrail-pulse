@@ -125,7 +125,7 @@ export class CodeAgent extends Agent<Env, CodeAgentState> {
 
     const isGenerate = typeof request.architecturePlan === "string";
 
-    const knowledge = await this.retrieveKnowledge(context.slice(0, 500));
+    const knowledge = await this.retrieveKnowledge(context.slice(0, 500), request);
     const memory = request.projectId ? await recallContext(this.env, request.projectId, 30, {missionId:request._missionId}) : null;
 
     const messages = [
@@ -212,7 +212,7 @@ export class CodeAgent extends Agent<Env, CodeAgentState> {
   }
 
   /** Retrieval из Vectorize. Если индекс ещё не подключен — тихо возвращает null (не роняет задачу). */
-  private async retrieveKnowledge(query: string): Promise<string | null> {
+  private async retrieveKnowledge(query: string, request: TaskRequest): Promise<string | null> {
     if (!this.env.AZRAIL_VECTORIZE) return null;
     try {
       // Через маршрутизатор, как и всё остальное: слаг живёт только в

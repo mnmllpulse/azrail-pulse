@@ -53,7 +53,7 @@ async function releaseTerminalMissionLocks(env: Env, missionId: string): Promise
 }
 
 /** Перевод статуса TaskResult в статус строки миссии. */
-export function statusForResult(result: Pick<TaskResult, "status" | "error">): string {
+export function statusForResult(result: Pick<TaskResult, "status" | "error" | "quality">): string {
   if (result.error === "cancelled") return "cancelled";
   if (result.status === "done") return result.quality?.status === "verified" ? "completed" : "unverified";
   if (result.status === "failed") return "failed";

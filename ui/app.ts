@@ -17,6 +17,19 @@ import {mountCommandPalette} from './components/command-palette';
 import {mountMetatronLab} from './metatron-lab';
 import {openUniversalCompareCenter} from './components/universal-compare';
 export {};
+// Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
+function reportGlobalError(source:string,reason:unknown){
+  const message=reason instanceof Error?reason.message:String(reason??'Unknown error');
+  console.error(`[azrail-ui] ${source}:`,reason);
+  if(typeof document==='undefined'||!document.body)return;
+  let bar=document.getElementById('azrail-global-error');
+  if(!bar){bar=document.createElement('div');bar.id='azrail-global-error';bar.setAttribute('role','alert');bar.style.cssText='position:fixed;left:12px;right:12px;bottom:12px;z-index:9999;padding:10px 14px;border-radius:8px;background:#3b0d12;color:#fff;font:13px system-ui;display:flex;gap:12px;align-items:center';const text=document.createElement('span');text.className='azrail-global-error-text';const close=document.createElement('button');close.type='button';close.textContent='×';close.setAttribute('aria-label','Закрыть');close.onclick=()=>bar?.remove();bar.append(text,close);document.body.append(bar);}
+  const text=bar.querySelector('.azrail-global-error-text');if(text)text.textContent=`Ошибка интерфейса: ${message.slice(0,300)}`;
+}
+if(typeof window!=='undefined'){
+  window.addEventListener('error',e=>reportGlobalError('error',e.error??e.message));
+  window.addEventListener('unhandledrejection',e=>reportGlobalError('unhandledrejection',e.reason));
+}
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const local=!/^https?:$/.test(location.protocol);
 type Account={id:string;name:string;operator?:boolean;role?:'viewer'|'editor'|'admin'};

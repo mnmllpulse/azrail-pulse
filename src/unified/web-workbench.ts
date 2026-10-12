@@ -31,7 +31,7 @@ export async function webWorkbenchRoute(request:Request,env:Env,principal:Princi
  if(tail==="restore"&&request.method==="POST"){
   const body=await readJsonRecord(request,6000),id=String(body.snapshotId??"");if(!id)throw new AccessError("snapshotId обязателен.",400);
   const result=await restoreWorkspaceSnapshot(env,principal,projectId,id,typeof body.approvalId==="string"?body.approvalId:undefined,trace);
-  if("approvalRequired" in result&&result.approvalRequired)return json(result,{status:409});
+  if("approvalRequired" in result)return json(result,{status:409});
   await emitWorkbenchAction(env,projectId,"tool.web_snapshot.restored",`account:${principal.id}`,{snapshotId:id,prefix:result.prefix},trace);return json(result);
  }
  if(tail==="revert-file"&&request.method==="POST"){

@@ -394,7 +394,8 @@ export class Orchestrator extends Agent<Env, OrchestratorState> {
   private activeMissions = new Set<string>();
   private missionAbortControllers = new Map<string, AbortController>();
 
-  private createMissionAbortController(missionId: string): AbortController {
+  /** @internal used by missionHost() */
+  createMissionAbortController(missionId: string): AbortController {
     const existing = this.missionAbortControllers.get(missionId);
     if (existing && !existing.signal.aborted) return existing;
     const controller = new AbortController();
@@ -402,7 +403,8 @@ export class Orchestrator extends Agent<Env, OrchestratorState> {
     return controller;
   }
 
-  private releaseMissionAbortController(missionId: string): void {
+  /** @internal used by missionHost() */
+  releaseMissionAbortController(missionId: string): void {
     this.missionAbortControllers.delete(missionId);
   }
 

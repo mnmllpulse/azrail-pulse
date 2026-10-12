@@ -17,7 +17,7 @@ import type { Env, TaskRequest, TaskResult } from "../types";
 import type { Capability } from "../lib/agent-registry";
 import type { EventEnvelope } from "../lib/event-stream";
 import { emitMissionEvent } from "../lib/event-store";
-import { childTrace, traceLog, type TraceContext } from "../lib/observability-context";
+import { traceLog, type TraceContext } from "../lib/observability-context";
 
 export interface MissionParams {
   missionId: string;

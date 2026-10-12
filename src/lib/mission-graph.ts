@@ -20,7 +20,7 @@ export function validateMissionGraph(nodes:MissionGraphNode[]):MissionGraph{
   byId.set(node.id,node);
  }
  for(const node of nodes)for(const dep of node.dependencies)if(!byId.has(dep)||dep===node.id)throw new AccessError(`Некорректная dependency ${dep} → ${node.id}.`,400);
- const indegree=new Map(nodes.map(node=>[node.id,0] as const)),children=new Map<string,string[]>();
+ const indegree=new Map<string,number>(nodes.map(node=>[node.id,0])),children=new Map<string,string[]>();
  for(const node of nodes)for(const dep of new Set(node.dependencies)){indegree.set(node.id,(indegree.get(node.id)??0)+1);const list=children.get(dep)??[];list.push(node.id);children.set(dep,list);}
  const queue=nodes.filter(node=>indegree.get(node.id)===0).map(node=>node.id),order:string[]=[];
  while(queue.length){const id=queue.shift()!;order.push(id);for(const child of children.get(id)??[]){const next=(indegree.get(child)??1)-1;indegree.set(child,next);if(next===0)queue.push(child);}}

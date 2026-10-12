@@ -138,9 +138,13 @@ export async function restoreVersion(env: Env, projectId: string, versionId: str
           listedBytes += obj.size;
         }
         if(truncated) { cursor=undefined; break; }
-        cursor = listed.truncated ? listed.cursor : undefined;
-        if(listed.truncated && (!listed.cursor || seenCursors.has(listed.cursor))) throw new Error("Неполный список объектов версии.");
-        if(listed.cursor) seenCursors.add(listed.cursor);
+        if (listed.truncated) {
+          if (!listed.cursor || seenCursors.has(listed.cursor)) throw new Error("Неполный список объектов версии.");
+          seenCursors.add(listed.cursor);
+          cursor = listed.cursor;
+        } else {
+          cursor = undefined;
+        }
       } while (cursor);
 
       const files: RestoredFile[] = [];

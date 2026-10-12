@@ -53,7 +53,7 @@ async function connectionCollections(env:Env,account:string){
   env.AZRAIL_D1.prepare(`SELECT connection_id,MAX(created_at) AS last_call_at,COUNT(*) AS call_count,SUM(CASE WHEN status IN ('failed','uncertain') THEN 1 ELSE 0 END) AS error_count FROM connector_calls WHERE account_id=? GROUP BY connection_id`).bind(account).all<CallStats>(),
   env.AZRAIL_D1.prepare(`SELECT h.* FROM connector_health_checks h JOIN (SELECT connection_id,MAX(checked_at) checked_at FROM connector_health_checks WHERE account_id=? GROUP BY connection_id) x ON x.connection_id=h.connection_id AND x.checked_at=h.checked_at WHERE h.account_id=?`).bind(account,account).all<HealthCheck>().catch(()=>({results:[]} as any)),
  ]);
- const stats=new Map((statsRows.results??[]).map(r=>[r.connection_id,r]));const health=new Map(((healthRows as any).results??[]).map((r:HealthCheck)=>[r.connection_id,r]));
+ const stats=new Map((statsRows.results??[]).map(r=>[r.connection_id,r]));const health=new Map<string,HealthCheck>(((healthRows as {results?:HealthCheck[]}).results??[]).map((r:HealthCheck)=>[r.connection_id,r] as const));
  return (rows.results??[]).map(c=>{const p=findPolicy(env,c.endpoint_key);return publicConnection(c,p,stats.get(c.id),health.get(c.id));});
 }
 async function connectionDetail(env:Env,account:string,id:string){
@@ -79,7 +79,7 @@ async function rotateBearerCredential(env:Env,account:string,id:string,token:unk
   return {rotated:true,revision:changed.revision,requiresVerification:true};
  }catch(error){await completeApproval(env,{id:claimed.id,actor:`connector:${account}`,outcome:'failed',detail:{connectionId:id}}).catch(()=>{});throw error;}
 }
-export async function discoverConnection(env:Env,account:string,id:string) {
+export async function discoverConnection(env:Env,account:string,id:string,signal?:AbortSignal) {
  const started=Date.now(),c=await connection(env,account,id),p=findPolicy(env,c.endpoint_key),reservation=crypto.randomUUID();let rpc:MCPClient|undefined,reserved=false;
  try{
   rpc=await client(env,c,p,signal);await allowance(env,account,p,reservation);reserved=true;await rpc.initialize();const tools=await rpc.listTools(),digest=await hashToken(canonical(tools)),verifiedAt=Date.now();const row=await env.AZRAIL_D1.prepare('UPDATE connector_connections SET tools_json=?,tools_digest=?,verified_at=?,updated_at=? WHERE id=? AND account_id=? AND revision=? AND disabled=0 RETURNING id').bind(JSON.stringify(tools),digest,verifiedAt,verifiedAt,id,account,c.revision).first();if(!row)throw new AccessError('Подключение изменено во время проверки.',409);await settle(env,reservation,1,'MCP discovery completed');await recordHealthCheck(env,account,id,'healthy',Date.now()-started,tools.length,null);return {tools:tools.map(t=>({...t,risk:toolRisk(p,t.name)})),verifiedAt};
@@ -217,7 +217,7 @@ export async function connectorRoute(request:Request,env:Env):Promise<Response|n
   if(parts[2]==='reconcile'&&request.method==='POST')return Response.json(await reconcileConnectorCall(env,account,parts[1],body.outcome,body.evidence));
   if(parts[2]==='cancel'&&request.method==='POST'){await callRecord(env,account,parts[1]);const row=await env.AZRAIL_D1.prepare("UPDATE connector_calls SET status='cancelled',updated_at=? WHERE id=? AND account_id=? AND status='prepared' RETURNING id").bind(Date.now(),parts[1],account).first();if(!row)throw new AccessError('Можно отменить только ещё не отправленную операцию.',409);await cancelApprovalByScope(env,{actionType:'connector_mutation',scopeType:'connector_call',scopeId:parts[1],actor:`account:${account}`,reason:'connector call cancelled'});return Response.json({cancelled:true});}
  }
- if(head&&parts[1]==='discover'&&request.method==='POST')return Response.json(await discoverConnection(env,account,head));
+ if(head&&parts[1]==='discover'&&request.method==='POST')return Response.json(await discoverConnection(env,account,head,request.signal));
  if(head&&parts[1]==='rotate'&&request.method==='POST'){const result=await rotateBearerCredential(env,account,head,body.token,body.approvalId);if((result as any).approvalRequired)return Response.json({error:'Credential rotation requires approval.',approval:(result as any).approval},{status:409});return Response.json(result);}
  if(head&&request.method==='DELETE'){await connection(env,account,head);await env.AZRAIL_D1.batch([env.AZRAIL_D1.prepare("UPDATE connector_connections SET disabled=1,secret_cipher='',revision=revision+1,updated_at=? WHERE id=? AND account_id=?").bind(Date.now(),head,account),env.AZRAIL_D1.prepare("UPDATE connector_calls SET status='cancelled',updated_at=? WHERE connection_id=? AND account_id=? AND status='prepared'").bind(Date.now(),head,account)]);return Response.json({disconnected:true});}
  throw new AccessError('Маршрут не найден.',404);

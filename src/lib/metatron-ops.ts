@@ -6,7 +6,8 @@ import {listMissionEvents} from './event-store';
 export type MetatronControlAction='start'|'pause'|'resume'|'cancel'|'terminate'|'retry_step';
 export type FaultScenario='timeout'|'provider_down'|'d1_failure'|'network_loss';
 
-export {recordMissionDecision} from './mission-decision-log';
+import {recordMissionDecision} from './mission-decision-log';
+export {recordMissionDecision};
 
 export async function recordMemoryReads(
   env:Env,missionId:string,rows:Array<{id:string;category:string;key:string;sourceAgent?:string|null}>,source='project-memory',
