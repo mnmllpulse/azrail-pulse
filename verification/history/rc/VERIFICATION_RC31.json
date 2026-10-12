@@ -1,0 +1,99 @@
+{
+  "release": "1.5.0-rc.31",
+  "stage": 17,
+  "stage_name": "Professional Video Studio",
+  "production_ready": false,
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false
+  },
+  "features": {
+    "scene_builder": true,
+    "scene_builder_provider": "@cf/openai/gpt-oss-20b",
+    "scene_builder_idempotency_guard": true,
+    "timeline_lite": true,
+    "aspect_ratios": ["16:9", "9:16", "1:1"],
+    "resolutions": ["720p", "1080p"],
+    "durations_seconds": [4, 8, 12],
+    "fps": [24, 30],
+    "max_scenes": 8,
+    "text_layers": true,
+    "image_layers": true,
+    "optional_audio_layer": true,
+    "transitions": ["cut", "fade", "slide"],
+    "motion_presets": ["static", "zoom", "pan", "pulse"],
+    "export_presets": ["web", "social", "presentation"],
+    "local_preview": true,
+    "local_webm_render": true,
+    "durable_sessions": true,
+    "project_bound_artifacts": true,
+    "session_history": true,
+    "event_stream_type": "publication.video.session_saved",
+    "cloudflare_stream_wired": false,
+    "generative_video_provider_wired": false
+  },
+  "cloudflare_docs_review": {
+    "mode": "read-only",
+    "conclusion": "Cloudflare documentation confirms Workers Stream bindings and documents an AI-to-Stream example using google/veo-3.1. RC31 does not claim either path is configured in this project because no Stream binding/account runtime configuration was added or remotely verified."
+  },
+  "release_blockers": [
+    "Node >=24 canonical environment not available in this execution runtime",
+    "Canonical esbuild UI build is not release-verified",
+    "Full Vitest/Wrangler dry-run suite remains a later Release gate",
+    "Authenticated runtime smoke not supplied",
+    "Production OIDC/drift reconciliation remains pending",
+    "Cloudflare Stream binding and generative video runtime are intentionally not wired in RC31"
+  ],
+  "verification": {
+    "video_architecture": "PASS",
+    "negative_architecture_test": "PASS",
+    "migration_024_sqlite": "PASS",
+    "migration_024_idempotence": "PASS",
+    "migration_024_artifact_fk_delete": "SET NULL",
+    "ui_typecheck": "PASS",
+    "typescript_parse": {
+      "files": 241,
+      "diagnostics": 0
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 19,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 19,
+      "failed": 0,
+      "blocked": 5
+    },
+    "staging_drift": {
+      "status": "WARNING",
+      "pass": 34,
+      "warning": 1,
+      "drift": 0,
+      "blocker": 0
+    },
+    "ui_build_provenance": {
+      "mode": "typescript-fallback",
+      "release_verified": false,
+      "node": "v22.16.0",
+      "note": "Preview only. Node 24 + esbuild build remains mandatory for release verification."
+    },
+    "release_package_guard": "PASS (clean release packaging refused fallback UI provenance)"
+  },
+  "environment": {
+    "node": "v22.16.0",
+    "required_node": ">=24.0.0"
+  },
+  "github_reference": {
+    "mode": "read-only",
+    "main_version": "1.4.0"
+  },
+  "canva_reference": {
+    "mode": "read-only",
+    "design": "Концепт интерфейса AZRAIL OS",
+    "design_id": "DAHWNy5bgUo"
+  }
+}

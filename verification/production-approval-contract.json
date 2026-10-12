@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.63",
+  "master_item": 36,
+  "name": "production-approval-gate",
+  "snapshot": "verification/production-approval-readonly-snapshot.json",
+  "approval_receipt": ".work/production-approval.json",
+  "approval_ttl_hours": 24,
+  "required_receipts": {
+    "node24": {
+      "path": ".work/node24-suite.json",
+      "status": "VERIFIED"
+    },
+    "staging_migration": {
+      "path": ".work/staging-migration-applied.json",
+      "status": "APPLIED"
+    },
+    "staging_deploy": {
+      "path": ".work/staging-deploy-applied.json",
+      "status": "DEPLOY_COMMAND_SUCCEEDED"
+    },
+    "staging_smoke": {
+      "path": ".work/staging-smoke-verified.json",
+      "status": "VERIFIED"
+    },
+    "security": {
+      "path": ".work/security-verification.json",
+      "status": "VERIFIED"
+    },
+    "production_drift": {
+      "path": ".work/production-drift-reconciliation.json",
+      "status_any": [
+        "ALIGNED",
+        "RECONCILIATION_REQUIRED"
+      ]
+    },
+    "backup_local": {
+      "path": ".work/backup-restore-simulation.json",
+      "status": "VERIFIED_LOCAL_DISPOSABLE"
+    },
+    "backup_cloud": {
+      "path": ".work/backup-restore-cloud-drill.json",
+      "status": "VERIFIED_DISPOSABLE_CLOUD"
+    },
+    "ui_build": {
+      "path": ".work/ui-build-mode.json",
+      "mode": "esbuild",
+      "release_verified": true
+    }
+  },
+  "required_operator_inputs": {
+    "approval_version_env": "AZRAIL_PRODUCTION_APPROVAL",
+    "approval_phrase_env": "AZRAIL_PRODUCTION_APPROVAL_PHRASE",
+    "approval_phrase": "I_APPROVE_PRODUCTION_RELEASE",
+    "expected_deployment_env": "AZRAIL_EXPECTED_PRODUCTION_DEPLOYMENT",
+    "oidc_issuer_env": "AZRAIL_PRODUCTION_OIDC_ISSUER",
+    "oidc_client_id_env": "AZRAIL_PRODUCTION_OIDC_CLIENT_ID",
+    "preview_policy_env": "AZRAIL_PRODUCTION_PREVIEW_POLICY",
+    "allowed_preview_policies": [
+      "disabled",
+      "access-protected"
+    ],
+    "access_app_id_env": "AZRAIL_PRODUCTION_ACCESS_APP_ID"
+  },
+  "leases": {
+    "github_main_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
+    "production_deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+    "staging_reviewed_deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1"
+  },
+  "policy": {
+    "github_mutation_allowed": false,
+    "cloudflare_mutation_allowed": false,
+    "canva_mutation_allowed": false,
+    "production_mutation_allowed": false,
+    "approval_is_local_evidence_only": true,
+    "approval_must_bind_exact_release": true,
+    "approval_must_bind_source_manifest": true,
+    "approval_must_bind_github_base": true,
+    "approval_must_bind_production_deployment_lease": true,
+    "staging_smoke_must_be_newer_than_reviewed_baseline": true,
+    "production_drift_may_require_reconciliation_during_release": true,
+    "post_release_production_drift_strict_required": true,
+    "secret_values_must_never_be_persisted": true,
+    "github_pr_required_after_approval": true,
+    "production_release_required_after_github_pr": true
+  },
+  "readonly_evidence_source_release": "1.5.0-rc.54"
+}

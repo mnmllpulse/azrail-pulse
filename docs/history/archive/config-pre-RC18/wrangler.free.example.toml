@@ -1,0 +1,38 @@
+# New, separate Free installation. Replace resource IDs before deployment.
+# Do NOT apply this config over an existing Paid Worker with Sandbox migrations.
+name = "azrail-os-free"
+main = "src/index.free.ts"
+compatibility_date = "2026-08-08"
+compatibility_flags = ["nodejs_compat"]
+[assets]
+directory = "./public"
+binding = "ASSETS"
+[[durable_objects.bindings]]
+name = "Orchestrator"
+class_name = "Orchestrator"
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Orchestrator"]
+[[d1_databases]]
+binding = "AZRAIL_D1"
+database_name = "azrail-free-db"
+database_id = "REPLACE_WITH_FREE_D1_ID"
+[[kv_namespaces]]
+binding = "AZRAIL_KV"
+id = "REPLACE_WITH_FREE_KV_ID"
+[[r2_buckets]]
+binding = "AZRAIL_R2"
+bucket_name = "azrail-free-artifacts"
+[ai]
+binding = "AI"
+[vars]
+AZRAIL_WORKERS_PLAN = "free"
+AZRAIL_FORCE_FREE = "true"
+AZRAIL_METERING = "observe"
+AZRAIL_HOURLY_LIMIT = "20"
+CORS_ORIGIN = "https://REPLACE_WITH_YOUR_WORKER_HOST"
+# No Containers / Sandbox / paid-only storage. R2 has separate usage billing.
+# To enable external models deliberately, remove FORCE_FREE, configure Gateway,
+# approved prices and the monthly budget. No automatic upgrade is performed.
+[triggers]
+crons = ["*/10 * * * *"]

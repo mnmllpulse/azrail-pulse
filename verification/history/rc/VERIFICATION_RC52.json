@@ -1,0 +1,61 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.52",
+  "status": "SERIES_E_FOUNDATION_IMPLEMENTED_RUNTIME_GATES_PENDING",
+  "scope": "Full Archive RC51 baseline plus first local implementation batch from the 55-page Series E/F/G update scenario",
+  "series_e": {
+    "implemented": [
+      "E01 Contextual Prompt Suggestions",
+      "E02 Smart Empty States",
+      "E03 Universal Studio Toolbar",
+      "E04 Save / Sync State",
+      "E05 Undo / Redo integration",
+      "E06 Project History integration",
+      "E07 Model Quick Switcher for mission-capable Studio surfaces",
+      "E08 AUTO model routing default",
+      "E09 Universal Module Actions foundation",
+      "E10 Studio State Machine"
+    ],
+    "next": [
+      "E11 Real AbortSignal through provider adapters",
+      "E12 uncertain_effect reconciliation",
+      "E13 Error Boundary + Recovery",
+      "E14 Connection Health",
+      "E15 Connector Gateway",
+      "E16 Connector UI hardening"
+    ],
+    "zero_stub_policy": true,
+    "remote_mutation_required": false
+  },
+  "truth_boundaries": {
+    "local_node": "v22.16.0",
+    "canonical_node": "24.18.0",
+    "node24_dependency_backed_suite": "PENDING",
+    "production_release": false
+  },
+  "remote_reads": {
+    "github": "mnmllpulse/azrail-os inspected read-only; main remains older than local Full Archive",
+    "cloudflare": "connection identity inspected read-only; no deployment/migration/write",
+    "canva": "AZRAIL design references searched read-only"
+  },
+  "remote_mutations_performed": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false
+  },
+  "local_verification": {
+    "series_e_foundation": "16 passed / 0 failed",
+    "ui_typescript": "PASS (tsc -p tsconfig.ui.json --noEmit)",
+    "repo_exhaustive": "20 passed / 1 informational duplicate warning / 0 failed",
+    "repo_hygiene": "12 passed / 1 informational duplicate warning / 0 failed",
+    "repo_deep": "14 passed / 0 failed",
+    "static_quality": "VERIFIED — 48 passed / 0 failed / 0 blocked",
+    "full_quality": "BLOCKED — 48 passed / 0 failed / 5 blocked (Node22 host + authenticated runtime smoke unavailable)",
+    "node24_suite": "BLOCKED — 0 passed / 0 failed / 1 blocked on Node v22.16.0"
+  },
+  "requirements_source": {
+    "path": "docs/product/SERIES_E_F_G_UPDATE_SCENARIO.pdf",
+    "pages": 55,
+    "series": "E/F/G"
+  }
+}

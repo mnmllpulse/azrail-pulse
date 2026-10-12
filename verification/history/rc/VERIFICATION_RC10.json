@@ -1,0 +1,117 @@
+{
+  "release": "1.5.0-rc.10",
+  "status": "review_candidate",
+  "generated_at": "2026-10-08T19:16:18.245340+00:00",
+  "mutation_policy": {
+    "github_write_performed": false,
+    "cloudflare_write_performed": false,
+    "deployment_performed": false,
+    "notes": "GitHub and Cloudflare were used read-only only. No repository, account, configuration, database, storage, or deployment mutation was performed in the RC10 pass."
+  },
+  "passed": {
+    "release_preflight": true,
+    "package_lock_version_consistency": true,
+    "typescript_syntax": {
+      "files": 465,
+      "errors": 0,
+      "scope": "entire release tree excluding node_modules/.work"
+    },
+    "relative_imports": {
+      "checked": 589,
+      "missing": 0,
+      "scope": "src + tests AST imports/exports/dynamic imports"
+    },
+    "strict_json": {
+      "files": 45,
+      "errors": 0,
+      "scope": "all JSON except tsconfig*.json"
+    },
+    "jsonc": {
+      "files": 2,
+      "errors": 0,
+      "scope": "tsconfig.json + tsconfig.ui.json"
+    },
+    "yaml": {
+      "files": 2,
+      "errors": 0
+    },
+    "mjs_syntax": {
+      "files": 7,
+      "errors": 0
+    },
+    "shell_syntax": {
+      "files": 5,
+      "errors": 0
+    },
+    "targeted_runtime_assertions": {
+      "passed": 6,
+      "total": 6,
+      "coverage": [
+        "tampered mission goal is rejected against authoritative D1 state",
+        "canonical mission/outbox delivery parameters are loaded from persisted state",
+        "eligible recovery requeues mission and re-arms outbox",
+        "another active mission blocks recovery without mutating outbox delivery state",
+        "same-project execution-engine snapshot provenance is accepted",
+        "cross-project/untracked snapshot provenance is rejected fail-closed"
+      ]
+    },
+    "schema_smoke": {
+      "application_tables": 45,
+      "sqlite_internal_tables": 1
+    },
+    "secret_pattern_scan": {
+      "files": 179,
+      "real_findings": 0,
+      "scope": "release-relevant top-level + src/scripts/ui/site/.github text files"
+    },
+    "source_manifest": {
+      "files": 715,
+      "missing": 0,
+      "extra": 0,
+      "sha_mismatch": 0
+    }
+  },
+  "supplemental_diagnostics": {
+    "dependency_free_compiler_probe": {
+      "command_scope": "src/**/*.ts with global TypeScript 5.8.3, no project dependency tree",
+      "status": "incomplete_by_design",
+      "remaining_error_codes": {
+        "TS2304": 16,
+        "TS2307": 31,
+        "TS2339": 156,
+        "TS2552": 2,
+        "TS7006": 16
+      },
+      "local_assignability_error_codes_checked": {
+        "TS2345": 0,
+        "TS2322": 0,
+        "TS2353": 0,
+        "TS2367": 0,
+        "TS2300": 0,
+        "TS2451": 0,
+        "TS2393": 0
+      },
+      "notes": "Remaining diagnostics are consistent with absent external/Workers/agents type dependencies and are not counted as a semantic project typecheck."
+    }
+  },
+  "not_freshly_verified": {
+    "npm_ci": "Attempted for 90 seconds in the isolated environment; dependency installation did not complete before timeout and no dependency-backed pass was claimed.",
+    "semantic_typescript_typecheck": "Requires the complete project dependency tree.",
+    "full_vitest_suite": "Requires the complete project dependency tree.",
+    "wrangler_staging_dry_run": "Requires Wrangler from the project dependency tree.",
+    "wrangler_production_dry_run": "Requires Wrangler from the project dependency tree.",
+    "staging_migration_smoke": "Not executed; no remote mutation was authorized."
+  },
+  "release_blockers": [
+    "Fresh dependency-enabled npm ci/typecheck/full Vitest must pass.",
+    "Fresh Wrangler dry-run must pass for staging and production configs.",
+    "Disposable staging migration/smoke must pass before any production apply.",
+    "Production OIDC issuer/client provenance must be explicitly verified; values are intentionally not guessed."
+  ],
+  "notes": [
+    "RC10 is not production-ready.",
+    "Recovery now derives mission delivery and snapshot state from authoritative persisted provenance rather than caller/RPC payloads.",
+    "Failed recovery eligibility does not mutate outbox delivery state.",
+    "Historical verification from earlier releases is not used as evidence for RC10."
+  ]
+}

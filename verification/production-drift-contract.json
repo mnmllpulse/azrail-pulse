@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "environment": "production",
+  "worker_name": "azrail-os",
+  "canonical_config": "wrangler.production.json",
+  "snapshot": "verification/production-drift-readonly-snapshot.json",
+  "policy": {
+    "cloudflare_mutation_allowed": false,
+    "github_mutation_allowed": false,
+    "canva_mutation_allowed": false,
+    "wildcard_cors_forbidden": true,
+    "oidc_required": true,
+    "metering_required": "enforce",
+    "unified_ledger_required": "true",
+    "observability_required": true,
+    "production_preview_urls_recommended": false,
+    "secret_values_must_never_be_persisted": true
+  },
+  "required_schema_features": [
+    "missions.result_json",
+    "schema_migrations",
+    "event_stream",
+    "trace_links",
+    "resource_owners",
+    "model_call_dimensions",
+    "release_evidence",
+    "connector_health_checks"
+  ],
+  "release_rule": "Stage D #34 is evidence/reconciliation only. Production stays frozen until later explicit approval and all upstream release receipts exist."
+}

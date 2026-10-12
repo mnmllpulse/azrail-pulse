@@ -1,0 +1,30 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> azrail-os@0.8.1 check
+> npm run build:ui && npm run typecheck && npm test
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> azrail-os@0.8.1 build:ui
+> node scripts/build-ultimate.mjs
+
+ultimate.html is self-contained: CSS + JS embedded.
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> azrail-os@0.8.1 typecheck
+> tsc --noEmit
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> azrail-os@0.8.1 test
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/scratch/ef09ec950890/azrail-os
+
+
+ Test Files  46 passed (46)
+      Tests  1052 passed (1052)
+   Start at  11:01:36
+   Duration  2.07s (transform 2.96s, setup 0ms, import 5.61s, tests 1.37s, environment 4ms)
+

@@ -1,0 +1,96 @@
+{
+  "release": "1.5.0-rc.8",
+  "status": "review_candidate",
+  "generated_at": "2026-10-08T17:04:22.650806Z",
+  "mutation_policy": {
+    "github_write_performed": false,
+    "cloudflare_write_performed": false,
+    "deployment_performed": false,
+    "notes": "GitHub and Cloudflare were used read-only only. No repository or account mutation was performed in the RC8 pass."
+  },
+  "passed": {
+    "release_preflight": true,
+    "package_lock_version_consistency": true,
+    "typescript_syntax": {
+      "files": 177,
+      "errors": 0
+    },
+    "relative_imports": {
+      "checked": 579,
+      "missing": 0
+    },
+    "strict_json": {
+      "files": 43,
+      "errors": 0
+    },
+    "jsonc": {
+      "files": 2,
+      "errors": 0
+    },
+    "yaml": {
+      "files": 2,
+      "errors": 0
+    },
+    "mjs_syntax": {
+      "files": 7,
+      "errors": 0
+    },
+    "shell_syntax": true,
+    "targeted_runtime_assertions": {
+      "passed": 6,
+      "total": 6,
+      "coverage": [
+        "workspace optimistic CAS rejects a stale publisher without replacing a newer head",
+        "mission snapshot publishes project version and mission link atomically",
+        "backup retention ceiling blocks an unbounded new backup",
+        "backup deletion removes D1 reference before bounded R2 cleanup",
+        "studio artifact owner deletion removes metadata and backing R2 object",
+        "upload preserves R2 when ownership committed but D1 response was lost"
+      ]
+    },
+    "schema_smoke": {
+      "application_tables": 45,
+      "sqlite_internal_tables": 1
+    },
+    "source_import_graph": {
+      "src_typescript_files": 100,
+      "unreferenced_non_entry_modules": 0,
+      "entry_points_considered": [
+        "src/index.ts",
+        "src/index.free.ts",
+        "src/unified.free.ts",
+        "src/unified.paid.ts"
+      ]
+    },
+    "secret_pattern_scan": {
+      "files": 122,
+      "real_findings": 0,
+      "notes": "Production source/scripts/UI scan; intentional scanner/example material outside this set was not treated as a credential finding."
+    },
+    "source_manifest": {
+      "files": 705,
+      "missing": 0,
+      "extra": 0,
+      "sha_mismatch": 0
+    }
+  },
+  "not_freshly_verified": {
+    "npm_ci": "Attempted in the isolated environment but dependency installation did not complete within the available execution window; no dependency tree was produced.",
+    "semantic_typescript_typecheck": "Requires the complete project dependency tree.",
+    "full_vitest_suite": "Requires the complete project dependency tree.",
+    "wrangler_staging_dry_run": "Requires Wrangler from the project dependency tree.",
+    "wrangler_production_dry_run": "Requires Wrangler from the project dependency tree.",
+    "staging_migration_smoke": "Not executed; no remote mutation was authorized."
+  },
+  "release_blockers": [
+    "Fresh dependency-enabled npm ci/typecheck/full Vitest must pass.",
+    "Fresh Wrangler dry-run must pass for staging and production configs.",
+    "Disposable staging migration/smoke must pass before any production apply.",
+    "Production OIDC issuer/client provenance must be explicitly verified; values are intentionally not guessed."
+  ],
+  "notes": [
+    "RC8 is not production-ready.",
+    "RC8 intentionally avoids a broad Execution Engine structural refactor until full dependency-backed gates are reproducible.",
+    "Historical verification from earlier releases is not used as evidence for RC8."
+  ]
+}

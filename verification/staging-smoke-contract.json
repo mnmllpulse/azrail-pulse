@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "environment": "staging",
+  "worker_name": "azrail-pulse-staging",
+  "target_url": "https://azrail-pulse-staging.mnmllpulse.workers.dev",
+  "config_file": "wrangler.staging.json",
+  "readonly_snapshot": "verification/staging-smoke-readonly-snapshot.json",
+  "snapshot_max_age_hours": 24,
+  "required_runtime": {
+    "node_major_min": 24
+  },
+  "required_receipts": {
+    "node24": ".work/node24-suite.json",
+    "migration_applied": ".work/staging-migration-applied.json",
+    "deploy_applied": ".work/staging-deploy-applied.json",
+    "preparation": ".work/staging-smoke-preparation.json",
+    "runtime_smoke": ".work/runtime-smoke.json"
+  },
+  "credential_env_any_of": [
+    "AZRAIL_SESSION_COOKIE",
+    "AZRAIL_TOKEN"
+  ],
+  "expected_deployment_env": "AZRAIL_EXPECTED_STAGING_DEPLOYMENT",
+  "required_checks": [
+    "public-shell",
+    "auth-boundary",
+    "agent-rpc-disabled",
+    "identity",
+    "health",
+    "agent-registry",
+    "routing-policy",
+    "studio-capabilities",
+    "pulse-control",
+    "ledger-read",
+    "connections-read"
+  ],
+  "policy": {
+    "http_methods": [
+      "GET"
+    ],
+    "mutation_free": true,
+    "model_calls_allowed": false,
+    "github_write_allowed": false,
+    "cloudflare_write_allowed": false,
+    "canva_write_allowed": false,
+    "production_access_allowed": false,
+    "exact_release_health_match_required": true,
+    "post_deploy_identity_refresh_required": true
+  },
+  "readonly_evidence_source_release": "1.5.0-rc.54"
+}

@@ -1,0 +1,28 @@
+name: Verify
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: verify-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run dependency:audit
+      - run: npm run source:manifest:check
+      - run: npm run repo:exhaustive
+      - run: npm run repo:hygiene
+      - run: npm run quality:static
+      - run: npm run node24:suite

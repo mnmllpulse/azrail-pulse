@@ -1,0 +1,44 @@
+{
+  "release": "1.5.0-rc.42",
+  "stage": 28,
+  "master_item": 33,
+  "title": "Security verification preparation",
+  "status": "PREPARED_BLOCKED_FOR_REAL_SECURITY_VERIFICATION",
+  "runtime": {
+    "node": "v22.16.0",
+    "npm": "10.9.2",
+    "required_node": ">=24.0.0"
+  },
+  "local_verification": {
+    "static_quality_gate": {"status": "VERIFIED", "passed": 34, "failed": 0, "blocked": 0},
+    "full_quality_gate": {"status": "BLOCKED", "passed": 34, "failed": 0, "blocked": 5},
+    "ui_typescript": "PASS",
+    "dependency_lock": "PASS",
+    "sbom_packages": 365,
+    "security_preparation": {"status": "PREPARED", "passed": 19, "warnings": 4, "failed": 0},
+    "security_simulation": "PASS",
+    "negative_cors_test": "PASS_EXPECTED_FAILURE",
+    "real_security_runner": "BLOCKED_BEFORE_NETWORK_BY_MISSING_RECEIPTS",
+    "release_package": "BLOCKED_BY_NODE24_RECEIPT"
+  },
+  "hardening": {
+    "wildcard_cors_fallback_removed": true,
+    "permission_matrix_added": true,
+    "spdx_sbom_added": true,
+    "dependency_lock_integrity_added": true,
+    "read_only_security_runner_added": true
+  },
+  "known_release_gaps": [
+    "Node24 suite has not run in a Node24 release environment.",
+    "Staging migration/deploy/smoke receipts do not exist for RC42.",
+    "Current dependency CVE audit has not been proven in release environment.",
+    "Unified Event Stream does not yet have a cryptographic checksum/signature chain.",
+    "Main shell CSP still permits inline styles; script execution remains self-only."
+  ],
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "production": false
+  }
+}

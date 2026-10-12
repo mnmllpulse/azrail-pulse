@@ -1,0 +1,36 @@
+{
+  "release": "1.5.0-rc.16",
+  "stage": "stage-2",
+  "status": "stage-complete-node24-suite-pending",
+  "cloud_mutations_performed": false,
+  "github_mutations_performed": false,
+  "checks": {
+    "version_truth": "pass",
+    "documentation_truth": "pass",
+    "migration_integrity": "pass",
+    "release_preflight": "pass-with-production-oidc-warning",
+    "migration_planner_legacy_fixture": "pass",
+    "migration_plan_read_only": "pass",
+    "migration_apply_ledger_write": "pass-on-local-mock",
+    "applied_migration_checksum_tamper_block": "pass",
+    "node24_full_suite": "not-run-current-runtime-node22"
+  },
+  "migration_contract": {
+    "numbered_migrations": 15,
+    "range": "002..016",
+    "ledger_table": "schema_migrations",
+    "checksum": "sha256",
+    "plan_outputs": [
+      ".work/migration-plan.sql",
+      ".work/migration-plan.json"
+    ],
+    "remote_apply_interlock": "AZRAIL_ALLOW_CLOUD_MUTATION=I_UNDERSTAND"
+  },
+  "notes": [
+    "No GitHub push/branch/PR/write was performed.",
+    "No Cloudflare D1/R2/KV/Worker mutation was performed.",
+    "End-to-end migration verification used a temporary local Wrangler mock backed by real node:sqlite; temporary node_modules/.work/backups were removed before packaging.",
+    "Production OIDC client/issuer are intentionally not guessed; production deployment remains blocked until separately verified.",
+    "Node >=24 remains the required final verification environment."
+  ]
+}

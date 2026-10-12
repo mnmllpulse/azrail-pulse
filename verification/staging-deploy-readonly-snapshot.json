@@ -1,0 +1,117 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.54",
+  "generated_at": "2026-10-10T08:45:49Z",
+  "source": "Cloudflare API read-only inspection via ChatGPT connector for RC46; no Cloudflare write",
+  "mutation_free": true,
+  "worker": {
+    "name": "azrail-pulse-staging",
+    "compatibility_date": "2026-09-29",
+    "compatibility_flags": [
+      "nodejs_compat"
+    ],
+    "usage_model": "standard",
+    "bindings": [
+      {
+        "name": "AI",
+        "type": "ai"
+      },
+      {
+        "name": "AI_GATEWAY_ID",
+        "type": "plain_text",
+        "text": "default"
+      },
+      {
+        "name": "ASSETS",
+        "type": "assets"
+      },
+      {
+        "name": "AUTH_MODE",
+        "type": "plain_text",
+        "text": "oidc"
+      },
+      {
+        "name": "AZRAIL_D1",
+        "type": "d1",
+        "database_id": "509b9a03-444d-4bd7-9081-19651ea9b50f"
+      },
+      {
+        "name": "AZRAIL_FORCE_FREE",
+        "type": "plain_text",
+        "text": "true"
+      },
+      {
+        "name": "AZRAIL_KV",
+        "type": "kv_namespace",
+        "namespace_id": "4b1b2455cfaf4fc3aa766ea2af5da0e2"
+      },
+      {
+        "name": "AZRAIL_METERING",
+        "type": "plain_text",
+        "text": "enforce"
+      },
+      {
+        "name": "AZRAIL_MISSION_BUDGET_USD",
+        "type": "plain_text",
+        "text": "0.10"
+      },
+      {
+        "name": "AZRAIL_R2",
+        "type": "r2_bucket",
+        "bucket_name": "azrail-artifacts-staging"
+      },
+      {
+        "name": "AZRAIL_WORKERS_PLAN",
+        "type": "plain_text",
+        "text": "free"
+      },
+      {
+        "name": "AZRAIL_WRITE_BUDGET",
+        "type": "plain_text",
+        "text": "1000"
+      },
+      {
+        "name": "DAILY_PROVIDER_CALLS",
+        "type": "plain_text",
+        "text": "20"
+      },
+      {
+        "name": "OIDC_CLIENT_ID",
+        "type": "plain_text",
+        "text": "5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a"
+      },
+      {
+        "name": "OIDC_ISSUER",
+        "type": "plain_text",
+        "text": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a"
+      },
+      {
+        "name": "Orchestrator",
+        "type": "durable_object_namespace",
+        "class_name": "Orchestrator",
+        "namespace_id": "201f41fc6f3248969fa59d3d514fce6a"
+      },
+      {
+        "name": "PUBLIC_ORIGINS",
+        "type": "plain_text",
+        "text": "https://azrail-pulse-staging.mnmllpulse.workers.dev"
+      },
+      {
+        "name": "UNIFIED_LEDGER",
+        "type": "plain_text",
+        "text": "true"
+      }
+    ],
+    "schedules": [
+      {
+        "cron": "*/10 * * * *"
+      }
+    ],
+    "latest_deployment": {
+      "deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+      "version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+      "percentage": 100,
+      "created_on": "2026-10-09T11:40:53.308736Z"
+    }
+  }
+}

@@ -1,0 +1,14 @@
+import {build} from 'esbuild';
+import {readFile,writeFile,mkdir,rm} from 'node:fs/promises';
+await rm('site',{recursive:true,force:true});await mkdir('site/assets',{recursive:true});
+const result=await build({entryPoints:{app:'ui/app.ts'},outdir:'site/assets',bundle:true,format:'esm',splitting:true,minify:true,metafile:true,target:'es2022',chunkNames:'[name]-[hash]'});
+await build({entryPoints:['ui/app.css'],outfile:'site/assets/app.css',bundle:true,minify:true});
+const html=await readFile('ui/app.html','utf8');await writeFile('site/app.html',html);await writeFile('site/index.html',html);
+const offline=await build({entryPoints:['ui/app.ts'],bundle:true,format:'iife',minify:true,write:false,target:'es2022'});
+const js=offline.outputFiles[0].text.replace(/<\/script/gi,'<\\/script');
+const css=await readFile('site/assets/app.css','utf8');
+const preview=html.replace('<link rel="stylesheet" href="/assets/app.css">',()=>`<style>${css}</style>`).replace('<script type="module" src="/assets/app.js"></script>',()=>`<script>${js}</script>`);
+await writeFile('index.html',preview);
+await mkdir('.work',{recursive:true});await writeFile('.work/ui-metafile.json',JSON.stringify(result.metafile,null,2));
+const nodeMajor=Number(process.versions.node.split('.')[0]);await writeFile('.work/ui-build-mode.json',JSON.stringify({mode:'esbuild',release_verified:nodeMajor>=24,node:process.version},null,2)+'\n');
+console.log(`Hosted UI: ${result.metafile.outputs['site/assets/app.js'].bytes} bytes; root index.html is self-contained (${Buffer.byteLength(preview)} bytes).`);

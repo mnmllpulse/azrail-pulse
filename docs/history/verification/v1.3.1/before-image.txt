@@ -1,0 +1,29 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+ RUN  v4.1.11 <project-root>
+
+ ❯ tests/audit-131.test.ts (16 tests | 1 failed) 174ms
+   × does not save arbitrary provider text as a PNG image or retry the paid call 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/audit-131.test.ts > does not save arbitrary provider text as a PNG image or retry the paid call
+AssertionError: expected 201 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 201
+
+ ❯ tests/audit-131.test.ts:55:69
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 15 passed (16)
+   Start at  19:36:47
+   Duration  2.79s (transform 1.72s, setup 0ms, import 2.35s, tests 174ms, environment 0ms)
+

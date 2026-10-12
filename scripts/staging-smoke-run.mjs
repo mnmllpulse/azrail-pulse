@@ -1,0 +1,30 @@
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+
+const pkg=JSON.parse(readFileSync('package.json','utf8'));
+const contract=JSON.parse(readFileSync('verification/staging-smoke-contract.json','utf8'));
+const snapshot=JSON.parse(readFileSync(contract.readonly_snapshot,'utf8'));
+const read=(path,label)=>{if(!existsSync(path))throw new Error(`Staging smoke blocked: ${label} receipt missing (${path}).`);return JSON.parse(readFileSync(path,'utf8'));};
+const node=read(contract.required_receipts.node24,'Node24');
+const migration=read(contract.required_receipts.migration_applied,'staging migration');
+const deploy=read(contract.required_receipts.deploy_applied,'staging deploy');
+const prep=read(contract.required_receipts.preparation,'smoke preparation');
+if(node.status!=='VERIFIED'||node.release!==pkg.version)throw new Error(`Staging smoke blocked: Node24 must be VERIFIED for ${pkg.version}.`);
+if(migration.status!=='APPLIED'||migration.release!==pkg.version)throw new Error(`Staging smoke blocked: staging migration must be APPLIED for ${pkg.version}.`);
+if(deploy.status!=='DEPLOY_COMMAND_SUCCEEDED'||deploy.release!==pkg.version)throw new Error(`Staging smoke blocked: staging deploy success receipt required for ${pkg.version}.`);
+if(prep.status!=='PREPARED'||prep.release!==pkg.version)throw new Error(`Staging smoke blocked: preparation must be PREPARED for ${pkg.version}.`);
+if(snapshot.post_deploy!==true)throw new Error('Staging smoke blocked: refresh the read-only Cloudflare snapshot after deploy and mark post_deploy=true.');
+if(snapshot.worker?.current_deployment_id===deploy.previous_deployment)throw new Error('Staging smoke blocked: active deployment did not change from the reviewed pre-deploy lease.');
+if(process.env[contract.expected_deployment_env]!==snapshot.worker?.current_deployment_id)throw new Error(`Staging smoke blocked: ${contract.expected_deployment_env} must equal ${snapshot.worker?.current_deployment_id??'missing'}.`);
+if(!process.env.AZRAIL_SESSION_COOKIE&&!process.env.AZRAIL_TOKEN)throw new Error('Staging smoke blocked: authenticated session cookie or token is required in environment.');
+const nodeMajor=Number(process.versions.node.split('.')[0]);
+if(!Number.isFinite(nodeMajor)||nodeMajor<Number(contract.required_runtime.node_major_min))throw new Error(`Staging smoke blocked: runtime ${process.version}; Node >=${contract.required_runtime.node_major_min} required.`);
+
+const env={...process.env,AZRAIL_URL:contract.target_url,AZRAIL_EXPECTED_RELEASE:pkg.version,AZRAIL_SMOKE_RECEIPT:contract.required_receipts.runtime_smoke};
+const result=spawnSync(process.execPath,['scripts/smoke.mjs'],{stdio:'inherit',env});
+const runtime=existsSync(contract.required_receipts.runtime_smoke)?JSON.parse(readFileSync(contract.required_receipts.runtime_smoke,'utf8')):null;
+const verified=result.status===0&&runtime?.status==='VERIFIED'&&runtime?.release===pkg.version;
+const receipt={schema_version:1,release:pkg.version,environment:'staging',status:verified?'VERIFIED':'FAILED',generated_at:new Date().toISOString(),deployment_id:snapshot.worker?.current_deployment_id??null,version_id:snapshot.worker?.current_version_id??null,target:contract.target_url,runtime_smoke_receipt:contract.required_receipts.runtime_smoke,mutation_free:true,checks:runtime?.checks??[]};
+mkdirSync('.work',{recursive:true});writeFileSync('.work/staging-smoke-verified.json',JSON.stringify(receipt,null,2)+'\n');
+if(!verified)process.exit(result.status??1);
+console.log(`STAGING SMOKE VERIFIED for ${pkg.version} on deployment ${receipt.deployment_id}.`);

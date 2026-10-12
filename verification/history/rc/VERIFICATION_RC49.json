@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.49",
+  "status": "SOURCE_AUDIT_VERIFIED_RUNTIME_GATES_PENDING",
+  "scope": "clean future GitHub repository source package",
+  "repository_audit": {
+    "exhaustive_status": "VERIFIED",
+    "files_scanned": 1030,
+    "text_lines_scanned": 186821,
+    "all_ts_tsx_parser_count": 539,
+    "active_relative_imports_resolved": 909,
+    "markdown_relative_links_checked": 31,
+    "exact_duplicate_groups": 7,
+    "duplicate_groups_are_warning_only": true
+  },
+  "quality": {
+    "static": {
+      "status": "VERIFIED",
+      "passed": 46,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full": {
+      "status": "BLOCKED",
+      "passed": 46,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "ui_typescript": "PASS",
+    "node24_suite": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "blocked": 1,
+      "reason": "host runtime is Node v22.16.0; canonical runtime is Node 24.18.0"
+    },
+    "dependency_audit": {
+      "status": "UNAVAILABLE",
+      "reason": "npm registry lookup failed with EAI_AGAIN; GitHub Verify keeps npm audit --audit-level=high mandatory"
+    },
+    "release_package": {
+      "status": "BLOCKED",
+      "reason": "Node24 suite receipt is BLOCKED"
+    }
+  },
+  "github_cloudflare_delivery": {
+    "staging_auto_deploy_workflow": ".github/workflows/staging-auto-deploy.yml",
+    "trigger": "push to main",
+    "verify_before_deploy": true,
+    "target": "staging only",
+    "post_deploy_public_health_exact_version": true,
+    "required_github_environment_secrets": [
+      "CLOUDFLARE_ACCOUNT_ID",
+      "CLOUDFLARE_API_TOKEN",
+      "OIDC_CLIENT_SECRET"
+    ],
+    "production_auto_deploy": false,
+    "production_workflow_fail_closed": true
+  },
+  "master_release_state": {
+    "node24": "BLOCKED",
+    "staging_migration": "PREPARED",
+    "staging_deploy": "PREPARED",
+    "staging_smoke": "PREPARED",
+    "security_verification": "PREPARED",
+    "production_drift": "RECONCILIATION_REQUIRED",
+    "backup_restore": "LOCAL_VERIFIED_CLOUD_DRILL_PENDING",
+    "production_approval": "BLOCKED",
+    "github_pr": "PREPARED_NOT_PUBLISHED",
+    "production_release": "PREPARED_BLOCKED"
+  },
+  "remote_mutations_performed_while_preparing_rc49": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "ads_manager": false
+  }
+}

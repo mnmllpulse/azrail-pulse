@@ -1,0 +1,75 @@
+{
+  "release": "1.5.0-rc.4",
+  "generated_at": "2026-10-08T13:42:06.187867+00:00",
+  "status": "partial-pass",
+  "remote_mutation": false,
+  "checks": {
+    "release_preflight": {
+      "status": "pass",
+      "note": "staging/production resources separated; cloud mutations locked; production OIDC provenance warning retained"
+    },
+    "package_lock_version_consistency": {
+      "status": "pass",
+      "version": "1.5.0-rc.4"
+    },
+    "typescript_syntax_transpile": {
+      "status": "pass",
+      "files": 170,
+      "errors": 0
+    },
+    "json_jsonc_parse": {
+      "status": "pass",
+      "files": 40,
+      "errors": 0
+    },
+    "yaml_parse": {
+      "status": "pass",
+      "files": 2,
+      "errors": 0
+    },
+    "node_mjs_syntax": {
+      "status": "pass",
+      "files": 7
+    },
+    "shell_syntax": {
+      "status": "pass",
+      "files": 1
+    },
+    "relative_imports_ast": {
+      "status": "pass",
+      "source_files": 177,
+      "relative_specifiers": 548,
+      "missing": 0
+    },
+    "targeted_runtime_harness": {
+      "status": "pass",
+      "assertions": 14,
+      "covers": [
+        "cancellation-wins finalization",
+        "waiting_approval tenant isolation",
+        "explicit zero quota fail-closed",
+        "malformed quota fail-closed",
+        "invalid metering mode blocks provider dispatch",
+        "expired web/OIDC/connector OAuth/websocket state cleanup"
+      ]
+    },
+    "filtered_provider_secret_scan": {
+      "status": "pass",
+      "files": 125,
+      "findings": 0,
+      "scope": "production source/ui/scripts + deploy configs; tests/docs/references excluded as fixtures/history"
+    }
+  },
+  "not_reproduced": {
+    "npm_ci": "dependency install timed out in isolated environment",
+    "semantic_typecheck": "project dependencies/type packages unavailable because npm install did not complete",
+    "full_vitest": "project dependencies unavailable",
+    "wrangler_staging_dry_run": "wrangler project dependency unavailable in clean install",
+    "wrangler_production_dry_run": "wrangler project dependency unavailable in clean install"
+  },
+  "release_notes": [
+    "RC4 is a review candidate, not production-ready.",
+    "No GitHub publish/commit and no Cloudflare deployment/config mutation were performed in this RC4 pass.",
+    "Production OIDC issuer/client are intentionally not guessed; production deployment remains blocked until provenance is verified."
+  ]
+}

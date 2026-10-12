@@ -1,0 +1,7 @@
+NOT VERIFIED
+
+The browser daemon exited before navigation. Direct Chromium launch failed before page load:
+FATAL:chrome/browser/process_singleton_posix.cc:297 socket() failed: Operation not permitted (1)
+
+No screenshot, visual, keyboard-flow or browser end-to-end result is claimed.
+Local API tests and compilation were completed separately.

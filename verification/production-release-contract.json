@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.63",
+  "master_item": 38,
+  "name": "production-release",
+  "readonly_snapshot": "verification/production-release-readonly-snapshot.json",
+  "production_config": "wrangler.production.json",
+  "worker_name": "azrail-os",
+  "required_runtime": {
+    "node_major_min": 24,
+    "reference_node": "24.18.0"
+  },
+  "required_receipts": {
+    "preparation": ".work/production-release-preparation.json",
+    "node24": ".work/node24-suite.json",
+    "staging_migration": ".work/staging-migration-applied.json",
+    "staging_deploy": ".work/staging-deploy-applied.json",
+    "staging_smoke": ".work/staging-smoke-verified.json",
+    "security": ".work/security-verification.json",
+    "backup_local": ".work/backup-restore-simulation.json",
+    "backup_cloud": ".work/backup-restore-cloud-drill.json",
+    "production_approval": ".work/production-approval.json",
+    "github_pr_published": ".work/github-pr-published.json",
+    "github_pr_verified": ".work/github-pr-verified.json",
+    "github_pr_merged": ".work/github-pr-merged.json",
+    "production_drift_pre": ".work/production-drift-reconciliation.json",
+    "live_lease": ".work/production-release-live-lease.json",
+    "ui_build": ".work/ui-build-mode.json",
+    "release_command": ".work/production-release-command.json",
+    "postdeploy_cloud": ".work/production-release-postdeploy-cloud.json",
+    "postdeploy_smoke": ".work/production-runtime-smoke.json",
+    "postdeploy_security": ".work/production-security-verification.json",
+    "postdeploy_drift": ".work/production-postdeploy-drift.json",
+    "final": ".work/production-release-verified.json"
+  },
+  "expected_statuses": {
+    "node24": "VERIFIED",
+    "staging_migration": "APPLIED",
+    "staging_deploy": "DEPLOY_COMMAND_SUCCEEDED",
+    "staging_smoke": "VERIFIED",
+    "security": "VERIFIED",
+    "backup_local": "VERIFIED_LOCAL_DISPOSABLE",
+    "backup_cloud": "VERIFIED_DISPOSABLE_CLOUD",
+    "production_approval": "APPROVED_FOR_GITHUB_PR",
+    "github_pr_published": "PUBLISHED",
+    "github_pr_verified": "VERIFIED",
+    "github_pr_merged": "MERGED",
+    "live_lease": "LEASES_VERIFIED",
+    "release_command": "DEPLOY_COMMAND_SUCCEEDED",
+    "postdeploy_smoke": "VERIFIED",
+    "postdeploy_security": "VERIFIED",
+    "postdeploy_drift": "ALIGNED"
+  },
+  "operator_inputs": {
+    "cloud_unlock_env": "AZRAIL_ALLOW_CLOUD_MUTATION",
+    "cloud_unlock_value": "I_UNDERSTAND",
+    "release_approval_env": "AZRAIL_PRODUCTION_RELEASE_APPROVAL",
+    "expected_previous_deployment_env": "AZRAIL_EXPECTED_PRODUCTION_DEPLOYMENT",
+    "expected_merge_sha_env": "AZRAIL_EXPECTED_GITHUB_MERGE_SHA",
+    "oidc_issuer_env": "AZRAIL_PRODUCTION_OIDC_ISSUER",
+    "oidc_client_id_env": "AZRAIL_PRODUCTION_OIDC_CLIENT_ID"
+  },
+  "migration": {
+    "command": [
+      "scripts/migrate.mjs",
+      "--remote",
+      "--apply",
+      "--config",
+      "wrangler.production.json"
+    ],
+    "backup_before_schema_write": true,
+    "required_start_for_observed_legacy_production": "002",
+    "latest_required": "035",
+    "backup_targets": [
+      "local SQL export",
+      "private production R2 object"
+    ]
+  },
+  "deployment": {
+    "command_base": [
+      "node_modules/wrangler/bin/wrangler.js",
+      "deploy",
+      "--config",
+      "wrangler.production.json",
+      "--strict"
+    ],
+    "oidc_vars_injected_at_runtime": true,
+    "keep_vars_forbidden": true,
+    "reason": "Do not preserve legacy CORS_ORIGIN=*; explicit OIDC vars are injected with Wrangler --var while canonical vars come from wrangler.production.json."
+  },
+  "finalization": {
+    "requires_new_deployment_id": true,
+    "requires_exact_health_version": true,
+    "requires_authenticated_smoke": true,
+    "requires_security_verification": true,
+    "requires_postdeploy_drift_aligned": true,
+    "legacy_token_revoke_after_verified_oidc_cutover": true,
+    "final_receipt_status": "VERIFIED_RELEASED"
+  },
+  "rollback": {
+    "automatic_restore_forbidden": true,
+    "worker_previous_deployment_lease": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+    "d1_restore_source": "fresh pre-mutation time-travel bookmark captured in live_lease",
+    "rule": "Any rollback that mutates production requires a separate incident decision; never auto-restore D1 on a generic deploy failure."
+  },
+  "policy": {
+    "production_mutation_allowed_in_preparation": false,
+    "github_mutation_allowed_in_preparation": false,
+    "canva_mutation_allowed": false,
+    "plus_is_not_release_authorization": true,
+    "exact_release_receipts_required": true,
+    "fresh_live_lease_required": true,
+    "github_pr_must_be_verified_and_merged_before_cloud_mutation": true,
+    "backup_must_complete_before_first_schema_write": true,
+    "migration_must_complete_before_worker_deploy": true,
+    "production_deploy_workflow_remains_disabled": true,
+    "final_release_requires_read_only_postdeploy_evidence": true
+  },
+  "readonly_evidence_source_release": "1.5.0-rc.54"
+}

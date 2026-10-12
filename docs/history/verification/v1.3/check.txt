@@ -1,0 +1,31 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> azrail-pulse-unified@1.3.0 check
+> npm run build:ui && npm run typecheck && npm test
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> azrail-pulse-unified@1.3.0 build:ui
+> node scripts/build-ultimate.mjs && node scripts/build-unified.mjs
+
+ultimate.html is self-contained: CSS + JS embedded.
+Hosted UI: 50675 bytes; root index.html is self-contained (1024157 bytes).
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> azrail-pulse-unified@1.3.0 typecheck
+> tsc --noEmit && tsc -p tsconfig.ui.json --noEmit
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> azrail-pulse-unified@1.3.0 test
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/scratch/ef09ec950890/unified-pulse/engine
+
+
+ Test Files  54 passed (54)
+      Tests  1132 passed (1132)
+   Start at  09:47:08
+   Duration  5.01s (transform 7.96s, setup 0ms, import 16.74s, tests 4.27s, environment 7ms)
+

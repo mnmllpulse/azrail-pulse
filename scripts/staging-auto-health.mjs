@@ -1,0 +1,11 @@
+import { readFileSync } from 'node:fs';
+const pkg=JSON.parse(readFileSync('package.json','utf8'));
+const model=JSON.parse(readFileSync('config/environments.json','utf8'));
+const configured=model.environments?.staging?.vars?.PUBLIC_ORIGINS?.split(',')?.[0]?.trim();
+const base=(process.env.AZRAIL_URL||configured||'').replace(/\/$/,'');
+if(!/^https:\/\//.test(base))throw Error('A canonical HTTPS staging URL is required for post-deploy health verification');
+const response=await fetch(`${base}/health`,{method:'GET',headers:{accept:'application/json'},redirect:'error',signal:AbortSignal.timeout(20000)});
+if(!response.ok)throw Error(`Staging /health returned HTTP ${response.status}`);
+const body=await response.json();
+if(body?.version!==pkg.version)throw Error(`Staging version mismatch: expected ${pkg.version}, received ${body?.version??'missing'}`);
+console.log(`STAGING AUTO-DEPLOY HEALTH VERIFIED: ${base}/health reports ${pkg.version}. Authenticated smoke remains a separate Stage D gate.`);

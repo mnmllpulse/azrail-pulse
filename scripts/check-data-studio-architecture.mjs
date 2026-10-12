@@ -1,0 +1,13 @@
+import {readFileSync} from 'node:fs';
+let failed=false;const fail=m=>{console.error('DATA STUDIO ARCHITECTURE FAIL:',m);failed=true;};const read=p=>readFileSync(p,'utf8');
+const engine=read('ui/data.ts'),ui=read('ui/data-studio.ts'),module=read('ui/studio-modules/data.ts'),manifest=read('ui/studio-manifest.ts'),route=read('src/unified/studios.ts'),backend=read('src/lib/data-studio.ts'),schema=read('schema.sql'),migration=read('migrations/026-professional-data-studio.sql'),tests=read('tests/data-studio.test.ts');
+for(const marker of ['DATA_TEXT_LIMIT=2_000_000','DATA_ROW_LIMIT=50_000','DATA_COLUMN_LIMIT=256','DATA_CELL_LIMIT=250_000','parseDataset','cleanupDataset','serializeCSV','sortDataRows','filterDataRows'])if(!engine.includes(marker))fail(`bounded data engine missing ${marker}`);
+for(const marker of ['Schema inference','Validation','Table explorer','Chart','Transformations','Export filtered CSV','Export dataset CSV','Save dataset to Project','Project history'])if(!ui.includes(marker))fail(`Data Studio UI contract missing ${marker}`);
+if(!module.includes('mountDataStudio')||!module.includes('runDataStudio'))fail('Data Studio registry module must mount the professional workbench');
+if(!manifest.includes("title:'Data Studio'")||!manifest.includes("cloud:false")||!manifest.includes("capabilities:['data-analysis']"))fail('Data Studio manifest must keep local analysis truthful');
+for(const marker of ['CREATE TABLE IF NOT EXISTS data_analyses','dataset_artifact_id TEXT','transformations_json TEXT NOT NULL','schema_json TEXT NOT NULL','summary_json TEXT NOT NULL','ON DELETE SET NULL'])if(!schema.includes(marker)||!migration.includes(marker))fail(`Data Studio durable history missing ${marker}`);
+for(const marker of ["path==='/api/studio/data/reports'",'parseDataReportRequest','requireDataArtifact','verification.data.analysis_saved'])if(!route.includes(marker))fail(`Data Studio backend integration missing ${marker}`);
+for(const marker of ['TRANSFORMS','DATA_TYPES','columnCount<1','schema.length!==columnCount'])if(!backend.includes(marker))fail(`Data Studio report validation missing ${marker}`);
+for(const marker of ['decimal-comma','duplicate_headers','remove_duplicates','RFC-style CSV','arbitrary_sql'])if(!tests.includes(marker))fail(`Data Studio regression suite missing ${marker}`);
+if(/env\.AI\.run|Workers AI/.test(engine+ui+module))fail('Data Studio tabular analysis must not pretend to require AI');
+if(failed)process.exit(1);console.log('DATA STUDIO ARCHITECTURE PASS: bounded local CSV/TSV analysis, schema/validation, filter/sort, statistics, charting, reversible transforms, export, project-bound artifact history and truthful cloud boundaries are wired.');

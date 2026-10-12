@@ -1,0 +1,4605 @@
+{
+  "method": "Static inventory and lexical markers; not proof that every path was executed. Marker hits include legitimate UI placeholders.",
+  "files": [
+    {
+      "file": ".dev.vars.example",
+      "size": 489,
+      "sha256": "a81679b4fe11d601b196237a26623828c9affa8b31abf1fd1b7a4e352d7f2c51",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": ".env.example",
+      "size": 210,
+      "sha256": "bf8e3982a11333844dfcc665ffa9b5ec2edfa5cb438ea211bf86d1be5b5702d0",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": ".github/workflows/check.yml",
+      "size": 512,
+      "sha256": "961a73f7c21388ee00062f0900cff46385fd3aee67826acadb40e08a65df3436",
+      "lines": 21,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": ".github/workflows/deploy.yml",
+      "size": 633,
+      "sha256": "f697d4611a4a8b28a57b2d9d41c7ec52c46ed08919f0c1e6e3b5ced6ecd3cb7f",
+      "lines": 32,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": ".gitignore",
+      "size": 142,
+      "sha256": "5eeb2a65c9d3b5085aceb84c947b2b707e9f80fbaaf28f07164406ba4bacc97d",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": ".node-version",
+      "size": 3,
+      "sha256": "68ca3fba3b7e864770cb61aeb306d4bd4354b68ab4dd38450860c5d823e42a53",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "assets/.aistudio/.gitignore",
+      "size": 2,
+      "sha256": "cdbcae15105d6b781e620813c79c7e868740d4e9cc53ce6f5fcbbc12387adf4b",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "AUDIT_RU.md",
+      "size": 17048,
+      "sha256": "d718c302a99206f9a5a6d84fc8ebb3ed0d53fd9d93c2f9813921bc78ca6091e9",
+      "lines": 108,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        91
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "cloudflare/migrations/0001_pulse_cloudflare.sql",
+      "size": 2126,
+      "sha256": "80ee35e70a92a0be3cacf5a949155f39690f20afae72b531635efbb34f59efdd",
+      "lines": 37,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "DARK_MNMLL_PULSE_OS.md",
+      "size": 7738,
+      "sha256": "11c00b72fbfa3dba7f5eb2bb783e889360986edd51a1b672e9fa75f45e6d03d9",
+      "lines": 139,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "DEPLOY_CLOUDFLARE_RU.md",
+      "size": 14120,
+      "sha256": "db9a5d9ec80463609f7795712d3448ccd52f03a3e882ea2fc0609e69fd7b5c5c",
+      "lines": 128,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": [
+        "/api/health",
+        "/api/site",
+        "/api/user-status"
+      ]
+    },
+    {
+      "file": "eslint.config.js",
+      "size": 833,
+      "sha256": "4ecba5f01a7a801e2c5a58dc77bfa1901f83f4d1e812a27fae9606d26be83d4c",
+      "lines": 31,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "index.html",
+      "size": 554,
+      "sha256": "a738b7d2d3f806b9a8b36e84720f093cd995c74bc525d6f845ad136ae7030ecb",
+      "lines": 16,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/Auth.tsx",
+      "size": 56577,
+      "sha256": "c27aaa985abb283ee7a1a1c233d427b3cde427da48b79bbffb73136f40c2ac34",
+      "lines": 1039,
+      "scope": "historical",
+      "prototypeMarkerLines": [
+        85,
+        643,
+        678,
+        679,
+        725,
+        726,
+        793,
+        794,
+        804,
+        805,
+        884,
+        1008
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/landing/feedback",
+        "/api/chat/intelligent",
+        "/api/translate"
+      ]
+    },
+    {
+      "file": "legacy/BillingStudioPanel.tsx",
+      "size": 24527,
+      "sha256": "f6f28f1c44e31374fac3556e82b9ded763ed8e9b0d4c5ad11fdbe8281c2184fc",
+      "lines": 528,
+      "scope": "historical",
+      "prototypeMarkerLines": [
+        146,
+        167
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/user-status",
+        "/api/create-checkout-session"
+      ]
+    },
+    {
+      "file": "legacy/cloudflare/src/index.ts",
+      "size": 3006,
+      "sha256": "f75d125fd3e357129464755de957c53512b12639475816334de12c527d2f2cfe",
+      "lines": 74,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/chat/intelligent",
+        "/api/lab/"
+      ]
+    },
+    {
+      "file": "legacy/cloudflare/src/memory-core.ts",
+      "size": 3263,
+      "sha256": "f8183c2101524d25c9b67abe0317cda4c657d1cb90aea877871be6d175ba2f7b",
+      "lines": 89,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/cloudflare/wrangler.toml",
+      "size": 672,
+      "sha256": "2dd5af26730f53f3a5f6fcf49350695866547001162c5f847d1ed0cf7bfe1677",
+      "lines": 35,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/DeployStudioPanel.tsx",
+      "size": 9906,
+      "sha256": "a0633263642a83d78059827c35d7c4a7569a58ad79885eca5e3fd2ca8614ae99",
+      "lines": 209,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/env.example",
+      "size": 940,
+      "sha256": "18e071764455c0d1b78faf5f662a01084f00fe2105c0738a9e7f26afb98b1392",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/firebase-applet-config.json",
+      "size": 564,
+      "sha256": "5a1fc99605d016a0f7684e2b70146cb9c43e7e39beccd21fd7d60e70dd4e1f9d",
+      "lines": 12,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/firebase-client.ts",
+      "size": 1230,
+      "sha256": "41748bb6dcd7460fa4cf456517a12533a2f7fdc3b9517acd2c7c0335683802eb",
+      "lines": 45,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/frontend/TelemetryWidget.tsx",
+      "size": 11353,
+      "sha256": "89bfa4004b9ff92e34ece2086d3692adacdc3813c760e422705a8c0ee06b141d",
+      "lines": 267,
+      "scope": "historical",
+      "prototypeMarkerLines": [
+        228
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/telemetry",
+        "/api/circuit-breaker",
+        "/api/metatron/status",
+        "/api/metatron"
+      ]
+    },
+    {
+      "file": "legacy/metatron/audit_trail.cjs",
+      "size": 1284,
+      "sha256": "65728b7e5c5536ca14d94e8625df4d37453821a4e6b2d73d3d85f85d9331263f",
+      "lines": 47,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/metatron/config.json",
+      "size": 166,
+      "sha256": "9461a9aba700a4ccee44425aba01c63cf1ac00491509bbe8134af1054a4133c7",
+      "lines": 13,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/metatron/core.cjs",
+      "size": 5969,
+      "sha256": "35df50e734c44c31910bc07b5e473a1bddf90ccb59c2bea33f0a3e019bea202a",
+      "lines": 173,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/metatron/heartbeat",
+        "/api/metatron/status",
+        "/api/metatron",
+        "/api/metatron/notify"
+      ]
+    },
+    {
+      "file": "legacy/metatron/lib/engine.cjs",
+      "size": 4466,
+      "sha256": "28bd4c1830a2e3774de6cfb7c4c0403233ae6625c7bb0500030ff15763ef15cc",
+      "lines": 118,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/metatron/manifest.json",
+      "size": 236,
+      "sha256": "fe399dbce5221bb1d823dcb1cb0c8b9ca85eab88fe5b22e85a2cfce11e90d9da",
+      "lines": 12,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/metatron/notifications/index.cjs",
+      "size": 100,
+      "sha256": "2f7497d953118cb8b52d690b028d2379f8841dca91ee25ede9347d1138a9c5b8",
+      "lines": 6,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/metatron/notifications/telegram.cjs",
+      "size": 917,
+      "sha256": "16723ba29998903ee557c7d1af4f59c2ed2fff54f2475d34fb365e19921032f1",
+      "lines": 32,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/model-catalog.ts",
+      "size": 25943,
+      "sha256": "94b42e67e1a5f7ce064589585ede3d4e3d6b7ad9b92f2b749a3da2af914a02bb",
+      "lines": 218,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/add_20_tools.py",
+      "size": 18047,
+      "sha256": "f3951da3a82cb57cb8d5c27e824a0510ef079e204a534304a958767cde3a6858",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/add_handlers.py",
+      "size": 2892,
+      "sha256": "a0f40757faa77eb3f3e16695a916c28c09708c78680b065015e1604efce4ee0d",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/add_state.sh",
+      "size": 1080,
+      "sha256": "d4a4772ac87c10b18bf2d1e82f329aff5468d0c4113939dcb43fd0c085448846",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/fix_import.py",
+      "size": 470,
+      "sha256": "c030ea3677d6727bffc1da616c3de8965af5135e75a764ac4bb2e4415766e011",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/fix_suite2026.py",
+      "size": 10395,
+      "sha256": "6a022cd857a8dd2cab62fcf782dd4bdac46881a2e45b9f0e2255cba647733eaf",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/fix.py",
+      "size": 11566,
+      "sha256": "0b8f855cc668acf17e5972b28e444b1a0a8a833bb111125f5fbc358067caf0dc",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/fix2.py",
+      "size": 591,
+      "sha256": "5b2f06363c1b837c3f358c0ef0473f53a8317cd40c24d2d4e19c73b01196d04e",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/patch_admin.cjs",
+      "size": 1458,
+      "sha256": "12e055b23adbb14497de60de1fcfc305abf38c7ad041f8d864f15e9622b26854",
+      "lines": 40,
+      "scope": "historical",
+      "prototypeMarkerLines": [
+        22,
+        25,
+        28
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/patch_audio.cjs",
+      "size": 4036,
+      "sha256": "41719be60c929df2628db94cbf93113d8ee4990b231753c875f0ee9f29b5d5eb",
+      "lines": 129,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/patch_devops.cjs",
+      "size": 4565,
+      "sha256": "527aad8a4b5b7da5412a7201cb31936eebc6addd54e57f1d853f10a701b9aaff",
+      "lines": 90,
+      "scope": "historical",
+      "prototypeMarkerLines": [
+        46
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/metatron"
+      ]
+    },
+    {
+      "file": "legacy/patches/patch_gateway.cjs",
+      "size": 2135,
+      "sha256": "47931d2653222b36ededca3a1dda1dd5df1da7b213c8bfe80bc24dfbb445d191",
+      "lines": 27,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/patch_security.cjs",
+      "size": 5659,
+      "sha256": "3bc94088a9f01778d87c943a5f45b063f9ec4771a1c3cd9e2cd4c16c42ba0ea6",
+      "lines": 82,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/patch_system_state.cjs",
+      "size": 1122,
+      "sha256": "05855224b416c28bed7078387cb74681d32f8f2f3d4c35e79a5763d4b45311e4",
+      "lines": 25,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/patch_voice_button.cjs",
+      "size": 929,
+      "sha256": "003b545d8c94738ebba040a2bd179d8264afdfadf500103f30b9ad8684a76692",
+      "lines": 21,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/replace_features.py",
+      "size": 5631,
+      "sha256": "4eaad6c3c69c7bd3af331992ea049d37f2db8dca9ccbf4a2606a849570995265",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/replace_right_side.py",
+      "size": 9296,
+      "sha256": "9bcf2f85f37b94c10097d46ac896711471fe138e952881a636c35f62e92397fa",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/replace_tools.py",
+      "size": 1710,
+      "sha256": "9bd6470c56c5d4f963fda136b5b95d66d3f7ea852cea6b0613f77e598b3e1f83",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/rewrite_render.py",
+      "size": 22130,
+      "sha256": "9b7ec9ba581e8aca3d90bf6d660a99f728b4d4dcc7652247d2d855145dea0605",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/tmp/edit_studio.py",
+      "size": 50132,
+      "sha256": "28bb1c8350e0adf908f794a484cf0026d599a7fcf219ccc9bb33627f4a12116c",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/update_anim.sh",
+      "size": 142,
+      "sha256": "d83072c9ab07b51bb6beb32e0ea47ab7d23e24e2dc9f09bdeee45b082ddef15a",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/update_index.sh",
+      "size": 1455,
+      "sha256": "a8989d4009476564b87b3e0aa414c72450b5e0eea39107971f2fb6891921f631",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/update_system_state.sh",
+      "size": 303,
+      "sha256": "e10f343f9ddde178e4deeea06586d890b97e423e4afeada5f7f7d4edbc35ec76",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/patches/update_tools.py",
+      "size": 19417,
+      "sha256": "a27f4d8a60c651b03fbaeaec5ec7ad96ba884be125fe984867438a440016d7c0",
+      "lines": null,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/PricingModal.tsx",
+      "size": 14679,
+      "sha256": "99540a40928acff234b34d0f01798fbdd0995ed3e26da6363eedadd1cdbdcc62",
+      "lines": 339,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/create-checkout-session"
+      ]
+    },
+    {
+      "file": "legacy/README.md",
+      "size": 1112,
+      "sha256": "b36caa86f9b212ce5f697ed9ca6acb556adad3b4794cefb58d8ff284bc93b783",
+      "lines": 8,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/README.original.md",
+      "size": 542,
+      "sha256": "90908bc6e95f3c97fa79b0c49c5c4daf12cf2e2f5244da082d4294daa8766500",
+      "lines": 21,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/server/aeon-engine.ts",
+      "size": 20842,
+      "sha256": "e5595961ce0186cbd5e29bd47478075b848e22bac261918b94ec57f34db60dc5",
+      "lines": 499,
+      "scope": "historical",
+      "prototypeMarkerLines": [
+        70,
+        104,
+        197,
+        286,
+        314,
+        399
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/server/als-parser.ts",
+      "size": 3479,
+      "sha256": "66229795e2b2b9e285968f7474132695437ee7d27488979f832c379456e6d150",
+      "lines": 124,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/server/anticipatory.ts",
+      "size": 2694,
+      "sha256": "926c7e9653b5a8b04679cdb42ccdc2fef591af67ae7c78d952791155cc00308c",
+      "lines": 78,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/server/memory-core.ts",
+      "size": 5417,
+      "sha256": "24cf21a1915ea31bc41129c6c2f3b3277c64efbdcc24569a9276eafef076631f",
+      "lines": 170,
+      "scope": "historical",
+      "prototypeMarkerLines": [
+        152
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/server/rate-limiter.ts",
+      "size": 1426,
+      "sha256": "dc8eaea42c055b394bd1d32913008541d24c5dee55bd6f9368c71b8f2c188012",
+      "lines": 51,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/server/telegram-bots.ts",
+      "size": 17127,
+      "sha256": "ca023a7b7bb57876090cfcc1f5e6dd7b9775c28c22642efdd083f8ca9b40c0ca",
+      "lines": 415,
+      "scope": "historical",
+      "prototypeMarkerLines": [
+        7,
+        25,
+        35,
+        48,
+        61,
+        74,
+        86,
+        98,
+        108,
+        118,
+        128,
+        138,
+        148,
+        150,
+        158,
+        168,
+        178,
+        248,
+        291,
+        306
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "legacy/server.ts",
+      "size": 57912,
+      "sha256": "046ca49a8188e5c59bb4b9ec8a5966fc6d6a5942eb51f33096b9194621327ec2",
+      "lines": 1623,
+      "scope": "historical",
+      "prototypeMarkerLines": [
+        213,
+        214,
+        276,
+        349,
+        488,
+        527,
+        676
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/webhook",
+        "/api/telegram-bots",
+        "/api/telegram-bots/logs",
+        "/api/telegram-bots/",
+        "/api/user-status",
+        "/api/create-checkout-session",
+        "/api/admin/diagnostics",
+        "/api/admin/users",
+        "/api/admin/config/toggle",
+        "/api/scan-project",
+        "/api/swarm/enqueue",
+        "/api/telemetry",
+        "/api/circuit-breaker",
+        "/api/circuit-breaker/toggle",
+        "/api/memory/get",
+        "/api/memory/save",
+        "/api/memory/clear",
+        "/api/memory/status",
+        "/api/memory/project",
+        "/api/archive/list",
+        "/api/cloudflare/zones",
+        "/api/cloudflare/workers",
+        "/api/cloudflare/status",
+        "/api/cloudflare/config",
+        "/api/metatron",
+        "/api/metatron/status",
+        "/api/docs/export",
+        "/api/health",
+        "/api/landing/feedback",
+        "/api/upload",
+        "/api/chat/intelligent",
+        "/api/user/profile",
+        "/api/generate-avatar",
+        "/api/generate-image",
+        "/api/generate",
+        "/api/generate-music",
+        "/api/generate-video-veo",
+        "/api/music/analyze-als",
+        "/api/music/remix-plan",
+        "/api/video-status-veo",
+        "/api/video-download-veo",
+        "/api/analyze-multimodal",
+        "/api/transcribe-audio",
+        "/api/generate-text-advanced",
+        "/api/translate"
+      ]
+    },
+    {
+      "file": "legacy/WebContainerContext.tsx",
+      "size": 13309,
+      "sha256": "f6b291c1bcdc21fd4e35aa8980d2c635ee448beff7fe8a0dc485ac67bef73846",
+      "lines": 352,
+      "scope": "historical",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "metadata.json",
+      "size": 273,
+      "sha256": "995658392b1574c1c531c6f369f674aa1219fbddcafaf5c5f7c84914f7dc3778",
+      "lines": 12,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "package-lock.json",
+      "size": 320591,
+      "sha256": "913da1a93c5e3634691e60f19ee6defa904873c51cc0111e4546ffefaf237b9a",
+      "lines": 9121,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "package.json",
+      "size": 2298,
+      "sha256": "cb9415f1a65023933a843cdfb150b9b0797cdb8028f5dc66ef2180deed05a19d",
+      "lines": 75,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "public/_headers",
+      "size": 332,
+      "sha256": "914b9868bb99d0bd87dddb157925a909e9cf10eba29a12d8b7be2e2d2badb459",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "public/project-index.json",
+      "size": 6265,
+      "sha256": "644c718c58e88e1311728e8b9e5d920bfe59052d46c038e4e666c72b2d28ae58",
+      "lines": 1,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "public/system-book.md",
+      "size": 144728,
+      "sha256": "2629c6ff7518e95d518056ead6d63a3873ad989ba1c0442961dcafae0ed6450a",
+      "lines": 2505,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        914,
+        1008,
+        1076,
+        1483,
+        1590
+      ],
+      "localStorage": true,
+      "apiPaths": [
+        "/api/metatron",
+        "/api/metatron/status",
+        "/api/metatron/",
+        "/api/metatron/heartbeat",
+        "/api/bots/telegram/v1",
+        "/api/metatron/notify"
+      ]
+    },
+    {
+      "file": "README.md",
+      "size": 5156,
+      "sha256": "4f82b3ce261c30918d116b9fc99b5aec8975b00cb179e733870a1713b16cba11",
+      "lines": 54,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "scripts/audit-source.mjs",
+      "size": 3753,
+      "sha256": "a78ac17a10a75ce593b20c6ff1373ad74621823a422c7e69e4b7899788505874",
+      "lines": 41,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        16,
+        35
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "scripts/build-worker.mjs",
+      "size": 904,
+      "sha256": "60744e6ff0e12556bd2a025e21f21563a1830732bc0315ca428754f1ad7fcb6e",
+      "lines": 11,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "scripts/deploy-ci.mjs",
+      "size": 616,
+      "sha256": "cd833d331add96c86fd1b4ea7507d5d77c9f243e861a6107fb93a1a5b787df19",
+      "lines": 10,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "scripts/prepare-assets.mjs",
+      "size": 1098,
+      "sha256": "6dd60c50da03cb9182df1c0bb3de217e9d55e6ec57e77e815c0061b08af37091",
+      "lines": 18,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "shared/platform.ts",
+      "size": 1462,
+      "sha256": "f3e7bfcd574413cf1ec4e03a4bf320ba003a96a6b5d872351aa50ecb1562d1f5",
+      "lines": 21,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/agents/OrchestratorAgent.tsx",
+      "size": 3443,
+      "sha256": "acab1a5a639b65e29a1387d88be9bafbf51c5f7addf92d2875bd93a95831371d",
+      "lines": 98,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        54
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/App.tsx",
+      "size": 802,
+      "sha256": "8e131691dc61a42a50459715942ea46f4ef5c0df84979a7650e569e30acebf4a",
+      "lines": 14,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/assets/images/dark_purple_planet_1784739121226.jpg",
+      "size": 913796,
+      "sha256": "47304bf6b9d7b003429fa6743a9a1af339eb14c9fe78d97408ec5539d6bbe1ca",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/AdminPanel.tsx",
+      "size": 114456,
+      "sha256": "dfb7a56da7ffb397f5fc9aabaf6ff00f33941cc711f24aff3df2b0372117da1b",
+      "lines": 1851,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        33,
+        73,
+        92,
+        97,
+        100,
+        103,
+        552,
+        601,
+        819,
+        849,
+        857,
+        863,
+        896
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/AgentConfigurationPanel.tsx",
+      "size": 14107,
+      "sha256": "d5115389de90d3cd2a00898a932bdd75e59d7fe4c7e8f8c3a75cfa58c73622d4",
+      "lines": 321,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        145
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/AIGatewayStats.tsx",
+      "size": 15863,
+      "sha256": "98fe318052f7f8d114d722f90643b2cac5015c32fa4ebd5782e50af744dad77d",
+      "lines": 295,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/AIPreview.tsx",
+      "size": 662,
+      "sha256": "0120f86f33a9c577e56a36eca588e12b0b6145e224a879348e6cec14ac031907",
+      "lines": 23,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        10
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/AnimatedPlanet.tsx",
+      "size": 15564,
+      "sha256": "11b5735c4f23565822398ac4f783433cc3879499ab2bb80b1eba54358b947a79",
+      "lines": 384,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/ArchitectureReport.tsx",
+      "size": 13194,
+      "sha256": "7c9ecf1e00782e84e6b0311ae42a17d1e782341277d122b386841e0d50b8c7f4",
+      "lines": 244,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/ArchitectureStudio.tsx",
+      "size": 1647,
+      "sha256": "92ba404996fa634693c0c71d64d07e6d05c7bb451d6cc324cbab663a3ccb31bb",
+      "lines": 50,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        22
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/AudioWaveform.tsx",
+      "size": 2720,
+      "sha256": "7197bdacf3bc35ffca3a66b9e5db624c13353b7f4ffc5491da55b00479ca426e",
+      "lines": 87,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/AzrailIntro.tsx",
+      "size": 11465,
+      "sha256": "e3f6144bd69ef897270ff400f20576b65ccf974cfcc47a1a0d17eaed5c87bccc",
+      "lines": 253,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/AzrailMemoryCorePanel.tsx",
+      "size": 22266,
+      "sha256": "ef99281b70e428d1fa167326a452bdb03e1138edf6db1eb3944b543647f9270f",
+      "lines": 501,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        320
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/memory/status",
+        "/api/memory/get",
+        "/api/memory/delete",
+        "/api/memory/clear"
+      ]
+    },
+    {
+      "file": "src/components/BiometricAuth.tsx",
+      "size": 6765,
+      "sha256": "1f13a73106b38c96f29118dfbd0c75dbbe8ea045acb362fca0d183b456289a76",
+      "lines": 156,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        24
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/BootSequence.tsx",
+      "size": 15947,
+      "sha256": "af4a29bb67df96a9566cd61abd77013fe267662d8d065da7dd4963d3da3cf601",
+      "lines": 355,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/bots/BotManager.tsx",
+      "size": 5587,
+      "sha256": "8a054a485c75bc46a66aa333ff4f4da006cc92b2eb6d834634fe2cfefaf99c80",
+      "lines": 145,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/bots/MultiAgentChat.tsx",
+      "size": 56837,
+      "sha256": "552430b0e23c48e6cc0185e9e1b77a480ea4f99d91572094a21f256bef3c54b0",
+      "lines": 1087,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        667,
+        768
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/CloudflareWorkspaceBar.tsx",
+      "size": 853,
+      "sha256": "cc414670ddca34e578c1f12b062ab31240fe998dc4fdb1a20b0ddcf3c21ea2f2",
+      "lines": 8,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/CommandPalette.tsx",
+      "size": 12206,
+      "sha256": "aac96be0e2972e4cc1ef515a5e3a6a168a2ac1157ff7bd39a98a894e59b8a69e",
+      "lines": 330,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        221,
+        223
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/AgeGate.tsx",
+      "size": 3227,
+      "sha256": "da92bf8eea638436631f839e010f890200272d27dca517744a26661f13a26dce",
+      "lines": 67,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/Button.tsx",
+      "size": 2824,
+      "sha256": "e7256c77b6727729fd4f615bb7217649cfaebd3972a6cffd293a7d2a66415be7",
+      "lines": 65,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/DocumentationModal.tsx",
+      "size": 42415,
+      "sha256": "c4cbc7d235ad89bf887b7c16bfca6203b74b093a78bc692773253af01d2c6e48",
+      "lines": 596,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        229,
+        234,
+        325,
+        397
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/ErrorBoundary.tsx",
+      "size": 2562,
+      "sha256": "0c05e218d7496bc79c4728aa7342c63d936270b2b8588d48f4dd21f37aaf157d",
+      "lines": 68,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/GestureNavigationIndicator.tsx",
+      "size": 7339,
+      "sha256": "a75326571dab16e785f6d963c024acef1f5f5d3f1c60d4bde9bd1b5380aa93c7",
+      "lines": 172,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/GlobalMotionController.tsx",
+      "size": 17295,
+      "sha256": "a6e79f35da075afa2998b6e131d07fad9d14e86a86cb83cf7ac22354e66c8018",
+      "lines": 374,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/LayoutEngine.tsx",
+      "size": 1707,
+      "sha256": "8ebd7791e587e48117a4c2d9ef66ddc91a2b71fbe053b54e50291db73b8c73db",
+      "lines": 74,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/NeuralTimeline.tsx",
+      "size": 27054,
+      "sha256": "f160ea6a19d20c328f8917b5ad16661558f76c907dd9435d0c5b5b63ca88e9ae",
+      "lines": 676,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        553,
+        626
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/ShortcutOverlay.tsx",
+      "size": 5471,
+      "sha256": "04d894ee39337e926000355563d33e2653cedaaeb263b317a3556d9ecfd427b9",
+      "lines": 127,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/SmartTranslator.tsx",
+      "size": 5754,
+      "sha256": "e7bb2adef341449e22fd77425c3bb8714b841e514664d9593b2f4676ef9a281e",
+      "lines": 166,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/translate"
+      ]
+    },
+    {
+      "file": "src/components/common/StudioHeader.tsx",
+      "size": 6521,
+      "sha256": "3904d062066c75528ea3bd7230cffd6daf8436fa2e1b9189e2d486d8105a1886",
+      "lines": 157,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/common/Tooltip.tsx",
+      "size": 6474,
+      "sha256": "634f458b2eff7bd3c2d9bfe5fe3a6fa453cdc468cea97f5c96744632eaeb193d",
+      "lines": 185,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/ComponentMarketplace.tsx",
+      "size": 541,
+      "sha256": "c1c5c19861356aca1ead2ebab373a932c9aa6a0f677eae9afc946a217ff550a5",
+      "lines": 19,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/ConceptWorkbench.tsx",
+      "size": 71264,
+      "sha256": "e9a5509ac5130526438c763a15cbb641a798fe482b477dd5c1a2c6dadf6cc68f",
+      "lines": 1385,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        194,
+        352,
+        367,
+        484,
+        605,
+        629,
+        671,
+        882,
+        986,
+        1299,
+        1352
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/bridge/status",
+        "/api/bridge/dependencies",
+        "/api/bridge/env",
+        "/api/bridge/write-file",
+        "/api/archive/list",
+        "/api/telemetry",
+        "/api/circuit-breaker",
+        "/api/circuit-breaker/toggle",
+        "/api/bridge/toggle-connection",
+        "/api/bridge/toggle-approval",
+        "/api/swarm/enqueue",
+        "/api/metatron/swarm/synthesis",
+        "/api/bridge/validate",
+        "/api/bridge/doc",
+        "/api/bridge/performance",
+        "/api/bridge/pixel-patch"
+      ]
+    },
+    {
+      "file": "src/components/CreativeStudio.tsx",
+      "size": 1588,
+      "sha256": "0f47ce0dfd38d4790bd63a6004ef71fd69c11dd99fad416b3710fbd5c7b79298",
+      "lines": 50,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        22
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/CRTOverlay.tsx",
+      "size": 1118,
+      "sha256": "944d8edf036af7b78b5f147c9f8e03896fd94bf81bcd05ec0127127320ebf2ef",
+      "lines": 26,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/dashboard/DashboardWidget.tsx",
+      "size": 154,
+      "sha256": "9af875186072bff76ef88657b82c9ff33ad1a38b9b21e242f1add1ec5457f34e",
+      "lines": 7,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/Dashboard/PulseArchitectureMap.tsx",
+      "size": 15515,
+      "sha256": "cb6e2d8ea67e50f6396b1d463a65a4a8f681c77728d3f6dd773d138e8108033b",
+      "lines": 357,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        226
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/Dashboard/SortableModule.tsx",
+      "size": 1816,
+      "sha256": "8aab84ca502fe99b2f5c45ba579a6c6f5176205f14e288a0c90d7e02f6a126da",
+      "lines": 68,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/DeployButton.tsx",
+      "size": 521,
+      "sha256": "ea9920e6eb63427d033024acbfa8fb4987c3b04e68d5307b57cef371ef8aa7c3",
+      "lines": 19,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/DevelopmentStudio.tsx",
+      "size": 1861,
+      "sha256": "9a53d6fde30a71a367401d0e7f535794bb9336c831d54a5664345100c3b665aa",
+      "lines": 59,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        26
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/DisplayScalingEngine.tsx",
+      "size": 17519,
+      "sha256": "8bed71967eccac64b4177b4e37bb21efc5e2188867be5d5a047ecd89bc36eabf",
+      "lines": 336,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        94,
+        254
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/DocExporter.tsx",
+      "size": 6096,
+      "sha256": "7e9c7c353db928b3e85424d5aa4701b1b102b7728faf65242fa82ecc7732c959",
+      "lines": 141,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/docs/export"
+      ]
+    },
+    {
+      "file": "src/components/DraggableStudioModule.tsx",
+      "size": 1684,
+      "sha256": "59b82f3d3e632c1e1948b0c6e0075d2b3c8b7f1ff4e4d71fcf332a2a069d5a7e",
+      "lines": 51,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/DragonStorm.tsx",
+      "size": 3247,
+      "sha256": "ba8da82e7d96dadb3708daef931542fa5673fe709156de842e0d8c41274c00f0",
+      "lines": 105,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/editor/CodeEditor.tsx",
+      "size": 547,
+      "sha256": "6320180e3a95e4bf69ba4c4188edd368b8b1d90202551efe0b331c0779c0a995",
+      "lines": 23,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/editor/FileTree.tsx",
+      "size": 923,
+      "sha256": "e84b8ba739f155346633fcf9ee6e04ddcd04b8af8f1f8360bb01457116bc8cfa",
+      "lines": 29,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/FigmaSync.tsx",
+      "size": 717,
+      "sha256": "f37877423351a5f7dae091f8b8c1a1ea37c88bff9f985435b0ebeda3aaba76e5",
+      "lines": 27,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        14
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/FileUploadButton.tsx",
+      "size": 2378,
+      "sha256": "4bbe1513a37bba428af5a6ce803bfb96b6a51e7bf1595dccf01bcfdba04714c6",
+      "lines": 78,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/upload"
+      ]
+    },
+    {
+      "file": "src/components/GalleryModal.tsx",
+      "size": 11542,
+      "sha256": "e28bf0bd9424b1daa0d1dd16ae4af5b688876606833fa6698c546bcc50ce893c",
+      "lines": 187,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        94
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/HeaderSpaceAudioControl.tsx",
+      "size": 2732,
+      "sha256": "1f6f80fbb21e0e63f295958d4f70cdcf5fb6c34e891d0a9e13d0cb4f5ed8c414",
+      "lines": 68,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/IdleSaver.tsx",
+      "size": 3994,
+      "sha256": "56e59549269da812988bc0ba618c0cffb303882ae63728480e37aa1371349735",
+      "lines": 107,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/IntegrationDetailsModal.tsx",
+      "size": 6364,
+      "sha256": "f53ab381c4fbb3f24675163b6b76053f4d92401a58da8f6297f96d6c23970c8c",
+      "lines": 110,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/InteractionRipple.tsx",
+      "size": 1318,
+      "sha256": "3b08e03d4fbb4ffab1036b62a7141350242bfa4df848e85d424fa1de621271a4",
+      "lines": 48,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/KeyboardShortcutManager.tsx",
+      "size": 30860,
+      "sha256": "b9c9741c9506f2840e5cabe1efe842f978ee8d458cff722efea723a81cad1263",
+      "lines": 787,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        689,
+        690
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/LanguageSwitcher.tsx",
+      "size": 2970,
+      "sha256": "65b097486ea845c80cd58037ddc3994fe843ace405fde295c92121ed9f0c2e9a",
+      "lines": 90,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/LanguageToggle.tsx",
+      "size": 697,
+      "sha256": "2c73b8411ffc835b77498eeba426f01f5300b0a3893b87847aaa911d84878a07",
+      "lines": 18,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/LiquidMeshCanvas.tsx",
+      "size": 3907,
+      "sha256": "4805cd717641c34c06efcfba4385a514789f6584d803304a78879032d4a8aae2",
+      "lines": 120,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/MarketStudio.tsx",
+      "size": 1321,
+      "sha256": "db82f408cadf9551de5c45ea97dc6ec436e58eee5b1452add8635e8920892113",
+      "lines": 32,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/MetatronCommandCenter.tsx",
+      "size": 9590,
+      "sha256": "cadbff375282d23c43934131799f07076a60d59999557722fda6eb28face0eeb",
+      "lines": 236,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        206,
+        207
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/MetatronLabBox.tsx",
+      "size": 210661,
+      "sha256": "0356e7ec633dd2bfeb650b1ad55d5afe9d14e2aa5305cbcdd9f0c39281901f54",
+      "lines": 3978,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        263,
+        915,
+        1454,
+        1487,
+        1633,
+        1664,
+        1751,
+        1788,
+        1911,
+        2297,
+        2681,
+        2971,
+        2991,
+        2992,
+        3435,
+        3436,
+        3777
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/MobileEmulator.tsx",
+      "size": 455,
+      "sha256": "ae255d466b034df7cd3df8dc84304ed2914c392bf2c68ac324e171933d710623",
+      "lines": 16,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/ModelSelector.tsx",
+      "size": 15119,
+      "sha256": "2388e2b5b9c3a16c6e890bc85fbe149a7444db07868aeb427f1cdae464297a7f",
+      "lines": 268,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        144
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/NeonIcon.tsx",
+      "size": 2119,
+      "sha256": "f307e1e4bfe1e7df22470f472942323a6c752ac7d78ce3bbde9a282f35e6e207",
+      "lines": 79,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/NeuralPatternWidget.tsx",
+      "size": 10604,
+      "sha256": "c570d73318502fc145576169be45c392eafab4b1ada8c553750b9067b7185296",
+      "lines": 241,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/NeuralProcessor.tsx",
+      "size": 286,
+      "sha256": "73746a8f4d46b6df24077845b00d33b1c9904cbdee92f7b64d76a46da16b45c6",
+      "lines": 11,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/NodeMap.tsx",
+      "size": 4148,
+      "sha256": "c4dfad351c5d437c1fca24bfbf452f8eeebe8635a57411026dd6053c088e386d",
+      "lines": 126,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/animation.ts",
+      "size": 3359,
+      "sha256": "9fcc3b0f83e7c41a7230b95e8778afdcebbe57878353a4528ab8c8e3f576159d",
+      "lines": 106,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/atmosphere.ts",
+      "size": 1349,
+      "sha256": "4ecb220c3efff3363dc724f7116926097930f031a569613029adac2d356c3bfe",
+      "lines": 46,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/camera.ts",
+      "size": 309,
+      "sha256": "25501db43347099ac7dcac33c7005633d243236204c046dac941e1fc16306e42",
+      "lines": 14,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/config.ts",
+      "size": 376,
+      "sha256": "7df45feaf159e54640ec1b7eba6b4f6aa65cd7e36300298cf814eef97ed6ed82",
+      "lines": 16,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/index.ts",
+      "size": 3951,
+      "sha256": "876d952369baa70634c3423e7e7f02b25b309d3793c0073bc4738972098c840c",
+      "lines": 131,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/lights.ts",
+      "size": 362,
+      "sha256": "11618667b59162de5de5908f3f3a7a4e851c72119044f3f31394b55f300daf56",
+      "lines": 21,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/orbitAnimation.ts",
+      "size": 403,
+      "sha256": "a9ffb056abbae1275e88349aa82efb88f1e673a33f43428700c53c591b847ef7",
+      "lines": 12,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/orbitParticles.ts",
+      "size": 1153,
+      "sha256": "6c202f8b856089c024923178114fd9bf4b23ba754e1db2521b7648d62bd8dd5c",
+      "lines": 47,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/planet.ts",
+      "size": 603,
+      "sha256": "911baed77d38c1416e0ca4fb1521e094040c54c7039a73ffe4ce853d2bff56f4",
+      "lines": 27,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/postprocessing.ts",
+      "size": 1790,
+      "sha256": "629398ffe2962b7ab5c1d7c09803594e30466b2b108fb31810f6c0a3a3711276",
+      "lines": 57,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/pulse.ts",
+      "size": 722,
+      "sha256": "ab1c7f35fe5d37ad6f429c451bfd9e7dbdfa9a0247bda9f5a3d818c9c73728e1",
+      "lines": 30,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/renderer.ts",
+      "size": 358,
+      "sha256": "021d9db46adb8f09f5b4e86140b1c9e72332f6e3fd36b3a316b1b29ebee5615d",
+      "lines": 13,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/rings.ts",
+      "size": 3279,
+      "sha256": "0e0d91bd8ab4e216cba861a9f7ac49ad94bd662b5370d8dd423dc02b2092889f",
+      "lines": 97,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/scene.ts",
+      "size": 215,
+      "sha256": "83bf44e1320eece5274f0660fd5e2460211bcb659d3bf51647c7d6743a8b765b",
+      "lines": 9,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/shaders/planetFragment.glsl",
+      "size": 3482,
+      "sha256": "5dfe8770370c8ebe27a224c2896848e7f8ece0a8ce9bb3669a144ceb91673761",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/shaders/planetVertex.glsl",
+      "size": 350,
+      "sha256": "ceabf6c189b03fdb9f1318d5eb0e907a65f121e9548788bb6b2e691625b0cde3",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/shaders/pulseFragment.glsl",
+      "size": 1858,
+      "sha256": "16a69046a2d60d9a5967a52e65888f85530f507aa0cd1bed2ca4f2812b8d5b5e",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/shaders/pulseVertex.glsl",
+      "size": 150,
+      "sha256": "625bd42fdee25cd4eec127d2319354e524901ccc21fe297fafa84302746afaec",
+      "lines": null,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/shaders.ts",
+      "size": 1606,
+      "sha256": "caf6d5710f5462dc734ba40c9410db200367f48d11d090e600d5792f7672032e",
+      "lines": 64,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/planet-core/stars.ts",
+      "size": 1032,
+      "sha256": "8beef90686a1a720b0c0b3cba37f70d5dfb558118929f737478da1372e1ecf38",
+      "lines": 36,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/PlanetCanvas.tsx",
+      "size": 661,
+      "sha256": "59d4df03f10a0fcd74c32ba23aa68d5f555e158432ae85fb668e7a06e1c655d6",
+      "lines": 29,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/PricingModal.tsx",
+      "size": 1139,
+      "sha256": "badedb7768723a82f53f2836e7dc1d9ec1dda9dcda3760a4f1979710e2e1dffa",
+      "lines": 6,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/PulseActivityLog.tsx",
+      "size": 7715,
+      "sha256": "5498a5e5835e3e8364718e801c8ee9b666b8f4ae9eabeddf927ee06134953d45",
+      "lines": 176,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/PulseBackground.tsx",
+      "size": 1647,
+      "sha256": "f4356610659ad50a0c4ca62421fb65347f30b227724a0b484cccb930e290c30a",
+      "lines": 49,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/PulseMonitor.tsx",
+      "size": 4241,
+      "sha256": "4caa71fd3fce7d2068de11b74a823c57b6fd5cb82ee1adec96f760890c60292c",
+      "lines": 109,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/PulsePersonalization.tsx",
+      "size": 7546,
+      "sha256": "c065e0ec40800cb3a761c5c52e8de10f576da2dfee86d31cb43ab2e7933b74cc",
+      "lines": 168,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/QuickActions.tsx",
+      "size": 14962,
+      "sha256": "8dbedb1c73ad0011b45d02381b42a390311af7cd5f0cb69b8d52a645d8a3aaa9",
+      "lines": 345,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/RealityDataStreamVisualizer.tsx",
+      "size": 3836,
+      "sha256": "526863c275959e85a91e2fde8b746e8a228b9cb7b1b312532be761f912cd9497",
+      "lines": 92,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        21
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/Sidebar.tsx",
+      "size": 22440,
+      "sha256": "f7629c4472919be4df3095a53085ea66c9046bc85a7c3f9df3528dbefde52b8b",
+      "lines": 510,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        149,
+        150
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/Skeleton.tsx",
+      "size": 4761,
+      "sha256": "5bedf2962b9efa90bd1fd7d27f9c9994a75b5febb1e06dc4768267d03fb91972",
+      "lines": 143,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SocialTemplates.tsx",
+      "size": 802,
+      "sha256": "f648ba1e3a43fd852dae96163f62a4885f4598d9e545bff04a87b60125caa3db",
+      "lines": 26,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SpectralAnalyzer.tsx",
+      "size": 2573,
+      "sha256": "03e6cbe872b31c3d1c8502a2e26e61f57a3ddf508b27ddfdfb0a7766f5e27e04",
+      "lines": 95,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studio/FileExplorer.tsx",
+      "size": 12801,
+      "sha256": "097758ba88bc197e58a1cd155d805df4e7d48ed250cee31b89a38ab36e12cebb",
+      "lines": 346,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        179,
+        253
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/StudioActions.tsx",
+      "size": 11862,
+      "sha256": "0486eb8e37b2d37ec05d2e6f483c22dc518ee18e7c72627c416746c691f71f7e",
+      "lines": 295,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/StudioCard.tsx",
+      "size": 2308,
+      "sha256": "4344eac160da3003a750b3f7c4e039d85c00a7443b4cbf6968d2ef16c7759347",
+      "lines": 57,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/AuthGuard.tsx",
+      "size": 3278,
+      "sha256": "5d8116c2a52e33cda6915b70f28c6898ed4cfad5c94955b50042bfa68bd94c4f",
+      "lines": 59,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/AzrailOrchestrator.tsx",
+      "size": 5893,
+      "sha256": "6beeb3425224e194adae55609c37e9b5ccbe93dae968e745d8fe2332c933eb11",
+      "lines": 150,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        37
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/BentoForge.tsx",
+      "size": 2842,
+      "sha256": "0d00f193ce0e95352ba821db8ee76b6840805203e7ffa525e677fbe95f2786bf",
+      "lines": 60,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/CloudPipeline.tsx",
+      "size": 3722,
+      "sha256": "ecbc1ba4932d8261eeb577ddf8260ed2236dfca9e2d526fcdbd7a14bde63ee6c",
+      "lines": 61,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/CognitiveGraph.tsx",
+      "size": 9278,
+      "sha256": "15168a0d3d56b3bb38300f27e65e15649831f2531d14c3c09bcbb93a24d4cd72",
+      "lines": 264,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        92
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/CommandPalette.tsx",
+      "size": 5662,
+      "sha256": "777b103cacaa0d33b129011957edf8fc6abad7b7b7be8a7b80ebf9cf314f8fac",
+      "lines": 127,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        70,
+        73
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/CompetitorPsychoanalysis.tsx",
+      "size": 12466,
+      "sha256": "6aaba4627cc7bbfcee8dabb9c61d3c6d18f9109d0ba4dc28d58416f9b703e035",
+      "lines": 267,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/DataForge.tsx",
+      "size": 2911,
+      "sha256": "a9a0855fb2eb0782a764c202b42d85b817b21369227bbfbc792f2af5d59cba59",
+      "lines": 52,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/DesignSystemExplorer.tsx",
+      "size": 5321,
+      "sha256": "988423789a359b8e3ac8435f509b24b2c97cfddbc68304c048ce9397b998baaf",
+      "lines": 110,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/EliteLayoutForge.tsx",
+      "size": 6375,
+      "sha256": "aea599b6792ff768b52040ae1ea34af929fa8159a6cbc39cf58ace540b15b1ce",
+      "lines": 141,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/image-studio/ConsolePanel.tsx",
+      "size": 13210,
+      "sha256": "9ca37268b2246c6752baeef560adbc2fabd5d27715a92588428bf008534095df",
+      "lines": 289,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        243,
+        244
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/image-studio/ImageStudioContext.tsx",
+      "size": 14115,
+      "sha256": "18883261a20150c5c3859b285991c26bd071cfef0965db4195c0e4b06f1f34b9",
+      "lines": 352,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        144,
+        232,
+        295
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/generate-image"
+      ]
+    },
+    {
+      "file": "src/components/studios/image-studio/ImageStudioX.tsx",
+      "size": 5105,
+      "sha256": "c786b313c966978705c125b8da6fc1433e838b08926bd3efaaf0535ff1b59121",
+      "lines": 121,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        52,
+        53
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/image-studio/ProjectsSidebar.tsx",
+      "size": 6599,
+      "sha256": "9e8de2a7923d278af4ce5cbbe2156e36ee69c0c43d28266e3f8304d119da037d",
+      "lines": 142,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/image-studio/PropertiesPanel.tsx",
+      "size": 15556,
+      "sha256": "77be9f0f239a68f5eb7d0330625af1eb7f0b28343ee1eb8cac38f00f9289053c",
+      "lines": 301,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        58,
+        59
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/image-studio/Workspace.tsx",
+      "size": 12447,
+      "sha256": "ca545ca4fff73dc186996ccef1162d8e93b55e953c498cef68212468d79d6221",
+      "lines": 250,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        16,
+        125
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/InteractionLab.tsx",
+      "size": 4436,
+      "sha256": "149312fb9f97244c8bddab57e8f8c95faccbac3c7fcdfe7c74a1693bca05bd8c",
+      "lines": 76,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/LogicArchitect.tsx",
+      "size": 5590,
+      "sha256": "52791801b58445cfdb585de4c7b1de595286b1ea22cf6618821171d48cebad76",
+      "lines": 114,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/ManipulationParserUI.tsx",
+      "size": 7812,
+      "sha256": "f9034a7c3258aeaf2628a371cdb4b753a43e8f2d46ae5bb16bb369485742f9b4",
+      "lines": 162,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        18,
+        58
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/music-os/AIAgents.tsx",
+      "size": 9811,
+      "sha256": "fc1472cf4585c9398c138615f47de73d328b3160da6a09047dc485aeaae52f6e",
+      "lines": 217,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        147,
+        148
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/music-os/CognitiveFusionEngine.tsx",
+      "size": 4210,
+      "sha256": "72414b28d14bdc22c71be3086814a7679783c5d54a06bfcedb95182d0c3dbce1",
+      "lines": 95,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        27
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/music-os/DivergentEngine.tsx",
+      "size": 51431,
+      "sha256": "4ec2f1900a0476d83613aba6e2748e64778d9033ac930a1fbd9045fadab1072c",
+      "lines": 917,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        112,
+        113,
+        117,
+        159,
+        171,
+        287,
+        288
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/music-os/DJStudio.tsx",
+      "size": 7865,
+      "sha256": "14d3d3f35cb0b49af0fc34512621a0f32b6b1ec5b38873169d34cffaa9a1605e",
+      "lines": 152,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        26
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/music-os/MasteringSuite.tsx",
+      "size": 7544,
+      "sha256": "7e7562c495702031d11e9bde21bfdb6c88f71dabd4808669994ef43bce80c30d",
+      "lines": 155,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/music-os/MixerConsole.tsx",
+      "size": 9196,
+      "sha256": "25c0e26c2c7637bc6d2e28f93dab14cce63b88ca9c35aa6dcacd81981cd308f0",
+      "lines": 175,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/music-os/ModularLab.tsx",
+      "size": 9018,
+      "sha256": "0c0c986012d9fa1c149e276e8f670cd08fd084f202e98c433fe1e4844ef5e0f4",
+      "lines": 166,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        14,
+        39
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/music-os/OSKernel.tsx",
+      "size": 3011,
+      "sha256": "a684c9f14d99019e4aceb2f1a5206701bb265777c76e2206d87293e6b369d0ff",
+      "lines": 82,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/MusicIntelligenceAgent.tsx",
+      "size": 23037,
+      "sha256": "34828a9ebdbc574ed25cec8fc6bdf2e18eee6cc744d9cc718e73b6844c5526b3",
+      "lines": 481,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        108
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/music/analyze-als",
+        "/api/music/remix-plan"
+      ]
+    },
+    {
+      "file": "src/components/studios/PerformanceAnalytics.tsx",
+      "size": 4947,
+      "sha256": "9cd4efbe834388142032c6d3cc185b8237eb1dea274819a73490f9e401b1a481",
+      "lines": 100,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/PlatformBridge.tsx",
+      "size": 3460,
+      "sha256": "939396fd3ee3ad43db72af984e8a2dba47e9b2b591e81089d9a323e009617e54",
+      "lines": 61,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/PsychologicalRadar.tsx",
+      "size": 10264,
+      "sha256": "bbc6b48b710f9f76de226c84e34c5e692c71193845c284515083e54591b3ce75",
+      "lines": 216,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/PsychologyCivilization.tsx",
+      "size": 138267,
+      "sha256": "bdb4b6d2fba64c4aa0f9151f08ffff5af5e8944aa8f5545b907a6c24e05c5260",
+      "lines": 2308,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        125,
+        222,
+        224,
+        226,
+        1098,
+        1722,
+        1850,
+        1998,
+        2038,
+        2133,
+        2210,
+        2257
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/generate"
+      ]
+    },
+    {
+      "file": "src/components/studios/PsychologyCivilizationHub.tsx",
+      "size": 9062,
+      "sha256": "21ec28255f4b3e79ab287dc9721ccb827d81c0f4ea3143f382f1136cdeadb5b6",
+      "lines": 181,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        100
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/QuantumAgentOrchestrator.tsx",
+      "size": 27626,
+      "sha256": "915dd29f49701658db5308115a2a4d4a1a891696ce89dd9af3a5e11d4d1fa9ea",
+      "lines": 372,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/QuantumAudioOrchestrator.tsx",
+      "size": 32379,
+      "sha256": "9e133d476993dab53644aa3c6c7dea3b4170fb4dd407e5ba0ea7b65a4792e3df",
+      "lines": 451,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        43,
+        146,
+        192
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/QuantumImageOrchestrator.tsx",
+      "size": 26706,
+      "sha256": "6918797fd5103ac942cdc42f5716b942d4b75460116f6bb7bbd89e85ef4c3b19",
+      "lines": 371,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/QuantumKnowledgeOrchestrator.tsx",
+      "size": 27829,
+      "sha256": "54c367053a9214795317f6a65f4fe131c797e01eb001fbfaac901001027f2401",
+      "lines": 379,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/QuantumOrchestrator.tsx",
+      "size": 47839,
+      "sha256": "9ccb3dc1b99da968cdd66fe2b5ecd20836536329db433d34882ab42067e48be9",
+      "lines": 726,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        42,
+        56,
+        65,
+        69,
+        77,
+        117,
+        122,
+        123,
+        154,
+        206,
+        244,
+        245,
+        430
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/QuantumPulseOrchestrator.tsx",
+      "size": 32783,
+      "sha256": "9e3e2b304926ef4b2776e23436a50f6307320b599aff8fe705ce39ceade566b4",
+      "lines": 418,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        84,
+        101,
+        103
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/QuantumVideoOrchestrator.tsx",
+      "size": 28016,
+      "sha256": "33dd9b6db085cdf0901ab2c62dacc124a3b80f9ad40c8be3e421fc38bf4aa434",
+      "lines": 371,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/SEOMaster.tsx",
+      "size": 3375,
+      "sha256": "c0ee690a0f067b294ae4e7fdbc13d2d27b7cb41244cd39acced0b15744075f98",
+      "lines": 70,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/StudioAIChat.tsx",
+      "size": 40644,
+      "sha256": "d7b454a3fcdea173daefabb6cfc5e3f2f54f7987c53205dbea09c1b2972ab3eb",
+      "lines": 902,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        846,
+        854
+      ],
+      "localStorage": true,
+      "apiPaths": [
+        "/api/upload",
+        "/api/chat/intelligent"
+      ]
+    },
+    {
+      "file": "src/components/studios/StudioTerminal.tsx",
+      "size": 20071,
+      "sha256": "c98f1ef4c5b9df4e2a9e4025591d4b76ff8092402fc7fcf84594c93c4875660f",
+      "lines": 554,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/cloudflare/status"
+      ]
+    },
+    {
+      "file": "src/components/studios/StyleNavigator.tsx",
+      "size": 7710,
+      "sha256": "544cd202da77842631a2f3ab486dd2f9b4f9b20d1574b5c2d3347f6be81b8d49",
+      "lines": 152,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/TeamSync.tsx",
+      "size": 4729,
+      "sha256": "0a8b3e7a21e2b794a57c86c27cb37f23ffd4917be4a3cf41f9fc45a41c079e49",
+      "lines": 87,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/UniversalHub.tsx",
+      "size": 6237,
+      "sha256": "2ce8fe53077ce1f90e920796bdd2de5ea514598bb4148c977be6bf77d6239a56",
+      "lines": 129,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        73
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/studios/VectorLab.tsx",
+      "size": 3218,
+      "sha256": "8fddebbd9864af2929f62b7261d7813d20d752d952c4dd5a23dad36d3ebe9d30",
+      "lines": 63,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SwarmStatusIndicator.tsx",
+      "size": 8404,
+      "sha256": "663a3f0ac395318744b6585ddb775afc3342503b6276f7e124df5656dc96bd3f",
+      "lines": 217,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SystemConsciousness.tsx",
+      "size": 1546,
+      "sha256": "f93adb9a09b4b8d33cbb009cd18cbe07bcb9bc0d02a8e312fde93d8433039f4f",
+      "lines": 41,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SystemConsole.tsx",
+      "size": 29518,
+      "sha256": "65a6c11f7c70270b4769c5cbc97bb24902f11ff88510ae195f80bff08de5aa73",
+      "lines": 642,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        146,
+        439,
+        443
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SystemIntro.tsx",
+      "size": 4387,
+      "sha256": "bf188d938f021e2eb4919decd828f2246ff848b869fd7560d414c366cd0d7ef4",
+      "lines": 86,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SystemLog.tsx",
+      "size": 6291,
+      "sha256": "1952933609b290bd50958396aedc544bc07adb33f56109ab88c49b5b10dff360",
+      "lines": 140,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        30
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SystemLogExporter.tsx",
+      "size": 6194,
+      "sha256": "e80adfb20479144a3fa91dc8ec98084670b0d504163465f09afbdf9c71b0405b",
+      "lines": 148,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/metatron/status",
+        "/api/metatron/heartbeat"
+      ]
+    },
+    {
+      "file": "src/components/SystemPulseHeaderIndicator.tsx",
+      "size": 4735,
+      "sha256": "798a89e9667a6dc8babb33d4b7f88d8749585408fe8e5cccda586f01c360cbdc",
+      "lines": 158,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SystemPulseIndicator.tsx",
+      "size": 4731,
+      "sha256": "eebd4173c764f638e8c2c106ef11e583b2cbe552cafb2d32dfe207084b7028d7",
+      "lines": 158,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SystemStatusMonitor.tsx",
+      "size": 5220,
+      "sha256": "f897e5774a0c8b8ce1305ee2d7c30b458524d0d5778dc139ab4970000965f32a",
+      "lines": 146,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SystemSyncIndicator.tsx",
+      "size": 7184,
+      "sha256": "367d88b1aedd306537cc70dd53c6c15a876f4a9c749eea7495b65ec7252f896f",
+      "lines": 189,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/memory/status"
+      ]
+    },
+    {
+      "file": "src/components/SystemTelemetry.tsx",
+      "size": 3473,
+      "sha256": "964c4af7cbf0e59b92d84b6c7c54c352f7f781da0a9c437b7e15e7b274eb5d14",
+      "lines": 77,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/SystemTelemetryLog.tsx",
+      "size": 15661,
+      "sha256": "24bb21e7e700c69aa11cbb76ddd3370361379afb45d0b0ab8fa94ec0f04be89b",
+      "lines": 350,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        83,
+        201
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/TelegramBotsPortal.tsx",
+      "size": 26334,
+      "sha256": "0f4c9d3f69b7b5920375176f17ac901f878d5491a41460b32a2804a8c9d8d5a1",
+      "lines": 511,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        338,
+        401,
+        474
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/webhook/"
+      ]
+    },
+    {
+      "file": "src/components/TelemetryWidget.tsx",
+      "size": 4994,
+      "sha256": "8ccbf7b1e72bb3a971bcbd1b0eac56683429e53d2ee4bb0de22edda741d78d33",
+      "lines": 40,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        36
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/telemetry",
+        "/api/circuit-breaker",
+        "/api/metatron/swarm/synthesis"
+      ]
+    },
+    {
+      "file": "src/components/ThorButton.tsx",
+      "size": 9910,
+      "sha256": "2e9a21cd7209edc4e6b675006a10e8ba33032b5d2ed1d4bcb2befc4bf77166f7",
+      "lines": 238,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/ThorQuickAccess.tsx",
+      "size": 11505,
+      "sha256": "9cf2fac45b0b8b72f92520aca2143e8daeb427ff54bc3dd2ec495c0623e630d6",
+      "lines": 218,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        78
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/Tooltip.tsx",
+      "size": 6904,
+      "sha256": "20f27d236b32caa02e19a3dc74d4e9064b9b043a8b5e3ed1a0404d4bdc2518d0",
+      "lines": 202,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/ui/Button.tsx",
+      "size": 2396,
+      "sha256": "0ef82e9047f44a5722a0a7f6a2f54ffb3067839b4e1dde1b4b95205fa3665eda",
+      "lines": 63,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/UniversalFileAction.tsx",
+      "size": 11634,
+      "sha256": "c14fe447f42af10031dca8a99eb37dcf8583626263654d1328ff09e70dfcd33d",
+      "lines": 249,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        134
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/UserGuideDrawer.tsx",
+      "size": 13633,
+      "sha256": "52185032f6fae477803350d9e9d11f425a9c3fb02d2402bf80c7c2817b2065b0",
+      "lines": 271,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/VersionHistory.tsx",
+      "size": 562,
+      "sha256": "277eaa0d82f174f8137ed263f2518ef97f10799686a40c07ba836eacee49e2c2",
+      "lines": 22,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/VoiceInputButton.tsx",
+      "size": 8040,
+      "sha256": "3c6a298d849b9a76f6a77fe25b62ec119bbd3be7418c91709e4ecd8b2261976f",
+      "lines": 239,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        85,
+        92
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/VoiceOutputButton.tsx",
+      "size": 4444,
+      "sha256": "bf3d4c2cf669cfccd3a188c96d653a96bce8d2c83e55b8bbc7e35a8e40c49aec",
+      "lines": 122,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/VUMeter.tsx",
+      "size": 2360,
+      "sha256": "5c77e36f3f79473eef72f69664d416fd790e85f1e51b8c02dfb7e92933b6a8d7",
+      "lines": 83,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/components/WorkspaceTemplatesModal.tsx",
+      "size": 28307,
+      "sha256": "0fb5d0f138b1eb68600f47dbae2f9951fc723e52b632d7c9bea7f7a1c49cb0af",
+      "lines": 612,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        358,
+        427,
+        444
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/AudioContext.tsx",
+      "size": 15666,
+      "sha256": "3584b2b0edf21de42593304d7bdcb7a6983690cb1422e0aa462c5919e583cb71",
+      "lines": 484,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/DeepWorkContext.tsx",
+      "size": 1690,
+      "sha256": "0a4ac9798fb10fa1c922f1f91000855af9dcb6587430f3fa85cdb18bcf06c1b7",
+      "lines": 61,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/GestureNavigationContext.tsx",
+      "size": 12046,
+      "sha256": "3a97017602580ae222e37308d8849c82d5c1088ea270da4fd583b7d8538b16da",
+      "lines": 299,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/GlobalMotionContext.tsx",
+      "size": 8900,
+      "sha256": "3309b22c5402780b73ca648239fa58bce0cb128f28d50a749ccc9b9986625f5a",
+      "lines": 338,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/HistoryContext.tsx",
+      "size": 2111,
+      "sha256": "13c23c99159503a36341ae53419714518195460bbcc94e75853dc19ec6a6cb81",
+      "lines": 76,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/KnowledgeHubContext.tsx",
+      "size": 9821,
+      "sha256": "90294a7b311595529fb7addd09b53692bf3d91dec0478bb987cf8c8727e4def2",
+      "lines": 289,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        173,
+        248,
+        263
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/LanguageContext.tsx",
+      "size": 48827,
+      "sha256": "1feb89a2aac2e040b60b8feda40982ca8f5ded54c436aec48b9d5dd588588601",
+      "lines": 909,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        230,
+        675,
+        814
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/ModelsContext.tsx",
+      "size": 1460,
+      "sha256": "a3ea76548d1ee31927077468aa3fd20770b9f3d312a7f4000d694ba70d4e475c",
+      "lines": 49,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/SessionContext.tsx",
+      "size": 2312,
+      "sha256": "e3e18f568c0e8652873e498abc1c7bacf8155bd7e85655eb12886e36ef524484",
+      "lines": 35,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/auth/session",
+        "/api/auth/login",
+        "/api/auth/logout"
+      ]
+    },
+    {
+      "file": "src/contexts/StudioAIContext.tsx",
+      "size": 1903,
+      "sha256": "68731eb5b90c693cf0c06e2b78d23f54d14d2deb54967b52ab8054c9b16ec176",
+      "lines": 63,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/contexts/SystemStateContext.tsx",
+      "size": 16649,
+      "sha256": "89a1f177e1eb3ba1e565698211897fe85186bcbd3cffa2efb07692f4781ade67",
+      "lines": 513,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        238,
+        440
+      ],
+      "localStorage": true,
+      "apiPaths": [
+        "/api/metatron/status"
+      ]
+    },
+    {
+      "file": "src/contexts/UserContext.tsx",
+      "size": 1364,
+      "sha256": "6da09b99dc190a96f43e46b17b8a5c355fb9bc38f62a2de869f6bee4a4060f08",
+      "lines": 53,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/user-status"
+      ]
+    },
+    {
+      "file": "src/contexts/WebContainerContext.tsx",
+      "size": 3366,
+      "sha256": "971fec7c459dda87085201870e0f583a414d657bf58fb6ac85bf0be9773e4aa9",
+      "lines": 40,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/core/ProjectGraph.ts",
+      "size": 1761,
+      "sha256": "c696268156857e2bb14429135c2e99a1581f2ea50486f23e2df384076607b858",
+      "lines": 67,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/core/PulseKernel.ts",
+      "size": 14375,
+      "sha256": "4d19d94a01d23ff9846a7fab359f5378015b3450df3721889311582a8ff392a3",
+      "lines": 466,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        187,
+        304,
+        307,
+        315
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/core/ScalpelOfIntentions.ts",
+      "size": 5250,
+      "sha256": "605f8c077e206737e0d589ffadc8fc5fd63fcc658edfd64daa31713a99dee117",
+      "lines": 144,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        31,
+        39,
+        52
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/data/models.ts",
+      "size": 398,
+      "sha256": "006f6542f01887a97b2f7e5dd8189d6e3e067c57b54ffd93a88dd622c6741868",
+      "lines": 6,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/data/modules.ts",
+      "size": 14547,
+      "sha256": "3333b0d9e97dc43d96d95b88eb291debe460c6cccdf05dff357ec39a56ccd462",
+      "lines": 491,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/data/pantheon.ts",
+      "size": 33181,
+      "sha256": "3c146a1b9c34406e566eef304e532546caee6f11a397a263977400c6a16997eb",
+      "lines": 565,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/data/prompts.ts",
+      "size": 3481,
+      "sha256": "5852c5f438b0512507532ecbab0bcdaf3a0bb80f13f5e15b2f5338f4a5404c1c",
+      "lines": 64,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/data/stylePlaylists.ts",
+      "size": 8446,
+      "sha256": "3de7c49bde13d13244a89b33dc6f052c4d3b5b31139d46cf060a10323b323a96",
+      "lines": 100,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/glsl.d.ts",
+      "size": 237,
+      "sha256": "a9a341ed5468f6bdbab7b7d0595f38e0aa72d2d340eb87fe5d75991143540e3c",
+      "lines": 13,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/hooks/useAdaptiveContrast.ts",
+      "size": 2707,
+      "sha256": "f75690f62fa938717ef138a542736f55ea058005d52e1daf28c61c1229a0f7eb",
+      "lines": 74,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/hooks/useDynamicContrast.ts",
+      "size": 2562,
+      "sha256": "d29918a3503d85fb96effed294920d455d769470fe3db662b68ee06e9f9e9d5c",
+      "lines": 69,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/hooks/useStudioState.ts",
+      "size": 1051,
+      "sha256": "7923e84b295ea7b75ccf780fd2cf78136970f553e2d141c68984eb74bb353d51",
+      "lines": 33,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/hooks/useVoiceCommands.ts",
+      "size": 1395,
+      "sha256": "b34f90a6b75c8ddc160310a34bec047c0dd20b71e2d1e53f7c70735c5c934926",
+      "lines": 48,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/index.css",
+      "size": 7104,
+      "sha256": "f9d63b6641077b60ff0527472c1fdc452005830755fd5af6a3747bfbd35b5723",
+      "lines": 257,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/layout/MainLayout.tsx",
+      "size": 41603,
+      "sha256": "ffc2fd6e10d9b58a49fcfc51fff6073d95ecebd9d91fa5c677c5992fd80140f1",
+      "lines": 825,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/CodeGraph.ts",
+      "size": 516,
+      "sha256": "e099d707bf749103f70378d0c53f962d1fd733e20ffade0875a74568eb18e5d1",
+      "lines": 25,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/ContextEngine.ts",
+      "size": 468,
+      "sha256": "82d283edc5be671946d5a025e663a6c387c45a6671c905472296b80752c133e3",
+      "lines": 21,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/DigitalTwin.ts",
+      "size": 648,
+      "sha256": "18b07b683e0ac4e4fc0bd6b6e03fed81ee48a4e4a6c52daf43d49007ab7e367c",
+      "lines": 26,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/ImpactEngine.ts",
+      "size": 370,
+      "sha256": "faec8d3c631dd7322de9901df09920da20697ea3318ee1b12079f510c0d699c3",
+      "lines": 17,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/IntentEngine.ts",
+      "size": 404,
+      "sha256": "b7daeebe5664a98aa2c7ee7bb584d1ca28eb9d1e7a6f4dad561c293416b725e5",
+      "lines": 16,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/Kernel.ts",
+      "size": 1047,
+      "sha256": "f62e86a0d21a8db97c04a05470b5c14e95be404eb9e17556200fdfa0098c31f6",
+      "lines": 34,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/ProofEngine.ts",
+      "size": 345,
+      "sha256": "219c752960304c88bb89578ab4058705fcf734b2aa969715f462d883bfb6f9c4",
+      "lines": 18,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/SafeAutonomy.ts",
+      "size": 419,
+      "sha256": "c1e967ea295dc13fab8fd8645785a2a24bd76b7afd7e7f2ed9da05fda2a8efb4",
+      "lines": 17,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/SourceOfTruth.ts",
+      "size": 428,
+      "sha256": "4a5beb6821db06bc7ea8de202eb641231b8defb8529524c49e518b3bb71866eb",
+      "lines": 21,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/StateReconciliation.ts",
+      "size": 339,
+      "sha256": "1c717064d9bacd2d59d17f3b1db498c95bc5c5a320dc10c316e0bc0501909a43",
+      "lines": 11,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/TrustGovernance.ts",
+      "size": 426,
+      "sha256": "37a7b5c8a8b3116487c502a4677d1b60bbad39d6d85611cbb86626c7fd220de8",
+      "lines": 19,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/pulse/core/types.ts",
+      "size": 347,
+      "sha256": "9b218fed99374882ca52e4787540b18f781697cb79b0897a23b9ccbfb1257f13",
+      "lines": 15,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/lib/PulseKernel.tsx",
+      "size": 776,
+      "sha256": "762a5e73029ce1f5f57c0724c34410f56b6615ba6747dc0378fc8dcee6737b27",
+      "lines": 28,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/main.tsx",
+      "size": 322,
+      "sha256": "e2679d485645b6d6e8ff47e2bcf372aa4dcfb82df88401b835fde128b397da65",
+      "lines": 14,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/modules/PsychologyCivilization/AgentFactory.ts",
+      "size": 2762,
+      "sha256": "6d867909ea093b448b2ab53eceeb8d011f5dadc1812d219f0f9c90626dfdc9f7",
+      "lines": 89,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/modules/PsychologyCivilization/data.ts",
+      "size": 7834,
+      "sha256": "8df6912375193bcb418f7775d37391368f333d8100b399c5b49e63c4373ae56d",
+      "lines": 146,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/modules/PsychologyCivilization/index.ts",
+      "size": 106,
+      "sha256": "5eec28e379e6f7470aa3132d9ca2d0117b1878ee6941e9dd74479e92a30f2d07",
+      "lines": 5,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/modules/PsychologyCivilization/store.ts",
+      "size": 1089,
+      "sha256": "5575ff5a14b6cc85b240236aa604018c3fbd251f0feb3aa5c3bb34c06ee0477b",
+      "lines": 40,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/modules/PsychologyCivilization/types.ts",
+      "size": 850,
+      "sha256": "a7d62a17704225955776c385c2cf5db6a3cbc259f25b2cbf39946b4d9c3ea12c",
+      "lines": 46,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/CloudflareEntry.tsx",
+      "size": 5865,
+      "sha256": "967adbe9c00cd654898f0837a69cfd260c397138dd4c6ef3eba8ea787ad56480",
+      "lines": 38,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/Dashboard.tsx",
+      "size": 35001,
+      "sha256": "8d24637dec167baf2e5e7b2a5951726ba629383f4c5eedd0861b85bdf897f047",
+      "lines": 742,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        624,
+        650
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/DNASequencer.tsx",
+      "size": 10625,
+      "sha256": "590ceb34908e0b2dd9b87c41fee749d131177d880e4552bb0420d44515a70b0b",
+      "lines": 203,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/History.tsx",
+      "size": 8058,
+      "sha256": "bd134355c845641fcfbe2f4c705bf97eb6f208cfe4b3f0ed9b56342fcca36ff5",
+      "lines": 164,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        71
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/InfrastructureHub.tsx",
+      "size": 39032,
+      "sha256": "969606c9043039a25d470a3e3a05776db0a81df39af58ea11bf08eb89e948dfe",
+      "lines": 756,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        402,
+        693,
+        719
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/cloudflare/status",
+        "/api/cloudflare/config"
+      ]
+    },
+    {
+      "file": "src/pages/MainGallery.tsx",
+      "size": 20863,
+      "sha256": "2d84e8f317917bfbed2ef03e44a030f6c3c191ae4b04860d0cd984c8b56c720b",
+      "lines": 334,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        103
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/QuantumMind.tsx",
+      "size": 17497,
+      "sha256": "5d515ab3f9105242d8ad2d708b9676e41273bbd56f753553f0c02b1b8f3889c3",
+      "lines": 383,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        233
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/chat/intelligent"
+      ]
+    },
+    {
+      "file": "src/pages/RealityEngine.tsx",
+      "size": 23980,
+      "sha256": "e3958d26eb6d6b55dce0e36cdc4f2be98e54c920235f619647c5859c13bd11ba",
+      "lines": 478,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        137,
+        196,
+        198
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/Settings.tsx",
+      "size": 51014,
+      "sha256": "efca3102a2c5f262fde2187fe89aa64841b56611628b763da4b4c35a1d03b2b8",
+      "lines": 651,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        113,
+        624
+      ],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/Studio.tsx",
+      "size": 19670,
+      "sha256": "d539f671749f3e6f63d77713d0374b35bf0be12f68e33506b26e4fe39115239c",
+      "lines": 488,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/AgentChatSimulator.tsx",
+      "size": 16864,
+      "sha256": "281df62e7c9bc374921262a1c90be06938d3e8d077bd4447455c9ca387573a5f",
+      "lines": 382,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        339,
+        340
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/memory/save",
+        "/api/generate"
+      ]
+    },
+    {
+      "file": "src/pages/studios/AgentForgePanel.tsx",
+      "size": 44167,
+      "sha256": "aca10417f0986f9f6910f3a5d946b15fbc4f9494caa8d0420de4d3cebc0fe667",
+      "lines": 863,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        576,
+        617
+      ],
+      "localStorage": true,
+      "apiPaths": [
+        "/api/generate",
+        "/api/generate-avatar"
+      ]
+    },
+    {
+      "file": "src/pages/studios/AnalyticsStudioPanel.tsx",
+      "size": 5025,
+      "sha256": "eb93087bb53dd3c5c87f40a42da09b5f1c2aae49091489e3d81aa246737504e8",
+      "lines": 107,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/AutomationStudioPanel.tsx",
+      "size": 9461,
+      "sha256": "b55a03f89850de6a548e277e14b657cd07b4a83ccc07e014077c5be8780ac515",
+      "lines": 202,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/BillingStudioPanel.tsx",
+      "size": 3767,
+      "sha256": "54ff66f8528524528810352ecc4f9bb372622edb7f70e8fa3b2a352c63669b49",
+      "lines": 16,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/models",
+        "/api/admin/routing"
+      ]
+    },
+    {
+      "file": "src/pages/studios/BotManagerPanel.tsx",
+      "size": 367,
+      "sha256": "54a9b851d2e3c1f7c8859ba10a76e087d081c94ea818da956bdb74a5e9e22b6c",
+      "lines": 12,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/CodeStudioPanel.tsx",
+      "size": 46909,
+      "sha256": "5177f66876717b8aa3ba043c6c3fa3ef8be3ffb057d312307cb10618bc2ae315",
+      "lines": 1011,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        513,
+        766,
+        770,
+        878,
+        882
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/chat/intelligent"
+      ]
+    },
+    {
+      "file": "src/pages/studios/DataStudioPanel.tsx",
+      "size": 22056,
+      "sha256": "b00cfedc26f13e5d3d396abf5232f9525f801e4415872c1721bb7c25c2e5b443",
+      "lines": 456,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        264,
+        336
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/DeployStudioPanel.tsx",
+      "size": 2991,
+      "sha256": "25b0494281db58086ddfe19680687a150f8ae310f36f741f03edc819b12b2b8a",
+      "lines": 15,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/deploy/status",
+        "/api/deploy"
+      ]
+    },
+    {
+      "file": "src/pages/studios/ImageStudioPanel.tsx",
+      "size": 21709,
+      "sha256": "728566d91a193e704a28f096839b0467acc563a45bdae8cba8eb9e85114323af",
+      "lines": 388,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        201,
+        308
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/generate-image"
+      ]
+    },
+    {
+      "file": "src/pages/studios/KnowledgeHubPanel.tsx",
+      "size": 63950,
+      "sha256": "13c983c9dd293a0797abaf07644466ea21fd03fabdf68ab0159d5b89f921452a",
+      "lines": 1248,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        14,
+        199,
+        269,
+        296,
+        361,
+        379,
+        386,
+        465,
+        486,
+        523,
+        832,
+        999,
+        1000,
+        1002,
+        1013,
+        1042
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/MarketplaceStudioPanel.tsx",
+      "size": 6648,
+      "sha256": "0f74cf18123c32b49e5097fb8c786ff05ab008fd979cbd383510e7d25230150f",
+      "lines": 158,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        62
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/ModelStudioPanel.tsx",
+      "size": 12816,
+      "sha256": "4381c56f8f4e65899deda8ad72f333e0507211387530297108c3ff24130d2cd0",
+      "lines": 266,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/MusicStudioPanel.tsx",
+      "size": 112435,
+      "sha256": "411f2e52f6fab565f210155955ddd144e6ffc19dd876acfb6fd672d3358f4320",
+      "lines": 1630,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        577,
+        718,
+        1342,
+        1502,
+        1592
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/generate-music",
+        "/api/generate"
+      ]
+    },
+    {
+      "file": "src/pages/studios/PulseLabPanel.tsx",
+      "size": 81370,
+      "sha256": "cbd92390e84f519b5b95ea2dc0946e31e887fc996b5ab868c72b82514c96bea2",
+      "lines": 1492,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        165,
+        566,
+        852,
+        949,
+        1020,
+        1305
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/generate"
+      ]
+    },
+    {
+      "file": "src/pages/studios/SandboxStudioPanel.tsx",
+      "size": 23921,
+      "sha256": "1313cf3c339087921af237908eadfd3f3058fc056398275a5bf42c3e630afd2b",
+      "lines": 485,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        60
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/SecurityStudioPanel.tsx",
+      "size": 11691,
+      "sha256": "c392030f42dc60e4d49da471c4385caf4df643266b2127a5c0f0d5f3ccda130f",
+      "lines": 248,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/studios/SwarmConfigurationPanel.tsx",
+      "size": 50924,
+      "sha256": "0054a3976d5e46744870f615c0ce9d50c0baa9c8c7421adc2e50d1c394a475bb",
+      "lines": 1222,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        47,
+        116,
+        862,
+        865,
+        1090
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/generate"
+      ]
+    },
+    {
+      "file": "src/pages/studios/VideoStudioPanel.tsx",
+      "size": 41742,
+      "sha256": "3e878f017a87252c6b5908d7d03218fe34081f9738f54b56f1697e23851db360",
+      "lines": 818,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        276,
+        480,
+        624
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/generate-video-veo",
+        "/api/video-status-veo",
+        "/api/video-download-veo",
+        "/api/generate"
+      ]
+    },
+    {
+      "file": "src/pages/studios/WebStudioPanel.tsx",
+      "size": 3621,
+      "sha256": "35696deca8d35be511018a5f748e195d2e6aa274171bd1bc1c1d55e5851dac1e",
+      "lines": 77,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/pages/SwarmChat.tsx",
+      "size": 13704,
+      "sha256": "83c75f9c0e788d57f641d4cb90c22309f5b273d8a350ba5c241023a1f1a77e21",
+      "lines": 301,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        283,
+        284
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/generate"
+      ]
+    },
+    {
+      "file": "src/pages/SystemBook.tsx",
+      "size": 49925,
+      "sha256": "af946ec7e3b84c7f9155958397f959189bce48e8918d307cd427db9af13eefd9",
+      "lines": 818,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        135,
+        532
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/services/AuditService.ts",
+      "size": 511,
+      "sha256": "d9e1b709ea5bb5c5b7cfcee9c670f1d768d39259c333686cfe077cee5bc77345",
+      "lines": 17,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/services/cloudflareService.ts",
+      "size": 1471,
+      "sha256": "86f59bbafb708fb81a902fe11a7750a74fb854081c86a471bf263b196e72c644",
+      "lines": 55,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/cloudflare/zones",
+        "/api/cloudflare/workers",
+        "/api/archive/list",
+        "/api/metatron/swarm/synthesis"
+      ]
+    },
+    {
+      "file": "src/services/ConfigService.ts",
+      "size": 493,
+      "sha256": "ae6a79c1c25a1ca066f291b4084cf48edbd7495c3c9326cc36b78aef8269cd6c",
+      "lines": 18,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": []
+    },
+    {
+      "file": "src/services/TelegramBotService.ts",
+      "size": 5396,
+      "sha256": "eec20cda06d5df675442d5cc5f00ae352dd5b7b5e83c91dab211057a6e776bab",
+      "lines": 161,
+      "scope": "current",
+      "prototypeMarkerLines": [
+        5,
+        41,
+        64
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/telegram-bots",
+        "/api/telegram-bots/logs",
+        "/api/telegram-bots/"
+      ]
+    },
+    {
+      "file": "src/styles/cloudflare-entry.css",
+      "size": 6224,
+      "sha256": "5c40944db75dcbfc3131a6ab2228b6dbd04cb1261c7f23d3f171a1d69443a547",
+      "lines": 4,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/types/cloudflare.ts",
+      "size": 375,
+      "sha256": "b16f57fa595f58fe63f372ff672a36140fa90eb02164c4d12f54130bb1a0ca87",
+      "lines": 22,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/types.ts",
+      "size": 2435,
+      "sha256": "4019476ccde5ddf7b5c98d5cba0333058dee4ffc625c1cbfa2b6a8c03e1fac52",
+      "lines": 108,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/utils/ModelIconRegistry.tsx",
+      "size": 7607,
+      "sha256": "ce5cd6cbb5a0c50328fa66565995653ce683a6a6475678c44987dda17fe236a7",
+      "lines": 105,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/utils/sound.ts",
+      "size": 3263,
+      "sha256": "efc1eb791ab715913d639f23529649aaa4f4353fd6355ee6523be15a7d291955",
+      "lines": 110,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/utils/synth.ts",
+      "size": 13733,
+      "sha256": "63d4da274ee849e913415f7b4cbc9ed9a9218098142328ce17a45fde672fba06",
+      "lines": 426,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/utils.ts",
+      "size": 169,
+      "sha256": "d1f1e0d62cb8d8d1e04c26e14de842d8a151f75812d81b046c65b5d1fe8e4b27",
+      "lines": 7,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/vite-env.d.ts",
+      "size": 38,
+      "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5",
+      "lines": 2,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "src/WorkspaceApp.tsx",
+      "size": 4679,
+      "sha256": "b16204b26ce097bd277f3a967f00a47adc483883e5905ce541634f97a68cb695",
+      "lines": 106,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/API_MANIFEST.md",
+      "size": 1008,
+      "sha256": "d78a5e19de4b52bd0226f2d0fd435b7527de42bdc5ea693ff3c03c804c10305b",
+      "lines": 28,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/metatron"
+      ]
+    },
+    {
+      "file": "system_docs/ARCHITECTURE.md",
+      "size": 1760,
+      "sha256": "0917c81e93d4030873517ba80df6d43f1db0129454467fdb03c32496cead4833",
+      "lines": 25,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/GLOSSARY.md",
+      "size": 1245,
+      "sha256": "d1bbdc15cf693d2fd1a384c780640b759d0b2b7325b021ba05d6ea383e62eb25",
+      "lines": 21,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/LEGACY_ARCHITECTURE.md",
+      "size": 4379,
+      "sha256": "ceca8eaa15607358a802d274c4aefd60d3687d49de6cb1f99b50b55cbad0952e",
+      "lines": 81,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/OPERATIONS.md",
+      "size": 1097,
+      "sha256": "cd361cbd3a5f7bfc314de89827d561e383a2ab14e317d37e53d7c9fe6d66e7bf",
+      "lines": 28,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/metatron/status"
+      ]
+    },
+    {
+      "file": "system_docs/ROADMAP.md",
+      "size": 19491,
+      "sha256": "b67dcd53a21c0f4a01aa6fe0e275f3d1dfa864b48fd227ef43d18b00c4d491d1",
+      "lines": 96,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/SYSTEM_BOOK.md",
+      "size": 5989,
+      "sha256": "72c2ee5445be2032648477c640dad9cb7d63f41738a010c060ec9c66cf55376f",
+      "lines": 77,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_I_GENESIS.md",
+      "size": 1863,
+      "sha256": "e71d63b548d0eb4c2c6e00d626d6e905a7af262c59add7467a59adfdbf2b47e9",
+      "lines": 23,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_II_LAWS.md",
+      "size": 1762,
+      "sha256": "34175869341a23e055ce99ec149dd116ef3636e980b309e57362f1e42eefc7b7",
+      "lines": 30,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/metatron"
+      ]
+    },
+    {
+      "file": "system_docs/VOLUME_III_KERNEL_LOGIC.md",
+      "size": 2021,
+      "sha256": "b5ac828bc61ed8949ecebc4787186f0ee2365dd8c247b6e86f4e4fe4614c3317",
+      "lines": 40,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_IV_MATRIX.md",
+      "size": 2063,
+      "sha256": "ac4694cc82ea0c50a65627a9ef377773616fa9f69601fa69c61b55bc3c95c50e",
+      "lines": 37,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_IX_MAINTENANCE.md",
+      "size": 1657,
+      "sha256": "d08e051e2011200dd839cd71fadd29d63fdbdd746167ae795ae33f973940169c",
+      "lines": 28,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_V_SECURITY.md",
+      "size": 2987,
+      "sha256": "491a5eb44d5fe0ad3eef3ab58b09d8559afe9da9c6d196f4c2b472fb7787f2e5",
+      "lines": 44,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_VI_DESIGN.md",
+      "size": 3182,
+      "sha256": "7c13bb485cf498a2984eee95e65983413801ab2d01cdbd464c5c4ebd76ae38c5",
+      "lines": 46,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_VII_STUDIOS.md",
+      "size": 2566,
+      "sha256": "1e509dba72f2a33735a1702518f6c0e10239e54361c2a3c440152c2d7c1e3acf",
+      "lines": 49,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_VIII_OPERATIONS.md",
+      "size": 1590,
+      "sha256": "b4b18c179e6911b3588009fe8fcc15e61a33f30646c664e28e8b41fbfd540558",
+      "lines": 28,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/metatron/"
+      ]
+    },
+    {
+      "file": "system_docs/VOLUME_X_INCEPTION.md",
+      "size": 1504,
+      "sha256": "610c9860f9ead51f33076f12617589feaa2eebddcd07ac3d32615fc82428c02e",
+      "lines": 22,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XI_SCENARIOS.md",
+      "size": 4969,
+      "sha256": "ce43e115cb307fcd373cdccf2bfc3f09a6034314624ace4f18b17f933f1fcf93",
+      "lines": 114,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": true,
+      "apiPaths": [
+        "/api/metatron/heartbeat",
+        "/api/metatron"
+      ]
+    },
+    {
+      "file": "system_docs/VOLUME_XII_COMPONENTS.md",
+      "size": 3460,
+      "sha256": "6ca22567182d826fb1c70076df048f1ecf327069722015be245fc4e021d20f18",
+      "lines": 72,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [
+        14
+      ],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/metatron/heartbeat"
+      ]
+    },
+    {
+      "file": "system_docs/VOLUME_XIII_WEB_STUDIO.md",
+      "size": 6016,
+      "sha256": "318bdd7c698062192d6e323f5c31f340bab9c5cac4acf81051e8225c1322bb69",
+      "lines": 107,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XIV_MUSIC_STUDIO.md",
+      "size": 5530,
+      "sha256": "2ab6a59d58e8cb8cd88f2f6dcdb04f441b2f18f664a9df7b0410993ce8490007",
+      "lines": 103,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [
+        30,
+        98
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XIX_IMAGE_STUDIO.md",
+      "size": 5555,
+      "sha256": "1a467f512be44009eea22518e848c1c6489141fcc5381eb60a30cf08f2d81472",
+      "lines": 105,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XV_VIDEO_STUDIO.md",
+      "size": 5689,
+      "sha256": "d43e61d51a88d9122d273db3f82bfa67a1c045c3c39a88a62830a649ccd432e6",
+      "lines": 105,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XVI_AGENT_STUDIO.md",
+      "size": 5870,
+      "sha256": "ca8d01513b1f7400d61889c1dc8293821e1c1f2615fc6c964dc5b16c6365ec58",
+      "lines": 104,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [
+        52
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XVII_PULSE_LAB.md",
+      "size": 5842,
+      "sha256": "2dbcc8577dba8ad6b45c609baaa68c091cea81006630a731a3c84371a0583ac7",
+      "lines": 106,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [
+        57
+      ],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XVIII_GALLERY.md",
+      "size": 5622,
+      "sha256": "af998c9a5bb0d1bfef8a8e6fdeca1e9ef7e7ba934c73d3c10bcffcd95194ea3b",
+      "lines": 102,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XX_BOT_MANAGER.md",
+      "size": 5534,
+      "sha256": "a6bcc3c4a43f211e9e6fa777092d00264413c927e78663dbfda84f5032601ad1",
+      "lines": 101,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/metatron/notify"
+      ]
+    },
+    {
+      "file": "system_docs/VOLUME_XXI_BILLING_STUDIO.md",
+      "size": 5484,
+      "sha256": "f65a48943cb7852c0f4595d3ad4f7276ed0af8dbe4d4a66612417864764dce30",
+      "lines": 101,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XXII_SWARM_CHAT.md",
+      "size": 3911,
+      "sha256": "46dec45b82fb5a0e1cfc31cc3a385870abbd330adb700ddf092ff5bc0ff81a05",
+      "lines": 69,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XXIII_WORKSPACE.md",
+      "size": 6068,
+      "sha256": "a094df49ae1c815aa962f2210f7eea395c225f1f7616111b638dd8c2ad5d9384",
+      "lines": 104,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XXIV_PLANET_CORE.md",
+      "size": 5614,
+      "sha256": "6af527d2d951f08d8d39f432b0dd263a65c6d0a0248cc55ae2ce15cd0c7b70bc",
+      "lines": 100,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XXV_SWARM_CONFIG.md",
+      "size": 5924,
+      "sha256": "1170cd62e1410435aa54d5360f864fcf13c220aa02f97e40235839451c9334d5",
+      "lines": 102,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "system_docs/VOLUME_XXVI_TELEGRAM_PORTAL.md",
+      "size": 5905,
+      "sha256": "6aa7da91b85fa0c9e9f5a0ec62e784eccd50f60c351cf0907912a1e312a5551c",
+      "lines": 105,
+      "scope": "historical-documentation",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/bots/telegram/v1"
+      ]
+    },
+    {
+      "file": "tests/preview-local.ts",
+      "size": 2123,
+      "sha256": "9306a1b64cbfdf15550b4b90cf5e3fe4c879b7eb09550b0f5a9ce6244bcdee66",
+      "lines": 31,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "tests/support.ts",
+      "size": 3506,
+      "sha256": "9965fdea32ca3fe00e0220c8c510fbecdb26227a56671aabbc6401de7e170239",
+      "lines": 44,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/auth/login"
+      ]
+    },
+    {
+      "file": "tests/worker.test.ts",
+      "size": 13402,
+      "sha256": "ca50f7c8de72a0937eb299ffb6f4bb17a55b59d61d2cc57db77d055c30a5b98b",
+      "lines": 143,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/site",
+        "/api/health",
+        "/api/generate",
+        "/api/files/not-mine",
+        "/api/unknown",
+        "/api/auth/login",
+        "/api/auth/session",
+        "/api/auth/logout",
+        "/api/user-status",
+        "/api/memory/clear",
+        "/api/memory/save",
+        "/api/memory/get",
+        "/api/memory/delete",
+        "/api/chat/intelligent",
+        "/api/swarm/enqueue",
+        "/api/archive/list",
+        "/api/telemetry",
+        "/api/generate-music",
+        "/api/admin/routing",
+        "/api/generate-image",
+        "/api/upload",
+        "/api/files/unknown",
+        "/api/bridge/write-file",
+        "/api/create-checkout-session",
+        "/api/analyze-multimodal",
+        "/api/cloudflare/config",
+        "/api/deploy"
+      ]
+    },
+    {
+      "file": "tsconfig.json",
+      "size": 679,
+      "sha256": "a2f29f37a030069a50014bb8903fb335bda43ff584207981a1ae1dccd4f7377b",
+      "lines": 40,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "tsconfig.worker.json",
+      "size": 304,
+      "sha256": "d882fe374e00665f28d9658d261bb4848ceca0a7d56b932a378b0327c07a1907",
+      "lines": 9,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "vite.config.ts",
+      "size": 753,
+      "sha256": "0fcbc72ba598cb327cdd0e076fea9d32bebcbe105f2b61dea94af179623cb53c",
+      "lines": 24,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "worker/ai.ts",
+      "size": 10703,
+      "sha256": "fc94397d079e5fed4ce7cc7cdb87acbb386d1da8d68ddf5b12a11b8f7207d56a",
+      "lines": 134,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "worker/artifacts.ts",
+      "size": 1966,
+      "sha256": "9e88cee6f3d2ffb8618c4b746dc0620840352337d259c9c256f50ff59fe1f915",
+      "lines": 26,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/files/"
+      ]
+    },
+    {
+      "file": "worker/auth.ts",
+      "size": 3173,
+      "sha256": "7b998c9bdf6d70701b8e49b7844634ec4c8a981129979969db1c503c4ee0fb76",
+      "lines": 45,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "worker/http.ts",
+      "size": 3185,
+      "sha256": "59dd0a0a22d2d03ccc931a297564bf9f1aacb7a4da9a6fe07329d16adb671e19",
+      "lines": 55,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "worker/index.ts",
+      "size": 25541,
+      "sha256": "312027ed55eae6266651d8f1ec4b1dc942767f17db8fcae70fa0c491a7512b81",
+      "lines": 278,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": [
+        "/api/create-checkout-session",
+        "/api/webhook",
+        "/api/analyze-multimodal",
+        "/api/health",
+        "/api/site",
+        "/api/auth/login",
+        "/api/auth/logout",
+        "/api/auth/session",
+        "/api/user-status",
+        "/api/models",
+        "/api/admin/routing",
+        "/api/generate",
+        "/api/generate-text-advanced",
+        "/api/chat/intelligent",
+        "/api/translate",
+        "/api/generate-image",
+        "/api/generate-avatar",
+        "/api/transcribe-audio",
+        "/api/generate-music",
+        "/api/generate-video-veo",
+        "/api/video-status-veo",
+        "/api/video-download-veo",
+        "/api/music/analyze-als",
+        "/api/music/remix-plan",
+        "/api/memory/get",
+        "/api/memory/save",
+        "/api/memory/clear",
+        "/api/memory/delete",
+        "/api/memory/project",
+        "/api/memory/status",
+        "/api/user/profile",
+        "/api/upload",
+        "/api/files/",
+        "/api/archive/list",
+        "/api/swarm/enqueue",
+        "/api/metatron/swarm/synthesis",
+        "/api/telemetry",
+        "/api/circuit-breaker",
+        "/api/circuit-breaker/toggle",
+        "/api/landing/feedback",
+        "/api/cloudflare/status",
+        "/api/cloudflare/config",
+        "/api/cloudflare/zones",
+        "/api/cloudflare/workers",
+        "/api/metatron",
+        "/api/metatron/status",
+        "/api/metatron/heartbeat",
+        "/api/admin/diagnostics",
+        "/api/bridge/status",
+        "/api/bridge/performance",
+        "/api/admin/users",
+        "/api/admin/config/toggle",
+        "/api/deploy/status",
+        "/api/deploy",
+        "/api/docs/export",
+        "/api/scan-project",
+        "/api/bridge/",
+        "/api/telegram-bots",
+        "/api/telegram-bots/logs"
+      ]
+    },
+    {
+      "file": "worker/music.ts",
+      "size": 2723,
+      "sha256": "fbe0289234aa8ea1ce07702df57aab1e21918d4db0e4d30eab9e8a954e612f2e",
+      "lines": 29,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "worker/store.ts",
+      "size": 2813,
+      "sha256": "efe1bfe2517202d3697d7bcbd44373e1c2e569ed7c4af39dfe6438f5351034da",
+      "lines": 41,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "worker/types.ts",
+      "size": 737,
+      "sha256": "510265cf76d37b45fa79548f1298595d2f3890e5d02deb99efdd17bd48345d22",
+      "lines": 23,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    },
+    {
+      "file": "wrangler.toml",
+      "size": 1064,
+      "sha256": "8859817ee5d80fa6ca005fea1dfd69cd5fe3035f18e41e5fbfe63bde05dc4ad9",
+      "lines": 47,
+      "scope": "current",
+      "prototypeMarkerLines": [],
+      "localStorage": false,
+      "apiPaths": []
+    }
+  ]
+}

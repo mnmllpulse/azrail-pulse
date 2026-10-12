@@ -1,0 +1,12 @@
+import {readFileSync} from 'node:fs';
+let failed=false;const fail=m=>{console.error('ATTACHMENT ARCHITECTURE FAIL:',m);failed=true;};
+const read=p=>readFileSync(p,'utf8');
+const upload=read('src/lib/upload.ts'),attachments=read('src/lib/attachments.ts'),app=read('ui/app.ts'),manager=read('ui/attachment-manager.ts'),html=read('ui/app.html'),types=read('src/types.ts');
+for(const marker of ['MAX_UPLOAD_BYTES = 50 * 1024 * 1024','sanitizeFilename','requireResource','cleanupUnpublishedR2'])if(!upload.includes(marker))fail(`upload missing ${marker}`);
+for(const marker of ['MAX_FILES = 12','MAX_TEXT_BYTES','R2 ranged reads','attachmentsToText'])if(!attachments.includes(marker))fail(`attachment reader missing ${marker}`);
+for(const marker of ["/api/upload","FormData","projectId","state='failed'","Повторить","MAX_FILES=12","MAX_BYTES=50*1024*1024"])if(!manager.includes(marker))fail(`manager missing ${marker}`);
+if(app.includes('attachmentsText'))fail('legacy inline attachment text path is forbidden');
+for(const marker of ['attachmentManager.hasPending()','attachmentManager.hasFailed()','attachments:attachmentRefs'])if(!app.includes(marker))fail(`composer missing ${marker}`);
+if(!html.includes('id="attachment-manager"')||!html.includes('.zip,.pdf,.docx'))fail('attachment UI surface or accepted types missing');
+if(!types.includes('attachments?: AttachmentRef[]'))fail('TaskRequest must carry AttachmentRef[]');
+if(failed)process.exit(1);console.log('ATTACHMENT ARCHITECTURE PASS: uploads are project-bound, R2-backed, bounded, retryable and submitted as references.');

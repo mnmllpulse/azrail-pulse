@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "captured_at": "2026-10-10T06:04:13Z",
+  "source": "Cloudflare read-only API inspection",
+  "mutation_free": true,
+  "account": {
+    "name": "mnmllpulse"
+  },
+  "worker": {
+    "name": "azrail-pulse-staging",
+    "compatibility_date": "2026-09-29",
+    "compatibility_flags": [
+      "nodejs_compat"
+    ],
+    "latest_deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+    "latest_version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+    "latest_deployed_at": "2026-10-09T11:40:53.308736Z"
+  },
+  "database": {
+    "name": "azrail-db-staging",
+    "id": "509b9a03-444d-4bd7-9081-19651ea9b50f",
+    "version": "production",
+    "num_tables_reported": 52,
+    "file_size_bytes": 655360,
+    "running_in_region": "WEUR",
+    "schema_migrations_present": false,
+    "missions_result_json_present": true,
+    "live_row_counts": {
+      "projects": 1,
+      "missions": 1,
+      "mission_events": 29,
+      "mission_checkpoints": 11,
+      "operation_locks": 0,
+      "mission_outbox": 1,
+      "workspace_heads": 0,
+      "model_calls": 16,
+      "connector_connections": 0,
+      "studio_artifacts": 2
+    }
+  },
+  "bindings": {
+    "d1": "AZRAIL_D1",
+    "kv": "AZRAIL_KV",
+    "r2": "AZRAIL_R2",
+    "ai": "AI",
+    "orchestrator": "Orchestrator"
+  },
+  "required_legacy_tables_present": [
+    "missions",
+    "projects",
+    "mission_events",
+    "mission_checkpoints",
+    "operation_locks",
+    "mission_outbox",
+    "workspace_heads",
+    "model_calls",
+    "studio_artifacts",
+    "connector_connections"
+  ],
+  "read_only_evidence": {
+    "d1_rows_written": 0,
+    "d1_changed_db": false,
+    "cloudflare_deploy_performed": false,
+    "remote_migration_performed": false
+  }
+}

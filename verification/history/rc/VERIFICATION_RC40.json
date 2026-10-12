@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.40",
+  "stage": "Stage 26 / Stage D #31 \u2014 Staging deploy preparation",
+  "generated_at": "2026-10-10T06:56:00Z",
+  "environment": {
+    "node": "v22.16.0",
+    "npm": "10.9.2",
+    "release_contract": "Node >=24"
+  },
+  "verification": {
+    "cloudflare_staging_readonly": {
+      "status": "PASSED",
+      "worker": "azrail-pulse-staging",
+      "compatibility_date": "2026-09-29",
+      "cron": "*/10 * * * *",
+      "latest_deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+      "latest_version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+      "cloudflare_write_performed": false
+    },
+    "staging_deploy_preparation": {
+      "status": "PASSED",
+      "detail": "Read-only live staging snapshot matches canonical staging config and carries a reviewed previous deployment lease.",
+      "checks_passed": 26,
+      "checks_failed": 0
+    },
+    "staging_deploy_plan": {
+      "status": "BLOCKED",
+      "expected_blockers": [
+        "Node24 VERIFIED receipt for exact release is missing",
+        "staging migration APPLIED receipt for exact release is missing",
+        "canonical UI build proof is missing"
+      ],
+      "detail": "Expected fail-closed state before Node24/migration/UI receipts exist."
+    },
+    "deploy_guard": {
+      "status": "PASSED",
+      "detail": "Guard requires exact receipts, explicit cloud unlock, exact RC approval, and exact reviewed previous deployment ID before Wrangler can run."
+    },
+    "node24_full_suite": {
+      "status": "BLOCKED",
+      "reason": "Current runtime is Node v22.16.0."
+    },
+    "deploy_guard_negative_tests": {
+      "status": "PASSED",
+      "cases": [
+        "missing Node24 receipt blocked staging deploy apply",
+        "tampered live worker identity blocked staging deploy preparation"
+      ]
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 29,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 29,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "ui_typescript_noncanonical": {
+      "status": "PASSED",
+      "detail": "Global tsc -p tsconfig.ui.json --noEmit passed under Node22; not accepted as canonical Node24 full typecheck."
+    },
+    "release_package_guard": {
+      "status": "PASSED",
+      "detail": "Packaging rejected BLOCKED Node24 receipt."
+    }
+  },
+  "truth_boundaries": [
+    "Stage D #31 is prepared, not deployed.",
+    "Stage D #30 staging migration is still prepared, not applied.",
+    "No Cloudflare deployment or remote D1 migration was performed.",
+    "No GitHub mutation or Canva edit was performed.",
+    "Node24 suite remains blocked until a real Node >=24 dependency-backed run succeeds."
+  ],
+  "next_step": "After explicit authorization and prerequisite receipts, apply staging migration first, then staging deploy; otherwise continue preparing the authenticated staging smoke contract locally/read-only."
+}

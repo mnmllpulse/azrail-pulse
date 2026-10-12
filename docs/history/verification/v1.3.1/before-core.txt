@@ -1,0 +1,167 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+ RUN  v4.1.11 <project-root>
+
+ ❯ tests/audit-131.test.ts (11 tests | 10 failed) 75ms
+     × honors viewer downgrade on an already active OIDC session 22ms
+     × never re-admits an uncertain paid job after 24 hours and scheduled cleanup 6ms
+     × keeps a completed admission replayable after retention deadline 5ms
+     × invalid image body null returns 400 and permits correction before any provider call 6ms
+     × invalid image body {"prompt":7} returns 400 and permits correction before any provider call 4ms
+     × lowering DAILY_PROVIDER_CALLS stops new calls immediately 5ms
+     × exports binary workspace assets without UTF-8 replacement 7ms
+     × does not export a workspace while another process holds its write lock 4ms
+     × does not treat an invalid tools/call result as a successful external operation 5ms
+     × invalid JSON in a draft is a client error rather than a server outage 3ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 10 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > honors viewer downgrade on an already active OIDC session
+AssertionError: expected 200 to be 403 // Object.is equality
+
+- Expected
++ Received
+
+- 403
++ 200
+
+ ❯ tests/audit-131.test.ts:23:315
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/10]⎯
+
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > never re-admits an uncertain paid job after 24 hours and scheduled cleanup
+AssertionError: expected 'claimed' to be 'pending' // Object.is equality
+
+Expected: "pending"
+Received: "claimed"
+
+ ❯ tests/audit-131.test.ts:24:348
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/10]⎯
+
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > keeps a completed admission replayable after retention deadline
+AssertionError: expected 'claimed' to be 'replay' // Object.is equality
+
+Expected: "replay"
+Received: "claimed"
+
+ ❯ tests/audit-131.test.ts:25:467
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/10]⎯
+
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > invalid image body null returns 400 and permits correction before any provider call
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > invalid image body {"prompt":7} returns 400 and permits correction before any provider call
+AssertionError: expected 503 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 503
+
+ ❯ tests/audit-131.test.ts:26:210
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/10]⎯
+
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > lowering DAILY_PROVIDER_CALLS stops new calls immediately
+AssertionError: promise resolved "true" instead of rejecting
+
+- Expected:
+Error {
+  "message": "rejected promise",
+}
+
++ Received:
+true
+
+ ❯ tests/audit-131.test.ts:27:251
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/10]⎯
+
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > exports binary workspace assets without UTF-8 replacement
+AssertionError: expected Uint8Array[ 0, 239, 191, 189, …(-221) ] to deeply equal Uint8Array[ 0, 255, 128, 137, 80, …(-66) ]
+
+- Expected
++ Received
+
+@@ -1,10 +1,16 @@
+  Uint8Array [
+    0,
+-   255,
+-   128,
+-   137,
++   239,
++   191,
++   189,
++   239,
++   191,
++   189,
++   239,
++   191,
++   189,
+    80,
+    78,
+    71,
+    13,
+    10,
+
+ ❯ tests/audit-131.test.ts:28:389
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/10]⎯
+
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > does not export a workspace while another process holds its write lock
+AssertionError: expected 200 to be 409 // Object.is equality
+
+- Expected
++ Received
+
+- 409
++ 200
+
+ ❯ tests/audit-131.test.ts:29:365
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/10]⎯
+
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > does not treat an invalid tools/call result as a successful external operation
+AssertionError: promise resolved "{}" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
+- }
++ {}
+
+ ❯ tests/audit-131.test.ts:30:361
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/10]⎯
+
+ FAIL  tests/audit-131.test.ts > Audit 1.3.1 reproductions > invalid JSON in a draft is a client error rather than a server outage
+AssertionError: expected 503 to be 400 // Object.is equality
+
+- Expected
++ Received
+
+- 400
++ 503
+
+ ❯ tests/audit-131.test.ts:31:349
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/10]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  10 failed | 1 passed (11)
+   Start at  13:21:10
+   Duration  1.12s (transform 606ms, setup 0ms, import 912ms, tests 75ms, environment 0ms)
+

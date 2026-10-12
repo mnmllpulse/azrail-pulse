@@ -1,0 +1,85 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.39",
+  "stage": "Stage 25 / Stage D #30 — Staging migration preparation",
+  "generated_at": "2026-10-10T06:40:31.429320+00:00",
+  "environment": {
+    "node": "v22.16.0",
+    "npm": "10.9.2",
+    "release_contract": "Node >=24"
+  },
+  "verification": {
+    "cloudflare_staging_readonly": {
+      "status": "PASSED",
+      "worker": "azrail-pulse-staging",
+      "database": "azrail-db-staging",
+      "database_region": "WEUR",
+      "database_file_size_bytes": 655360,
+      "schema_migrations_present": false,
+      "missions_result_json_present": true,
+      "rows_written": 0,
+      "changed_db": false
+    },
+    "staging_migration_preparation": {
+      "status": "PASSED",
+      "migrations": 28,
+      "baseline": "002-mission-async.sql",
+      "apply_range": "003-029",
+      "remote_mutation_performed": false
+    },
+    "staging_migration_simulation": {
+      "status": "PASSED",
+      "detail": "Legacy fixture + migrations 003-029 applied twice; preservation/backfill invariants passed."
+    },
+    "apply_guard_negative_tests": {
+      "status": "PASSED",
+      "cases": [
+        "missing Node24 receipt blocked",
+        "missing cloud mutation unlock blocked",
+        "missing exact release approval blocked"
+      ]
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 28,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 28,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "node24_full_suite": {
+      "status": "BLOCKED",
+      "reason": "Current runtime is Node v22.16.0."
+    },
+    "release_package_guard": {
+      "status": "PASSED",
+      "detail": "Packaging rejected BLOCKED Node24 receipt."
+    },
+    "staging_drift": {
+      "status": "WARNING",
+      "pass": 34,
+      "warning": 1,
+      "drift": 0,
+      "blocker": 0,
+      "detail": "Only observability exposure remains warning in stored settings snapshot."
+    }
+  },
+  "truth_boundaries": [
+    "Stage D #30 is prepared, not applied.",
+    "No Cloudflare deployment or remote D1 migration was performed.",
+    "No GitHub mutation or Canva edit was performed.",
+    "Node24 suite remains blocked until a real Node >=24 dependency-backed run succeeds."
+  ],
+  "next_step": "After explicit Cloudflare mutation authorization and Node24 VERIFIED evidence, apply staging migration only; Worker staging deploy is a later separate stage."
+}

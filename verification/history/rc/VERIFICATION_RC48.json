@@ -1,0 +1,146 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.48",
+  "purpose": "CLEAN_GITHUB_REPOSITORY_PACKAGE",
+  "status": "LOCAL_STATIC_VERIFIED_REMOTE_RELEASE_BLOCKED",
+  "runtime": {
+    "node": "v22.16.0",
+    "npm": "10.9.2",
+    "canonical_node": "24.18.0"
+  },
+  "remote_mutation_performed": false,
+  "repository_cleanup": {
+    "root_files_before": 121,
+    "root_files_after": 21,
+    "historical_changelogs_location": "docs/history/changelog/",
+    "historical_rc_receipts_location": "verification/history/rc/",
+    "legacy_references_location": "references/legacy/",
+    "obsolete_direct_push_removed": "push-to-github.sh",
+    "active_executable_stub_scan": "PASS",
+    "exact_duplicate_groups": 7,
+    "duplicate_note": "Known groups are intentional generated/history/reference duplicates; no runtime ambiguity found."
+  },
+  "verification": {
+    "repository_hygiene": {
+      "status": "VERIFIED",
+      "checks_passed": 12,
+      "warnings": 1,
+      "failed": 0
+    },
+    "static_quality_gate": {
+      "status": "VERIFIED",
+      "passed": 44,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality_gate": {
+      "status": "BLOCKED",
+      "passed": 44,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "node24_suite": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "blocked": 1,
+      "reason": "host runtime is Node 22.16.0; canonical release requires Node >=24"
+    },
+    "ui_typescript": {
+      "status": "PASS",
+      "command": "tsc -p tsconfig.ui.json --noEmit"
+    },
+    "migration_integrity": {
+      "status": "PASS",
+      "first": "002-mission-async.sql",
+      "latest": "030-event-integrity-chain.sql",
+      "count": 29
+    },
+    "staging_migration_simulation": {
+      "status": "PASS",
+      "range": "003-030 after baseline 002",
+      "reapply": "PASS"
+    },
+    "production_migration_simulation": {
+      "status": "PASS",
+      "range": "002-030",
+      "reapply": "003-030 PASS"
+    },
+    "backup_restore_simulation": {
+      "status": "PASS",
+      "d1": "exact-state restore + 002-030",
+      "r2": "3-file manifest hash-before-write restore",
+      "corruption_rejection": "PASS"
+    },
+    "security_preparation": {
+      "status": "PREPARED",
+      "passed": 21,
+      "warnings": 2,
+      "failed": 0,
+      "event_integrity": "PASS",
+      "known_warnings": [
+        "current registry CVE audit requires release environment/network",
+        "remote post-deploy security smoke is not yet executed"
+      ]
+    },
+    "release_package": {
+      "status": "BLOCKED",
+      "reason": "Node24 suite receipt is BLOCKED"
+    },
+    "dependency_registry_audit": {
+      "status": "BLOCKED_NETWORK",
+      "command": "npm audit --audit-level=high",
+      "reason": "registry.npmjs.org could not be resolved from the local execution environment (EAI_AGAIN); GitHub Verify workflow runs this check under Node24 with network."
+    }
+  },
+  "security_changes": {
+    "event_integrity": "SHA-256 tamper-evident per-scope chain for new unified events",
+    "fork_prevention": "UNIQUE(scope, prev_hash) with writer retry",
+    "csp": "style-src self; inline style attributes isolated to style-src-attr",
+    "github_ci_dependency_audit": true
+  },
+  "master_pdf_truth": {
+    "items_1_28": "CLOSED",
+    "item_29_node24": "BLOCKED",
+    "item_30_staging_migration": "PREPARED_NOT_APPLIED",
+    "item_31_staging_deploy": "PREPARED_NOT_DEPLOYED",
+    "item_32_staging_smoke": "PREPARED_NOT_LIVE_VERIFIED",
+    "item_33_security": "PREPARED_NOT_LIVE_VERIFIED",
+    "item_34_production_drift": "EVIDENCE_COMPLETE_RECONCILIATION_REQUIRED",
+    "item_35_backup_restore": "LOCAL_VERIFIED_CLOUD_DRILL_PENDING",
+    "item_36_production_approval": "GATE_PREPARED_APPROVAL_NOT_ISSUED",
+    "item_37_github_pr": "PREPARED_NOT_PUBLISHED",
+    "item_38_production_release": "PREPARED_NOT_RELEASED"
+  },
+  "read_only_external_baseline": {
+    "github": {
+      "repository": "mnmllpulse/azrail-os",
+      "main_package_version": "1.4.0"
+    },
+    "cloudflare": {
+      "staging": {
+        "worker": "azrail-pulse-staging",
+        "deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+        "version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+        "compatibility_date": "2026-09-29"
+      },
+      "production": {
+        "worker": "azrail-os",
+        "deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+        "version_id": "476a3e6d-c066-484c-a0f8-d986bc630119",
+        "compatibility_date": "2026-08-08"
+      }
+    },
+    "canva": {
+      "design_id": "DAHWmofp_Os",
+      "title": "AZRAIL Unified Interface Website"
+    }
+  }
+}

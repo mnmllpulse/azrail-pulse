@@ -1,0 +1,127 @@
+{
+  "release": "1.5.0-rc.26",
+  "stage": 12,
+  "stage_name": "Professional Projects",
+  "master_plan_item": 17,
+  "status": "review_candidate",
+  "production_ready": false,
+  "cloud_mutations": false,
+  "github_mutations": false,
+  "canva_mutations": false,
+  "architecture": {
+    "backend": "src/lib/project-center.ts",
+    "api": "src/unified/projects.ts",
+    "ui": "ui/projects.ts",
+    "migration": "migrations/020-professional-projects.sql",
+    "metadata_table": "project_profiles",
+    "artifact_link_table": "studio_artifact_projects",
+    "features": [
+      "search",
+      "sorting",
+      "status_filter",
+      "studio_filter",
+      "rename",
+      "description",
+      "bounded_duplicate",
+      "archive_restore",
+      "soft_delete_restore",
+      "exact_name_delete_confirmation",
+      "pinned_favorite",
+      "runtime_status",
+      "last_activity",
+      "studio",
+      "artifact_count",
+      "version_count",
+      "mission_count",
+      "owner",
+      "created_updated",
+      "tags",
+      "export_zip"
+    ],
+    "duplicate_limits": {
+      "files": 400,
+      "bytes": 16777216,
+      "source_target_project_locks": true,
+      "history_cloned": false
+    },
+    "legacy_display_name_fallback": "latest mission goal when projects.name == projects.id",
+    "card_primary_actions": ["Open", "overflow"],
+    "studio_artifact_project_context": true
+  },
+  "checks": {
+    "projects_architecture": "PASS",
+    "projects_negative_test": "PASS_BLOCKED_REMOVED_EXACT_CONFIRMATION",
+    "migration_020_sqlite_schema": "PASS",
+    "migration_020_idempotence": "PASS",
+    "professional_projects_sqlite_runtime": "PASS",
+    "ui_typecheck": "PASS",
+    "typescript_syntax_parse": "PASS_230_FILES_0_DIAGNOSTICS",
+    "version_truth": "PASS",
+    "documentation_truth": "PASS",
+    "migration_integrity": "PASS_19_NUMBERED_MIGRATIONS",
+    "canonical_config": "PASS",
+    "release_preflight": "PASS_WITH_PRODUCTION_OIDC_WARNING",
+    "studio_architecture": "PASS",
+    "approval_architecture": "PASS",
+    "event_stream_architecture": "PASS",
+    "observability_architecture": "PASS",
+    "lint": "PASS_258_FILES",
+    "format": "PASS_258_FILES",
+    "security": "PASS",
+    "staging_drift": "PASS_WITH_1_WARNING",
+    "static_quality_gate": "VERIFIED",
+    "full_quality_gate": "BLOCKED",
+    "release_package": "BLOCKED_BY_NON_RELEASE_UI_BUILD"
+  },
+  "quality_gate": {
+    "static": {
+      "passed": 14,
+      "failed": 0,
+      "blocked": 0,
+      "status": "VERIFIED"
+    },
+    "full": {
+      "passed": 14,
+      "failed": 0,
+      "blocked": 5,
+      "status": "BLOCKED"
+    }
+  },
+  "cloudflare_staging_drift": {
+    "pass": 34,
+    "warning": 1,
+    "drift": 0,
+    "blocker": 0,
+    "warning_detail": "Worker settings snapshot did not expose observability; verify separately before release."
+  },
+  "visual_reference": {
+    "provider": "Canva",
+    "mode": "read_only",
+    "reference": "AZRAIL Unified Interface Website",
+    "mutated": false
+  },
+  "environment": {
+    "node": "22.16.0",
+    "required_node": ">=24.0.0",
+    "ui_build_mode": "typescript-fallback",
+    "ui_build_release_verified": false
+  },
+  "release_blockers": [
+    "Run npm ci under Node >=24",
+    "Run canonical esbuild UI build under Node >=24",
+    "Run dependency-backed full TypeScript typecheck",
+    "Run full Vitest suite including projects-professional.test.ts",
+    "Run Wrangler staging/production dry-runs",
+    "Run authenticated runtime smoke",
+    "Verify production OIDC values",
+    "Reconcile production Cloudflare drift only after explicit approval"
+  ],
+  "notes": [
+    "Project deletion is reversible soft delete at this stage and requires both project-id confirmation and exact project-name confirmation.",
+    "Project cards expose one primary Open action and one overflow action; secondary actions stay out of the default surface.",
+    "Duplicate copies only the current workspace snapshot, not mission/version history, and fails closed if the source workspace changes during the copy.",
+    "Canva was inspected only as a visual reference; no design was changed.",
+    "No GitHub or Cloudflare mutation was performed during Stage 12.",
+    "Fallback UI build remains preview-only; release packaging correctly fails closed."
+  ]
+}

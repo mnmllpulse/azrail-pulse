@@ -1,0 +1,105 @@
+{
+  "release": "1.5.0-rc.23",
+  "stage": 9,
+  "stage_name": "Unified Approval Engine",
+  "status": "review_candidate",
+  "production_ready": false,
+  "cloud_mutations": false,
+  "github_mutations": false,
+  "canva_mutations": false,
+  "architecture": {
+    "approval_engine": "src/lib/approval-engine.ts",
+    "approval_types": "src/lib/approval-types.ts",
+    "migration": "migrations/017-unified-approval-engine.sql",
+    "request_table": "approval_requests",
+    "receipt_table": "approval_receipts",
+    "payload_binding": "sha256-canonical-json",
+    "single_use_claim": true,
+    "durable_receipts": true,
+    "api": [
+      "GET /api/approvals",
+      "GET /api/approvals/:id",
+      "POST /api/approvals/:id/decision"
+    ],
+    "integrations": [
+      "mission approval requests",
+      "connector mutations",
+      "Git branch/file writes",
+      "GitHub pull requests",
+      "deployment dispatch",
+      "backup restore"
+    ],
+    "catalogued_for_future_operator_wiring": [
+      "production_migration",
+      "secret_rotation"
+    ]
+  },
+  "checks": {
+    "approval_architecture": "PASS",
+    "approval_architecture_negative_test": "PASS",
+    "approval_runtime_state_machine": "PASS",
+    "approval_payload_mismatch_blocker": "PASS",
+    "approval_replay_blocker": "PASS",
+    "approval_receipts": "PASS_4_EVENTS_IN_RUNTIME_TEST",
+    "schema_migration_idempotence": "PASS",
+    "typescript_syntax_parse": "PASS_222_FILES_0_DIAGNOSTICS",
+    "version_truth": "PASS",
+    "documentation_truth": "PASS",
+    "migration_integrity": "PASS",
+    "canonical_config": "PASS",
+    "release_preflight": "PASS_WITH_PRODUCTION_OIDC_WARNING",
+    "studio_architecture": "PASS",
+    "lint": "PASS_247_FILES",
+    "format": "PASS_247_FILES",
+    "security": "PASS",
+    "staging_drift": "PASS_WITH_1_WARNING",
+    "static_quality_gate": "VERIFIED",
+    "full_quality_gate": "BLOCKED",
+    "release_package": "BLOCKED_BY_NON_RELEASE_UI_BUILD"
+  },
+  "quality_gate": {
+    "static": {
+      "passed": 11,
+      "failed": 0,
+      "blocked": 0,
+      "status": "VERIFIED"
+    },
+    "full": {
+      "passed": 11,
+      "failed": 0,
+      "blocked": 5,
+      "status": "BLOCKED"
+    }
+  },
+  "cloudflare_staging_drift": {
+    "pass": 34,
+    "warning": 1,
+    "drift": 0,
+    "blocker": 0,
+    "warning_detail": "Worker settings snapshot did not expose observability; verify separately before release."
+  },
+  "environment": {
+    "node": "22.16.0",
+    "required_node": ">=24.0.0",
+    "local_node_modules": false,
+    "ui_build_mode": "typescript-fallback",
+    "ui_build_release_verified": false
+  },
+  "release_blockers": [
+    "Run npm ci under Node >=24",
+    "Run canonical esbuild UI build under Node >=24",
+    "Run dependency-backed full TypeScript typecheck",
+    "Run full Vitest suite",
+    "Run Wrangler staging/production dry-runs",
+    "Run authenticated runtime smoke",
+    "Verify production OIDC values",
+    "Reconcile production Cloudflare drift only after explicit approval"
+  ],
+  "notes": [
+    "Approval decisions are bound to an exact canonical SHA-256 payload digest and claims are single-use.",
+    "Autonomous approval-risk tools remain unavailable to the model; recording an approval request is not execution permission.",
+    "Production migration and secret rotation are represented in the approval action catalog, but operator CLI paths remain separately locked until their explicit in-app execution adapters are introduced.",
+    "Fallback UI build remains preview-only; release packaging correctly fails closed.",
+    "No GitHub or Cloudflare mutation was performed during Stage 9."
+  ]
+}

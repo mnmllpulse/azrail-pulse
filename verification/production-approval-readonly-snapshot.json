@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.54",
+  "master_item": 36,
+  "generated_at": "2026-10-10T08:45:49Z",
+  "mutation_free": true,
+  "github": {
+    "repository": "mnmllpulse/azrail-os",
+    "default_branch": "main",
+    "head_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
+    "package_version": "1.4.0",
+    "package_blob_sha": "0bb7a70370c07dbacb4993eca8224e7c118d841d",
+    "remote_write_performed": false
+  },
+  "cloudflare": {
+    "staging": {
+      "worker": "azrail-pulse-staging",
+      "deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+      "version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+      "traffic_percent": 100,
+      "compatibility_date": "2026-09-29",
+      "observability": null,
+      "binding_names": [
+        "AI",
+        "AI_GATEWAY_ID",
+        "ASSETS",
+        "AUTH_MODE",
+        "AZRAIL_D1",
+        "AZRAIL_FORCE_FREE",
+        "AZRAIL_KV",
+        "AZRAIL_METERING",
+        "AZRAIL_MISSION_BUDGET_USD",
+        "AZRAIL_R2",
+        "AZRAIL_WORKERS_PLAN",
+        "AZRAIL_WRITE_BUDGET",
+        "DAILY_PROVIDER_CALLS",
+        "OIDC_CLIENT_ID",
+        "OIDC_ISSUER",
+        "Orchestrator",
+        "PUBLIC_ORIGINS",
+        "UNIFIED_LEDGER"
+      ]
+    },
+    "production": {
+      "worker": "azrail-os",
+      "deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+      "version_id": "476a3e6d-c066-484c-a0f8-d986bc630119",
+      "traffic_percent": 100,
+      "compatibility_date": "2026-08-08",
+      "observability": null,
+      "binding_names": [
+        "AI",
+        "AI_GATEWAY_ID",
+        "ASSETS",
+        "AZRAIL_D1",
+        "AZRAIL_KV",
+        "AZRAIL_METERING",
+        "AZRAIL_MISSION_BUDGET_USD",
+        "AZRAIL_R2",
+        "AZRAIL_SANDBOX",
+        "AZRAIL_TOKEN",
+        "AZRAIL_WORKERS_PLAN",
+        "CORS_ORIGIN",
+        "Orchestrator"
+      ]
+    },
+    "remote_write_performed": false
+  },
+  "canva": {
+    "visual_reference_id": "DAHWmofp_Os",
+    "title": "AZRAIL Unified Interface Website",
+    "updated_at": 1791607307,
+    "remote_write_performed": false
+  },
+  "notes": [
+    "Snapshot contains identifiers and binding names only; no Cloudflare secret values are stored.",
+    "GitHub, Cloudflare and Canva were read only for this stage."
+  ]
+}

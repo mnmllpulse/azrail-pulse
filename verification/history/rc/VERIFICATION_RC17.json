@@ -1,0 +1,35 @@
+{
+  "release": "1.5.0-rc.17",
+  "stage": 3,
+  "title": "Cloudflare Config Drift Detector",
+  "cloud_mutations": false,
+  "github_mutations": false,
+  "checks": {
+    "version_truth": "pass",
+    "documentation_truth": "pass_after_canonical_docs_update",
+    "migration_integrity": "pass",
+    "release_preflight": "pass",
+    "cloud_drift_staging": "warning",
+    "cloud_drift_production": "blocker_expected"
+  },
+  "staging": {
+    "blockers": 0,
+    "drift": 0,
+    "warnings": ["Cloudflare settings snapshot did not expose observability"]
+  },
+  "production": {
+    "release_blocked": true,
+    "known_blockers": [
+      "compatibility_date differs from RC17",
+      "AUTH_MODE missing",
+      "PUBLIC_ORIGINS missing",
+      "AZRAIL_METERING is observe instead of enforce",
+      "UNIFIED_LEDGER missing",
+      "wildcard CORS_ORIGIN=*",
+      "OIDC_CLIENT_ID missing",
+      "OIDC_ISSUER missing"
+    ],
+    "note": "No production configuration was changed."
+  },
+  "node24_full_suite": "not_run_in_current_chat_runtime"
+}

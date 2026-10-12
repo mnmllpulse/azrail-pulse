@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.63",
+  "generated_at": "2026-10-11T03:42:36Z",
+  "scope": "local-only final cross-cutting Compare/Review/Brand closure",
+  "cross_cutting": {
+    "compare_mode": "universal saved-asset A/B with native MIME preview; Web source diff stays in Changes/Versions",
+    "professional_review": "persisted findings + safeAutoFix-gated remediation actions",
+    "brand_governance": "canonical English Studio names + Russian descriptors + user-facing Промпт labels"
+  },
+  "persistence": {
+    "latest_migration": "035-series-g-system-intelligence.sql",
+    "new_migration_required": false,
+    "remote_migration_applied": false
+  },
+  "runtime": {
+    "host_node": "22.16.0",
+    "canonical_node": "24.18.0"
+  },
+  "checks": {
+    "cross_cutting": "PASS_24_CONTRACTS",
+    "ui_typescript": "PASS",
+    "fallback_browser_bundle": "PASS_NOT_RELEASE_VERIFIED",
+    "static_quality": "59_PASS_0_FAIL_0_BLOCKED",
+    "full_quality": "59_PASS_0_FAIL_6_BLOCKED",
+    "production_drift": "RECONCILIATION_REQUIRED_17_BLOCKERS_READ_ONLY",
+    "remote_deploy": "NOT_RUN",
+    "node24_dependency_backed_proof": "BLOCKED_HOST_NODE22_AND_DEPENDENCY_ENVIRONMENT",
+    "series_g_live_browser_e2e": "BLOCKED_NO_LIVE_AUTHENTICATED_TARGET",
+    "runtime_smoke": "BLOCKED_NO_LIVE_AUTHENTICATED_TARGET"
+  },
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "production": false
+  },
+  "full_quality_blockers": [
+    "typecheck: Node v22.16.0 detected; Node >=24 is required.",
+    "build-ui: Node v22.16.0 detected; Node >=24 is required.",
+    "tests: Node v22.16.0 detected; Node >=24 is required.",
+    "worker-dry-run: Node v22.16.0 detected; Node >=24 is required.",
+    "series-g-live-e2e: live authenticated target was not provided; real Chromium Browser QA/E2E proof cannot be fabricated.",
+    "runtime-smoke: AZRAIL_URL and an authenticated smoke credential were not provided."
+  ]
+}

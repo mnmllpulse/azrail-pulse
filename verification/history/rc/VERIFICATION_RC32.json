@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.32",
+  "stage": "Stage 18 / Professional Audio Lab",
+  "generated_at": "2026-10-10T03:30:35.180983+00:00",
+  "environment": {
+    "node": "v22.16.0",
+    "release_contract": "Node >=24"
+  },
+  "verification": {
+    "audio_architecture": {
+      "status": "PASSED",
+      "negative_test": "PASSED (intentional Spectrogram marker removal produced exit 1)"
+    },
+    "audio_runtime": {
+      "status": "PASSED",
+      "checks": [
+        "Integrated/Short-term LUFS and true-peak estimate produced for 1 kHz tone",
+        "120 BPM pulse detected near 120 BPM",
+        "steady tone BPM rejected",
+        "C major chord detected",
+        "anti-phase stereo correlation/width handled",
+        "reference loudness delta verified"
+      ]
+    },
+    "ui_typecheck": {
+      "status": "PASSED",
+      "command": "tsc -p tsconfig.ui.json --noEmit"
+    },
+    "typescript_syntax": {
+      "status": "PASSED",
+      "files": 241,
+      "parse_diagnostics": 0
+    },
+    "fallback_preview": {
+      "status": "PASSED",
+      "modules": 30,
+      "release_verified": false
+    },
+    "release_package_guard": {
+      "status": "PASSED",
+      "detail": "release:package correctly blocked typescript-fallback / release_verified=false"
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 20,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 20,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "staging_drift": {
+      "summary": {},
+      "status": "WARNING"
+    }
+  },
+  "truth_boundaries": [
+    "Audio Lab metrics run locally on decoded PCM; no cloud upload is required for analysis.",
+    "LUFS/LRA use a BS.1770-style K-weighted gated engineering implementation, not a certified meter.",
+    "True peak is a bounded 4x cubic inter-sample estimate, not a certified oversampling meter.",
+    "BPM and key are estimates with confidence and may return null.",
+    "No GitHub, Cloudflare, or Canva mutation was performed."
+  ],
+  "release_blockers": [
+    "Full Node24 dependency-backed suite not executed in current Node22 environment",
+    "Canonical esbuild UI build not release-verified",
+    "Vitest blocked by environment",
+    "Wrangler dry-run blocked by environment",
+    "Authenticated runtime smoke target/credential not provided"
+  ]
+}

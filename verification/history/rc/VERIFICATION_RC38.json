@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.38",
+  "stage": "Stage 24 / Stage D #29 — Full Node24 verification suite contract",
+  "generated_at": "2026-10-10T05:50:00Z",
+  "environment": {
+    "node": "v22.16.0",
+    "npm": "10.9.2",
+    "release_contract": "Node >=24",
+    "reference_node": "24.18.0",
+    "canonical_dependencies_installed": false,
+    "package_lock_sha256": "923100c37934bb4ab2fa8e8e288c32c002b513cdfac484fab67ebdc4f813ff8a"
+  },
+  "verification": {
+    "node24_contract": {
+      "status": "PASSED",
+      "negative_test": "PASSED (.nvmrc changed to 22.16.0 -> node24:check exit 1; restored -> exit 0)",
+      "pins": [
+        ".nvmrc",
+        ".node-version"
+      ],
+      "commands": [
+        "node24:env",
+        "node24:check",
+        "node24:suite",
+        "node24:suite:install"
+      ]
+    },
+    "node24_full_suite": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "blocked": 1,
+      "blocked_reason": "Current runtime is Node v22.16.0; the suite refuses to create Node24 VERIFIED evidence."
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 26,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 26,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "ui_typecheck_available_global_compiler": {
+      "status": "PASSED",
+      "command": "tsc -p tsconfig.ui.json --noEmit",
+      "truth_boundary": "This is not the canonical dependency-backed full Node24 typecheck."
+    },
+    "release_package_guard": {
+      "status": "PASSED",
+      "detail": "release:package rejected the BLOCKED Node24 receipt before any production package was created."
+    },
+    "staging_drift": {
+      "status": "WARNING",
+      "counts": {
+        "PASS": 34,
+        "WARNING": 1,
+        "DRIFT": 0,
+        "BLOCKER": 0
+      },
+      "mutation_free": true
+    }
+  },
+  "truth_boundaries": [
+    "Node22 cannot produce VERIFIED Node24 evidence.",
+    "The Node24 suite uses npm ci and the exact package-lock before dependency-backed verification.",
+    "Release packaging requires a VERIFIED Node24 receipt for the exact current release and Node >=24 runtime.",
+    "Authenticated runtime smoke remains separate because it requires a deployed URL and credential.",
+    "No GitHub, Cloudflare, or Canva mutation was performed."
+  ],
+  "release_blockers": [
+    "Full Node24 dependency-backed suite has not been executed successfully in this environment.",
+    "Canonical Node24 typecheck/build/Vitest/Wrangler staging+production dry-runs therefore remain unverified.",
+    "Authenticated runtime smoke target/credential has not been provided.",
+    "Stage D #30 staging migration is a remote mutation and remains forbidden until the user explicitly authorizes deployment/mutation work."
+  ]
+}

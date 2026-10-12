@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.61",
+  "generated_at": "2026-10-11T02:43:20Z",
+  "scope": "local-only Series F F81-F100 Universal Module System 2.0",
+  "series_f_universal_modules": {
+    "f81_f100": "implemented-local",
+    "canonical_contract": "ModuleDefinition + one full-tree ModuleFrame",
+    "grip_reorder": "native sibling frame reorder only",
+    "collapse_pin_lock_rename_settings_reset": "implemented",
+    "undo_redo": "bounded local module snapshots",
+    "loading_error_retry_status": "wired to real studio run lifecycle",
+    "permissions": "module.view/configure/execute/manage hierarchy",
+    "shortcuts": "framework + module-specific action registry",
+    "history": "bounded module history with local persistence",
+    "resource_usage": "measured run count + last_ms",
+    "plugin_actions": "extensible global/runtime action API",
+    "structural_actions_boundary": "Duplicate/Delete/Move are hidden unless the host supplies a real capability + callback; no fake DOM clone/workspace move"
+  },
+  "persistence": {
+    "latest_migration": "034-metatron-lab-2.sql",
+    "new_migration_for_rc61": false,
+    "remote_migration_applied": false
+  },
+  "domain_decision": {
+    "production_origin": "https://mnmllpulse.com",
+    "additional_domains": "deferred"
+  },
+  "runtime": {
+    "host_node": "22.16.0",
+    "canonical_node": "24.18.0"
+  },
+  "checks": {
+    "series_f_universal_modules": "PASS_25_CONTRACTS_F81_F100_PLUS_SAFETY_BOUNDARIES",
+    "ui_typescript": "PASS",
+    "fallback_browser_bundle": "PASS_NOT_RELEASE_VERIFIED",
+    "static_quality": "57_PASS_0_FAIL_0_BLOCKED",
+    "full_quality": "57_PASS_0_FAIL_5_BLOCKED",
+    "node24_dependency_backed_proof": "BLOCKED_HOST_NODE22_AND_DEPENDENCY_ENVIRONMENT",
+    "runtime_smoke": "BLOCKED_NO_LIVE_AUTHENTICATED_TARGET",
+    "production_drift": "RECONCILIATION_REQUIRED_17_BLOCKERS_READ_ONLY",
+    "remote_deploy": "NOT_RUN"
+  },
+  "full_quality_blockers": [
+    "typecheck: Node v22.16.0 detected; Node >=24 is required.",
+    "build-ui: Node v22.16.0 detected; Node >=24 is required.",
+    "tests: Node v22.16.0 detected; Node >=24 is required.",
+    "worker-dry-run: Node v22.16.0 detected; Node >=24 is required.",
+    "runtime-smoke: AZRAIL_URL and an authenticated smoke credential were not provided."
+  ],
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "production": false
+  }
+}

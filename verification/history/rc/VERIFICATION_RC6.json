@@ -1,0 +1,79 @@
+{
+  "release": "1.5.0-rc.6",
+  "status": "review_candidate",
+  "generated_at": "2026-10-08T14:50:00Z",
+  "mutation_policy": {
+    "github_write_performed": false,
+    "cloudflare_write_performed": false,
+    "deployment_performed": false,
+    "notes": "GitHub and Cloudflare were used read-only only."
+  },
+  "passed": {
+    "release_preflight": true,
+    "package_lock_version_consistency": true,
+    "typescript_syntax": {
+      "files": 173,
+      "errors": 0
+    },
+    "relative_imports": {
+      "checked": 550,
+      "missing": 0
+    },
+    "strict_json": {
+      "files": 41,
+      "errors": 0
+    },
+    "jsonc": {
+      "files": 2,
+      "errors": 0
+    },
+    "yaml": {
+      "files": 2,
+      "errors": 0
+    },
+    "mjs_syntax": true,
+    "shell_syntax": true,
+    "targeted_runtime_assertions": {
+      "passed": 7,
+      "total": 7,
+      "coverage": [
+        "workspace staged-object cleanup",
+        "lock-release outage does not replay successful mutation",
+        "stale mission/orphan lock recovery",
+        "R2 ranged attachment read",
+        "upload R2 cleanup on D1 ownership failure",
+        "malformed upload projectId rejection",
+        "OIDC discovery/token redirect denial"
+      ]
+    },
+    "secret_pattern_scan": {
+      "files": 125,
+      "findings": 0
+    },
+    "source_manifest": {
+      "files": 696,
+      "missing": 0,
+      "extra": 0,
+      "sha_mismatch": 0
+    }
+  },
+  "not_freshly_verified": {
+    "npm_ci": "Timed out after 60 seconds in the isolated environment; dependency installation did not complete.",
+    "semantic_typescript_typecheck": "Requires the project dependency tree.",
+    "full_vitest_suite": "Requires the project dependency tree.",
+    "wrangler_staging_dry_run": "Requires Wrangler from the project dependency tree.",
+    "wrangler_production_dry_run": "Requires Wrangler from the project dependency tree.",
+    "staging_migration_smoke": "Not executed; no remote mutation was authorized."
+  },
+  "release_blockers": [
+    "Fresh dependency-enabled npm ci/typecheck/full Vitest must pass.",
+    "Fresh Wrangler dry-run must pass for staging and production configs.",
+    "Migration plan must be verified against disposable staging before any remote apply.",
+    "Production OIDC issuer/client provenance must be explicitly verified; values are intentionally not guessed."
+  ],
+  "notes": [
+    "RC6 is not production-ready.",
+    "No GitHub publication/commit and no Cloudflare deployment/configuration mutation were performed in this RC6 pass.",
+    "The historical 1.4.0 verification is not used as evidence for RC6."
+  ]
+}

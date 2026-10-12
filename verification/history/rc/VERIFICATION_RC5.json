@@ -1,0 +1,76 @@
+{
+  "release": "1.5.0-rc.5",
+  "generated_at": "2026-10-08T14:22:27.159252+00:00",
+  "status": "partial-pass",
+  "remote_mutation": false,
+  "checks": {
+    "release_preflight": {
+      "status": "pass",
+      "note": "staging/production separated; cloud mutations locked; migration-010 assertions active; production OIDC provenance warning retained"
+    },
+    "package_lock_version_consistency": {
+      "status": "pass",
+      "version": "1.5.0-rc.5"
+    },
+    "typescript_syntax_transpile": {
+      "status": "pass",
+      "files": 172,
+      "errors": 0
+    },
+    "relative_imports_ast": {
+      "status": "pass",
+      "relative_specifiers": 558,
+      "missing": 0
+    },
+    "json_jsonc_parse": {
+      "status": "pass",
+      "files": 42,
+      "errors": 0
+    },
+    "yaml_parse": {
+      "status": "pass",
+      "files": 2,
+      "errors": 0
+    },
+    "node_mjs_syntax": {
+      "status": "pass",
+      "files": 7
+    },
+    "shell_syntax": {
+      "status": "pass",
+      "files": 1
+    },
+    "schema_and_migration_010": {
+      "status": "pass",
+      "fresh_schema_tables": 46,
+      "note": "schema.sql parsed; migration 010 reapply is idempotent"
+    },
+    "filtered_provider_secret_scan": {
+      "status": "pass",
+      "files": 132,
+      "findings": 0,
+      "scope": "production src/ui/scripts/deploy/config; scanner regex literals and documented fake fixtures excluded"
+    },
+    "targeted_runtime_harness": {
+      "status": "pass",
+      "scenarios": [
+        "outbox poison/cross-project quarantine",
+        "hierarchical model budget reconciliation exact-once",
+        "connector uncertain not_executed reconciliation exact-once",
+        "trusted HTTPS endpoint boundary"
+      ]
+    }
+  },
+  "not_reproduced": {
+    "npm_ci": "dependency install did not complete in isolated environment",
+    "semantic_typecheck": "project dependency/type packages unavailable because npm install did not complete",
+    "full_vitest": "project dependencies unavailable",
+    "wrangler_staging_dry_run": "project Wrangler dependency unavailable in clean install",
+    "wrangler_production_dry_run": "project Wrangler dependency unavailable in clean install"
+  },
+  "release_notes": [
+    "RC5 is a review candidate, not production-ready.",
+    "No GitHub publication/commit and no Cloudflare deployment/config mutation were performed in this RC5 pass.",
+    "Production OIDC issuer/client are intentionally not guessed; production deployment remains blocked until provenance is verified."
+  ]
+}

@@ -1,0 +1,43 @@
+import { createHash } from 'node:crypto';
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, statSync, writeFileSync } from 'node:fs';
+import { basename, dirname, join, relative, resolve } from 'node:path';
+const root=resolve(new URL('..',import.meta.url).pathname);
+const pkg=JSON.parse(readFileSync(join(root,'package.json'),'utf8'));
+const policy=JSON.parse(readFileSync(join(root,'release-manifest.json'),'utf8'));
+const node24ProofPath=join(root,'.work','node24-suite.json');
+if(!existsSync(node24ProofPath))throw Error('Node24 verification receipt missing. Run npm run node24:suite:install under Node >=24 before packaging.');
+const node24Proof=JSON.parse(readFileSync(node24ProofPath,'utf8'));
+if(node24Proof.status!=='VERIFIED')throw Error(`Release package blocked: Node24 suite status is ${node24Proof.status??'unknown'}.`);
+if(node24Proof.release!==pkg.version)throw Error(`Release package blocked: Node24 suite receipt ${node24Proof.release??'unknown'} does not match ${pkg.version}.`);
+const proofNodeMajor=Number(String(node24Proof.runtime?.node??'').replace(/^v/,'').split('.')[0]);
+if(!Number.isFinite(proofNodeMajor)||proofNodeMajor<24)throw Error(`Release package blocked: Node24 receipt runtime is ${node24Proof.runtime?.node??'unknown'}.`);
+const productionApprovalPath=join(root,'.work','production-approval.json');
+if(!existsSync(productionApprovalPath))throw Error('Release package blocked: production approval receipt missing. Complete Stage D #36 first.');
+const productionApproval=JSON.parse(readFileSync(productionApprovalPath,'utf8'));
+if(productionApproval.status!=='APPROVED_FOR_GITHUB_PR'||productionApproval.release!==pkg.version)throw Error(`Release package blocked: production approval is ${productionApproval.status??'missing'} for ${productionApproval.release??'unknown'}.`);
+if(Date.parse(productionApproval.expires_at)<=Date.now())throw Error('Release package blocked: production approval receipt expired.');
+const sourceManifestPath=join(root,'SOURCE_MANIFEST.json');
+if(!existsSync(sourceManifestPath))throw Error('Release package blocked: SOURCE_MANIFEST.json missing after production approval.');
+const sourceManifestSha=createHash('sha256').update(readFileSync(sourceManifestPath)).digest('hex');
+if(productionApproval.source_manifest_sha256!==sourceManifestSha)throw Error('Release package blocked: source manifest changed after production approval.');
+const uiBuildProofPath=join(root,'.work','ui-build-mode.json');
+if(!existsSync(uiBuildProofPath))throw Error('UI build provenance missing. Run the canonical Node 24 UI build before packaging.');
+const uiBuildProof=JSON.parse(readFileSync(uiBuildProofPath,'utf8'));
+if(uiBuildProof.mode!=='esbuild'||uiBuildProof.release_verified!==true)throw Error(`Release package blocked: UI build is ${uiBuildProof.mode??'unknown'} / release_verified=${uiBuildProof.release_verified??false}. Run canonical build under Node >=24.`);
+const rc=(pkg.version.match(/-rc\.(\d+)$/)||[])[1]; if(!rc)throw Error(`Release version ${pkg.version} is not an RC version`);
+const currentFiles=policy.include_current_version_files.map(x=>x.replace('{version}',pkg.version).replace('{rc}',rc));
+for(const rel of policy.forbidden_active_paths)if(existsSync(join(root,rel)))throw Error(`Forbidden active duplicate config remains: ${rel}`);
+const artifact=policy.artifact_pattern.replace('{version}',pkg.version);
+const outRoot=join(root,'.work','release'); const out=join(outRoot,artifact); rmSync(out,{recursive:true,force:true}); mkdirSync(out,{recursive:true});
+const includeFiles=new Set([...policy.include_files,...currentFiles,'release-manifest.json']);
+const roots=policy.include_roots.map(x=>x.replace(/\/$/,''));
+const all=[]; function walk(dir){for(const ent of readdirSync(dir,{withFileTypes:true})){const abs=join(dir,ent.name); if(ent.isDirectory())walk(abs); else if(ent.isFile())all.push(relative(root,abs).replaceAll('\\','/'));}}
+walk(root);
+const forbiddenPrefix=(rel)=>policy.forbidden_release_prefixes.some(p=>rel.startsWith(p));
+const forbiddenExt=(rel)=>policy.forbidden_release_extensions.some(e=>rel.toLowerCase().endsWith(e));
+const included=all.filter(rel=>{if(rel.startsWith('.work/'))return false;if(forbiddenPrefix(rel)||forbiddenExt(rel))return false;if(includeFiles.has(rel))return true;return roots.some(r=>rel===r||rel.startsWith(r+'/'));}).sort();
+for(const rel of included){const src=join(root,rel),dst=join(out,rel);mkdirSync(dirname(dst),{recursive:true});cpSync(src,dst);}
+const files=[];for(const rel of included){const b=readFileSync(join(out,rel));files.push({path:rel,bytes:b.length,sha256:createHash('sha256').update(b).digest('hex')});}
+const receipt={schema_version:1,release:pkg.version,artifact,file_count:files.length,total_bytes:files.reduce((n,f)=>n+f.bytes,0),algorithm:'sha256',production_approval:{id:productionApproval.id,status:productionApproval.status,approved_at:productionApproval.approved_at,expires_at:productionApproval.expires_at,github_base_sha:productionApproval.github_base_sha,production_deployment_lease:productionApproval.production_deployment_lease,source_manifest_sha256:productionApproval.source_manifest_sha256},files};
+writeFileSync(join(out,'RELEASE_FILES.json'),JSON.stringify(receipt,null,2)+'\n');
+console.log(JSON.stringify({status:'PASS',artifact,directory:out,file_count:receipt.file_count,total_bytes:receipt.total_bytes},null,2));

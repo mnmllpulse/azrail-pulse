@@ -1,0 +1,58 @@
+{
+  "release": "1.5.0-rc.43",
+  "stage": 29,
+  "master_item": 34,
+  "title": "Production drift reconciliation",
+  "status": "EVIDENCE_COMPLETE_RECONCILIATION_REQUIRED",
+  "runtime": {
+    "node": "v22.16.0",
+    "npm": "10.9.2",
+    "required_node": ">=24.0.0"
+  },
+  "production_read_only_evidence": {
+    "worker": "azrail-os",
+    "deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+    "worker_version_id": "476a3e6d-c066-484c-a0f8-d986bc630119",
+    "worker_version_number": 209,
+    "d1": "azrail-db",
+    "d1_rows_written": 0,
+    "d1_changed_db": false,
+    "cloudflare_write_performed": false
+  },
+  "production_drift": {
+    "status": "RECONCILIATION_REQUIRED",
+    "passed": 16,
+    "warnings": 2,
+    "drift": 2,
+    "blockers": 17,
+    "migration_start": "002",
+    "migration_latest": "029"
+  },
+  "local_verification": {
+    "production_drift_check": "PASS_AS_EVIDENCE_RECONCILIATION_REQUIRED",
+    "production_migration_simulation": "PASS_002_TO_029_AND_003_TO_029_REAPPLY",
+    "negative_mutation_free_evidence_test": "PASS_EXPECTED_EXIT_2",
+    "production_drift_strict": "BLOCKED_EXPECTED_BY_LIVE_DRIFT",
+    "static_quality_gate": {"status": "VERIFIED", "passed": 36, "failed": 0, "blocked": 0},
+    "full_quality_gate": {"status": "BLOCKED", "passed": 36, "failed": 0, "blocked": 5},
+    "ui_typescript": "PASS",
+    "node24_suite": "BLOCKED_BY_NODE22",
+    "release_package": "BLOCKED_BY_NODE24_RECEIPT",
+    "release_preflight": "PASS_WITH_PRODUCTION_OIDC_WARNING"
+  },
+  "known_release_gaps": [
+    "Node24 suite has not run in a Node24 release environment.",
+    "Staging migration/deploy/smoke/security have not been executed for this RC.",
+    "Production OIDC client/issuer are not yet operator-verified/pinned.",
+    "Live production config and D1 schema are not aligned with the canonical RC.",
+    "Stage D #35 backup/restore proof is not yet completed.",
+    "Unified Event Stream still lacks cryptographic checksum/signature chaining.",
+    "Current dependency CVE audit has not been proven in the Node24 release environment."
+  ],
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "production": false
+  }
+}

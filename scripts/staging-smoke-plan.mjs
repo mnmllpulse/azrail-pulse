@@ -1,0 +1,24 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+
+const pkg=JSON.parse(readFileSync('package.json','utf8'));
+const contract=JSON.parse(readFileSync('verification/staging-smoke-contract.json','utf8'));
+const snapshot=JSON.parse(readFileSync(contract.readonly_snapshot,'utf8'));
+const pre=spawnSync(process.execPath,['scripts/check-staging-smoke-preparation.mjs'],{stdio:'inherit'});
+if(pre.status!==0)process.exit(pre.status??2);
+const read=(path)=>existsSync(path)?JSON.parse(readFileSync(path,'utf8')):null;
+const node=read(contract.required_receipts.node24);
+const migration=read(contract.required_receipts.migration_applied);
+const deploy=read(contract.required_receipts.deploy_applied);
+const blockers=[];
+if(node?.status!=='VERIFIED'||node?.release!==pkg.version)blockers.push('Node24 VERIFIED receipt for exact release is missing.');
+if(migration?.status!=='APPLIED'||migration?.release!==pkg.version)blockers.push('Staging migration APPLIED receipt for exact release is missing.');
+if(deploy?.status!=='DEPLOY_COMMAND_SUCCEEDED'||deploy?.release!==pkg.version)blockers.push('Staging deploy command success receipt for exact release is missing.');
+if(snapshot.post_deploy!==true)blockers.push('Read-only Cloudflare smoke snapshot has not been refreshed after staging deploy.');
+if(deploy?.previous_deployment&&snapshot.worker?.current_deployment_id===deploy.previous_deployment)blockers.push('Cloudflare still reports the reviewed pre-deploy deployment; new deployment identity is not proven.');
+if(!process.env.AZRAIL_SESSION_COOKIE&&!process.env.AZRAIL_TOKEN)blockers.push('Authenticated smoke credential is not present in process environment.');
+const expectedDeployment=process.env[contract.expected_deployment_env];
+if(snapshot.post_deploy===true&&expectedDeployment!==snapshot.worker?.current_deployment_id)blockers.push(`${contract.expected_deployment_env} must equal post-deploy snapshot deployment ${snapshot.worker?.current_deployment_id??'missing'}.`);
+const plan={schema_version:1,release:pkg.version,environment:'staging',status:blockers.length?'BLOCKED':'READY',target:contract.target_url,active_deployment:snapshot.worker?.current_deployment_id??null,active_version:snapshot.worker?.current_version_id??null,blockers,steps:['Refresh Cloudflare deployment/version snapshot read-only after approved staging deploy.','Set AZRAIL_URL to canonical staging origin.','Provide a live OIDC session cookie (preferred) or token only in process environment; never store it in repository.','Set exact expected deployment lease to the read-only post-deploy identity.','Run staging:smoke:run; every HTTP request is GET and the health response must report the exact RC version.','Keep production untouched.']};
+console.log(JSON.stringify(plan,null,2));
+if(blockers.length)process.exit(2);

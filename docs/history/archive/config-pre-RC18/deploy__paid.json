@@ -1,0 +1,86 @@
+{
+  "name": "azrail-pulse",
+  "main": "src/unified.paid.ts",
+  "compatibility_date": "2026-09-29",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./site",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "Orchestrator",
+        "class_name": "Orchestrator"
+      },
+      {
+        "name": "AZRAIL_SANDBOX",
+        "class_name": "Sandbox"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "Orchestrator"
+      ]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": [
+        "Sandbox"
+      ]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "AZRAIL_D1",
+      "database_name": "azrail-pulse-db",
+      "database_id": "00000000-0000-0000-0000-000000000000"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "AZRAIL_KV",
+      "id": "00000000000000000000000000000000"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "AZRAIL_R2",
+      "bucket_name": "azrail-pulse-artifacts"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "triggers": {
+    "crons": [
+      "*/10 * * * *"
+    ]
+  },
+  "vars": {
+    "AUTH_MODE": "oidc",
+    "PUBLIC_ORIGINS": "https://mnmllpulse.com,https://mnmllpulse.org,https://pulse-labs.org",
+    "AZRAIL_WORKERS_PLAN": "paid",
+    "AZRAIL_METERING": "enforce",
+    "UNIFIED_LEDGER": "true",
+    "DAILY_PROVIDER_CALLS": "200",
+    "AZRAIL_MISSION_BUDGET_USD": "1",
+    "AI_GATEWAY_ID": "default"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "containers": [
+    {
+      "class_name": "Sandbox",
+      "image": "./Dockerfile",
+      "max_instances": 2
+    }
+  ]
+}

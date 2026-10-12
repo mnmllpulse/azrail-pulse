@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "description": "Canonical Cloudflare environment model. wrangler.*.json files are generated; do not edit generated files directly.",
+  "common": {
+    "compatibility_date": "2026-09-29",
+    "compatibility_flags": [
+      "nodejs_compat"
+    ],
+    "assets": {
+      "directory": "./site",
+      "binding": "ASSETS",
+      "run_worker_first": true
+    },
+    "ai": {
+      "binding": "AI"
+    },
+    "triggers": {
+      "crons": [
+        "*/10 * * * *"
+      ]
+    },
+    "observability": {
+      "enabled": true
+    },
+    "ai_gateway_id": "default"
+  },
+  "environments": {
+    "staging": {
+      "config_file": "wrangler.staging.json",
+      "name": "azrail-pulse-staging",
+      "main": "src/unified.free.ts",
+      "plan": "free",
+      "sandbox": false,
+      "d1": {
+        "binding": "AZRAIL_D1",
+        "database_name": "azrail-db-staging",
+        "database_id": "509b9a03-444d-4bd7-9081-19651ea9b50f"
+      },
+      "kv": {
+        "binding": "AZRAIL_KV",
+        "id": "4b1b2455cfaf4fc3aa766ea2af5da0e2",
+        "namespace_name": "AZRAIL_KV_STAGING"
+      },
+      "r2": {
+        "binding": "AZRAIL_R2",
+        "bucket_name": "azrail-artifacts-staging"
+      },
+      "vars": {
+        "AUTH_MODE": "oidc",
+        "PUBLIC_ORIGINS": "https://azrail-pulse-staging.mnmllpulse.workers.dev",
+        "AZRAIL_WORKERS_PLAN": "free",
+        "AZRAIL_FORCE_FREE": "true",
+        "AZRAIL_METERING": "enforce",
+        "UNIFIED_LEDGER": "true",
+        "DAILY_PROVIDER_CALLS": "20",
+        "AZRAIL_MISSION_BUDGET_USD": "0.10",
+        "AZRAIL_WRITE_BUDGET": "1000",
+        "AI_GATEWAY_ID": "default",
+        "OIDC_CLIENT_ID": "5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a",
+        "OIDC_ISSUER": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a"
+      }
+    },
+    "production": {
+      "config_file": "wrangler.production.json",
+      "name": "azrail-os",
+      "main": "src/unified.paid.ts",
+      "plan": "paid",
+      "sandbox": true,
+      "d1": {
+        "binding": "AZRAIL_D1",
+        "database_name": "azrail-db",
+        "database_id": "c76e7d92-648c-45bc-b0df-f26b00d0ff88"
+      },
+      "kv": {
+        "binding": "AZRAIL_KV",
+        "id": "dab3b792264f4d9cbec5d637d4f8d71e",
+        "namespace_name": "AZRAIL_KV"
+      },
+      "r2": {
+        "binding": "AZRAIL_R2",
+        "bucket_name": "azrail-artifacts"
+      },
+      "vars": {
+        "AUTH_MODE": "oidc",
+        "PUBLIC_ORIGINS": "https://mnmllpulse.com",
+        "AZRAIL_WORKERS_PLAN": "paid",
+        "AZRAIL_METERING": "enforce",
+        "UNIFIED_LEDGER": "true",
+        "DAILY_PROVIDER_CALLS": "200",
+        "AZRAIL_MISSION_BUDGET_USD": "1",
+        "AI_GATEWAY_ID": "default"
+      },
+      "release_requirements": {
+        "required_external_vars": [
+          "OIDC_CLIENT_ID",
+          "OIDC_ISSUER"
+        ],
+        "note": "Production OIDC identifiers are intentionally not invented in source; release remains blocked until explicitly pinned."
+      }
+    }
+  }
+}

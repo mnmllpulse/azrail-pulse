@@ -1,0 +1,88 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.36",
+  "stage": "Stage 22 / Professional Pulse Lab / System Control Center",
+  "generated_at": "2026-10-10T05:14:49.519034+00:00",
+  "environment": {
+    "node": "v22.16.0",
+    "release_contract": "Node >=24",
+    "canonical_dependencies_installed": false
+  },
+  "verification": {
+    "pulse_lab_architecture": {
+      "status": "PASSED",
+      "negative_test": "PASSED (intentional READ ONLY · NO MODEL CALLS UI marker removal produced exit 1)"
+    },
+    "migration_028": {
+      "status": "PASSED",
+      "checks": [
+        "schema apply",
+        "migration apply",
+        "second apply idempotence",
+        "7 required columns",
+        "release evidence indexes"
+      ]
+    },
+    "ui_typecheck": {
+      "status": "PASSED",
+      "command": "tsc -p tsconfig.ui.json --noEmit",
+      "note": "global TypeScript compiler; canonical Node24 dependency-backed full typecheck remains blocked"
+    },
+    "typescript_syntax": {
+      "status": "PASSED",
+      "active_files": 253,
+      "parse_diagnostics": 0
+    },
+    "fallback_preview": {
+      "status": "PASSED",
+      "modules": 34,
+      "release_verified": false
+    },
+    "release_package_guard": {
+      "status": "PASSED",
+      "detail": "release:package correctly blocked typescript-fallback / release_verified=false"
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 24,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 24,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "staging_drift": {
+      "status": "WARNING",
+      "counts": {
+        "PASS": 34,
+        "WARNING": 1,
+        "DRIFT": 0,
+        "BLOCKER": 0
+      }
+    }
+  },
+  "truth_boundaries": [
+    "Pulse Lab is read-only. It never dispatches Workers AI model calls, queue messages, sandbox launches, GitHub writes, Cloudflare control-plane mutations, or Canva edits for health verification.",
+    "D1, KV, and R2 may receive read-only probes; binding/config presence for Workers AI, Gateway, Sandbox, Queue, Orchestrator, and Cron is not presented as stronger evidence than it actually is.",
+    "Build SHA is Unknown unless deployment explicitly injects AZRAIL_BUILD_SHA; environment is Unknown when runtime host/origin does not prove it.",
+    "Config drift and last staging smoke remain Unknown until durable release_evidence is explicitly recorded by a future approved release workflow.",
+    "No GitHub, Cloudflare, or Canva mutation was performed."
+  ],
+  "release_blockers": [
+    "Full Node24 dependency-backed typecheck/build/test suite not executed in current Node22 environment",
+    "Canonical esbuild UI build not release-verified",
+    "Vitest blocked by environment",
+    "Wrangler dry-run blocked by environment",
+    "Authenticated runtime smoke target/credential not provided"
+  ]
+}

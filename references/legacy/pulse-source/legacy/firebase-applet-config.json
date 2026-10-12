@@ -1,0 +1,12 @@
+{
+  "projectId": "legacy-reference-project",
+  "appId": "legacy-reference-app-id",
+  "apiKey": "REPLACE_WITH_FIREBASE_WEB_API_KEY",
+  "authDomain": "legacy-reference-project.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "legacy-reference-project.firebasestorage.app",
+  "messagingSenderId": "REPLACE_WITH_SENDER_ID",
+  "measurementId": "",
+  "oAuthClientId": "REPLACE_WITH_OAUTH_CLIENT_ID",
+  "recaptchaSiteKey": ""
+}

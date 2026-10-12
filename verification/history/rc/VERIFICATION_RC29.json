@@ -1,0 +1,94 @@
+{
+  "release": "1.5.0-rc.29",
+  "stage": 15,
+  "stage_name": "Professional Image Studio",
+  "production_ready": false,
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false
+  },
+  "features": {
+    "controls": ["Prompt", "Aspect ratio", "Resolution", "Style", "Seed", "Variations", "History"],
+    "single_primary_generate_cta": true,
+    "system_owned_model_routing": true,
+    "models": [
+      "@cf/black-forest-labs/flux-2-klein-4b",
+      "@cf/black-forest-labs/flux-2-klein-9b"
+    ],
+    "result_actions": ["Download", "Use as reference", "Create variation", "Edit", "Upscale", "Metadata"],
+    "reference_normalization_max_long_edge": 512,
+    "max_variations": 4,
+    "durable_generation_history": true,
+    "artifact_and_metadata_atomic_d1_batch": true,
+    "provider_idempotency_fence": true,
+    "project_scoped_history": true,
+    "provider_output_signature_validation": true
+  },
+  "cloudflare_docs_review": {
+    "mode": "read-only",
+    "confirmed": [
+      "FLUX.2 Klein 4B/9B are Cloudflare-hosted image models",
+      "multipart input",
+      "width/height controls",
+      "seed for reproducibility",
+      "up to four reference inputs",
+      "input_image_0 reference naming",
+      "reference images must be below the documented 512x512 bound",
+      "generated image is returned as Base64"
+    ]
+  },
+  "release_blockers": [
+    "Node >=24 canonical environment not available in this execution runtime",
+    "Canonical esbuild UI build is not release-verified",
+    "Full Vitest/Wrangler dry-run suite remains a later Release gate",
+    "Authenticated runtime smoke not supplied",
+    "Production OIDC/drift reconciliation remains pending"
+  ],
+  "verification": {
+    "image_architecture": "PASS",
+    "negative_architecture_test": "PASS",
+    "migration_022_sqlite": "PASS",
+    "migration_022_idempotence": "PASS",
+    "ui_typecheck": "PASS",
+    "typescript_parse": {
+      "files": 237,
+      "diagnostics": 0
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 17,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 17,
+      "failed": 0,
+      "blocked": 5
+    },
+    "staging_drift": {
+      "status": "WARNING",
+      "pass": 34,
+      "warning": 1,
+      "drift": 0,
+      "blocker": 0
+    },
+    "ui_build_provenance": {
+      "mode": "typescript-fallback",
+      "release_verified": false,
+      "node": "v22.16.0",
+      "note": "Preview only. Node 24 + esbuild build remains mandatory for release verification."
+    },
+    "release_package_guard": "PASS (clean release packaging refused fallback UI provenance)"
+  },
+  "environment": {
+    "node": "v22.16.0",
+    "required_node": ">=24.0.0"
+  },
+  "canva_reference": {
+    "mode": "read-only",
+    "design": "Концепт интерфейса AZRAIL OS",
+    "design_id": "DAHWNy5bgUo"
+  }
+}

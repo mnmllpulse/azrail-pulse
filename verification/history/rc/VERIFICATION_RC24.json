@@ -1,0 +1,102 @@
+{
+  "release": "1.5.0-rc.24",
+  "stage": 10,
+  "stage_name": "Unified Event Stream",
+  "status": "review_candidate",
+  "production_ready": false,
+  "cloud_mutations": false,
+  "github_mutations": false,
+  "canva_mutations": false,
+  "architecture": {
+    "event_contract": "src/lib/event-stream.ts",
+    "migration": "migrations/018-unified-event-stream.sql",
+    "table": "event_stream",
+    "cursor": "monotonic seq INTEGER PRIMARY KEY AUTOINCREMENT",
+    "schema_version": 1,
+    "domains": [
+      "mission",
+      "agent",
+      "tool",
+      "approval",
+      "connector",
+      "verification",
+      "recovery",
+      "publication",
+      "system"
+    ],
+    "replay_api": "GET /api/projects/:projectId/events?after={seq}&limit={n}",
+    "realtime_frame": "{type:event_stream,event:EventEnvelope}",
+    "client": "ui/event-stream.ts",
+    "legacy_mission_events": "read-only compatibility source with migration backfill"
+  },
+  "checks": {
+    "event_stream_architecture": "PASS",
+    "event_stream_architecture_negative_test": "PASS_BLOCKED_LEGACY_FRAME_REGRESSION",
+    "event_stream_sqlite_schema": "PASS",
+    "migration_018_idempotence": "PASS",
+    "legacy_mission_event_backfill": "PASS",
+    "monotonic_replay_cursor": "PASS",
+    "ui_typecheck": "PASS",
+    "typescript_syntax_parse": "PASS_225_FILES_0_DIAGNOSTICS",
+    "version_truth": "PASS",
+    "documentation_truth": "PASS",
+    "migration_integrity": "PASS_17_NUMBERED_MIGRATIONS",
+    "canonical_config": "PASS",
+    "release_preflight": "PASS_WITH_PRODUCTION_OIDC_WARNING",
+    "studio_architecture": "PASS",
+    "approval_architecture": "PASS",
+    "lint": "PASS_251_FILES",
+    "format": "PASS_251_FILES",
+    "security": "PASS",
+    "staging_drift": "PASS_WITH_1_WARNING",
+    "static_quality_gate": "VERIFIED",
+    "full_quality_gate": "BLOCKED",
+    "release_package": "BLOCKED_BY_NON_RELEASE_UI_BUILD"
+  },
+  "quality_gate": {
+    "static": {
+      "passed": 12,
+      "failed": 0,
+      "blocked": 0,
+      "status": "VERIFIED"
+    },
+    "full": {
+      "passed": 12,
+      "failed": 0,
+      "blocked": 5,
+      "status": "BLOCKED"
+    }
+  },
+  "cloudflare_staging_drift": {
+    "pass": 34,
+    "warning": 1,
+    "drift": 0,
+    "blocker": 0,
+    "warning_detail": "Worker settings snapshot did not expose observability; verify separately before release."
+  },
+  "environment": {
+    "node": "22.16.0",
+    "required_node": ">=24.0.0",
+    "local_node_modules": false,
+    "ui_build_mode": "typescript-fallback",
+    "ui_build_release_verified": false
+  },
+  "release_blockers": [
+    "Run npm ci under Node >=24",
+    "Run canonical esbuild UI build under Node >=24",
+    "Run dependency-backed full TypeScript typecheck",
+    "Run full Vitest suite",
+    "Run Wrangler staging/production dry-runs",
+    "Run authenticated runtime smoke",
+    "Verify production OIDC values",
+    "Reconcile production Cloudflare drift only after explicit approval"
+  ],
+  "notes": [
+    "Realtime delivery is durable-first: the application frame is sent only after event_stream persistence succeeds.",
+    "Replay uses monotonic seq, never timestamps, so equal-time events cannot reorder the cursor.",
+    "mission_events remains a temporary legacy read source; new mission writes target event_stream only.",
+    "Approval receipts remain the security audit source of truth; event_stream is the unified operational feed, not a replacement for subsystem state tables.",
+    "Fallback UI build remains preview-only; release packaging correctly fails closed.",
+    "No GitHub or Cloudflare mutation was performed during Stage 10."
+  ]
+}

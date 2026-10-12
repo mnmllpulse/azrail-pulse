@@ -1,0 +1,177 @@
+[
+  {
+    "path": ".github/workflows/check.yml",
+    "change": "added",
+    "sha256": "fd1b4ed572df6efc81bb60ac027ed4df5f2a6dd32de2f430477039427965074b"
+  },
+  {
+    "path": ".gitignore",
+    "change": "modified",
+    "sha256": "ea816c8b900953a459594d2ef5eeb23baf58c4571f7675a5c41b3effe21bb247"
+  },
+  {
+    "path": "START_HERE_RU.md",
+    "change": "added",
+    "sha256": "a6ed713e597b17edfd024c435053265e606b08040d9dd9617c15b2322d7b2607"
+  },
+  {
+    "path": "migrations/004-security-hardening.sql",
+    "change": "added",
+    "sha256": "55511b923bd0ed8dde55b9119477ee8b0e0f51c3f4e6812d214c7adb1d89b42d"
+  },
+  {
+    "path": "package-lock.json",
+    "change": "modified",
+    "sha256": "756c615b2277edd58bfd241977647acd199d6f63cf41faac7657b89ddf78266d"
+  },
+  {
+    "path": "package.json",
+    "change": "modified",
+    "sha256": "0a87d160340bc792f775086bb35698b46f87c1b19bef0e649f3ba1600e47a19c"
+  },
+  {
+    "path": "public/_headers",
+    "change": "added",
+    "sha256": "7912d8c8665005362161b984d44a13cf6e07358413bf3b39999b5cd674fba951"
+  },
+  {
+    "path": "schema.sql",
+    "change": "modified",
+    "sha256": "05e72afa6b78d67d85be896185d3eb18b97eedc6c1f9d0f4104a99de8172e1d1"
+  },
+  {
+    "path": "src/agents/orchestrator.ts",
+    "change": "modified",
+    "sha256": "d972eee4aadcee7e5671f220990f543f202d94efde71a6e8e9cc13f17e0a653c"
+  },
+  {
+    "path": "src/core/mission-guard.ts",
+    "change": "modified",
+    "sha256": "16aad021d2874006443f1459b946338b14723227ba650f33d02db6f6f88e45e3"
+  },
+  {
+    "path": "src/index.ts",
+    "change": "modified",
+    "sha256": "2585ec3c4d19a3ea5aefee641a33b3482bf32ad244353496efaead87af907471"
+  },
+  {
+    "path": "src/lib/attachments.ts",
+    "change": "modified",
+    "sha256": "328ef4519ade2c84a904bd51f960fcd818321595c5e4e1492775e52d7079fb50"
+  },
+  {
+    "path": "src/lib/auth.ts",
+    "change": "modified",
+    "sha256": "9343857750360edeef5f0591314aa39d7c404588165ae584453db8ee1cdc9d03"
+  },
+  {
+    "path": "src/lib/chat-store.ts",
+    "change": "modified",
+    "sha256": "92c099af46257ff0355c15c8937cb423b3056826b424c99e44694b7f71cf85d2"
+  },
+  {
+    "path": "src/lib/cors.ts",
+    "change": "modified",
+    "sha256": "18b4e2b3f96a135878c3aa1f7fe5c0fd53062ba84e43e9acb28e4eaae54148ff"
+  },
+  {
+    "path": "src/lib/mission-admission.ts",
+    "change": "added",
+    "sha256": "bce41e507380ad75fbeccc687ce0b95d11d226bc995f44a0943741ad7e18024a"
+  },
+  {
+    "path": "src/lib/mission-concurrency.ts",
+    "change": "added",
+    "sha256": "081a96e54251622aaf56c4f22dcd5bae0990d1dbe92a3c8f6c5d20f78cbfb2c9"
+  },
+  {
+    "path": "src/lib/quota.ts",
+    "change": "added",
+    "sha256": "cb848a123a249be651342226b335a4e31d1a1b3b5f35c4dc58fa146ae71cc8d9"
+  },
+  {
+    "path": "src/lib/request-body.ts",
+    "change": "added",
+    "sha256": "7e93847013bc582e996f5b0b77241775b9e36d1b4182e19803118322ee38d946"
+  },
+  {
+    "path": "src/lib/source-reader.ts",
+    "change": "modified",
+    "sha256": "36e0212cfa1a64fb0e731d6c6c53c4ae52df5caa16d60ee99edc10dbcd92cae4"
+  },
+  {
+    "path": "src/lib/upload.ts",
+    "change": "modified",
+    "sha256": "68971482e360a6fb2809fce46ae5a68ff622ac6b7c9d1eac77119244cec3d5b4"
+  },
+  {
+    "path": "src/lib/write-budget.ts",
+    "change": "modified",
+    "sha256": "6c1711a4f3718c18f2fabe64e4691fdec068df0272cfebd21c8ba685f99f1b45"
+  },
+  {
+    "path": "src/lib/ws-ticket.ts",
+    "change": "modified",
+    "sha256": "4ab1b3ca2aa814cbbc4636142b110dfeebd1a31946f0959f845213bc45355e8f"
+  },
+  {
+    "path": "src/lib/zip-reader.ts",
+    "change": "modified",
+    "sha256": "d3afedaf0b6f0265775532867c3f66e8ff522318695a8513855b40c298c89b7d"
+  },
+  {
+    "path": "tests/api-security.test.ts",
+    "change": "added",
+    "sha256": "7971ff02e8bea41b579c9df97e73024c11cf33acb3b40f14c301c21d233b2c5b"
+  },
+  {
+    "path": "tests/attachments.test.ts",
+    "change": "modified",
+    "sha256": "a611dffd0856b1884ceb37e577eacf82df7eff0a0f2c41f1a78d8a2f83eeb4d7"
+  },
+  {
+    "path": "tests/chat-recency.test.ts",
+    "change": "added",
+    "sha256": "9d58d8568c3b5513548dc8a175bb9c1fb5c7cc93786a90493d63bec51764632a"
+  },
+  {
+    "path": "tests/logic.test.ts",
+    "change": "modified",
+    "sha256": "8ee0f4d9093062ba30cd749212e93fbe99deb775dc3ac9f1cebc200ba3f367f5"
+  },
+  {
+    "path": "tests/mission-admission.test.ts",
+    "change": "added",
+    "sha256": "b5672d74abb085149116c69d6e5a52adce6357ad0844fc43fb24042201123ea1"
+  },
+  {
+    "path": "tests/mission-async.test.ts",
+    "change": "modified",
+    "sha256": "e27396b79015bd14a7d5cca1ee73b55237194ea68ed2e21ca759c719c15c4006"
+  },
+  {
+    "path": "tests/mission-concurrency.test.ts",
+    "change": "added",
+    "sha256": "6d18cb3047a63cca81b0cbe68b3d9fa81267bc88e47eb525a379c27210449e9e"
+  },
+  {
+    "path": "tests/regressions.test.ts",
+    "change": "modified",
+    "sha256": "440f08d4520df46b0f080342521bfaeb21be40428580d3daffd51650191a9a1b"
+  },
+  {
+    "path": "tests/security-hardening.test.ts",
+    "change": "added",
+    "sha256": "387063fa1f3f31acac5685b6126c237c1fbbdfdf4a9395d84977abe011bbc154"
+  },
+  {
+    "path": "tests/snapshot-safety.test.ts",
+    "change": "added",
+    "sha256": "b1384d8d0cd0ab59e0316df64b9ef8b70dbf753b4fdbff1a21db9bd79ea9baa4"
+  },
+  {
+    "path": "tests/stubs/sqlite-d1.ts",
+    "change": "added",
+    "sha256": "434b31d554c370828180a7c55f85541c059e4f03f22d923a8f524b46094210e3"
+  }
+]

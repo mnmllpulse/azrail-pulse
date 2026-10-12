@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-10T08:01:07Z",
+  "source": "Cloudflare API read-only inspection via ChatGPT connector",
+  "mutation_free": true,
+  "environment": "production",
+  "environments": {
+    "production": {
+      "worker_name": "azrail-os",
+      "settings": {
+        "compatibility_date": "2026-08-08",
+        "compatibility_flags": ["nodejs_compat"],
+        "observability": null,
+        "bindings": [
+          {"name":"AI","type":"ai"},
+          {"name":"AI_GATEWAY_ID","type":"plain_text","text":"default"},
+          {"name":"ASSETS","type":"assets"},
+          {"name":"AZRAIL_D1","type":"d1","database_id":"c76e7d92-648c-45bc-b0df-f26b00d0ff88"},
+          {"name":"AZRAIL_KV","type":"kv_namespace","namespace_id":"dab3b792264f4d9cbec5d637d4f8d71e"},
+          {"name":"AZRAIL_METERING","type":"plain_text","text":"observe"},
+          {"name":"AZRAIL_MISSION_BUDGET_USD","type":"plain_text","text":"1"},
+          {"name":"AZRAIL_R2","type":"r2_bucket","bucket_name":"azrail-artifacts"},
+          {"name":"AZRAIL_SANDBOX","type":"durable_object_namespace","class_name":"Sandbox"},
+          {"name":"AZRAIL_TOKEN","type":"secret_text"},
+          {"name":"AZRAIL_WORKERS_PLAN","type":"plain_text","text":"paid"},
+          {"name":"CORS_ORIGIN","type":"plain_text","text":"*"},
+          {"name":"Orchestrator","type":"durable_object_namespace","class_name":"Orchestrator"}
+        ]
+      },
+      "schedules": [{"cron":"*/10 * * * *"}],
+      "subdomain": {"enabled":true,"previews_enabled":true},
+      "deployment": {
+        "id":"473850a1-df43-47fb-b05e-0211ef9f7bae",
+        "version_id":"476a3e6d-c066-484c-a0f8-d986bc630119",
+        "version_number":209,
+        "source":"wrangler",
+        "created_on":"2026-10-06T02:24:05.588474Z",
+        "migration_tag":"v2",
+        "handlers":["fetch","scheduled"]
+      },
+      "secret_bindings": [{"name":"AZRAIL_TOKEN","type":"secret_text"}],
+      "d1_schema": {
+        "database_id":"c76e7d92-648c-45bc-b0df-f26b00d0ff88",
+        "database_name":"azrail-db",
+        "served_by_region":"EEUR",
+        "table_names":[
+          "approvals","conversations","messages","mission_checks","mission_events","mission_steps","missions",
+          "project_memory","project_versions","projects","sessions","task_history","tool_calls","users"
+        ],
+        "mission_columns":["id","project_id","conversation_id","goal","status","current_step","progress","created_at","updated_at","finished_at"],
+        "feature_presence": {
+          "missions.result_json": false,
+          "schema_migrations": false,
+          "event_stream": false,
+          "trace_links": false,
+          "resource_owners": false,
+          "model_call_dimensions": false,
+          "release_evidence": false,
+          "connector_health_checks": false
+        },
+        "row_counts": {"projects":3,"missions":15,"mission_events":251,"approvals":0,"task_history":44},
+        "last_read_meta": {"rows_written":0,"changed_db":false}
+      }
+    }
+  },
+  "resources": {
+    "d1": [
+      {"uuid":"509b9a03-444d-4bd7-9081-19651ea9b50f","name":"azrail-db-staging"},
+      {"uuid":"c76e7d92-648c-45bc-b0df-f26b00d0ff88","name":"azrail-db"}
+    ],
+    "kv": [
+      {"id":"4b1b2455cfaf4fc3aa766ea2af5da0e2","title":"AZRAIL_KV_STAGING"},
+      {"id":"dab3b792264f4d9cbec5d637d4f8d71e","title":"AZRAIL_KV"}
+    ],
+    "r2": [
+      {"name":"azrail-artifacts-staging"},
+      {"name":"azrail-artifacts"}
+    ]
+  }
+}

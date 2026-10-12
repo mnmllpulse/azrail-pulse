@@ -1,0 +1,3794 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#020204">
+<title>AZRAIL — Intelligence OS</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+/* ─────────────────────────────────────────────────────────────────────
+   AZRAIL — оболочка
+
+   Визуальный язык взят из макета владельца: тёмная база #020204,
+   фиолетово-синие радиальные подсветки, Space Grotesk на заголовках,
+   Geist на тексте, планета как знак бренда.
+
+   Чего из макета сознательно НЕТ:
+   - декоративных пунктов навигации, за которыми ничего не стоит
+     (Sandbox, Deploy, Memory были кнопками без поведения);
+   - нижнего дока с вкладками, дублирующего то же самое;
+   - зашитой полоски прогресса 18% — она означала бы работу, которой нет.
+
+   Всё, что осталось, ведёт к живому коду.
+   ───────────────────────────────────────────────────────────────────── */
+
+:root {
+  --bg: #020204;
+  --surface: #090a0f;
+  --surface-2: #0e1016;
+  --line: rgba(255,255,255,.085);
+  --line-str: rgba(255,255,255,.16);
+
+  --text: #f7f8fb;
+  /* #8f96a3 на #020204 даёт ~7.4:1 — выше порога AA для мелкого текста.
+     Проверено, а не взято на глаз: почти весь служебный текст здесь этим
+     цветом, и просадка контраста ударила бы по всему интерфейсу разом. */
+  --muted: #8f96a3;
+  --blue: #76b9ff;
+  --violet: #9870ff;
+  --good: #53d59f;
+  --bad: #ff8080;
+
+  --r-sm: 12px; --r-md: 16px; --r-lg: 24px;
+  --s2: 6px; --s3: 10px; --s4: 16px; --s5: 24px; --s6: 36px;
+  --fast: .18s; --ease: cubic-bezier(.4,0,.2,1);
+  --shadow: 0 28px 90px rgba(0,0,0,.45);
+
+  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --sans: Geist, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --display: 'Space Grotesk', var(--sans);
+}
+
+
+* { box-sizing: border-box; }
+html, body { margin: 0; min-height: 100%; }
+body {
+  background: var(--bg); color: var(--text);
+  font-family: var(--sans); font-size: 15px; line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+button, input, textarea, select { font: inherit; color: inherit; }
+button { cursor: pointer; }
+.hidden { display: none !important; }
+
+/* Фокус виден всегда — с клавиатуры интерфейс должен быть проходим.
+   :focus-visible, а не :focus: мышью кольцо не мешает. */
+:focus-visible {
+  outline: 2px solid var(--violet);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.az-app {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 65% 18%, rgba(152,112,255,.08), transparent 32%),
+    radial-gradient(circle at 45% 78%, rgba(118,185,255,.045), transparent 30%),
+    var(--bg);
+}
+
+/* ── Шапка ─────────────────────────────────────────────────────────── */
+.az-top {
+  height: 68px; position: sticky; top: 0; z-index: 30;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 var(--s5);
+  border-bottom: 1px solid var(--line);
+  background: rgba(2,2,4,.72); backdrop-filter: blur(22px);
+}
+.brand { display: flex; align-items: center; gap: var(--s3); }
+.brand-mark {
+  width: 36px; height: 36px; flex: none;
+  border: 1px solid rgba(212,194,255,.28); border-radius: var(--r-sm);
+  display: grid; place-items: center;
+  background: linear-gradient(145deg, rgba(255,255,255,.10), rgba(152,112,255,.08));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.09), 0 12px 35px rgba(0,0,0,.4);
+  font-family: var(--display); font-weight: 700; font-size: 20px;
+}
+.brand-name { font-family: var(--display); font-weight: 700; font-size: 16px; letter-spacing: .12em; }
+.brand-meta { font-size: 10px; color: var(--muted); letter-spacing: .17em; text-transform: uppercase; }
+.top-actions { display: flex; align-items: center; gap: var(--s2); }
+.top-chip.warn { border-color: rgba(255,128,128,.4); color: var(--bad); }
+.top-chip {
+  display: flex; align-items: center; gap: var(--s2);
+  height: 36px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  background: rgba(255,255,255,.025);
+  font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted);
+}
+.dot { width: 7px; height: 7px; border-radius: 50%; background: #596171; flex: none; }
+.dot.on { background: var(--good); box-shadow: 0 0 12px rgba(83,213,159,.55); }
+.dot.bad { background: var(--bad); box-shadow: 0 0 12px rgba(255,128,128,.45); }
+
+/* ── Раскладка ─────────────────────────────────────────────────────── */
+.layout { display: grid; grid-template-columns: 260px minmax(0,1fr); min-height: calc(100vh - 68px); }
+
+/* Колонок остаётся ОДНА, когда меню закрыто.
+   Иначе содержимое остаётся в первой колонке шириной 260px, а справа
+   чернота во весь экран: display:none убирает саму полосу, но не её
+   колонку в сетке. Именно это и ломало вид после закрытия меню. */
+.layout.nav-closed { grid-template-columns: minmax(0,1fr); }
+.sidebar {
+  border-right: 1px solid var(--line);
+  padding: var(--s5) var(--s3);
+  position: sticky; top: 68px; height: calc(100vh - 68px); overflow: auto;
+  background: linear-gradient(180deg, rgba(9,10,15,.75), rgba(4,4,7,.72));
+}
+.nav-label {
+  padding: 0 14px var(--s3); color: #757c8a;
+  font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+}
+.nav-group { margin-bottom: var(--s5); }
+/* Пункт меню — строка, за которую можно взяться пальцем.
+   Было 13px с точкой в 8 пикселей и высотой около 38: на телефоне в такое
+   попадаешь через раз, а прочитать можно только присмотревшись. */
+.nav-item {
+  width: 100%; border: 0; background: transparent; color: #c3c9d4;
+  padding: 0 14px; min-height: 52px; border-radius: 12px;
+  display: flex; align-items: center; gap: 14px; text-align: left;
+  font-size: 16px; letter-spacing: -.005em;
+  transition: background var(--fast) var(--ease), color var(--fast) var(--ease);
+}
+.nav-item:hover, .nav-item.active { background: rgba(255,255,255,.06); color: #fff; }
+.nav-dot {
+  width: 10px; height: 10px; border-radius: 50%;
+  border: 1.5px solid rgba(255,255,255,.3); flex: none;
+}
+.nav-item.active .nav-dot { background: var(--violet); box-shadow: 0 0 14px rgba(152,112,255,.8); border-color: transparent; }
+.nav-item .sub { margin-left: auto; font-size: 12px; color: #7d8492; font-family: var(--mono); }
+
+.main { padding: var(--s6) var(--s6) 80px; max-width: 1180px; width: 100%; margin: 0 auto; }
+
+/* ── Шапка страницы ─────────────────────────────────────────────────
+   Планеты здесь больше нет. Она занимала целый экран НАД полем ввода:
+   на телефоне до задачи приходилось долистывать мимо крутящегося глобуса.
+   Ради красоты это дорого — первое, что должно попадаться на глаза, это
+   строка «Что построим сегодня?».
+
+   Заодно ушла зависимость от CDN: three.js грузился с внешнего адреса и
+   без сети не поднимался вовсе. */
+.hero { padding-bottom: var(--s2); }
+.eyebrow { font-size: 10px; letter-spacing: .28em; text-transform: uppercase; color: #747b87; margin-bottom: var(--s3); }
+.wordmark {
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(38px, 5vw, 68px); line-height: .9; letter-spacing: .03em;
+  background: linear-gradient(180deg, #fff 0%, #ecedf4 50%, #b59af6 100%);
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  margin: 0;
+}
+.tagline {
+  margin-top: var(--s3);
+  font-family: var(--display); font-weight: 700;
+  font-size: clamp(13px, 1.5vw, 17px); line-height: 1.25;
+  letter-spacing: .08em; text-transform: uppercase; color: var(--muted);
+}
+.tagline span { color: #cbbaff; }
+
+/* ── Панели ────────────────────────────────────────────────────────── */
+.panel {
+  background: linear-gradient(180deg, rgba(11,12,17,.9), rgba(5,6,9,.9));
+  border: 1px solid var(--line); border-radius: var(--r-lg);
+  box-shadow: var(--shadow); backdrop-filter: blur(24px);
+  margin-top: var(--s5);
+}
+.panel-head {
+  display: flex; justify-content: space-between; align-items: center; gap: var(--s3);
+  padding: var(--s4) var(--s5); border-bottom: 1px solid var(--line);
+}
+.panel-title { font-family: var(--display); font-weight: 600; font-size: 12px; letter-spacing: .11em; text-transform: uppercase; }
+.panel-body { padding: var(--s5); }
+
+/* ── Ввод ──────────────────────────────────────────────────────────── */
+/* ПОЛЕ ВВОДА — ОТДЕЛЬНОЙ СТРОКОЙ СВЕРХУ.
+   Раньше оно делило строку с тремя кнопками и на телефоне сжималось до
+   узкой щели: главное действие выглядело как второстепенное. Теперь ввод
+   занимает всю ширину, кнопки уходят под него. Одно очевидное поле —
+   остальное ниже и мельче. */
+.ask { display: grid; grid-template-columns: 1fr; gap: var(--s2); }
+.ask-tools { display: flex; gap: var(--s2); align-items: center; }
+.ask-tools .go { margin-left: auto; }
+.ask textarea {
+  flex: 1; min-height: 52px; max-height: 40vh; resize: none;
+  background: rgba(255,255,255,.025); border: 1px solid var(--line);
+  border-radius: 14px; padding: 15px var(--s4); outline: none;
+  font-size: 15px; line-height: 1.5;
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+.ask textarea:focus { border-color: rgba(203,186,255,.34); box-shadow: 0 0 0 3px rgba(152,112,255,.07); }
+.ask textarea::placeholder { color: #676e79; }
+
+.go {
+  flex: none; width: 46px; height: 46px; border: 0; border-radius: 14px;
+  display: grid; place-items: center;
+  background: linear-gradient(180deg, rgba(152,112,255,.4), rgba(152,112,255,.18));
+  border: 1px solid rgba(203,186,255,.4); color: #fff;
+  transition: transform var(--fast) var(--ease), opacity var(--fast) var(--ease);
+}
+.go:hover:not(:disabled) { transform: translateY(-1px); }
+.go:disabled { opacity: .35; cursor: default; }
+.go svg { width: 18px; height: 18px; }
+
+.mic {
+  flex: none; width: 46px; height: 46px; border-radius: 14px;
+  border: 1px solid var(--line); background: rgba(255,255,255,.025);
+  color: var(--muted); font-size: 16px;
+  transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.mic:hover { color: #fff; border-color: var(--line-str); }
+
+/* Тост — короткое подтверждение действия. Нужен там, где результат
+   иначе невидим: скопировано, сохранено, файл принят. Без него человек
+   жмёт кнопку и не понимает, случилось ли что-нибудь. */
+.toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 12px);
+  z-index: 60; max-width: min(92vw, 460px);
+  padding: 11px 18px; border-radius: 999px;
+  border: 1px solid var(--line-str);
+  background: rgba(14,16,22,.96); backdrop-filter: blur(18px);
+  color: var(--text); font-size: 13px; text-align: center;
+  box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+/* Полоса выполнения миссии. Заполняется по РЕАЛЬНОМУ номеру шага из
+   события цикла, а не по таймеру: полоса, которая ползёт сама по себе,
+   врёт ровно тогда, когда на неё смотрят. */
+.mprog { margin-top: var(--s4); }
+.mprog-top {
+  display: flex; align-items: baseline; gap: var(--s3);
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+  margin-bottom: var(--s2);
+}
+.mprog-pct { margin-left: auto; color: var(--text); }
+.mprog-rail { height: 3px; border-radius: 2px; background: rgba(255,255,255,.07); overflow: hidden; }
+.mprog-fill {
+  height: 100%; width: 0%;
+  background: linear-gradient(90deg, var(--blue), var(--violet));
+  transition: width .4s var(--ease);
+}
+
+/* Подсветка зоны при перетаскивании файла */
+.ask.dragging textarea { border-color: rgba(203,186,255,.6); background: rgba(152,112,255,.07); }
+
+/* Список моделей: настоящий статус из реестра, не подпись руками */
+/* История: список, а не таблица. Заголовок — первое сообщение
+   пользователя: он лучше любого автоназвания говорит, о чём был диалог. */
+.hist { display: grid; gap: var(--s2); margin-top: var(--s4); }
+.hitem {
+  display: flex; align-items: baseline; gap: var(--s3); width: 100%;
+  padding: 10px 14px; border: 1px solid var(--line); border-radius: var(--r-sm);
+  background: rgba(255,255,255,.02); color: var(--text);
+  text-align: left; font-size: 15px;
+  transition: border-color var(--fast) var(--ease);
+}
+.hitem:hover { border-color: var(--line-str); }
+.hitem-when { margin-left: auto; color: var(--muted); font-size: 11px; font-family: var(--mono); flex: none; }
+.hitem-text { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.mlist { display: grid; gap: var(--s2); margin-top: var(--s3); flex-basis: 100%; max-height: 420px; overflow-y: auto; }
+.mrow {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: 8px 12px; border: 1px solid var(--line); border-radius: var(--r-sm);
+  background: rgba(255,255,255,.02); font-size: 12px;
+}
+.mrow-name { font-family: var(--mono); }
+.mrow-ico { width: 16px; height: 16px; flex: none; object-fit: contain; }
+/* Одноцветные логотипы (Anthropic, OpenAI, Z.ai, BAAI) нарисованы чёрным —
+   на тёмном фоне их не видно без инверсии. */
+.mrow-ico.mono { filter: invert(1); opacity: .85; }
+.mrow-meta { color: var(--muted); font-size: 11px; }
+.mrow-st { margin-left: auto; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; }
+.mrow-st.on { color: var(--good); }
+.mrow-st.off { color: var(--muted); }
+
+/* Строка галочки — цель нажатия целиком, а не квадратик 13 пикселей. */
+.mode {
+  display: flex; align-items: center; gap: var(--s3);
+  margin-top: var(--s3); cursor: pointer;
+  min-height: 44px; font-size: 14px; color: var(--muted);
+}
+.mode input { accent-color: var(--violet); cursor: pointer; width: 20px; height: 20px; flex: none; }
+.mode:hover { color: var(--text); }
+
+.attached { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s3); }
+.chip {
+  display: inline-flex; align-items: center; gap: var(--s2);
+  padding: 5px 11px; border-radius: 999px;
+  border: 1px solid var(--line); background: rgba(255,255,255,.025);
+  font-family: var(--mono); font-size: 11px; color: var(--muted);
+}
+.chip button { background: none; border: 0; color: var(--muted); font-size: 13px; line-height: 1; padding: 0; }
+.chip button:hover { color: #fff; }
+
+.picks { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s4); }
+.pick {
+  border: 1px solid var(--line); background: rgba(255,255,255,.02);
+  color: var(--muted); border-radius: 999px;
+  min-height: 40px; padding: 0 16px; font-size: 14px;
+  display: inline-flex; align-items: center;
+  transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.pick:hover { color: #fff; border-color: var(--line-str); }
+.note { color: var(--muted); font-size: 14px; line-height: 1.5; margin: var(--s3) 0 0; }
+
+/* ── Работа ────────────────────────────────────────────────────────── */
+.working { display: flex; align-items: center; gap: var(--s4); }
+.breath { width: 9px; height: 9px; border-radius: 50%; background: var(--violet); flex: none; }
+.motion .breath { animation: breath 1.6s var(--ease) infinite; }
+@keyframes breath { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: .4; transform: scale(1.45); } }
+.working-text { display: flex; flex-direction: column; gap: 2px; }
+.working-text b { font-weight: 600; font-size: 14px; }
+.working-text span { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+.cancel {
+  margin-left: auto; border: 1px solid var(--line); background: transparent;
+  color: var(--muted); border-radius: var(--r-sm); padding: 8px 14px; font-size: 12px;
+}
+.cancel:hover { color: #fff; border-color: var(--line-str); }
+
+/* Две кнопки в конце результата. На узком экране встают в столбик:
+   рядом они ужимаются до нечитаемого.
+
+   Селектор по элементу, а не по классу .again: правило с тем же классом
+   встаёт выше основного и перекрывает его при проверке размеров — на
+   этом меня и поймал собственный тест проекта. Отступ переехал на
+   контейнер, иначе margin-top кнопок сложился бы внутри строки. */
+.endrow { display: flex; gap: var(--s3); flex-wrap: wrap; margin-top: var(--s5); }
+.endrow > button { flex: 1 1 160px; margin-top: 0; }
+
+/* Строка подсказки. Показывается только у миссии — у одиночной задачи её
+   некому прочитать, и предлагать её значило бы обещать несуществующее. */
+.hintbar { display: flex; gap: var(--s3); margin-top: var(--s4); }
+.hintbar input {
+  flex: 1; min-width: 0; background: transparent; border: 1px solid var(--line);
+  border-radius: var(--r-sm); padding: 9px 12px; color: inherit; font: inherit; outline: none;
+}
+.hintbar input:focus { border-color: var(--line-str); }
+.hintbar button {
+  border: 1px solid var(--line); background: transparent; color: var(--muted);
+  border-radius: var(--r-sm); padding: 9px 14px; font-size: 12px; cursor: pointer; white-space: nowrap;
+}
+.hintbar button:hover:not(:disabled) { color: #fff; border-color: var(--line-str); }
+.hintbar button:disabled { opacity: .5; cursor: default; }
+
+/* Карта миссии — цепочка шагов, а не лог */
+.trace { list-style: none; margin: var(--s5) 0 0; padding: 0 0 0 var(--s5); position: relative; }
+.trace::before { content: ''; position: absolute; left: 7px; top: 6px; bottom: 6px; width: 1px; background: var(--line); }
+.trace li {
+  position: relative; padding: var(--s2) 0;
+  font-family: var(--mono); font-size: 13px; color: var(--muted); line-height: 1.5;
+}
+.trace li::before {
+  content: ''; position: absolute; left: calc(-1 * var(--s5) + 4px); top: 12px;
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--surface-2); border: 1px solid var(--line-str);
+}
+.trace li.now { color: var(--text); }
+.trace li.now::before { background: var(--violet); border-color: var(--violet); box-shadow: 0 0 14px rgba(152,112,255,.6); }
+.trace li.ok::before { background: var(--muted); border-color: var(--muted); }
+.trace li.bad { color: var(--bad); }
+.trace li.bad::before { background: currentColor; border-color: currentColor; }
+.trace .why { opacity: .72; }
+.motion .trace li.now::before { animation: pip 1.6s var(--ease) infinite; }
+@keyframes pip { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: .5; } }
+
+/* ── Результат ─────────────────────────────────────────────────────── */
+.result-top { display: flex; align-items: center; gap: var(--s3); flex-wrap: wrap; margin-bottom: var(--s4); }
+.badge {
+  font-size: 10px; letter-spacing: .13em; text-transform: uppercase;
+  padding: 5px 10px; border-radius: 999px;
+  border: 1px solid var(--line); color: var(--muted);
+}
+.badge.ok { color: var(--good); border-color: rgba(83,213,159,.35); }
+.badge.ask { color: var(--blue); border-color: rgba(118,185,255,.35); }
+.badge.bad { color: var(--bad); border-color: rgba(255,128,128,.35); }
+#rAgent, #rTime { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+.vers { display: inline-flex; align-items: center; gap: var(--s2); margin-left: var(--s2); }
+.vers span { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.result-body { margin: 0; white-space: pre-wrap; }
+
+.qs { margin-top: var(--s4); display: grid; gap: var(--s2); }
+.qs button {
+  text-align: left; border: 1px solid var(--line); background: rgba(255,255,255,.02);
+  color: var(--text); border-radius: var(--r-sm); padding: 11px var(--s4); font-size: 15px;
+}
+.qs button:hover { border-color: var(--line-str); }
+
+.files { margin-top: var(--s5); border-top: 1px solid var(--line); }
+.file { border-bottom: 1px solid var(--line); }
+.file summary {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) 0; cursor: pointer; list-style: none;
+  font-family: var(--mono); font-size: 14px;
+}
+.file summary::-webkit-details-marker { display: none; }
+.file summary::before { content: '+'; color: var(--violet); flex: none; }
+.file[open] summary::before { content: '–'; }
+.file summary:hover { color: #fff; }
+.file .size { margin-left: auto; color: var(--muted); font-size: 11px; }
+.file-acts { display: flex; gap: var(--s2); flex-wrap: wrap; padding-bottom: var(--s3); }
+.file pre {
+  margin: 0 0 var(--s3); padding: var(--s4);
+  background: rgba(255,255,255,.02); border: 1px solid var(--line); border-radius: var(--r-sm);
+  font-family: var(--mono); font-size: 12px; line-height: 1.6;
+  overflow-x: auto; white-space: pre; max-height: 50vh;
+}
+
+.acts { display: flex; flex-wrap: wrap; gap: var(--s2); margin-top: var(--s5); }
+.act {
+  border: 1px solid var(--line); background: rgba(255,255,255,.025);
+  color: var(--text); border-radius: 14px;
+  min-height: 46px; padding: 0 var(--s4); font-size: 15px;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: border-color var(--fast) var(--ease), transform var(--fast) var(--ease);
+}
+.act:hover { border-color: var(--line-str); transform: translateY(-1px); }
+.act.primary { background: linear-gradient(180deg, rgba(152,112,255,.34), rgba(152,112,255,.14)); border-color: rgba(203,186,255,.4); }
+/* Область касания, а не только надпись.
+   Было: padding 0 и 13px серым — высота нажатия около 17 пикселей при
+   норме 44. Код кнопки был исправен, промахивался палец, и выглядело
+   это как «кнопка не работает». */
+.again {
+  margin-top: var(--s5); border: 1px solid var(--line); background: none;
+  color: var(--muted); font-size: 14px;
+  min-height: 44px; padding: 0 var(--s4); border-radius: var(--r-sm);
+}
+.again:hover { color: #fff; border-color: var(--muted); }
+
+.out {
+  margin-top: var(--s3); padding: var(--s4);
+  background: rgba(255,255,255,.02); border: 1px solid var(--line); border-radius: var(--r-sm);
+  font-family: var(--mono); font-size: 13px; line-height: 1.6;
+  white-space: pre-wrap; max-height: 40vh; overflow: auto; color: var(--muted);
+}
+
+/* ── Служебное ─────────────────────────────────────────────────────── */
+.fold { margin-top: var(--s5); border-top: 1px solid var(--line); padding-top: var(--s4); }
+.fold summary {
+  cursor: pointer; list-style: none; color: var(--muted); font-size: 12px;
+  letter-spacing: .1em; text-transform: uppercase; padding: var(--s2) 0;
+}
+.fold summary::-webkit-details-marker { display: none; }
+.fold summary:hover { color: #fff; }
+.row { display: flex; align-items: center; flex-wrap: wrap; gap: var(--s3); margin-top: var(--s4); }
+.row .label { font-size: 13px; color: var(--muted); min-width: 108px; }
+.row input[type=text], .row input[type=password], .row select {
+  flex: 1; min-width: 160px; background: rgba(255,255,255,.025);
+  border: 1px solid var(--line); border-radius: var(--r-sm);
+  padding: 9px 12px; outline: none; font-size: 15px;
+}
+.row .note { flex-basis: 100%; margin-top: 2px; }
+/* Кнопки .mini рассыпаны по всему интерфейсу, и высоты у них не было
+   вовсе — получалось около 30 пикселей. Пальцем в такое попадаешь через
+   раз, а промах читается как «не работает». */
+.mini {
+  border: 1px solid var(--line); background: rgba(255,255,255,.025);
+  color: var(--muted); border-radius: 10px;
+  min-height: 40px; padding: 0 14px; font-size: 14px;
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--s2);
+}
+.mini:hover { color: #fff; border-color: var(--line-str); }
+.mini:disabled { opacity: .4; cursor: default; }
+
+/* ── Умения ───────────────────────────────────────────────────────────
+   Недоступное не прячется: список из восьми «всё работает» врёт про
+   систему, где работает восемь из двадцати одного. */
+.skill-block { margin-bottom: var(--s5); }
+.scard-h {
+  margin: 0 0 var(--s3); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); font-weight: 600;
+}
+.srow {
+  display: grid; grid-template-columns: 8px minmax(0,1fr); gap: var(--s3);
+  padding: var(--s2) 0; border-bottom: 1px solid var(--line); align-items: start;
+}
+.srow i { width: 8px; height: 8px; border-radius: 50%; margin-top: 7px; background: var(--good); }
+.srow.off i { background: #4b5563; }
+.srow.off b { color: var(--muted); }
+.srow b { display: block; font-weight: 600; font-size: 15px; }
+.srow span { display: block; color: var(--muted); font-size: 13px; }
+
+/* ── Отчёт по канону ──────────────────────────────────────────────────
+   Нарушение принципа — наблюдение о том, КАК выполнена миссия, а не
+   приговор результату. Поэтому не красное и не рядом со статусом: своя
+   секция, спокойный тон, решение остаётся за человеком. */
+.canon { margin-top: var(--s5); padding-top: var(--s4); border-top: 1px solid var(--line); }
+.canon-h {
+  margin: 0 0 var(--s3); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); font-weight: 600;
+}
+.canon-rows { display: grid; gap: var(--s2); }
+.crow { display: grid; grid-template-columns: 18px minmax(0,1fr); gap: var(--s3); font-size: 14px; }
+.crow i { font-style: normal; line-height: 1.5; }
+.crow.broken i { color: var(--bad); }
+.crow.held i { color: var(--good); }
+.crow b { font-weight: 600; display: block; }
+.crow span { color: var(--muted); display: block; font-size: 13px; }
+
+/* ── Панель состояния ──────────────────────────────────────────────────
+   На широком экране — третья колонка. На телефоне выезжает справа: 260
+   слева и 310 справа это 570 точек только на панели, шире всего экрана.
+   Три колонки там не ужимаются, а перестают существовать. */
+.statebar {
+  display: none;
+  border-left: 1px solid var(--line);
+  background: rgba(10,11,15,.86);
+  backdrop-filter: blur(18px);
+  padding: var(--s5) var(--s4);
+  overflow-y: auto;
+}
+.layout.state-open .statebar { display: block; }
+
+.state-head { display: flex; align-items: center; margin-bottom: var(--s4); }
+.state-title { margin: 0; font-family: var(--display); font-size: 18px; font-weight: 600; }
+.state-close { margin-left: auto; }
+
+.scard {
+  border: 1px solid var(--line); background: rgba(255,255,255,.018);
+  border-radius: 14px; padding: var(--s4); margin-bottom: var(--s3);
+}
+.scard h3 {
+  margin: 0 0 var(--s3); font-size: 11px; letter-spacing: .14em;
+  text-transform: uppercase; color: var(--muted); font-weight: 600;
+}
+.kv { display: grid; grid-template-columns: 1fr auto; gap: 9px var(--s3); font-size: 14px; }
+.kv > span:nth-child(odd) { color: var(--muted); }
+.kv > span:nth-child(even) { text-align: right; }
+.skv-empty { color: var(--muted); font-size: 13px; }
+.skv-ok { color: var(--good); }
+.skv-bad { color: var(--bad); }
+.skv-off { color: #6b7280; }
+
+/* Сводка в шапке — кнопка, значит и цель нажатия как у кнопки. */
+.top-chip-btn { border: 1px solid var(--line); background: rgba(255,255,255,.02); min-height: 40px; cursor: pointer; }
+.top-chip-btn:hover { border-color: var(--line-str); }
+
+@media (min-width: 1180px) {
+  /* Третья колонка появляется, когда для неё есть место — и только тогда.
+     Ниже этой ширины она вытесняла бы содержимое, ради которого пришли. */
+  .layout.state-open { grid-template-columns: 260px minmax(0,1fr) 320px; }
+  .layout.state-open.nav-closed { grid-template-columns: minmax(0,1fr) 320px; }
+  .state-close { display: none; }
+}
+
+@media (max-width: 1179px) {
+  .layout.state-open .statebar {
+    position: fixed; z-index: 41; top: 0; bottom: 0; right: 0;
+    width: 320px; max-width: 88vw; box-shadow: var(--shadow);
+  }
+}
+
+/* ── Экраны ────────────────────────────────────────────────────────────
+   Один экран за раз. Раньше всё лежало одной лентой, и до песочницы
+   приходилось прокручивать чужие разделы. */
+.view-head {
+  display: flex; align-items: center; gap: var(--s3);
+  margin-bottom: var(--s5); padding-bottom: var(--s4);
+  border-bottom: 1px solid var(--line);
+}
+.view-back {
+  flex: none; width: 44px; height: 44px;           /* область касания, не иконка */
+  display: grid; place-items: center;
+  background: none; border: 1px solid var(--line); border-radius: var(--r-sm);
+  color: var(--muted);
+  transition: color var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.view-back:hover { color: #fff; border-color: var(--line-str); }
+.view-title {
+  margin: 0; font-family: var(--display); font-size: 20px; font-weight: 600;
+  letter-spacing: -.01em;
+}
+
+/* ── Кнопка меню ───────────────────────────────────────────────────────
+   Три полосы, а не слово: на узком экране слово «Меню» отнимает место у
+   названия. Сама кнопка — 44 пикселя, полосы внутри маленькие. */
+.menu-btn {
+  flex: none; width: 44px; height: 44px; margin-right: var(--s2);
+  display: grid; place-content: center; gap: 4px;
+  background: none; border: 0; padding: 0;
+}
+.menu-btn span {
+  display: block; width: 18px; height: 2px; border-radius: 2px;
+  background: var(--muted); transition: background var(--fast) var(--ease);
+}
+.menu-btn:hover span { background: #fff; }
+
+/* Закрытое меню. На телефоне оно выезжает поверх, а не раздвигает
+   содержимое: сдвиг всей страницы на узком экране читается как скачок. */
+/* МЕНЮ ВЫЕЗЖАЕТ, А НЕ ПРОПАДАЕТ.
+   Было `display: none` — его нельзя анимировать в принципе: полоса
+   мгновенно исчезала и мгновенно возникала. Движение здесь несёт смысл:
+   показывает, ОТКУДА пришло меню и куда уйдёт.
+   Уводится сдвигом и возвращается им же; `visibility` убирает его из
+   очереди фокуса, чтобы клавиатурой нельзя было провалиться в скрытое. */
+  .sidebar {
+    transform: translateX(0);
+    visibility: visible;
+    transition: transform .22s var(--ease), visibility 0s linear 0s;
+  }
+  .layout.nav-closed .sidebar {
+    transform: translateX(-100%);
+    visibility: hidden;
+    transition: transform .22s var(--ease), visibility 0s linear .22s;
+  }
+
+@media (max-width: 860px) {
+  /* Выезжающее меню НЕ экономит ширину — оно лежит поверх. Значит и
+     ужимать в нём нечего: подписи возвращаются, строки становятся выше,
+     шрифт крупнее. Тесно было там, где тесно быть не обязано. */
+  .sidebar {
+    position: fixed; z-index: 40; top: 0; bottom: 0; left: 0;
+    width: 288px; max-width: 84vw;
+    background: var(--surface); border-right: 1px solid var(--line);
+    padding: var(--s6) var(--s4); overflow-y: auto;
+    box-shadow: var(--shadow);
+  }
+  .sidebar .nav-item {
+    justify-content: flex-start; padding: 0 16px;
+    min-height: 56px; font-size: 17px; gap: 16px;
+  }
+  .sidebar .nav-item span, .sidebar .nav-item .sub, .sidebar .nav-label { display: revert; }
+  .sidebar .nav-group { margin-bottom: var(--s6); }
+  .sidebar .nav-dot { width: 11px; height: 11px; }
+
+  .nav-veil { position: fixed; inset: 0; z-index: 39; background: rgba(0,0,0,.55); }
+
+  /* Содержимое дышит. Раньше боковые отступы съедали ширину, которой на
+     телефоне и так нет, а заголовок переносился по слогам. */
+  .main { padding: var(--s5) var(--s4) 72px; }
+  .wordmark { font-size: clamp(38px, 13vw, 60px); }
+  .hero { margin-bottom: var(--s5); }
+  .panel-body { padding: var(--s4); }
+  .view-title { font-size: 22px; }
+}
+
+/* ── Чат ───────────────────────────────────────────────────────────────
+   Ввод внизу, переписка над ним, прокручивается только она. Раньше это
+   была обычная лента: коробка на 44vh, под ней поле, и чтобы написать,
+   приходилось сначала доскроллить до него. */
+#viewChat {
+  display: flex; flex-direction: column;
+  height: calc(100dvh - 68px - var(--s6));
+}
+.chat-log {
+  flex: 1; min-height: 0; overflow-y: auto;
+  display: flex; flex-direction: column; gap: var(--s5);
+  padding: var(--s2) 0 var(--s5);
+  scroll-behavior: auto;
+}
+.chat-log:empty::after {
+  content: 'Спроси что угодно — это разговор, а не задача.';
+  margin: auto; color: var(--muted); font-size: 15px; text-align: center;
+}
+.chat-turn { display: flex; flex-direction: column; gap: var(--s2); max-width: 52rem; }
+.chat-who {
+  font-size: 12px; color: var(--muted); font-family: var(--mono);
+  letter-spacing: .04em;
+}
+.chat-text { white-space: pre-wrap; word-break: break-word; font-size: 16px; line-height: 1.6; }
+
+/* Свою реплику видно по выравниванию и подложке, а не по бледности:
+   серый текст читается как «неважное», хотя это вопрос человека. */
+.chat-turn.mine { align-self: flex-end; align-items: flex-end; }
+.chat-turn.mine .chat-text {
+  background: rgba(152,112,255,.12); border: 1px solid rgba(203,186,255,.18);
+  border-radius: 16px 16px 4px 16px; padding: 11px var(--s4);
+}
+.chat-turn.bad .chat-text { color: var(--bad); }
+
+/* Ввод прижат к низу и не уезжает вместе с перепиской. */
+.chat-dock {
+  flex: none; padding-top: var(--s4); border-top: 1px solid var(--line);
+  background: var(--bg);
+}
+.chat-row { display: flex; gap: var(--s3); align-items: flex-end; }
+.chat-hint { margin: 0 0 var(--s3); }
+.chat-hint:empty { display: none; }
+.chat-send {
+  flex: none; width: 46px; height: 46px; border-radius: 14px; border: 0;
+  display: grid; place-items: center; color: #fff;
+  background: linear-gradient(180deg, rgba(152,112,255,.9), rgba(120,80,230,.9));
+}
+.chat-send:hover { filter: brightness(1.1); }
+.chat-model { margin-top: var(--s3); }
+.chat-model select {
+  width: 100%; background: rgba(255,255,255,.025);
+  border: 1px solid var(--line); border-radius: 10px;
+  color: var(--muted); font-size: 13px; padding: 9px var(--s3); min-height: 40px;
+}
+/* ---- Выбор модели: кнопка + нижняя шторка с иконками ---- */
+.mico {
+  flex: none; width: 36px; height: 36px; border-radius: 11px;
+  display: grid; place-items: center;
+  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.02));
+  border: 1px solid var(--line); box-shadow: inset 0 1px 0 rgba(255,255,255,.05);
+}
+.mico img { width: 20px; height: 20px; object-fit: contain; }
+.mico img.mono { filter: invert(1); opacity: .9; }
+.mico-auto {
+  background: radial-gradient(120% 120% at 30% 20%, rgba(152,112,255,.55), rgba(118,185,255,.18) 60%, rgba(255,255,255,.02));
+  border-color: rgba(152,112,255,.45);
+}
+.mico-auto::before {
+  content: ''; width: 18px; height: 18px; background: #fff;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z'/%3E%3Ccircle cx='19' cy='19' r='2'/%3E%3C/svg%3E") center/contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z'/%3E%3Ccircle cx='19' cy='19' r='2'/%3E%3C/svg%3E") center/contain no-repeat;
+}
+.mpick {
+  width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+  padding: 8px 12px 8px 8px; min-height: 54px; border-radius: 16px; cursor: pointer;
+  background: linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.015));
+  border: 1px solid var(--line); color: var(--text);
+  transition: border-color var(--fast) var(--ease), background var(--fast) var(--ease);
+}
+.mpick:hover, .mpick:focus-visible { border-color: rgba(152,112,255,.5); outline: none; }
+.mpick-txt { display: grid; min-width: 0; flex: 1; line-height: 1.25; }
+.mpick-name {
+  font-family: var(--display); font-weight: 600; font-size: 15px; letter-spacing: .01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mpick-sub { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.mpick-chev { color: var(--muted); flex: none; }
+
+.msheet { position: fixed; inset: 0; z-index: 90; }
+.msheet-scrim {
+  position: absolute; inset: 0; background: rgba(2,2,6,.62);
+  -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+  opacity: 0; transition: opacity .22s var(--ease);
+}
+.msheet-panel {
+  position: absolute; left: 0; right: 0; bottom: 0; margin: 0 auto; max-width: 560px;
+  max-height: 86vh; max-height: 86dvh; display: flex; flex-direction: column;
+  background: linear-gradient(180deg, #11121a, #08090d);
+  border: 1px solid var(--line-str); border-bottom: 0;
+  border-radius: 26px 26px 0 0; box-shadow: 0 -30px 90px rgba(0,0,0,.6);
+  padding: 8px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  transform: translateY(100%); transition: transform .28s cubic-bezier(.2,.9,.25,1);
+}
+.msheet.open .msheet-scrim { opacity: 1; }
+.msheet.open .msheet-panel { transform: none; }
+.msheet-grip { width: 42px; height: 4px; border-radius: 4px; background: var(--line-str); margin: 4px auto 10px; }
+.msheet-head { display: flex; align-items: center; justify-content: space-between; padding: 0 4px 10px; }
+.msheet-title { font-family: var(--display); font-weight: 700; font-size: 20px; letter-spacing: .02em; }
+.msheet-count { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+.msheet-x {
+  width: 38px; height: 38px; border-radius: 12px; display: grid; place-items: center;
+  background: rgba(255,255,255,.04); border: 1px solid var(--line); color: var(--muted); cursor: pointer;
+}
+.msheet-search {
+  width: 100%; margin-bottom: 10px; padding: 11px 14px; border-radius: 14px;
+  background: rgba(255,255,255,.035); border: 1px solid var(--line); color: var(--text);
+  font-size: 15px; outline: none;
+}
+.msheet-search:focus { border-color: rgba(152,112,255,.55); }
+.msheet-list { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; padding-bottom: 6px; }
+.mgroup {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--muted); padding: 14px 6px 6px; display: flex; align-items: center; gap: 8px;
+}
+.mgroup::after { content: ''; flex: 1; height: 1px; background: var(--line); }
+.mopt {
+  width: 100%; display: flex; align-items: center; gap: 12px; text-align: left;
+  padding: 10px; margin: 2px 0; border-radius: 16px; cursor: pointer;
+  background: transparent; border: 1px solid transparent; color: var(--text);
+  transition: background var(--fast) var(--ease), border-color var(--fast) var(--ease);
+}
+.mopt:hover { background: rgba(255,255,255,.035); }
+.mopt.sel {
+  background: linear-gradient(90deg, rgba(152,112,255,.16), rgba(118,185,255,.05));
+  border-color: rgba(152,112,255,.45);
+}
+.mopt[disabled] { opacity: .45; cursor: not-allowed; }
+.mopt-body { flex: 1; min-width: 0; display: grid; gap: 3px; }
+.mopt-name {
+  font-family: var(--display); font-weight: 600; font-size: 15.5px; letter-spacing: .01em;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mopt-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; color: var(--muted); font-size: 12px; }
+.mchip {
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 2px 6px; border-radius: 6px; border: 1px solid var(--line); color: #b9bfcc;
+}
+.mchip.code { color: #9fd0ff; border-color: rgba(118,185,255,.3); }
+.mchip.reason { color: #c6b1ff; border-color: rgba(152,112,255,.35); }
+.mchip.vision { color: #8fe3c1; border-color: rgba(83,213,159,.3); }
+.mchip.ctx { color: #d8dbe3; }
+.mchip.off { color: var(--muted); }
+.mopt-check { flex: none; width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--line-str); display: grid; place-items: center; }
+.mopt.sel .mopt-check { border-color: transparent; background: linear-gradient(180deg, #a585ff, #7a52e6); }
+.mopt.sel .mopt-check::after {
+  content: ''; width: 9px; height: 5px; border: 2px solid #fff; border-top: 0; border-right: 0;
+  transform: translateY(-1px) rotate(-45deg);
+}
+.msheet-empty { color: var(--muted); text-align: center; padding: 28px 0; font-size: 14px; }
+body.msheet-lock { overflow: hidden; }
+/* ТЕМА ДЛЯ ВСЕХ ПОЛЕЙ ВВОДА СРАЗУ.
+   Своей темы у textarea нет: без явного фона браузер рисует его БЕЛЫМ, и
+   на тёмной странице выходит белая полоса, в которой не видно набранного.
+   Так уже случилось дважды — с полем чата и с полем песочницы, — потому
+   что каждое новое поле оформлялось отдельным правилом и про фон забывали.
+   Общее правило закрывает и те поля, которых ещё нет. */
+textarea {
+  background: rgba(255,255,255,.025); border: 1px solid var(--line);
+  border-radius: 14px; padding: 11px var(--s4); outline: none;
+  color: var(--text); font-size: 15px; line-height: 1.4;
+  width: 100%;
+  transition: border-color var(--fast) var(--ease), box-shadow var(--fast) var(--ease);
+}
+textarea:focus { border-color: rgba(203,186,255,.34); box-shadow: 0 0 0 3px rgba(152,112,255,.07); }
+textarea::placeholder { color: #676e79; }
+
+.chat-dock textarea { flex: 1; min-height: 44px; max-height: 140px; resize: none; }
+#sandboxSrc { resize: vertical; font-family: var(--mono); font-size: 13px; }
+.chat-dock .mini { min-width: 44px; min-height: 44px; font-size: 16px; }
+
+/* ── Чтение ────────────────────────────────────────────────────────────
+   Длинный ответ в карточке задачи читать нечем: он обрезан, и приходится
+   лезть в сырые данные. Полноэкранный режим — то же содержимое, но
+   размером, на котором текст читают, а не проглядывают. */
+.reader-wrap { position: fixed; inset: 0; z-index: 60; display: flex; flex-direction: column; background: var(--bg); }
+.reader-bar {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s4); border-bottom: 1px solid var(--line);
+  font-size: 13px; color: var(--muted);
+}
+.reader-bar button { margin-left: auto; }
+.reader-body {
+  flex: 1; overflow-y: auto; padding: var(--s5) var(--s4);
+  white-space: pre-wrap; word-break: break-word;
+  font-size: 15px; line-height: 1.65; max-width: 46rem; width: 100%; margin: 0 auto;
+}
+
+/* ── Предпросмотр ──────────────────────────────────────────────────── */
+.preview-wrap { position: fixed; inset: 0; z-index: 50; display: flex; flex-direction: column; background: var(--bg); }
+.preview-bar {
+  display: flex; align-items: center; gap: var(--s3);
+  padding: var(--s3) var(--s5); border-bottom: 1px solid var(--line);
+  font-family: var(--mono); font-size: 12px; color: var(--muted);
+}
+.preview-bar button { margin-left: auto; }
+#previewFrame { flex: 1; width: 100%; border: 0; background: #fff; }
+/* Журнал песочницы. Показывается ТОЛЬКО когда есть что показать: пустая
+   панель «ошибок нет» занимает место и приучает её не замечать. */
+.sblog { border-top: 1px solid var(--line); background: var(--surface); max-height: 40vh; display: flex; flex-direction: column; }
+.sblog-head { display: flex; align-items: center; gap: var(--s2); padding: var(--s3) var(--s5); font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.sblog-head button { margin-left: 0; }
+.sblog-head #sandboxFix { margin-left: auto; }
+.sblog .out { margin: 0; border: 0; border-radius: 0; max-height: none; }
+.sbline { display: block; padding: 2px 0; }
+.sbline.err { color: var(--bad); }
+
+footer { padding: var(--s5) var(--s6); color: #5b626d; font-size: 11px; font-family: var(--mono); }
+
+/* Узкая полоса-рейка — только для планшетной ширины. Ниже 861 меню уже не
+   рейка, а выезжающая панель, и ужимать в ней нечего: раньше эти правила
+   протекали вниз и сплющивали отступы открытого меню на телефоне. */
+@media (max-width: 1050px) and (min-width: 861px) {
+  .layout { grid-template-columns: 68px minmax(0,1fr); }
+  .sidebar { padding: var(--s4) var(--s2); }
+  .nav-item { justify-content: center; padding: 11px 0; }
+  .nav-item span, .nav-item .sub, .nav-label { display: none; }
+}
+@media (max-width: 1050px) {
+  .main { padding: var(--s5) var(--s5) 70px; }
+}
+@media (max-width: 650px) {
+  .az-top { padding: 0 var(--s4); }
+  .brand-meta, .top-chip span { display: none; }
+  .layout { grid-template-columns: 1fr; }
+  /* .sidebar здесь НЕЛЬЗЯ гасить через display:none — именно это и ломало
+     кнопку меню на телефоне: ниже 650 точек панель исчезала совсем, и
+     нажатие на три полосы ничего не открывало. Панель на узком экране
+     лежит поверх (см. блок 860px) и убирается сдвигом, а не удалением. */
+  .main { padding: var(--s5) var(--s4) 64px; }
+  .panel-body { padding: var(--s4); }
+
+  .wordmark { font-size: clamp(34px, 11vw, 52px); }
+}
+</style>
+</head>
+<body>
+<div class="az-app">
+
+<header class="az-top">
+  <div class="brand">
+    <!-- Меню закрывается. На телефоне полоса слева съедала треть ширины
+         постоянно, хотя нужна раз в несколько минут. -->
+    <button class="menu-btn" id="menuBtn" aria-label="Меню" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="brand-mark" aria-hidden="true">A</div>
+    <div>
+      <div class="brand-name">AZRAIL</div>
+      <div class="brand-meta">DARK MNMLL PULSE OS</div>
+    </div>
+  </div>
+  <div class="top-actions">
+    <span class="top-chip hidden" id="budgetChip"><span id="budgetText"></span></span>
+    <!-- Сводка ВСЕГДА видна, подробность по касанию. Так снимается вопрос
+         «как часто смотрят на состояние»: беглый взгляд — бесплатно,
+         разбор — одно нажатие. -->
+    <button class="top-chip top-chip-btn" id="stateBtn" aria-label="Состояние системы">
+      <i class="dot" id="dot"></i><span id="pulseText">проверяю связь</span>
+    </button>
+  </div>
+</header>
+
+<div class="layout" id="layout">
+
+<aside class="sidebar">
+  <!-- Навигация ведёт к тому, что существует. Пунктов под ненаписанное
+       (Sandbox, Deploy) здесь нет: пустая кнопка обещает возможность,
+       которой нет, и это обнаруживается только нажатием. -->
+  <div class="nav-group">
+    <div class="nav-label">Работа</div>
+    <button class="nav-item active" data-goto="askStage"><i class="nav-dot"></i><span>Задача</span></button>
+    <button class="nav-item" data-open="viewChat"><i class="nav-dot"></i><span>Чат</span></button>
+    <button class="nav-item" data-open="viewLive"><i class="nav-dot"></i><span>Живой журнал</span></button>
+    <button class="nav-item" data-open="viewSandbox"><i class="nav-dot"></i><span>Песочница</span></button>
+    <button class="nav-item" data-open="viewHistory"><i class="nav-dot"></i><span>История</span><i class="sub" id="histCount"></i></button>
+  </div>
+  <div class="nav-group">
+    <div class="nav-label">Система</div>
+    <a class="nav-item" href="/ultimate.html"><i class="nav-dot"></i><span>Новый рабочий экран</span></a>
+    <a class="nav-item" href="/control.html"><i class="nav-dot"></i><span>Проект и студии</span></a>
+    <button class="nav-item" data-open="viewOps"><i class="nav-dot"></i><span>Служебное</span></button>
+    <button class="nav-item" id="navTools" data-open="viewSkills"><i class="nav-dot"></i><span>Умения</span><i class="sub" id="toolCount"></i></button>
+  </div>
+</aside>
+
+<main class="main">
+
+<!-- ЭКРАНЫ. Раньше всё лежало одной лентой: задача, потом пять раскрывашек
+     подряд. Чтобы дойти до песочницы, надо было проскроллить чужие разделы.
+     Теперь каждый раздел — отдельный экран во всю ширину, с возвратом. -->
+<section class="view" id="viewHome">
+
+  <section class="hero">
+    <div>
+      <div class="eyebrow">Autonomous Engineering Core</div>
+      <h1 class="wordmark">AZRAIL</h1>
+      <p class="tagline">Intelligence That <span>Moves the Planet</span></p>
+    </div>
+  </section>
+
+  <div class="panel">
+    <div class="panel-head"><span class="panel-title">Что нужно сделать?</span></div>
+    <div class="panel-body">
+
+      <section class="stage" id="askStage">
+        <div class="ask">
+          <textarea id="ask" rows="1" placeholder="Что построим сегодня?" spellcheck="false"></textarea>
+          <!-- Кнопки ПОД полем, а не рядом: рядом они отнимали у ввода
+               половину ширины на телефоне. -->
+          <div class="ask-tools">
+            <button class="mic" id="attachBtn" type="button" aria-label="Прикрепить файл" title="Прикрепить файл">📎</button>
+          <button class="mic" id="polishBtn" type="button" aria-label="Довести формулировку" title="Довести формулировку">✨</button>
+          <button class="mic" id="micBtn" type="button" aria-label="Голосовой ввод" title="Голосовой ввод">🎙</button>
+          <button class="go" id="go" aria-label="Отправить">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+          </button>
+          </div>
+        </div>
+        <input type="file" id="fileInput" class="hidden" multiple>
+        <div class="attached hidden" id="attached"></div>
+        <label class="mode">
+          <input type="checkbox" id="autoMode">
+          <span>Делать самостоятельно — несколько шагов, видно каждый</span>
+        </label>
+        <div class="picks" id="picks">
+          <button class="pick" data-fill="Собери лендинг под мой трек: тёмная тема, одна секция с плеером, кнопка на стриминги.">Собери лендинг под мой трек</button>
+          <button class="pick" data-fill="Проверь репозиторий на уязвимости и небезопасные места в коде.">Проверь репозиторий на уязвимости</button>
+          <button class="pick" data-fill="Разбери загруженный ZIP и скажи, что внутри: структура, назначение файлов, что вызывает вопросы.">Разбери этот ZIP и скажи, что внутри</button>
+        </div>
+        <p class="note hidden" id="askNote"></p>
+      </section>
+
+      <section class="stage hidden" id="workStage">
+        <div class="working">
+          <span class="breath" id="breath"></span>
+          <div class="working-text">
+            <b id="workTitle">Думаю</b>
+            <span id="workMeta">0 с</span>
+          </div>
+          <button class="cancel" id="cancelBtn">Отменить</button>
+        </div>
+        <!-- Поправить агента на ходу, не убивая работу. До этого
+             единственным жестом была отмена: видишь, что он пошёл не
+             туда, — и теряешь весь наработанный контекст. -->
+        <div class="hintbar hidden" id="hintBar">
+          <input id="hintInput" type="text" maxlength="600" autocomplete="off"
+                 placeholder="Подсказать на ходу…" />
+          <button id="hintBtn">Сказать</button>
+        </div>
+        <div class="mprog hidden" id="mprog">
+          <div class="mprog-top">
+            <span id="mprogStep">шаг 0</span>
+            <span class="mprog-pct" id="mprogPct">0%</span>
+          </div>
+          <div class="mprog-rail"><div class="mprog-fill" id="mprogFill"></div></div>
+        </div>
+        <ol class="trace hidden" id="trace"></ol>
+      </section>
+
+      <section class="stage hidden" id="resultStage">
+        <div class="result-top">
+          <span class="badge" id="rBadge">—</span>
+          <span id="rAgent"></span>
+          <span id="rTime"></span>
+          <span class="vers hidden" id="rVers">
+            <button class="mini" id="verPrev" aria-label="Предыдущий вариант">‹</button>
+            <span id="verLabel">1/1</span>
+            <button class="mini" id="verNext" aria-label="Следующий вариант">›</button>
+          </span>
+          <button class="mini" id="speakBtn" type="button" aria-label="Озвучить ответ" title="Озвучить">🔊</button>
+        </div>
+        <p class="result-body" id="rBody"></p>
+        <button class="mini hidden" id="rRead" type="button">Читать целиком</button>
+
+        <!-- ОТЧЁТ ПО КАНОНУ. Появляется только после самостоятельной
+             миссии: у одиночной задачи нет ни плана, ни проверок, и
+             судить её по канону было бы придиркой. -->
+        <div class="canon hidden" id="rCanon">
+          <h3 class="canon-h">Как выполнено</h3>
+          <div class="canon-rows" id="canonRows"></div>
+          <p class="note" id="canonNote"></p>
+        </div>
+        <div class="qs hidden" id="rQs"></div>
+        <div class="files hidden" id="rFiles"></div>
+        <div class="acts hidden" id="rActs"></div>
+        <div class="out hidden" id="rData"></div>
+        <!-- Две разные вещи, и это важно.
+             «Поправить» возвращает к полю С ТЕКСТОМ: чаще всего задача
+             провалилась из-за формулировки, и набирать её заново с
+             телефона — наказание за чужую ошибку.
+             «Новая задача» чистит всё. -->
+        <div class="endrow">
+          <button class="again" id="backBtn">Поправить задачу</button>
+          <button class="again" id="againBtn">Новая задача</button>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Чат — ОТДЕЛЬНЫЙ раздел и открыт сразу.
+       Раньше он лежал третьей строкой внутри «Живого журнала», и найти его
+       можно было только развернув чужой по смыслу раздел. Спрашивать, не
+       ставя задачу, — самое частое действие; прятать его нельзя. -->
+</section>
+
+  <section class="view hidden" id="viewChat">
+    <div class="view-head">
+      <button class="view-back" data-back aria-label="Назад к задаче">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h2 class="view-title">Чат</h2>
+    </div>
+    <div class="chat-log" id="chatLog"></div>
+    <div class="chat-dock">
+      <p class="note chat-hint" id="chatHint">Подключаюсь…</p>
+      <div class="chat-row">
+        <textarea id="chatInput" rows="1" placeholder="Спросить, не ставя задачу"></textarea>
+        <button class="chat-send" id="chatSendBtn" aria-label="Отправить">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <!-- Модель выбирается ЗДЕСЬ, а не в «Служебном». Менять её хочется
+           ровно в тот момент, когда задаёшь вопрос, а не разделом ниже. -->
+      <div class="chat-model">
+        <!-- Родной <select> не умеет иконки, поэтому он остаётся скрытым
+             источником значения, а человек видит кнопку и шторку ниже. -->
+        <select id="chatModel" aria-label="Модель" hidden><option value="">Автоматически</option></select>
+        <button type="button" class="mpick" id="mpickBtn" aria-haspopup="dialog" aria-controls="msheet">
+          <span class="mico mico-auto" id="mpickIco"></span>
+          <span class="mpick-txt">
+            <span class="mpick-name" id="mpickName">Автоматически</span>
+            <span class="mpick-sub" id="mpickSub">маршрутизатор подбирает модель под задачу</span>
+          </span>
+          <svg class="mpick-chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+      <div class="msheet hidden" id="msheet" role="dialog" aria-modal="true" aria-label="Выбор модели">
+        <div class="msheet-scrim" data-mclose></div>
+        <div class="msheet-panel">
+          <div class="msheet-grip"></div>
+          <div class="msheet-head">
+            <div>
+              <div class="msheet-title">Модель</div>
+              <div class="msheet-count" id="msheetCount"></div>
+            </div>
+            <button type="button" class="msheet-x" data-mclose aria-label="Закрыть">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <input type="search" class="msheet-search" id="msheetSearch" placeholder="Поиск: модель, провайдер, «код»…" autocomplete="off">
+          <div class="msheet-list" id="msheetList"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view hidden" id="viewLive">
+    <div class="view-head">
+      <button class="view-back" data-back aria-label="Назад к задаче">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h2 class="view-title">Живой журнал</h2>
+    </div>
+    <div class="row">
+      <span class="label">Подключение</span>
+      <span class="badge" id="wsBadge">—</span>
+      <button class="mini" id="wsConnectBtn">Подключить</button>
+      <p class="note">Показывает задачи в реальном времени, пока вкладка открыта. Нужен сохранённый токен.</p>
+    </div>
+    <div class="row">
+      <span class="label">Лента событий</span>
+      <div class="out" id="wsLog"></div>
+    </div>
+  </section>
+
+  <!-- Песочница как самостоятельное место, а не побочный эффект задачи.
+       Раньше запустить HTML можно было только если его сгенерировал агент,
+       и только до первого закрытия окна: свой код проверить негде, а
+       закрытый предпросмотр открыть заново нечем. -->
+  <section class="view hidden" id="viewSandbox">
+    <div class="view-head">
+      <button class="view-back" data-back aria-label="Назад к задаче">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h2 class="view-title">Песочница</h2>
+    </div>
+    <p class="note">Запускает HTML в изоляции: без доступа к странице, ключам и API. Ошибки видно тут же.</p>
+    <textarea id="sandboxSrc" rows="4" placeholder="&lt;!doctype html&gt; …" spellcheck="false"></textarea>
+    <div class="row" style="margin-top:var(--s3)">
+      <button class="mini" id="sandboxRun">Запустить</button>
+      <button class="mini hidden" id="sandboxReopen">Открыть последний</button>
+    </div>
+  </section>
+
+  <section class="view hidden" id="viewHistory">
+    <div class="view-head">
+      <button class="view-back" data-back aria-label="Назад к задаче">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h2 class="view-title">История диалогов</h2>
+    </div>
+    <p class="note">Прошлые переписки. Нужен сохранённый токен.</p>
+    <div class="hist" id="histList"></div>
+  </section>
+
+  <section class="view hidden" id="viewOps">
+    <div class="view-head">
+      <button class="view-back" data-back aria-label="Назад к задаче">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <h2 class="view-title">Служебное</h2>
+    </div>
+
+    <div class="row">
+      <label class="label" for="token">Токен доступа</label>
+      <input type="password" id="token" placeholder="AZRAIL_TOKEN" autocomplete="off">
+      <button class="mini" id="tokenShowBtn" type="button" aria-label="Показать токен">👁</button>
+      <button class="mini" id="tokenBtn">Сохранить</button>
+      <button class="mini" id="tokenForgetBtn" type="button">Забыть</button>
+      <p class="note">Сохранённый токен переживает перезагрузку и новые вкладки — «Забыть» стирает его с устройства. Если не вставляется на телефоне — жми 👁: поле-пароль на части мобильных браузеров блокирует вставку, обычное текстовое — нет.</p>
+    </div>
+
+    <div class="row">
+      <label class="label" for="modelSelect">Модель</label>
+      <select id="modelSelect" disabled><option>загружаю список…</option></select>
+      <input type="text" id="model" placeholder="или слаг вручную" autocomplete="off" spellcheck="false">
+      <button class="mini" id="modelBtn">Сохранить</button>
+      <p class="note">Пусто — маршрутизатор выбирает сам. Выбрано — используется ровно эта модель, без автоматической замены.</p>
+      <div class="mlist" id="modelList"></div>
+    </div>
+
+    <div class="row">
+      <span class="label">Самопроверка</span>
+      <button class="mini" id="selftestBtn">Запустить</button>
+      <div class="out hidden" id="selftestOut"></div>
+    </div>
+
+    <div class="row">
+      <span class="label">Измерить качество</span>
+      <button class="mini" id="benchBtn">Прогнать набор</button>
+      <p class="note">Прогоняет набор задач с заведомо падающими тестами и считает, сколько из них AZRAIL реально починил. Каждая задача — полная миссия, поэтому спрашивает подтверждение с ценой. Нужна контейнерная песочница.</p>
+      <div class="out hidden" id="benchOut"></div>
+    </div>
+
+    <div class="row">
+      <span class="label">Движение</span>
+      <button class="mini" id="motionBtn">Переключить</button>
+      <p class="note">Пульсация индикаторов работы. При выключенных системных анимациях движение по умолчанию отключено — эта кнопка возвращает его вручную.</p>
+    </div>
+
+    <div class="row">
+      <span class="label">Полная панель</span>
+      <p class="note">Формы для операций, которые пока не выразить словами: ветки, репозитории, параметры запуска. <a href="/classic.html">Открыть</a></p>
+    </div>
+  </section>
+
+  <footer>api того же origin · /health · /api/task · /api/mission · /api/bench · /api/selftest</footer>
+</main>
+
+<section class="view hidden" id="viewSkills" aria-label="Умения">
+  <div class="view-head">
+    <button class="view-back" data-back aria-label="Назад">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M15 18l-6-6 6-6" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+    <h2 class="view-title">Умения</h2>
+  </div>
+
+  <!-- ДВА СПИСКА, И ЭТО РАЗНОЕ.
+       Инструменты — ЧТО исполнимо прямо сейчас. Агенты — КТО за что
+       берётся. Раньше «Умения» были кнопкой: вываливали инструменты в
+       подпись задачи и уводили на главную, а /api/agents не читал никто
+       вовсе — реестр агентов отдавался в пустоту. -->
+  <div class="skill-block">
+    <h3 class="scard-h">Инструменты</h3>
+    <p class="note" id="skillToolsNote"></p>
+    <div id="skillTools"></div>
+  </div>
+
+  <div class="skill-block">
+    <h3 class="scard-h">Агенты</h3>
+    <div id="skillAgents"></div>
+  </div>
+</section>
+
+<!-- ПАНЕЛЬ СОСТОЯНИЯ.
+     На широком экране — третья колонка, как в макете. На телефоне
+     выезжает справа: три колонки там физически не помещаются (260+310
+     это уже шире всего экрана), и вопрос не «как ужать», а «во что
+     превратить».
+     Данные НАСТОЯЩИЕ: /health делает round-trip к каждому сервису и
+     возвращает время и ошибку. В макете на этом месте были подписи
+     «ВКЛ» и «READY», не значившие ничего. -->
+<aside class="statebar" id="statebar" aria-label="Состояние">
+  <div class="state-head">
+    <h2 class="state-title">Состояние</h2>
+    <button class="view-back state-close" id="stateClose" aria-label="Закрыть">
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="scard">
+    <h3>Сервисы</h3>
+    <div class="kv" id="stateServices"><span class="skv-empty">проверяю…</span></div>
+  </div>
+
+  <div class="scard">
+    <h3>Песочница</h3>
+    <div class="kv" id="stateSandbox"><span class="skv-empty">проверяю…</span></div>
+  </div>
+
+  <div class="scard">
+    <h3>Сессия</h3>
+    <div class="kv" id="stateSession"></div>
+  </div>
+</aside>
+
+</div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<div class="reader-wrap hidden" id="readerWrap">
+  <div class="reader-bar">
+    <span id="readerTitle"></span>
+    <button class="mini" id="readerClose">Закрыть</button>
+  </div>
+  <div class="reader-body" id="readerBody"></div>
+</div>
+
+<div class="preview-wrap hidden" id="previewWrap">
+  <div class="preview-bar">
+    <span id="previewTitle"></span>
+    <button class="mini" id="previewClose">Закрыть</button>
+  </div>
+  <iframe id="previewFrame" sandbox="allow-scripts" title="Предпросмотр"></iframe>
+  <div class="sblog hidden" id="sandboxLog">
+    <div class="sblog-head">
+      <span id="sandboxCount">0 сообщений</span>
+      <button class="mini" id="sandboxFix">Починить ошибки</button>
+      <button class="mini" id="sandboxClear">Очистить</button>
+    </div>
+    <div class="out" id="sandboxOut"></div>
+  </div>
+</div>
+
+<script>
+
+  /* Крючки на первый показ экрана.
+     Объявлены В НАЧАЛЕ, а не рядом с маршрутизатором: var поднимается, а
+     значение — нет, и вызов onViewOpen выше по файлу падал бы на
+     необъявленном viewHooks. Порядок здесь не стилистика: скрипт один,
+     и падение в любой строке уносит всё, что подключается ниже. */
+  var viewHooks = {};
+
+  function onViewOpen(id, fn) {
+    (viewHooks[id] = viewHooks[id] || []).push(fn);
+  }
+
+(function () {
+  'use strict';
+
+  var $ = function (id) { return document.getElementById(id); };
+  /* ── Хранилище, которое не роняет страницу ─────────────────────────
+     sessionStorage и localStorage БРОСАЮТ исключение, а не возвращают
+     null, когда origin непрозрачный: файл открыт локально (content://,
+     file://), включён приватный режим, отключены куки сайта.
+
+     Раньше первая же строка скрипта звала sessionStorage напрямую — и
+     необработанное исключение убивало ВЕСЬ блок кода. Не часть, не
+     «половину функций»: страница оставалась картинкой без единого
+     живого обработчика, и по виду это неотличимо от «просто не работает».
+
+     Дальше всё работает как обычно, только настройки не переживают
+     перезагрузку. Это честный размен: лучше рабочая страница без памяти,
+     чем мёртвая с памятью. */
+  var memFallback = {};
+  function store(kind) {
+    return {
+      get: function (k) {
+        try { return window[kind].getItem(k); }
+        catch (e) { return k in memFallback ? memFallback[k] : null; }
+      },
+      set: function (k, v) {
+        try { window[kind].setItem(k, v); }
+        catch (e) { memFallback[k] = v; }
+      }
+    };
+  }
+  /* Копирование с запасным путём.
+     navigator.clipboard существует только в защищённом контексте (https
+     или localhost). При локально открытом файле его нет вовсе — обращение
+     к .writeText падало бы на undefined, и кнопка «Копировать» молча
+     ничего не делала. Старый execCommand('copy') работает и там. */
+  function copyText(text, done) {
+    var ok = function (v) { if (done) done(v); };
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function () { ok(true); }, function () { ok(fallbackCopy(text)); });
+      return;
+    }
+    ok(fallbackCopy(text));
+  }
+
+  function fallbackCopy(text) {
+    try {
+      var ta2 = document.createElement('textarea');
+      ta2.value = text;
+      // Вне экрана, но НЕ display:none — из скрытого элемента выделение
+      // не берётся, и копирование тихо не сработает.
+      ta2.style.position = 'fixed';
+      ta2.style.top = '-1000px';
+      ta2.setAttribute('readonly', '');
+      document.body.appendChild(ta2);
+      ta2.select();
+      var okv = document.execCommand('copy');
+      document.body.removeChild(ta2);
+      return okv;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  var session = store('sessionStorage');
+  var local = store('localStorage');
+
+  /* ТОКЕН ЖИВЁТ В localStorage, А НЕ В СЕССИИ.
+   *
+   * Раньше он лежал в sessionStorage: закрыл вкладку — ключ исчез. Замысел
+   * был про безопасность на чужом устройстве, а на деле каждая новая
+   * вкладка начиналась с отказов «нужен Authorization» на загрузке файлов
+   * и списке моделей. Выглядит это как сломанная система, а не как
+   * незаполненная настройка, и человек идёт чинить то, что не ломалось.
+   *
+   * Теперь решение принимает человек, а не система за него: рядом стоит
+   * «Забыть», которая стирает ключ явно.
+   *
+   * Значение из старой сессии переносится один раз, чтобы обновление
+   * страницы не выглядело как потеря настроек. */
+  var token = local.get('azrail_token') || session.get('azrail_token') || '';
+  if (token && !local.get('azrail_token')) local.set('azrail_token', token);
+  var preferredModel = local.get('azrail_model') || session.get('azrail_model') || '';
+  var ticker = null;
+
+  function api(path, opts) {
+    opts = opts || {};
+    opts.headers = Object.assign({}, opts.headers);
+    if (token) opts.headers['Authorization'] = 'Bearer ' + token;
+    return fetch(path, opts).then(function (r) {
+      return r.text().then(function (raw) {
+        var data;
+        try { data = JSON.parse(raw); } catch (e) { data = { summary: raw }; }
+        if (!r.ok) {
+          var err = new Error((data && (data.error || data.summary)) || ('HTTP ' + r.status));
+          // Тело ответа прикладывается к ошибке, а не выбрасывается.
+          // Некоторые отказы СОДЕРЖАТЕЛЬНЫ: /api/bench без подтверждения
+          // возвращает состав набора и оценку стоимости — именно то, что
+          // нужно показать перед согласием. Раньше от такого ответа
+          // оставалась одна строка текста.
+          err.payload = data;
+          err.status = r.status;
+          throw err;
+        }
+        return data;
+      });
+    });
+  }
+
+  function setPulse(state, text) {
+    $('dot').className = 'dot ' + state;
+    $('pulseText').textContent = text;
+  }
+
+  /* Строка «ключ — значение» в панели состояния.
+     Узлами, а не строкой в innerHTML: сюда приходят данные с сервера,
+     включая тексты ошибок. В проекте это запрещено тестом, и не зря. */
+  function kv(box, key, value, cls) {
+    var k = document.createElement('span');
+    k.textContent = key;
+    var v = document.createElement('span');
+    v.textContent = value;
+    if (cls) v.className = cls;
+    box.appendChild(k);
+    box.appendChild(v);
+  }
+
+  function checkHealth() {
+    api('/health')
+      .then(function (d) {
+        setPulse('on', token ? 'на связи' : 'нужен токен');
+        renderState(d);
+      })
+      .catch(function (e) {
+        setPulse('off', 'недоступен');
+        var box = $('stateServices');
+        box.textContent = '';
+        kv(box, 'связь', e && e.message ? e.message : 'нет ответа', 'skv-bad');
+      });
+  }
+
+  /* Панель наполняется ТЕМ, ЧТО СЕРВЕР ДЕЙСТВИТЕЛЬНО ПРОВЕРИЛ.
+     /health делает round-trip к каждому сервису и возвращает время и
+     текст ошибки — раньше всё это выбрасывалось ради одной точки в
+     шапке. Подпись «работает» без проверки — обещание, а не факт. */
+  function renderState(health) {
+    var box = $('stateServices');
+    box.textContent = '';
+
+    var checks = (health && Array.isArray(health.services)) ? health.services : [];
+
+    if (!checks.length) {
+      kv(box, 'ответ', 'без подробностей', 'skv-off');
+    } else {
+      checks.forEach(function (c) {
+        // ТРИ состояния, не два. «absent» значит «биндинг не настроен» —
+        // это не поломка, и красить его в красный значит пугать там, где
+        // ничего не сломано.
+        if (c.status === 'absent') { kv(box, c.name, 'не подключён', 'skv-off'); return; }
+        var ok = c.status === 'ok';
+        // Время round-trip, а не слово «готов»: по нему видно, что сервис
+        // отвечает медленно, ещё до того как он откажет.
+        kv(box, c.name, ok ? (typeof c.ms === 'number' ? c.ms + ' мс' : 'ok')
+                           : (c.error ? String(c.error).slice(0, 60) : 'ошибка'),
+           ok ? 'skv-ok' : 'skv-bad');
+      });
+    }
+
+    /* Биндинги БЕЗ проверки — и подписаны именно так.
+       Сервер честно говорит: вызывать модель ради health-check дорого, а
+       класть в очередь — плодить мусор. Значит здесь известно только то,
+       что биндинг объявлен. Написать «работает» было бы догадкой; в
+       макете, откуда взят вид, на этом месте стояло «ВКЛ». */
+    var b = health && health.bindings;
+    if (b) {
+      Object.keys(b).forEach(function (name) {
+        kv(box, name, b[name] === 'bound' ? 'объявлен (не проверен)' : 'нет',
+           b[name] === 'bound' ? 'skv-off' : 'skv-off');
+      });
+    }
+
+    var sess = $('stateSession');
+    sess.textContent = '';
+    kv(sess, 'токен', token ? 'сохранён' : 'нет', token ? 'skv-ok' : 'skv-bad');
+    kv(sess, 'модель', preferredModel || 'автоматически');
+    kv(sess, 'связь', ws && ws.readyState === WebSocket.OPEN ? 'на связи' : 'нет',
+       ws && ws.readyState === WebSocket.OPEN ? 'skv-ok' : 'skv-off');
+  }
+
+  /* Песочница: сколько инструментов ЖИВЫ, а не сколько объявлено.
+     Реестр знает 21, работает меньше — разница и есть та правда, ради
+     которой панель существует. */
+  function renderSandboxState(tools) {
+    var box = $('stateSandbox');
+    box.textContent = '';
+    var live = tools.filter(function (t) { return t.available; });
+    var exec = tools.some(function (t) { return t.name === 'sandbox_exec' && t.available; });
+
+    kv(box, 'контейнер', exec ? 'поднят' : 'не подключён', exec ? 'skv-ok' : 'skv-off');
+    kv(box, 'инструменты', live.length + ' из ' + tools.length,
+       live.length ? 'skv-ok' : 'skv-bad');
+  }
+
+  function show(which) {
+    ['askStage', 'workStage', 'resultStage'].forEach(function (id) {
+      $(id).classList.toggle('hidden', id !== which);
+    });
+
+    /* Строка подсказки живёт только на рабочем экране: у одиночной задачи
+     * и на экране результата её некому прочитать.
+     *
+     * Скрытие ЗДЕСЬ, а не вызовом showHintBar на каждом переходе. На
+     * странице два независимых скрипта, showHintBar видна только в
+     * первом, и вызов из второго ронял обработчик молча — так «Новая
+     * задача» и перестала работать. show() общая для обоих, и правка
+     * классом не зависит от области видимости вообще. */
+    var bar = document.getElementById('hintBar');
+    if (bar && which !== 'workStage') {
+      bar.classList.add('hidden');
+      var inp = document.getElementById('hintInput');
+      if (inp) inp.value = '';
+    }
+  }
+
+  function send() {
+    var text = $('ask').value.trim();
+    var note = $('askNote');
+
+    if (!text) {
+      note.textContent = 'Напиши, что нужно сделать.';
+      note.classList.remove('hidden');
+      $('ask').focus();
+      return;
+    }
+    if (!token) {
+      note.textContent = 'Сначала сохрани токен — он под «Служебное» внизу.';
+      note.classList.remove('hidden');
+      return;
+    }
+    note.classList.add('hidden');
+    resetTrace();
+    lastPrompt = text;
+    var autonomous = $('autoMode').checked;
+    // Карта имеет смысл только в автономном режиме: у одиночного прохода
+    // шагов нет, и пустой каркас вводил бы в заблуждение.
+    // Соединение поднимается САМО. Просить человека сходить в другой
+    // раздел и нажать «Подключить» — перекладывать на него работу,
+    // которую система умеет сделать: намерение он уже показал, запустив
+    // задачу. Если связь не встанет, шаги всё равно придут опросом —
+    // поэтому здесь нет ни ожидания, ни предупреждения о неудаче.
+    if (autonomous && (!ws || ws.readyState !== WebSocket.OPEN)) {
+      try { connectWs(); } catch (e) { /* шаги дойдут опросом */ }
+    }
+
+    var t0 = Date.now();
+    var cancelled = false;
+    // AbortController живёт на всю задачу: нужен и кнопке «Отменить», и
+    // самому fetch ниже. Браузерная поддержка сплошная, полифилл не нужен.
+    var inflight = new AbortController();
+    // Идентификатор фоновой миссии и таймер её опроса. Живут на всю
+    // задачу: их нужно видеть и обработчику «Отменить», и завершению.
+    var missionId = null;
+    var pollTimer = null;
+    function stopPolling() {
+      if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; }
+    }
+
+    show('workStage');
+    setPulse('busy', 'работаю');
+    $('workTitle').textContent = 'Думаю';
+    $('workMeta').textContent = '0 с';
+
+    // Бэкенд не сообщает стадии выполнения, поэтому показывается
+    // только реальное время. Рисовать шкалу прогресса из воздуха
+    // означало бы врать в интерфейсе.
+    ticker = setInterval(function () {
+      var s = Math.round((Date.now() - t0) / 1000);
+      $('workMeta').textContent = s + ' с';
+      if (s === 25) $('workTitle').textContent = 'Всё ещё думаю';
+      if (s === 60) $('workTitle').textContent = 'Задача большая, идёт дольше обычного';
+    }, 1000);
+
+    function stop() {
+      clearInterval(ticker);
+      ticker = null;
+      return Math.round((Date.now() - t0) / 1000);
+    }
+
+    $('cancelBtn').onclick = function () {
+      cancelled = true;
+      // Обрываем HTTP-запрос. Для одиночной задачи этого достаточно.
+      if (inflight) inflight.abort();
+      // А для МИССИИ — нет. Она больше не живёт внутри этого запроса:
+      // цикл идёт в фоне на сервере и об оборванном соединении не знает
+      // вовсе. Без явной команды он продолжал бы жечь модели и бюджет
+      // записей до самого потолка шагов. Останов происходит на границе
+      // шага — рвать на середине записи файла нельзя.
+      if (missionId) {
+        api('/api/mission/cancel', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ missionId: missionId })
+        }).catch(function () { /* миссия могла успеть завершиться сама */ });
+      }
+      stopPolling();
+      stop();
+      show('askStage');
+      setPulse('on', 'на связи');
+    };
+
+    /* ── Подсказка в идущую миссию ────────────────────────────────────
+     *
+     * Строка показывается ТОЛЬКО когда есть missionId: у одиночной задачи
+     * подсказку некому прочитать, и предлагать её значило бы обещать
+     * несуществующее. Функция видна ровно тогда, когда ею можно
+     * воспользоваться.
+     */
+    /* Показ строки подсказки.
+     *
+     * ВАЖНО: на странице ДВА независимых скрипта, и эта функция видна
+     * только в первом. Вызов её из второго роняет обработчик молча —
+     * именно так «Новая задача» перестала работать. Поэтому скрытие
+     * строки привязано ещё и к уходу с рабочего экрана внутри show(),
+     * а звать showHintBar откуда попало не нужно.
+     */
+    function showHintBar(on) {
+      var bar = $('hintBar');
+      if (!bar) return;
+      bar.classList.toggle('hidden', !on);
+      if (!on) {
+        var inp = $('hintInput');
+        if (inp) inp.value = '';
+      }
+    }
+
+    function sendHint() {
+      var input = $('hintInput');
+      var text = (input.value || '').trim();
+      if (!text || !missionId) return;
+
+      var btn = $('hintBtn');
+      btn.disabled = true;
+      // Поле чистится СРАЗУ: подсказка уже ушла, и повторное нажатие по
+      // той же строке отправило бы её дважды.
+      input.value = '';
+
+      api('/api/mission/hint', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ missionId: missionId, text: text })
+      }).then(function (r) {
+        return r.json().catch(function () { return {}; });
+      }).then(function (data) {
+        // Отказ произносится вслух. Молчаливая неудача здесь хуже всего:
+        // человек будет считать, что агент услышал, и ждать реакции.
+        if (data && data.error) {
+          traceEvent({ event: 'hint.rejected', reason: data.error });
+        }
+      }).catch(function () {
+        traceEvent({ event: 'hint.rejected', reason: 'не отправилось' });
+      }).then(function () {
+        btn.disabled = false;
+      });
+    }
+
+    $('hintBtn').onclick = sendHint;
+    $('hintInput').onkeydown = function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); sendHint(); }
+    };
+
+    // Ключ идемпотентности — на миссию. Мобильная связь рвётся, палец
+    // срывается на двойное нажатие, клиент повторяет запрос сам: раньше
+    // каждый такой случай запускал ВТОРУЮ миссию со вторым расходом
+    // моделей, и заметить это можно было только по счёту.
+    var runKey = (window.crypto && window.crypto.randomUUID)
+      ? window.crypto.randomUUID()
+      : String(Date.now()) + '-' + Math.random().toString(36).slice(2);
+
+    api(autonomous ? '/api/mission' : '/api/task', {
+      method: 'POST',
+      signal: inflight.signal,
+      headers: autonomous
+        ? { 'Content-Type': 'application/json', 'Idempotency-Key': runKey }
+        : { 'Content-Type': 'application/json' },
+      // intent намеренно не передаётся: по спецификации задачу
+      // определяет сам AZRAIL, пользователь ничего не выбирает.
+      // preferredModel — другая ось: НЕ что делать, а насколько
+      // конкретно закреплённой моделью. Пусто по умолчанию — тогда
+      // выбирает маршрутизатор, как и раньше.
+      body: JSON.stringify(autonomous
+        ? Object.assign(
+            // Цикл ждёт message и обязательный projectId — форма запроса
+            // у него своя, не такая, как у одиночной задачи.
+            { message: text, projectId: currentProject },
+            preferredModel ? { preferredModel: preferredModel } : {}
+          )
+        : Object.assign(
+            { inputType: 'text', payload: text, projectId: currentProject },
+            preferredModel ? { preferredModel: preferredModel } : {},
+            attachments.length ? { attachments: attachments } : {}
+          ))
+    })
+      .then(function (data) {
+        if (cancelled) return;
+
+        /* Миссия больше НЕ возвращает результат из POST.
+           Раньше весь цикл шёл внутри одного HTTP-запроса, и любая работа
+           длиннее полутора минут обрывалась на стороне Cloudflare: экран
+           показывал ошибку, хотя на сервере всё продолжалось. Теперь POST
+           отвечает 202 и отдаёт только идентификатор, а за ходом работы
+           следим опросом. */
+        if (data && data.status === 'accepted' && data.missionId) {
+          missionId = data.missionId;
+          // Теперь есть кому услышать — открываем строку подсказки.
+          showHintBar(true);
+          if (data.deduplicated) {
+            askNote('Такой запрос уже запущен — показываю его, а не создаю второй.');
+          }
+          pollMission();
+          return;
+        }
+
+        var secs = stop();
+        var shown = data && data.result ? data.result : data;
+        addVersion(shown, secs);
+        render(shown, secs);
+      })
+      .catch(function (err) {
+        if (cancelled) return;
+        stopPolling();
+        render({ status: 'failed', agent: '', summary: '', error: String(err.message || err) }, stop());
+      });
+
+    /* Опрос состояния фоновой миссии.
+       Живой журнал по WebSocket показывает ход, но полагаться на него
+       нельзя: сокет может быть не подключён, а связь на мобильном — рваться.
+       Опрос — то, что доводит результат до экрана при любом раскладе.
+
+       Интервал растёт от двух секунд к десяти: первые шаги короткие, а
+       потом обращения впустую только тратят батарею. */
+    function pollMission() {
+      var delay = 2000;
+      var deadAt = Date.now() + 30 * 60 * 1000;
+
+      function tick() {
+        if (cancelled || !missionId) return;
+        if (Date.now() > deadAt) {
+          stopPolling();
+          render({ status: 'failed', agent: '', summary: '',
+                   error: 'Миссия не ответила за 30 минут. Найди её в журнале по идентификатору ' + missionId + '.' }, stop());
+          return;
+        }
+
+        api('/api/mission?missionId=' + encodeURIComponent(missionId))
+          .then(function (rep) {
+            if (cancelled) return;
+            // Шаги рисуются на КАЖДОМ ответе, до всякой проверки
+            // завершения: ради этого опрос и ходит так часто. Раньше
+            // поле events молча выбрасывалось, и до самого конца
+            // миссии человек не видел ничего.
+            if (rep) applyStoredEvents(rep.events);
+            if (!rep || !rep.done) {
+              delay = Math.min(10000, Math.round(delay * 1.4));
+              pollTimer = setTimeout(tick, delay);
+              return;
+            }
+            stopPolling();
+            var secs = stop();
+            var shown = rep.result || {
+              status: (rep.mission && rep.mission.status) === 'completed' ? 'done' : 'failed',
+              agent: 'execution-engine',
+              // Результата в базе нет — такое бывает на базе без миграции
+              // 002. Врать про успех нельзя, поэтому показываем статус как
+              // есть, а не выдуманный текст.
+              summary: 'Миссия завершена со статусом: ' + ((rep.mission && rep.mission.status) || 'неизвестно') + '.'
+            };
+            addVersion(shown, secs);
+            render(shown, secs);
+            renderCanon(rep.canon);
+          })
+          .catch(function () {
+            // Разрыв связи — не повод считать миссию упавшей: она идёт на
+            // сервере независимо от того, смотрит ли кто-то. Пробуем реже.
+            delay = Math.min(10000, Math.round(delay * 1.6));
+            pollTimer = setTimeout(tick, delay);
+          });
+      }
+
+      pollTimer = setTimeout(tick, delay);
+    }
+  }
+
+  /* Отчёт по канону.
+     Показываются НАРУШЕНИЯ, а не все двадцать один пункт: список из
+     пятнадцати «не проверяется» ничего не сообщает и вытесняет то, что
+     сообщает. Соблюдённые сворачиваются в одну строку итога. */
+  function renderCanon(canon) {
+    var box = $('rCanon');
+    if (!canon || !canon.summary) { box.classList.add('hidden'); return; }
+
+    var rows = $('canonRows');
+    rows.textContent = '';
+
+    (canon.principles || []).filter(function (p) { return p.verdict === 'broken'; })
+      .forEach(function (p) {
+        var row = document.createElement('div');
+        row.className = 'crow broken';
+        var mark = document.createElement('i');
+        mark.textContent = '\u2715';
+        var txt = document.createElement('div');
+        var name = document.createElement('b');
+        name.textContent = p.n + '. ' + p.title;
+        var why = document.createElement('span');
+        why.textContent = p.evidence;
+        txt.appendChild(name); txt.appendChild(why);
+        row.appendChild(mark); row.appendChild(txt);
+        rows.appendChild(row);
+      });
+
+    var s2 = canon.summary;
+    if (s2.broken === 0) {
+      var ok = document.createElement('div');
+      ok.className = 'crow held';
+      var m = document.createElement('i');
+      m.textContent = '\u2713';
+      var t = document.createElement('div');
+      var b = document.createElement('b');
+      b.textContent = 'Нарушений не найдено';
+      t.appendChild(b);
+      ok.appendChild(m); ok.appendChild(t);
+      rows.appendChild(ok);
+    }
+
+    // Непроверяемое названо числом, а не спрятано: умолчание читалось бы
+    // как «там всё хорошо», хотя про них ничего не известно.
+    $('canonNote').textContent =
+      'Проверено механически: ' + (s2.held + s2.broken) + ' принципов. ' +
+      'Остальные ' + s2.unverifiable + ' — ценности, из записи о прогоне не выводятся.';
+
+    box.classList.remove('hidden');
+  }
+
+  function render(data, seconds) {
+    setPulse('on', 'на связи');
+
+    var state = data.status === 'done' ? 'ok'
+              : data.status === 'needs_input' ? 'ask' : 'bad';
+    var badge = $('rBadge');
+    badge.className = 'badge ' + state;
+    badge.textContent = data.status === 'done' ? 'готово'
+                      : data.status === 'needs_input' ? 'нужен ответ' : 'не вышло';
+
+    // Специалист называется только ПОСЛЕ работы и мелко.
+    // Во время работы он пользователю не показывается.
+    $('rAgent').textContent = data.agent ? '· ' + data.agent : '';
+    $('rTime').textContent = seconds ? '· ' + seconds + ' с' : '';
+    var fullText = data.error || data.summary || 'Ответ пустой.';
+    $('rBody').textContent = fullText;
+
+    /* Кнопка появляется ТОЛЬКО когда текст правда длинный.
+       Постоянная кнопка «читать» под каждым коротким ответом — лишний
+       элемент, который приходится взглядом пропускать. */
+    renderCanon(data && data.canon);
+
+    var readBtn = $('rRead');
+    if (readBtn) {
+      var long = fullText.length > 400;
+      readBtn.classList.toggle('hidden', !long);
+      readBtn.onclick = long ? function () { openReader(data.agent || 'Ответ', fullText); } : null;
+    }
+
+    var qs = $('rQs');
+    qs.innerHTML = '';
+    if (data.questions && data.questions.length) {
+      data.questions.forEach(function (q, i) {
+        var row = document.createElement('div');
+        row.className = 'q';
+        var num = document.createElement('i');
+        num.textContent = String(i + 1).padStart(2, '0');
+        var txt = document.createElement('span');
+        txt.textContent = q;
+        row.appendChild(num); row.appendChild(txt);
+        qs.appendChild(row);
+      });
+      qs.classList.remove('hidden');
+    } else {
+      qs.classList.add('hidden');
+    }
+
+    var box = $('rData');
+    var filesBox = $('rFiles');
+    var actsBox = $('rActs');
+    filesBox.innerHTML = '';
+    actsBox.innerHTML = '';
+
+    var payload = (data.data && typeof data.data === 'object') ? data.data : null;
+    var files = (payload && Array.isArray(payload.files)) ? payload.files : [];
+    lastFiles = files;
+
+    if (files.length) {
+      // Файлы показываются как файлы, а не как JSON. Содержимое кладётся
+      // через textContent: это вывод модели, разметкой он стать не должен.
+      files.forEach(function (f) {
+        if (!f || typeof f.path !== 'string') return;
+        var content = typeof f.content === 'string' ? f.content : '';
+        var d = document.createElement('details');
+        d.className = 'file';
+        var s = document.createElement('summary');
+        var name = document.createElement('span');
+        name.textContent = f.path;
+        var size = document.createElement('span');
+        size.className = 'size';
+        size.textContent = content.split('\n').length + ' строк';
+        s.appendChild(name);
+        s.appendChild(size);
+        var pre = document.createElement('pre');
+        pre.textContent = content;
+
+        // Действия на КАЖДОМ файле, а не только на всём наборе сразу.
+        // Появляются внутри раскрытого файла — в свёрнутом виде список
+        // остаётся списком имён, без частокола кнопок.
+        var acts = document.createElement('div');
+        acts.className = 'file-acts';
+
+        var copyBtn = document.createElement('button');
+        copyBtn.className = 'mini';
+        copyBtn.textContent = 'Копировать';
+        copyBtn.addEventListener('click', function () {
+          copyText(content, function (ok) {
+            copyBtn.textContent = ok ? 'скопировано' : 'не вышло';
+            if (ok) toast('Скопировано: ' + f.path);
+          });
+          setTimeout(function () { copyBtn.textContent = 'Копировать'; }, 1500);
+        });
+        acts.appendChild(copyBtn);
+
+        var dlBtn = document.createElement('button');
+        dlBtn.className = 'mini';
+        dlBtn.textContent = 'Скачать';
+        dlBtn.addEventListener('click', function () { downloadOne(f.path, content); });
+        acts.appendChild(dlBtn);
+
+        // Предпросмотр — только для того, что браузер умеет отрисовать сам.
+        // HTML/CSS/JS запускаются в изолированном iframe прямо здесь.
+        // Python, серверный код и всё остальное так НЕ запустить — для них
+        // кнопки просто нет, вместо неё позже придёт настоящая песочница.
+        if (/\.html?$/i.test(f.path)) {
+          var prevBtn = document.createElement('button');
+          prevBtn.className = 'mini';
+          prevBtn.textContent = 'Открыть';
+          prevBtn.addEventListener('click', function () { runSandbox(content, f.path); });
+          acts.appendChild(prevBtn);
+        }
+
+        d.appendChild(s);
+        d.appendChild(acts);
+        d.appendChild(pre);
+        filesBox.appendChild(d);
+      });
+      filesBox.classList.remove('hidden');
+
+      // Кнопки существуют только пока есть над чем действовать.
+      // Пустой результат не порождает ни одной.
+      addAct('Скачать архив', function () { downloadZip(files); }, true);
+      addAct('Скопировать всё', function () {
+        var all = files.map(function (f) {
+          return '/* ' + f.path + ' */\n' + (f.content || '');
+        }).join('\n\n');
+        copyText(all);
+      });
+      addAct('Проверить безопасность', function () {
+        ta.value = 'Проверь на уязвимости файлы, которые ты только что сгенерировал.';
+        show('askStage');
+        send();
+      });
+      actsBox.classList.remove('hidden');
+      box.classList.add('hidden');
+    } else if (data.data !== undefined && data.data !== null) {
+      // JSON.stringify экранирует переносы внутри строк, и длинный ответ
+      // превращается в сплошную ленту с «\n\n» вместо абзацев — читать
+      // нечем. Возвращаем их на место: данные те же, показ другой.
+      box.textContent = typeof data.data === 'string'
+        ? data.data
+        : JSON.stringify(data.data, null, 2).replace(/\\n/g, '\n').replace(/\\"/g, '"');
+      box.classList.remove('hidden');
+    } else {
+      box.classList.add('hidden');
+    }
+
+    // Перегенерация доступна всегда, а не только при наличии файлов:
+    // переспросить хочется чаще всего именно тогда, когда ответ не понравился.
+    // lastPrompt хранится отдельно — поле ввода к этому моменту уже пустое.
+    if (lastPrompt) {
+      addAct('Ещё вариант', function () {
+        ta.value = lastPrompt;
+        show('askStage');
+        send();
+      });
+      actsBox.classList.remove('hidden');
+    }
+
+    show('resultStage');
+  }
+
+  function addAct(label, fn, primary) {
+    var b = document.createElement('button');
+    b.className = 'act' + (primary ? ' primary' : '');
+    b.textContent = label;
+    b.addEventListener('click', fn);
+    $('rActs').appendChild(b);
+  }
+
+  /**
+   * Сборка ZIP без библиотек — метод STORE (без сжатия).
+   * Файлы генерируются на телефоне владельца, где подключать внешний архиватор
+   * лишний вес; несжатый ZIP распаковывается любым архиватором одинаково.
+   */
+  function downloadZip(files) {
+    var enc = new TextEncoder();
+    var chunks = [], central = [], offset = 0;
+
+    function u32(n) { return [n & 255, (n >> 8) & 255, (n >> 16) & 255, (n >> 24) & 255]; }
+    function u16(n) { return [n & 255, (n >> 8) & 255]; }
+
+    // CRC32 нужен по формату: без правильной суммы архиватор считает файл битым.
+    var table = (function () {
+      var t = [];
+      for (var i = 0; i < 256; i++) {
+        var c = i;
+        for (var k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+        t[i] = c >>> 0;
+      }
+      return t;
+    })();
+    function crc32(bytes) {
+      var c = 0xFFFFFFFF;
+      for (var i = 0; i < bytes.length; i++) c = table[(c ^ bytes[i]) & 255] ^ (c >>> 8);
+      return (c ^ 0xFFFFFFFF) >>> 0;
+    }
+
+    files.forEach(function (f) {
+      var nameBytes = enc.encode(f.path);
+      var dataBytes = enc.encode(f.content || '');
+      var sum = crc32(dataBytes);
+      var local = [].concat(
+        u32(0x04034b50), u16(20), u16(0), u16(0), u16(0), u16(0),
+        u32(sum), u32(dataBytes.length), u32(dataBytes.length),
+        u16(nameBytes.length), u16(0)
+      );
+      chunks.push(new Uint8Array(local), nameBytes, dataBytes);
+      central.push({ name: nameBytes, crc: sum, size: dataBytes.length, offset: offset });
+      offset += local.length + nameBytes.length + dataBytes.length;
+    });
+
+    var dirStart = offset, dirSize = 0;
+    central.forEach(function (e) {
+      var head = [].concat(
+        u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), u16(0), u16(0),
+        u32(e.crc), u32(e.size), u32(e.size),
+        u16(e.name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(e.offset)
+      );
+      chunks.push(new Uint8Array(head), e.name);
+      dirSize += head.length + e.name.length;
+    });
+    chunks.push(new Uint8Array([].concat(
+      u32(0x06054b50), u16(0), u16(0),
+      u16(central.length), u16(central.length),
+      u32(dirSize), u32(dirStart), u16(0)
+    )));
+
+    var url = URL.createObjectURL(new Blob(chunks, { type: 'application/zip' }));
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = 'azrail-' + Date.now() + '.zip';
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  /** Скачивание одного файла под его собственным именем. */
+  function downloadOne(path, content) {
+    var name = path.split('/').pop() || 'file.txt';
+    var url = URL.createObjectURL(new Blob([content], { type: 'text/plain;charset=utf-8' }));
+    var a = document.createElement('a');
+    a.href = url;
+    a.download = name;
+    a.click();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  // Файлы последнего результата — нужны предпросмотру, чтобы подставить
+  // соседние css/js внутрь html. Держим ссылку, а не копию.
+  var lastFiles = [];
+
+  /**
+   * Предпросмотр HTML в изолированном iframe.
+   *
+   * Отдельная проблема, которую здесь пришлось решать: сгенерированная
+   * страница почти всегда ссылается на соседние файлы (<link href="style.css">,
+   * <script src="app.js">). В iframe через srcdoc относительный путь никуда
+   * не ведёт — без подстановки открылся бы голый текст без стилей, и
+   * предпросмотр выглядел бы сломанным, хотя сам код нормальный.
+   * Поэтому содержимое соседей вставляется в разметку перед показом.
+   *
+   * Границы честно: это браузерный рендер, а не исполнение проекта.
+   * Работает HTML/CSS/JS. Не работает ничего серверного — запросы к
+   * несуществующему бэкенду упадут внутри превью так же, как упали бы вживую.
+   */
+  /* ── Самовосстановление ────────────────────────────────────────────
+   *
+   * Ошибки из песочницы возвращаются агенту вместе с кодом, который их
+   * вызвал. Это замыкает круг: раньше человек видел сломанный
+   * предпросмотр и должен был сам пересказать, что не так, — а пересказ
+   * теряет как раз ту деталь, по которой чинят.
+   *
+   * Ограничение честное: чинится только то, что видно из браузера —
+   * ошибки времени выполнения фронтенда. Логические ошибки, неверные
+   * данные и всё, что не бросает исключение, отсюда не видно.
+   */
+  /* ── История диалогов ──────────────────────────────────────────────
+   *
+   * Оживляет два эндпоинта, которые были готовы и не вызывались ни
+   * одной страницей: /api/conversations и /api/chat. Работающий код,
+   * к которому нет пути, — это поддержка без причины.
+   *
+   * Заголовок диалога — ПЕРВОЕ сообщение пользователя, а не автоназвание
+   * от модели: оно точнее говорит, о чём был разговор, и не стоит
+   * лишнего вызова.
+   */
+  function loadHistory() {
+    api('/api/conversations')
+      .then(function (d) {
+        var list = (d && d.conversations) || [];
+        var box = $('histList');
+        box.textContent = '';
+        $('histCount').textContent = list.length ? String(list.length) : '';
+
+        if (!list.length) {
+          var empty = document.createElement('p');
+          empty.className = 'note';
+          empty.textContent = 'Пока пусто. Диалоги появятся здесь после первого разговора.';
+          box.appendChild(empty);
+          return;
+        }
+
+        list.forEach(function (c) {
+          var b = document.createElement('button');
+          b.className = 'hitem';
+
+          var t = document.createElement('span');
+          t.className = 'hitem-text';
+          // Обрезаем в РАЗМЕТКЕ через CSS, а не строкой: так видно
+          // столько, сколько влезает на конкретном экране, а не сколько
+          // угадал разработчик.
+          t.textContent = c.preview || 'без названия';
+          b.appendChild(t);
+
+          var w = document.createElement('span');
+          w.className = 'hitem-when';
+          w.textContent = (c.message_count || 0) + ' сообщ.';
+          b.appendChild(w);
+
+          b.addEventListener('click', function () { openConversation(c.id, c.preview); });
+          box.appendChild(b);
+        });
+      })
+      .catch(function () {
+        // Токена может ещё не быть — это не ошибка, просто пусто.
+        $('histCount').textContent = '';
+      });
+  }
+
+  function openConversation(id, title) {
+    api('/api/chat?conversationId=' + encodeURIComponent(id))
+      .then(function (d) {
+        var msgs = (d && d.messages) || [];
+        var box = $('histList');
+        box.textContent = '';
+
+        var back = document.createElement('button');
+        back.className = 'mini';
+        back.textContent = '‹ ко всем диалогам';
+        back.addEventListener('click', loadHistory);
+        box.appendChild(back);
+
+        var out = document.createElement('div');
+        out.className = 'out';
+        msgs.forEach(function (m) {
+          var line = document.createElement('span');
+          line.className = 'sbline';
+          line.textContent = (m.role === 'user' ? '› ' : '‹ ') + String(m.content || '').slice(0, 600);
+          out.appendChild(line);
+        });
+        box.appendChild(out);
+
+        if (!msgs.length) {
+          var e = document.createElement('p');
+          e.className = 'note';
+          e.textContent = 'Диалог пуст.';
+          box.appendChild(e);
+        }
+      })
+      .catch(function (e) {
+        // Ошибка ОСТАЁТСЯ на экране, а не уходит тостом.
+        var er = document.createElement('p');
+        er.className = 'note';
+        er.textContent = 'Не удалось открыть диалог: ' + (e && e.message ? e.message : 'нет связи');
+        $('histList').appendChild(er);
+      });
+  }
+
+  // Загружается при первом ОТКРЫТИИ ЭКРАНА, а не при старте: незачем
+  // тянуть список, который человек может не открыть ни разу.
+  //
+  // Раньше это висело на событии toggle у <details>. Когда раскрывашки
+  // стали экранами, элемента не стало — и строка роняла ВЕСЬ скрипт,
+  // унося с собой всё, что подключалось ниже. Отсюда правило: слушать
+  // событие только того, что существует.
+  onViewOpen('viewHistory', function () {
+    if (!$('histList').children.length) loadHistory();
+  });
+
+  /* Остаток бюджета записей.
+   *
+   * Показывается ТОЛЬКО когда израсходовано больше половины. Постоянный
+   * счётчик при 12 из 5000 ничего не меняет в поведении и приучает не
+   * смотреть в эту область — а увидеть его нужно ровно один раз, перед
+   * тем как упрёшься в потолок. */
+  function showBudget(b) {
+    if (!b || typeof b.used !== 'number' || !b.limit) return;
+    var share = b.used / b.limit;
+    var chip = $('budgetChip');
+    if (share < 0.5) { chip.classList.add('hidden'); return; }
+    $('budgetText').textContent = 'записей ' + b.used + '/' + b.limit;
+    chip.classList.toggle('warn', share >= 0.85);
+    chip.classList.remove('hidden');
+  }
+
+  var sandboxErrors = [];
+  var sandboxSource = { path: '', code: '' };
+
+  function renderSandboxLog() {
+    var box = $('sandboxOut');
+    box.textContent = '';
+    var errs = sandboxErrors.filter(function (e) { return e.kind === 'error'; }).length;
+
+    sandboxErrors.slice(-80).forEach(function (e) {
+      var line = document.createElement('span');
+      line.className = 'sbline' + (e.kind === 'error' ? ' err' : '');
+      line.textContent = (e.kind === 'error' ? '✕ ' : '· ') + e.text;
+      box.appendChild(line);
+    });
+
+    $('sandboxCount').textContent = sandboxErrors.length
+      ? sandboxErrors.length + ' сообщени(й), ошибок: ' + errs
+      : '0 сообщений';
+    // Кнопка починки видна, только когда есть ЧТО чинить. Активная
+    // кнопка при нуле ошибок — обещание работы, которой нет.
+    $('sandboxFix').classList.toggle('hidden', errs === 0);
+    $('sandboxLog').classList.toggle('hidden', sandboxErrors.length === 0);
+  }
+
+  window.addEventListener('message', function (ev) {
+    // Проверяем метку, а не источник: у iframe без allow-same-origin
+    // origin равен "null", сверять его бессмысленно. Метка отсеивает
+    // чужие сообщения от расширений браузера.
+    var d = ev.data;
+    if (!d || d.__azrail !== 1 || typeof d.text !== 'string') return;
+    sandboxErrors.push({ kind: d.kind === 'error' ? 'error' : 'log', text: d.text });
+    if (sandboxErrors.length > 200) sandboxErrors = sandboxErrors.slice(-200);
+    renderSandboxLog();
+  });
+
+  $('sandboxClear').addEventListener('click', function () {
+    sandboxErrors = [];
+    renderSandboxLog();
+  });
+
+  $('sandboxFix').addEventListener('click', function () {
+    var errs = sandboxErrors.filter(function (e) { return e.kind === 'error'; });
+    if (!errs.length) return;
+
+    // Ошибки передаются ДОСЛОВНО. Никакого пересказа своими словами:
+    // чинят именно по той детали, которую пересказ теряет.
+    ta.value =
+      'Исправь ошибки в файле ' + sandboxSource.path + '.\n\n' +
+      'ОШИБКИ ИЗ ПРЕДПРОСМОТРА (дословно):\n' +
+      errs.map(function (e, i) { return (i + 1) + '. ' + e.text; }).join('\n') +
+      '\n\nКОД ФАЙЛА:\n' + sandboxSource.code.slice(0, 12000);
+
+    closePreview();
+    grow();
+    ta.focus();
+    toast('Перенесено в задачу');
+  });
+
+  /* Последний запуск помнится, чтобы закрытое окно можно было вернуть.
+     Раньше закрытие означало «потерял»: перезапускай задачу целиком. */
+  var lastRun = null;
+
+  function runSandbox(source, label) {
+    var src = String(source || '').trim();
+    if (!src) return;
+    lastRun = { src: src, label: label || 'Песочница' };
+    $('sandboxReopen').classList.remove('hidden');
+    openPreview(lastRun.label, src);
+  }
+
+  $('sandboxRun').addEventListener('click', function () {
+    var src = $('sandboxSrc').value;
+    if (!src.trim()) {
+      $('sandboxSrc').focus();
+      return;
+    }
+    runSandbox(src, 'Песочница');
+  });
+
+  $('sandboxReopen').addEventListener('click', function () {
+    if (lastRun) openPreview(lastRun.label, lastRun.src);
+  });
+
+  function openPreview(path, html) {
+    var out = html;
+
+    lastFiles.forEach(function (f) {
+      if (!f || typeof f.path !== 'string' || f.path === path) return;
+      var name = f.path.split('/').pop();
+      var body = typeof f.content === 'string' ? f.content : '';
+      if (/\.css$/i.test(name)) {
+        // Экранируется только закрывающий тег: строка попадает внутрь
+        // <style>, где преждевременный </style> сломал бы разбор документа.
+        var safeCss = body.replace(/<\/style>/gi, '<\\/style>');
+        out = out.replace(
+          new RegExp('<link[^>]*href=["\'][^"\']*' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '["\'][^>]*>', 'gi'),
+          '<style>' + safeCss + '</style>'
+        );
+      } else if (/\.js$/i.test(name)) {
+        var safeJs = body.replace(/<\/script>/gi, '<\\/script>');
+        out = out.replace(
+          // ВНИМАНИЕ на "<\/script>" ниже: обратный слэш обязателен.
+          // HTML-парсер ищет буквальную последовательность из "<", "/" и
+          // "script>" и обрывает ВЕСЬ блок скрипта на ней, даже когда она
+          // внутри строковой константы JS — и даже когда внутри комментария,
+          // как было в первой версии этого самого пояснения. Здесь на этом
+          // уже сломалось: страница молча теряла всё, что идёт ниже. Для JS
+          // "\/" и "/" — один символ, поэтому значение строки не меняется.
+          new RegExp('<script[^>]*src=["\'][^"\']*' + name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '["\'][^>]*>\\s*<\\/script>', 'gi'),
+          '<script>' + safeJs + '<\/script>'
+        );
+      }
+    });
+
+    /* ── Ловушка ошибок и консоли ──────────────────────────────────
+     *
+     * Внедряется ПЕРВЫМ скриптом, до кода пользователя: иначе ошибка,
+     * случившаяся при разборе самого документа, произойдёт раньше, чем
+     * появится обработчик, и будет потеряна.
+     *
+     * Канал — postMessage, а не общий объект. Иначе нельзя: у iframe нет
+     * allow-same-origin, доступа к нашей странице у него нет, и это
+     * правильно. Внутри исполняется вывод модели — он не должен получать
+     * права самого интерфейса.
+     *
+     * Именно поэтому спецификация, где предлагалось добавить
+     * allow-same-origin, здесь НЕ выполняется: allow-scripts вместе с
+     * allow-same-origin снимает изоляцию полностью — код внутри сможет
+     * дотянуться до нашего DOM и токена. Это не ужесточение ради
+     * ужесточения, а разница между песочницей и её видимостью.
+     */
+    var trap =
+      '<script>(function(){' +
+      'var send=function(kind,text){try{parent.postMessage({__azrail:1,kind:kind,text:String(text).slice(0,2000)},"*")}catch(e){}};' +
+      'window.onerror=function(m,src,line,col){send("error",m+" ("+(src||"?")+":"+line+":"+col+")");return false};' +
+      'window.addEventListener("unhandledrejection",function(e){send("error","Необработанный отказ промиса: "+(e.reason&&e.reason.message||e.reason))});' +
+      '["log","warn","error"].forEach(function(k){var o=console[k];console[k]=function(){' +
+      'send(k==="error"?"error":"log",Array.prototype.map.call(arguments,function(a){' +
+      'try{return typeof a==="object"?JSON.stringify(a):String(a)}catch(e){return String(a)}}).join(" "));' +
+      'o.apply(console,arguments)}});' +
+      '})()<\/script>';
+
+    // Вставляем сразу после <head>, а при его отсутствии — в начало.
+    out = /<head[^>]*>/i.test(out)
+      ? out.replace(/<head[^>]*>/i, function (m) { return m + trap; })
+      : trap + out;
+
+    sandboxErrors = [];
+    renderSandboxLog();
+
+    sandboxSource = { path: path, code: html };
+    $('previewTitle').textContent = path;
+    // sandbox без allow-same-origin: скрипты внутри работают, но доступа
+    // к нашей странице, куки и токену у них нет. Это вывод модели —
+    // он не должен получать те же права, что сам интерфейс.
+    var frame = $('previewFrame');
+    frame.setAttribute('sandbox', 'allow-scripts');
+    frame.srcdoc = out;
+    $('previewWrap').classList.remove('hidden');
+  }
+
+  var ta = $('ask');
+  function grow() {
+    ta.style.height = 'auto';
+    ta.style.height = Math.min(ta.scrollHeight, window.innerHeight * 0.4) + 'px';
+  }
+  ta.addEventListener('input', grow);
+  ta.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+  });
+  $('go').addEventListener('click', send);
+
+  $('picks').addEventListener('click', function (e) {
+    var b = e.target.closest('.pick');
+    if (!b) return;
+    // Подпись как запасной источник: без неё забытый data-fill молча
+    // ОЧИЩАЛ поле вместо заполнения — именно так эта кнопка и сломалась.
+    ta.value = b.dataset.fill || b.textContent.trim();
+    grow();
+    ta.focus();
+  });
+
+  /* Вернуться к формулировке, не потеряв её.
+   *
+   * Раньше выхода из результата не было вовсе: обе кнопки начинали с
+   * чистого листа. Задача, провалившаяся из-за одного неудачного слова,
+   * заставляла набирать весь текст заново — с телефона это дорого.
+   *
+   * Текст берётся из lastPrompt: поле ввода к моменту показа результата
+   * уже очищено, восстанавливать оттуда нечего. */
+  $('backBtn').addEventListener('click', function () {
+    show('askStage');
+    if (lastPrompt) {
+      ta.value = lastPrompt;
+      grow();
+    }
+    ta.focus();
+  });
+
+  $('againBtn').addEventListener('click', function () {
+    // Новая задача — значит и варианты прошлой сбрасываются. Иначе стрелки
+    // листали бы ответы на РАЗНЫЕ вопросы, и «2/3» ничего не значило бы.
+    versions = [];
+    verIndex = 0;
+    updateVersUi();
+    attachments = [];
+    $('attached').textContent = '';
+    $('attached').classList.add('hidden');
+    undoBtn = null; // узел удалён вместе с содержимым контейнера выше
+    resetTrace();
+    ta.value = ''; grow(); show('askStage'); ta.focus();
+  });
+
+  $('token').value = token;
+  $('tokenBtn').addEventListener('click', function () {
+    token = $('token').value.trim();
+    local.set('azrail_token', token);
+    session.set('azrail_token', token); // старый ключ, чтобы не расходились
+    toast(token ? 'Токен сохранён' : 'Токен очищен');
+    checkHealth();
+    /* Список моделей запрашивается один раз при открытии страницы. Без
+     * токена он падал и оставался «список не загрузился» НАВСЕГДА — даже
+     * когда причина уже устранена. Система знала, что проблема ушла, и
+     * продолжала показывать старую ошибку. */
+    if (token) loadModels();
+  });
+  $('tokenForgetBtn').addEventListener('click', function () {
+    token = '';
+    $('token').value = '';
+    local.set('azrail_token', '');
+    session.set('azrail_token', '');
+    toast('Токен стёрт с устройства');
+    checkHealth();
+  });
+  $('tokenShowBtn').addEventListener('click', function () {
+    var f = $('token');
+    f.type = f.type === 'password' ? 'text' : 'password';
+  });
+
+  $('model').value = preferredModel;
+  $('modelBtn').addEventListener('click', function () {
+    // Через общую точку: иначе списки в чате и в «Служебном» покажут
+    // старое значение, а работать будет вписанное вручную.
+    setPreferredModel($('model').value.trim());
+  });
+
+  $('selftestBtn').addEventListener('click', function () {
+    var out = $('selftestOut');
+    out.textContent = 'проверяю…';
+    api('/api/selftest')
+      .then(function (d) { out.textContent = JSON.stringify(d, null, 2); })
+      .catch(function (e) { out.textContent = 'не вышло: ' + (e.message || e); });
+  });
+
+  /* Измеритель качества.
+     Двухшаговый намеренно: первый запрос без confirm возвращает состав
+     набора и оценку числа вызовов модели, и только потом спрашивается
+     согласие. Решение о дорогой операции принимают, зная цену, а не
+     после счёта. */
+  $('benchBtn').addEventListener('click', function () {
+    var out = $('benchOut');
+    out.classList.remove('hidden');
+    out.textContent = 'считаю стоимость…';
+
+    api('/api/bench', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({})
+    })
+      .then(function () {
+        // Сервер обязан отказать без confirm. Если согласился — молчать
+        // об этом нельзя: значит защита от дорогого прогона не работает.
+        out.textContent = 'Неожиданно: прогон начался без подтверждения. Проверь /api/bench.';
+      })
+      .catch(function (e) {
+        var plan = e && e.payload;
+        if (!plan || !plan.cases) { out.textContent = 'не вышло: ' + (e.message || e); return; }
+
+        var ok = window.confirm(
+          'Прогон ' + plan.cases.length + ' задач, до ' + plan.estimatedModelCalls +
+          ' вызовов модели. Это полные миссии, они тратят бюджет. Запускать?'
+        );
+        if (!ok) { out.textContent = 'отменено'; return; }
+
+        out.textContent = 'иду по задачам, это долго…';
+        api('/api/bench', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ confirm: true })
+        })
+          .then(function (d) {
+            var r = d.report || {};
+            var lines = [
+              'оценка: ' + r.score + '% (решено ' + r.solved + ' из ' + r.measured + ' годных)',
+              'сломано: ' + r.regressed + '   негодных: ' + r.invalid + '   не измерено: ' + r.unmeasured,
+              'медиана времени: ' + Math.round((r.medianDurationMs || 0) / 1000) + ' с',
+              ''
+            ];
+            (d.outcomes || []).forEach(function (o) {
+              lines.push(o.caseId + ' — ' + (o.error ? o.error : (o.after && o.after.ok ? 'решено' : 'не решено')));
+            });
+            if (d.problems && d.problems.length) {
+              lines.push('', 'проблемы набора: ' + d.problems.join('; '));
+            }
+            out.textContent = lines.join('\n');
+          })
+          .catch(function (err) { out.textContent = 'не вышло: ' + (err.message || err); });
+      });
+  });
+
+  function toggleMotion() {
+    motionOn = !motionOn;
+    local.set(motionKey, motionOn ? '1' : '0');
+    applyMotion();
+  }
+  $('motionBtn').addEventListener('click', toggleMotion);
+
+  // --- Живой журнал (WebSocket) + чат — оба через одно соединение ---
+  var ws = null;
+
+  function wsLine(el, text) {
+    var p = document.createElement('div');
+    p.textContent = text;
+    el.appendChild(p);
+    el.scrollTop = el.scrollHeight;
+  }
+
+  /* Реплика чата — с подписью и переносами.
+     Раньше и вопрос, и ответ падали одной строкой в общий журнал: понять,
+     где чей текст, можно было только по префиксу. */
+  function chatTurn(who, text, bad) {
+    var box = $('chatLog');
+    var turn = document.createElement('div');
+    turn.className = 'chat-turn' + (who === 'Ты' ? ' mine' : '') + (bad ? ' bad' : '');
+    var w = document.createElement('div');
+    w.className = 'chat-who';
+    w.textContent = who;
+    var t = document.createElement('div');
+    t.className = 'chat-text';
+    t.textContent = text;
+    turn.appendChild(w);
+    turn.appendChild(t);
+
+    // Длинный ответ читают целиком, а не в окошке на треть экрана.
+    if (String(text).length > 400) {
+      var open = document.createElement('button');
+      open.className = 'mini';
+      open.style.alignSelf = 'flex-start';
+      open.textContent = 'читать целиком';
+      open.addEventListener('click', function () { openReader(who, text); });
+      turn.appendChild(open);
+    }
+
+    box.appendChild(turn);
+    box.scrollTop = box.scrollHeight;
+    return turn;
+  }
+
+  function chatHint(text) {
+    var el = $('chatHint');
+    if (!el) return;
+    el.textContent = text;
+    el.classList.toggle('hidden', !text);
+  }
+
+  /* ── Режим чтения ──────────────────────────────────────────────────
+     Ответ модели бывает на несколько экранов. В карточке задачи он
+     обрезан, а «сырые данные» показывают JSON — читать неудобно и то, и
+     другое. Здесь тот же текст, но во весь экран и кеглем для чтения. */
+  function openReader(title, text) {
+    $('readerTitle').textContent = title || 'Ответ';
+    $('readerBody').textContent = String(text == null ? '' : text);
+    $('readerWrap').classList.remove('hidden');
+    $('readerBody').scrollTop = 0;
+  }
+
+  function closeReader() { $('readerWrap').classList.add('hidden'); }
+
+  $('readerClose').addEventListener('click', closeReader);
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if (!$('readerWrap').classList.contains('hidden')) { closeReader(); return; }
+    if (!$('previewWrap').classList.contains('hidden')) { $('previewClose').click(); }
+  });
+
+  function connectWs() {
+    if (!token) {
+      wsLine($('wsLog'), 'Сначала сохрани токен выше.');
+      return;
+    }
+    if (ws && ws.readyState === WebSocket.OPEN) return;
+
+    // Конструктор WebSocket не даёт выставить Authorization — это
+    // ограничение браузерного API. Раньше сюда клался сам AZRAIL_TOKEN, и
+    // постоянный ключ от всех платных эндпоинтов оседал в логах
+    // Cloudflare, в истории браузера и в Referer. Теперь в строке запроса
+    // едет одноразовый билет: живёт минуту, гасится при первом
+    // использовании (см. lib/ws-ticket.ts). Утечь может так же — но
+    // утекает уже мусор.
+    $('wsBadge').textContent = 'подключаюсь…';
+    api('/api/stream/ticket', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({projectId:currentProject}) })
+      .then(function (t) { openSocket(t.ticket); })
+      .catch(function (e) {
+        $('wsBadge').textContent = 'ошибка соединения'; $('wsBadge').className = 'badge bad';
+        chatHint('Не удалось получить билет: ' + (e && e.message ? e.message : 'нет ответа'));
+      });
+  }
+
+  function openSocket(ticket) {
+    var proto = location.protocol === 'https:' ? 'wss:' : 'ws:';
+    var url = proto + '//' + location.host + '/api/stream?ticket=' + encodeURIComponent(ticket) + '&projectId=' + encodeURIComponent(currentProject);
+    ws = new WebSocket(url);
+
+    ws.onopen = function () {
+      $('wsBadge').textContent = 'на связи'; $('wsBadge').className = 'badge ok';
+      chatHint('');
+      if (pendingChat) {
+        ws.send(JSON.stringify({ type: 'chat', text: pendingChat }));
+        pendingChat = null;
+      }
+    };
+    ws.onclose = function () {
+      $('wsBadge').textContent = 'отключено'; $('wsBadge').className = 'badge';
+      chatHint('Связь потеряна. Нажми «Отправить» — переподключусь.');
+    };
+    ws.onerror = function () {
+      $('wsBadge').textContent = 'ошибка соединения'; $('wsBadge').className = 'badge bad';
+      chatHint('Не удалось подключиться. Проверь токен в «Служебном».');
+    };
+    ws.onmessage = function (ev) {
+      var data;
+      try { data = JSON.parse(ev.data); } catch (e) { return; }
+      if (data.type === 'event_stream' && data.event) {
+        var streamEvent = data.event, payload = streamEvent.payload || {};
+        if (streamEvent.domain === 'agent' && streamEvent.taskId) {
+          wsLine($('wsLog'), '[' + (payload.status || streamEvent.type) + '] ' + (payload.intent || 'task') + (payload.summary ? ' — ' + payload.summary : '') + (payload.error ? ' — ' + payload.error : ''));
+        } else if (streamEvent.missionId) {
+          liveEvent(Object.assign({ id: streamEvent.id, event: streamEvent.type }, payload));
+        }
+      } else if (data.type === 'chat_reply') {
+        chatTurn('AZRAIL', data.text);
+      }
+      // Протокольные кадры самого SDK (CF_AGENT_*) сюда тоже прилетают —
+      // молча пропускаются, у них нет поля "type" из наших значений.
+    };
+  }
+
+  /* Отправка САМА поднимает соединение, если оно упало.
+     Требовать нажать «Подключить» — перекладывать на человека работу,
+     которую система знает как сделать: он уже показал намерение, нажав
+     «Отправить». Сообщение при этом не теряется — ждёт открытия сокета. */
+  var pendingChat = null;
+
+  function sendChat() {
+    var input = $('chatInput');
+    var text = input.value.trim();
+    if (!text) return;
+
+    if (!token) {
+      chatTurn('Система', 'Нужен токен доступа — раздел «Служебное» ниже.', true);
+      return;
+    }
+
+    chatTurn('Ты', text);
+    input.value = '';
+    growChat();
+
+    if (ws && ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify({ type: 'chat', text: text }));
+      return;
+    }
+
+    pendingChat = text;
+    chatHint('Подключаюсь и отправлю…');
+    connectWs();
+  }
+
+  function growChat() {
+    var el = $('chatInput');
+    if (!el) return;
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 140) + 'px';
+  }
+
+  $('wsConnectBtn').addEventListener('click', connectWs);
+  $('chatSendBtn').addEventListener('click', sendChat);
+  $('chatInput').addEventListener('input', growChat);
+  $('chatInput').addEventListener('keydown', function (e) {
+    // Shift+Enter — перенос строки. На телефоне Enter обычно и есть
+    // отправка, а многострочный текст набирают редко.
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+
+  // ─── Тост ──────────────────────────────────────────────────────────
+  // Короткое подтверждение там, где результат иначе невидим. НЕ для
+  // ошибок: ошибка должна остаться на экране, а не исчезнуть через две
+  // секунды, пока человек смотрит в другую сторону.
+  var toastTimer = null;
+  function toast(text) {
+    var el = $('toast');
+    el.textContent = text;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { el.classList.remove('show'); }, 2200);
+  }
+
+  // ─── Прогресс миссии ───────────────────────────────────────────────
+  // Заполняется по РЕАЛЬНОМУ номеру шага из события цикла. Потолок
+  // приходит в mission.started — до этого момента процента нет вовсе, и
+  // полоса не показывается. Полоса, ползущая по таймеру, врёт ровно
+  // тогда, когда на неё смотрят.
+  var missionMax = 0;
+
+  function progressReset() {
+    missionMax = 0;
+    $('mprog').classList.add('hidden');
+    $('mprogFill').style.width = '0%';
+    $('mprogStep').textContent = 'шаг 0';
+    $('mprogPct').textContent = '0%';
+  }
+
+  function progressUpdate(ev) {
+    if (ev.event === 'mission.started' && typeof ev.maxIterations === 'number') {
+      missionMax = ev.maxIterations;
+      $('mprog').classList.remove('hidden');
+      $('mprogStep').textContent = 'шаг 0 из ' + missionMax;
+      return;
+    }
+    if (!missionMax) return;
+
+    if (ev.event === 'tool.started' && typeof ev.iteration === 'number') {
+      // iteration приходит от нуля — человеку показываем с единицы.
+      var step = ev.iteration + 1;
+      var pct = Math.min(100, Math.round((step / missionMax) * 100));
+      $('mprogStep').textContent = 'шаг ' + step + ' из ' + missionMax;
+      $('mprogPct').textContent = pct + '%';
+      $('mprogFill').style.width = pct + '%';
+      return;
+    }
+    if (ev.event === 'mission.completed') {
+      // До ста только по факту завершения. Досрочный финиш — обычное дело:
+      // задача может закрыться на третьем шаге из восьми, и это успех, а
+      // не 37%.
+      $('mprogPct').textContent = '100%';
+      $('mprogFill').style.width = '100%';
+      $('mprogStep').textContent = 'готово';
+    }
+    if (ev.event === 'mission.cancelled') {
+      // Отдельно от 'failed': остановлено по команде — это не поломка, и
+      // называть это ошибкой значит пугать там, где всё шло по плану.
+      $('mprogStep').textContent = 'остановлено вручную';
+    }
+    if (ev.event === 'mission.failed' || ev.event === 'mission.exhausted') {
+      // Полосу НЕ доводим до ста: незакрытая задача не должна выглядеть
+      // выполненной. Оставляем там, где реально остановились.
+      $('mprogStep').textContent = ev.event === 'mission.failed' ? 'остановлено' : 'потолок шагов';
+    }
+  }
+
+  // ─── Карта миссии ──────────────────────────────────────────────────
+  // Событие с бэкенда → строка в цепочке. Названия шагов человеческие:
+  // "read_file" ничего не говорит тому, кто не писал этот код.
+  var TOOL_RU = {
+    read_file: 'читает файл', write_file: 'пишет файл', edit_file: 'правит файл',
+    list_files: 'смотрит, что есть', search_files: 'ищет по коду', call_model: 'думает',
+    git_diff: 'сравнивает версии', run_tests: 'прогоняет тесты', open_pr: 'открывает PR',
+    sandbox_test: 'проверяет тестами', check: 'проверяет результат',
+    loop: 'заметил повтор'
+  };
+
+  function traceEvent(ev) {
+    progressUpdate(ev);
+    var box = $('trace');
+    box.classList.remove('hidden');
+
+    // Предыдущий текущий шаг больше не текущий — снимаем подсветку до
+    // добавления нового, иначе «сейчас» окажется у двух строк сразу.
+    var prev = box.querySelector('li.now');
+
+    if (ev.event === 'tool.started') {
+      if (prev) { prev.className = 'ok'; }
+      var li = document.createElement('li');
+      li.className = 'now';
+      var what = TOOL_RU[ev.tool] || ev.tool;
+      li.textContent = what;
+      if (ev.reason) {
+        var why = document.createElement('span');
+        why.className = 'why';
+        why.textContent = ' — ' + ev.reason;
+        li.appendChild(why);
+      }
+      box.appendChild(li);
+    } else if (ev.event === 'tool.failed') {
+      if (prev) { prev.className = 'bad'; prev.textContent += ' — не вышло'; }
+    } else if (ev.event === 'tool.finished') {
+      if (prev) prev.className = 'ok';
+    } else if (ev.event === 'approval.requested') {
+      // Отдельной строкой и заметно: это единственное место, где видно,
+      // ЧЕГО системе не хватило. Именно по таким строкам решают, что
+      // разрешить следующим.
+      if (prev) prev.className = 'ok';
+      var ap = document.createElement('li');
+      ap.className = 'bad';
+      ap.textContent = 'нужно разрешение: ' + (TOOL_RU[ev.tool] || ev.tool);
+      if (ev.reason) {
+        var ar = document.createElement('span');
+        ar.className = 'why';
+        ar.textContent = ' — ' + ev.reason;
+        ap.appendChild(ar);
+      }
+      box.appendChild(ap);
+    } else if (ev.event === 'mission.needs_input') {
+      if (prev) prev.className = 'ok';
+      var ni = document.createElement('li');
+      ni.className = 'bad';
+      ni.textContent = 'нужно решение человека';
+      if (ev.reason) {
+        var nr = document.createElement('span');
+        nr.className = 'why';
+        nr.textContent = ' — ' + ev.reason;
+        ni.appendChild(nr);
+      }
+      box.appendChild(ni);
+    } else if (ev.event === 'snapshot.taken' || ev.event === 'rollback.done' ||
+               ev.event === 'loop.detected' || ev.event === 'tests.baseline' ||
+               ev.event === 'tests.regressed' || ev.event === 'tests.verified' ||
+               ev.event === 'tests.failed' || ev.event === 'tests.unavailable' ||
+               ev.event === 'repo.mapped' || ev.event === 'plan.revised' ||
+               ev.event === 'plan.revise_skipped' || ev.event === 'scouts.started' ||
+               ev.event === 'scouts.done' || ev.event === 'scouts.failed' ||
+               ev.event === 'memory.recalled' || ev.event === 'usage.summary' ||
+               ev.event === 'tests.rolled_back' || ev.event === 'hint.received' ||
+               ev.event === 'memory.saved' || ev.event === 'check.unverified' ||
+               ev.event === 'edit.syntax_warning') {
+      // Защитные события — отдельными строками. Особенно откат: без него
+      // непонятно, в каком состоянии остался проект после провала.
+      if (prev) prev.className = 'ok';
+      var g = document.createElement('li');
+      // «Не удалось прогнать» — не провал работы, а отсутствие проверки.
+      // Красить это красным значит говорить, что сделано плохо, хотя про
+      // качество ничего не известно.
+      var bad = ev.event === 'tests.regressed' || ev.event === 'loop.detected' ||
+                ev.event === 'tests.failed' || ev.event === 'edit.syntax_warning';
+      g.className = bad ? 'bad' : 'ok';
+      g.textContent = {
+        'snapshot.taken': 'снимок сделан (' + (ev.files || 0) + ' файл.)',
+        'rollback.done': 'изменения откачены',
+        'loop.detected': 'замечен повтор шага',
+        'tests.baseline': 'замер тестов до работы',
+        'edit.syntax_warning': 'после правки сбиты скобки' + (ev.path ? ' — ' + ev.path : ''),
+        'tests.regressed': 'тесты стали хуже',
+        'tests.verified': 'тесты прогнаны — зелено',
+        'tests.failed': 'тесты прогнаны — падают',
+        'verification.required': 'Нужна проверка исполнения',
+      'tests.unavailable': 'прогнать тесты не удалось',
+        'repo.mapped': 'карта проекта построена',
+        'plan.revised': 'план пересобран',
+        'plan.revise_skipped': 'пересобрать план не вышло',
+        'scouts.started': 'разведка пошла',
+        'scouts.done': 'разведка доложила',
+        'scouts.failed': 'разведка не удалась',
+        'memory.recalled': 'вспомнил прошлые миссии',
+        'usage.summary': 'расход миссии',
+        'tests.rolled_back': 'правки откачены, пробую иначе',
+        'hint.received': 'услышал подсказку',
+        'memory.saved': 'запомнил на будущее',
+        'check.unverified': 'проверка не состоялась'
+      }[ev.event] || ev.event;
+      if (ev.reason) {
+        var gr = document.createElement('span');
+        gr.className = 'why';
+        gr.textContent = ' — ' + ev.reason;
+        g.appendChild(gr);
+      }
+      box.appendChild(g);
+    } else if (ev.event === 'plan.ready') {
+      if (prev) prev.className = 'ok';
+      var pl = document.createElement('li');
+      pl.className = 'ok';
+      pl.textContent = 'план составлен: ' + (ev.steps || '?') + ' шаг(ов)';
+      box.appendChild(pl);
+    } else if (ev.event === 'check.passed' || ev.event === 'check.rejected') {
+      // Проверка — отдельная строка, а не пометка на предыдущей. Это
+      // самостоятельное событие: по нему видно, что «готово» кто-то
+      // подтвердил, а не что модель так решила.
+      if (prev) prev.className = 'ok';
+      var ck = document.createElement('li');
+      var ok = ev.event === 'check.passed';
+      ck.className = ok ? 'ok' : 'bad';
+      ck.textContent = ok ? 'проверка пройдена' : 'проверка не пройдена';
+      if (ev.reason) {
+        var r = document.createElement('span');
+        r.className = 'why';
+        r.textContent = ' — ' + ev.reason;
+        ck.appendChild(r);
+      }
+      box.appendChild(ck);
+    } else if (ev.event === 'mission.completed' || ev.event === 'mission.failed' || ev.event === 'mission.exhausted' || ev.event === 'mission.cancelled') {
+      if (prev) prev.className = (ev.event === 'mission.failed' || ev.event === 'mission.cancelled') ? 'bad' : 'ok';
+    }
+  }
+
+  /* Знаки уже показанных событий.
+     Одно событие приезжает двумя путями — живьём по сокету и вместе с
+     опросом из базы. Рисовать его дважды значит показывать работу,
+     которой не было. Знак присваивает база (см. event-store), он общий
+     для обоих каналов. */
+  var shownEvents = Object.create(null);
+
+  function resetTrace() {
+    $('trace').textContent = '';
+    $('trace').classList.add('hidden');
+    shownEvents = Object.create(null);
+    progressReset();
+  }
+
+  /* Событие из живого канала. Единственная разница с базой — форма уже
+     плоская, приводить нечего. */
+  function liveEvent(ev) {
+    if (ev.id) {
+      if (shownEvents[ev.id]) return;
+      shownEvents[ev.id] = true;
+    }
+    traceEvent(ev);
+  }
+
+  /* События из ответа опроса.
+     ЭТО ОСНОВНОЙ ПУТЬ, а не запасной. Карта миссии раньше жила ТОЛЬКО
+     на сокете, а сокет по умолчанию не подключён — человеку предлагали
+     сходить в «Живой журнал» и нажать «Подключить». Кто этого не делал,
+     видел десять минут крутящийся счётчик секунд и ни одного шага:
+     система работала, но молчала о том, что делает.
+
+     В базе события лежали всё это время, и опрос их даже забирал —
+     ответ /api/mission содержит поле events, — но здесь они молча
+     выбрасывались. Теперь опрос рисует их сам, и ход работы виден без
+     единого действия со стороны человека.
+
+     Форма в базе другая: строка {type, data}, а карте нужен плоский
+     объект {event, tool, ...}. Приведение здесь, а не в traceEvent:
+     живому каналу приводить нечего. */
+  function applyStoredEvents(list) {
+    if (!list || !list.length) return;
+    for (var i = 0; i < list.length; i++) {
+      var row = list[i];
+      if (!row || !row.type) continue;
+      if (row.id) {
+        if (shownEvents[row.id]) continue;
+        shownEvents[row.id] = true;
+      }
+      var data = row.data && typeof row.data === 'object' ? row.data : {};
+      var flat = { event: row.type };
+      for (var k in data) { if (Object.prototype.hasOwnProperty.call(data, k)) flat[k] = data[k]; }
+      traceEvent(flat);
+    }
+  }
+
+  // ─── Вложения ──────────────────────────────────────────────────────
+  var attachments = [];
+
+  $('attachBtn').addEventListener('click', function () { $('fileInput').click(); });
+
+  $('fileInput').addEventListener('change', function () {
+    var files = Array.prototype.slice.call($('fileInput').files || []);
+    files.forEach(uploadOne);
+    $('fileInput').value = ''; // иначе тот же файл нельзя выбрать второй раз
+  });
+
+  function uploadOne(file) {
+    var chip = document.createElement('span');
+    chip.className = 'chip';
+    chip.textContent = file.name + ' — загружаю…';
+    $('attached').appendChild(chip);
+    $('attached').classList.remove('hidden');
+
+    var fd = new FormData();
+    fd.append('file', file);
+    // projectId уходит в ключ R2 — загрузки проекта лежат вместе, а не
+    // сваливаются в общую кучу.
+    if (currentProject) fd.append('projectId', currentProject);
+
+    api('/api/upload', { method: 'POST', body: fd })
+      .then(function (d) {
+        attachments.push({ r2Key: d.r2Key, fileName: d.fileName, inputType: d.inputType });
+        chip.textContent = '';
+        chip.appendChild(document.createTextNode(d.fileName));
+        var x = document.createElement('button');
+        x.textContent = '×';
+        x.setAttribute('aria-label', 'Убрать ' + d.fileName);
+        x.addEventListener('click', function () {
+          attachments = attachments.filter(function (a) { return a.r2Key !== d.r2Key; });
+          chip.remove();
+          if (!attachments.length) $('attached').classList.add('hidden');
+        });
+        chip.appendChild(x);
+        toast('Файл принят: ' + d.fileName);
+      })
+      .catch(function (e) {
+        // Ошибка остаётся на экране, а не исчезает: молча пропавший файл
+        // хуже, чем видимая надпись о том, что он не загрузился.
+        chip.textContent = file.name + ' — не загрузился: ' + (e.message || e);
+      });
+  }
+
+  // ─── Перетаскивание файлов ─────────────────────────────────────────
+  // Тот же uploadOne, что и у скрепки, — не второй путь загрузки.
+  // preventDefault на dragover обязателен: без него браузер откроет файл
+  // как страницу и уведёт человека с интерфейса.
+  (function () {
+    var zone = document.querySelector('.ask');
+    if (!zone) return;
+
+    ['dragenter', 'dragover'].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        zone.classList.add('dragging');
+      });
+    });
+
+    ['dragleave', 'drop'].forEach(function (evt) {
+      zone.addEventListener(evt, function (e) {
+        e.preventDefault();
+        zone.classList.remove('dragging');
+      });
+    });
+
+    zone.addEventListener('drop', function (e) {
+      var files = e.dataTransfer && e.dataTransfer.files;
+      if (!files || !files.length) return;
+      Array.prototype.forEach.call(files, uploadOne);
+    });
+
+    // Файл, брошенный МИМО зоны, тоже не должен открываться в браузере
+    // поверх интерфейса — это выглядит как потеря работы.
+    ['dragover', 'drop'].forEach(function (evt) {
+      window.addEventListener(evt, function (e) {
+        if (!zone.contains(e.target)) e.preventDefault();
+      });
+    });
+  })();
+
+  // ─── Доводка формулировки ──────────────────────────────────────────
+  $('polishBtn').addEventListener('click', function () {
+    var text = ta.value.trim();
+    if (!text) return;
+    var btn = $('polishBtn');
+    btn.textContent = '…';
+    btn.disabled = true;
+
+    api('/api/polish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: text, preferredModel: preferredModel || undefined })
+    })
+      .then(function (d) {
+        // Исходник сохраняется: доводка — предложение, а не приговор.
+        // Кнопка «вернуть как было» появляется рядом с полем.
+        if (d.polished && d.polished !== text) {
+          lastDraft = text;
+          ta.value = d.polished;
+          grow();
+          showUndo();
+        }
+      })
+      .catch(function (e) { askNote('не вышло довести: ' + (e.message || e)); })
+      .then(function () { btn.textContent = '✨'; btn.disabled = false; });
+  });
+
+  var lastDraft = null;
+  var undoBtn = null; // ссылка вместо поиска по id: элемент создаём мы сами
+  function showUndo() {
+    if (undoBtn) return;
+    undoBtn = document.createElement('button');
+    undoBtn.className = 'mini';
+    undoBtn.textContent = 'вернуть как было';
+    undoBtn.addEventListener('click', function () {
+      if (lastDraft !== null) { ta.value = lastDraft; grow(); }
+      undoBtn.remove();
+      undoBtn = null;
+    });
+    $('attached').classList.remove('hidden');
+    $('attached').appendChild(undoBtn);
+  }
+
+  /** Подсказка под полем ввода. Названа askNote, а не note: внутри send()
+   *  есть локальная переменная note, и одноимённая функция там оказалась бы
+   *  перекрыта — вызов молча падал бы только в этой ветке. */
+  function askNote(msg) {
+    var n = $('askNote');
+    n.textContent = msg;
+    n.classList.remove('hidden');
+  }
+
+  // Проект, в контекст которого идут загрузки. Пока один — но ключ в R2
+  // уже разделён по проектам, поэтому значение задаётся здесь, а не
+  // зашивается в строку запроса.
+  var currentProject = 'default';
+  // Последний отправленный текст. Нужен «Ещё варианту»: поле ввода к моменту
+  // показа результата уже очищено, восстанавливать оттуда нечего.
+  var lastPrompt = '';
+
+  // ─── Варианты ответа ───────────────────────────────────────────────
+  // Перегенерация не затирает прошлый ответ, а кладёт рядом. Затирать —
+  // значит терять вариант, который мог быть лучше, без возможности сверить.
+  var versions = [];
+  var verIndex = 0;
+
+  function addVersion(data, seconds) {
+    versions.push({ data: data, seconds: seconds });
+    verIndex = versions.length - 1;
+    updateVersUi();
+  }
+
+  function updateVersUi() {
+    var box = $('rVers');
+    if (versions.length < 2) { box.classList.add('hidden'); return; }
+    box.classList.remove('hidden');
+    $('verLabel').textContent = (verIndex + 1) + '/' + versions.length;
+    $('verPrev').disabled = verIndex === 0;
+    $('verNext').disabled = verIndex === versions.length - 1;
+  }
+
+  $('verPrev').addEventListener('click', function () {
+    if (verIndex > 0) { verIndex--; render(versions[verIndex].data, versions[verIndex].seconds); updateVersUi(); }
+  });
+  $('verNext').addEventListener('click', function () {
+    if (verIndex < versions.length - 1) { verIndex++; render(versions[verIndex].data, versions[verIndex].seconds); updateVersUi(); }
+  });
+
+  $('previewClose').addEventListener('click', function () {
+    // srcdoc чистится, а не просто прячется: иначе скрипты внутри
+    // продолжали бы работать за закрытым экраном.
+    $('previewFrame').srcdoc = '';
+    $('previewWrap').classList.add('hidden');
+  });
+
+  // --- Выбор модели списком, а не вводом слага руками ---
+  // Слаг, набранный по памяти, ошибается в одном символе, и выясняется это
+  // только при падении задачи. Список приходит из того же реестра, что
+  // использует маршрутизатор — второго источника правды нет.
+  function loadModels() {
+    var sel = $('modelSelect');
+    var chatSel = $('chatModel');
+    api('/api/models')
+      .then(function (d) {
+        var models = (d && Array.isArray(d.models)) ? d.models : [];
+        sel.innerHTML = '';
+        var auto = document.createElement('option');
+        auto.value = '';
+        auto.textContent = 'Автоматически (решает маршрутизатор)';
+        sel.appendChild(auto);
+
+        models.forEach(function (m) {
+          var o = document.createElement('option');
+          o.value = m.slug;
+          o.textContent = m.slug + ' · ' + m.provider + ' · ' + m.tier + (m.available ? '' : ' (нужен AI Gateway)');
+          if (!m.available) o.disabled = true;
+          if (m.slug === preferredModel) o.selected = true;
+          sel.appendChild(o);
+
+          // Тот же список в чате, но короткой подписью: там важно ЧТО
+          // выбрано, а не подробности поставщика и тарифа.
+          if (chatSel && m.available) if (isChatModel(m)) {
+            var c = document.createElement('option');
+            c.value = m.slug;
+            c.textContent = m.slug.replace(/^@cf\//, '');
+            if (m.slug === preferredModel) c.selected = true;
+            chatSel.appendChild(c);
+          }
+        });
+        sel.disabled = false;
+        renderModelList(models);
+        buildModelSheet(models);
+      })
+      .catch(function () {
+        // Список не загрузился — работу не блокируем: поле ручного ввода
+        // слага никуда не делось. Пункт собирается узлами, а не разметкой
+        // строкой: в проекте действует запрет на присваивание innerHTML
+        // чего-либо кроме пустой строки (см. тест про innerHTML).
+        sel.innerHTML = '';
+        var fallback = document.createElement('option');
+        fallback.value = '';
+        fallback.textContent = 'список не загрузился — впиши слаг вручную ниже';
+        sel.appendChild(fallback);
+      });
+  }
+
+  /** Список моделей с настоящим статусом из реестра.
+   *  Собирается узлами, а не строкой в innerHTML: в проекте это запрещено
+   *  тестом, и не зря — сюда приходят данные с сервера. */
+  function renderModelList(models) {
+    var box = $('modelList');
+    box.textContent = '';
+    // Одноцветные логотипы — их инвертируем под тёмную тему.
+    var MONO = { 'Anthropic': 1, 'OpenAI': 1, 'Z.ai': 1, 'BAAI': 1 };
+    models.forEach(function (m) {
+      var row = document.createElement('div');
+      row.className = 'mrow';
+
+      if (m.icon) {
+        var ico = document.createElement('img');
+        ico.className = 'mrow-ico' + (MONO[m.provider] ? ' mono' : '');
+        ico.src = m.icon;
+        ico.alt = '';
+        ico.width = 16; ico.height = 16;
+        ico.loading = 'lazy';
+        // Нет файла — просто убираем картинку, строка остаётся читаемой.
+        ico.onerror = function () { ico.remove(); };
+        row.appendChild(ico);
+      }
+
+      var name = document.createElement('span');
+      name.className = 'mrow-name';
+      name.textContent = m.slug.replace(/^@cf\//, '');
+      row.appendChild(name);
+
+      var meta = document.createElement('span');
+      meta.className = 'mrow-meta';
+      meta.textContent = m.provider;
+      row.appendChild(meta);
+
+      var st = document.createElement('span');
+      st.className = 'mrow-st ' + (m.available ? 'on' : 'off');
+      // STANDBY, а не «недоступна»: модель существует и заработает, как
+      // только появится AI Gateway. Это состояние, а не поломка.
+      st.textContent = m.available ? 'ACTIVE' : 'STANDBY';
+      row.appendChild(st);
+
+      box.appendChild(row);
+    });
+  }
+
+  /* Выбор модели живёт в ДВУХ местах: в чате (где его меняют) и в
+     «Служебном» (где настраивают всё остальное). Значение одно, поэтому
+     любое изменение раскладывается на оба списка — иначе они разъедутся,
+     и человек будет видеть одну модель, а работать будет другая. */
+  function setPreferredModel(slug) {
+    preferredModel = slug || '';
+    local.set('azrail_model', preferredModel);
+    session.set('azrail_model', preferredModel);
+    $('model').value = preferredModel;
+    ['modelSelect', 'chatModel'].forEach(function (id) {
+      var el = $(id);
+      if (el && el.value !== preferredModel) el.value = preferredModel;
+    });
+    syncModelPick();
+  }
+
+  $('modelSelect').addEventListener('change', function () {
+    setPreferredModel($('modelSelect').value);
+  });
+
+  $('chatModel').addEventListener('change', function () {
+    setPreferredModel($('chatModel').value);
+  });
+
+  /* ---- Шторка выбора модели в чате ----
+     Всё собирается узлами (createElement + textContent): слаги и имена
+     приходят с сервера, а innerHTML в проекте разрешён только для очистки. */
+  var chatModels = [];
+  var MONO_PROVIDERS = { 'Anthropic': 1, 'OpenAI': 1, 'Z.ai': 1, 'BAAI': 1 };
+  var TIER_LABEL = { frontier: 'Флагманы', balanced: 'Сбалансированные', fast: 'Быстрые' };
+  var TIER_SHORT = { frontier: 'флагман', balanced: 'баланс', fast: 'быстрая' };
+  var CAP_CHIPS = [['coding', 'код', 'code'], ['reasoning', 'рассуждения', 'reason'], ['vision', 'зрение', 'vision']];
+
+  /** Эмбеддинг-модели не умеют отвечать текстом — в чате им не место. */
+  function isChatModel(m) {
+    return !m.capabilities || m.capabilities.indexOf('text_generation') !== -1;
+  }
+
+  /** «@cf/deepseek-ai/deepseek-v4-flash-0731» → «DeepSeek V4 Flash 0731». */
+  function prettyModelName(slug) {
+    var base = String(slug).replace(/^@cf\//, '').split('/').pop();
+    var DICT = { glm: 'GLM', gpt: 'GPT', oss: 'OSS', deepseek: 'DeepSeek', qwq: 'QwQ', bge: 'BGE', m3: 'M3', it: '', instruct: '', fp8: '' };
+    var words = base.split('-').map(function (w) {
+      var lw = w.toLowerCase();
+      if (Object.prototype.hasOwnProperty.call(DICT, lw)) return DICT[lw];
+      if (/^\d+(\.\d+)?[be]$/.test(lw) || /^a\d+b$/.test(lw)) return lw.toUpperCase();
+      if (/^[vk]\d/.test(lw)) return lw.charAt(0).toUpperCase() + lw.slice(1);
+      if (/^qwen/.test(lw)) return 'Qwen' + w.slice(4);
+      return w.charAt(0).toUpperCase() + w.slice(1);
+    }).filter(Boolean);
+    return words.join(' ').replace(/^(GLM|GPT) (\d)/, '$1-$2');
+  }
+
+  function fmtCtx(n) {
+    if (!n) return '';
+    if (n >= 1000000) return (Math.round(n / 100000) / 10) + 'M';
+    return Math.round(n / 1024) + 'K';
+  }
+
+  function iconBox(m) {
+    var box = document.createElement('span');
+    if (!m) { box.className = 'mico mico-auto'; return box; }
+    box.className = 'mico';
+    if (m.icon) {
+      var img = document.createElement('img');
+      img.src = m.icon; img.alt = ''; img.width = 20; img.height = 20;
+      if (MONO_PROVIDERS[m.provider]) img.className = 'mono';
+      // Нет файла — оставляем первую букву провайдера, пустой квадрат хуже.
+      img.onerror = function () { img.remove(); box.textContent = (m.provider || '?').charAt(0); };
+      box.appendChild(img);
+    } else {
+      box.textContent = (m.provider || '?').charAt(0);
+    }
+    return box;
+  }
+
+  function chip(text, cls) {
+    var c = document.createElement('span');
+    c.className = 'mchip' + (cls ? ' ' + cls : '');
+    c.textContent = text;
+    return c;
+  }
+
+  function optionRow(m) {
+    var slug = m ? m.slug : '';
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'mopt' + (slug === (preferredModel || '') ? ' sel' : '');
+    b.setAttribute('data-slug', slug);
+    b.appendChild(iconBox(m));
+
+    var body = document.createElement('span');
+    body.className = 'mopt-body';
+    var name = document.createElement('span');
+    name.className = 'mopt-name';
+    name.textContent = m ? prettyModelName(m.slug) : 'Автоматически';
+    body.appendChild(name);
+
+    var meta = document.createElement('span');
+    meta.className = 'mopt-meta';
+    if (!m) {
+      meta.appendChild(document.createTextNode('маршрутизатор подбирает модель под задачу'));
+    } else {
+      meta.appendChild(document.createTextNode(m.provider));
+      CAP_CHIPS.forEach(function (c) {
+        if (m.capabilities && m.capabilities.indexOf(c[0]) !== -1) meta.appendChild(chip(c[1], c[2]));
+      });
+      if (m.contextWindow) meta.appendChild(chip(fmtCtx(m.contextWindow), 'ctx'));
+      if (!m.available) meta.appendChild(chip('нужен AI Gateway', 'off'));
+    }
+    body.appendChild(meta);
+    b.appendChild(body);
+
+    var check = document.createElement('span');
+    check.className = 'mopt-check';
+    b.appendChild(check);
+
+    if (m && !m.available) b.disabled = true;
+    b.addEventListener('click', function () {
+      setPreferredModel(slug);
+      closeModelSheet();
+    });
+    return b;
+  }
+
+  function renderModelSheet() {
+    var list = $('msheetList');
+    if (!list) return;
+    list.textContent = '';
+    var q = ($('msheetSearch').value || '').trim().toLowerCase();
+    var CAP_WORDS = { 'код': 'coding', 'code': 'coding', 'зрение': 'vision', 'vision': 'vision', 'рассуж': 'reasoning', 'reason': 'reasoning' };
+    function match(m) {
+      if (!q) return true;
+      var hay = (m.slug + ' ' + prettyModelName(m.slug) + ' ' + m.provider).toLowerCase();
+      if (hay.indexOf(q) !== -1) return true;
+      for (var k in CAP_WORDS) if (q.indexOf(k) === 0 && m.capabilities && m.capabilities.indexOf(CAP_WORDS[k]) !== -1) return true;
+      return false;
+    }
+    if (!q) list.appendChild(optionRow(null));
+    var shown = 0;
+    ['frontier', 'balanced', 'fast'].forEach(function (tier) {
+      var items = (chatModels || []).filter(function (m) { return m.tier === tier && match(m); });
+      if (!items.length) return;
+      var g = document.createElement('div');
+      g.className = 'mgroup';
+      g.textContent = TIER_LABEL[tier] + ' · ' + items.length;
+      list.appendChild(g);
+      items.forEach(function (m) { list.appendChild(optionRow(m)); shown++; });
+    });
+    if (q && !shown) {
+      var e = document.createElement('div');
+      e.className = 'msheet-empty';
+      e.textContent = 'Ничего не нашлось';
+      list.appendChild(e);
+    }
+  }
+
+  function buildModelSheet(models) {
+    chatModels = (models || []).filter(isChatModel);
+    var on = chatModels.filter(function (m) { return m.available; }).length;
+    $('msheetCount').textContent = on + ' активных · ' + chatModels.length + ' в реестре';
+    syncModelPick();
+  }
+
+  /** Кнопка под полем чата показывает то, что реально выбрано. */
+  function syncModelPick() {
+    var btn = $('mpickBtn');
+    if (!btn) return;
+    var m = null;
+    var pool = chatModels || [];
+    for (var i = 0; i < pool.length; i++) if (pool[i].slug === preferredModel) m = pool[i];
+    var old = $('mpickIco');
+    var ico = iconBox(m);
+    ico.id = 'mpickIco';
+    old.parentNode.replaceChild(ico, old);
+    if (m) {
+      $('mpickName').textContent = prettyModelName(m.slug);
+      $('mpickSub').textContent = m.provider + ' · ' + (TIER_SHORT[m.tier] || m.tier) +
+        (m.contextWindow ? ' · ' + fmtCtx(m.contextWindow) + ' контекста' : '');
+    } else {
+      $('mpickName').textContent = preferredModel ? prettyModelName(preferredModel) : 'Автоматически';
+      $('mpickSub').textContent = preferredModel ? 'задана вручную' : 'маршрутизатор подбирает модель под задачу';
+    }
+    if ($('msheet') && !$('msheet').classList.contains('hidden')) renderModelSheet();
+  }
+
+  function openModelSheet() {
+    var sh = $('msheet');
+    $('msheetSearch').value = '';
+    renderModelSheet();
+    sh.classList.remove('hidden');
+    document.body.classList.add('msheet-lock');
+    // Кадр между display и классом — иначе переход не проиграется.
+    requestAnimationFrame(function () { requestAnimationFrame(function () { sh.classList.add('open'); }); });
+    var sel = $('msheetList').querySelector('.mopt.sel');
+    if (sel) sel.scrollIntoView({ block: 'center' });
+  }
+
+  function closeModelSheet() {
+    var sh = $('msheet');
+    if (!sh || sh.classList.contains('hidden')) return;
+    sh.classList.remove('open');
+    document.body.classList.remove('msheet-lock');
+    setTimeout(function () { sh.classList.add('hidden'); }, 260);
+    $('mpickBtn').focus();
+  }
+
+  $('mpickBtn').addEventListener('click', openModelSheet);
+  $('msheetSearch').addEventListener('input', renderModelSheet);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mclose]'), function (el) {
+    el.addEventListener('click', closeModelSheet);
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeModelSheet();
+  });
+
+  // --- Голосовой ввод ---
+  // Распознавание речи браузерное (Web Speech API), не наш бэкенд: звук
+  // мы никуда не отправляем. Поддержки может не быть — тогда кнопки просто
+  // нет, вместо неработающего обещания.
+  var SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (SR) {
+    var rec = new SR();
+    rec.lang = 'ru-RU';
+    rec.interimResults = false;
+    var listening = false;
+
+    rec.onresult = function (e) {
+      var said = e.results[0][0].transcript;
+      ta.value = ta.value ? ta.value + ' ' + said : said;
+      grow();
+    };
+    rec.onend = function () { listening = false; $('micBtn').textContent = '🎙'; };
+    rec.onerror = function () { listening = false; $('micBtn').textContent = '🎙'; };
+
+    $('micBtn').addEventListener('click', function () {
+      if (listening) { rec.stop(); return; }
+      listening = true;
+      $('micBtn').textContent = '■';
+      try { rec.start(); } catch (e) { listening = false; $('micBtn').textContent = '🎙'; }
+    });
+  } else {
+    $('micBtn').classList.add('hidden');
+  }
+
+  // --- Озвучка ответа ---
+  var speaking = false;
+  $('speakBtn').addEventListener('click', function () {
+    if (!window.speechSynthesis) return;
+    if (speaking) { window.speechSynthesis.cancel(); speaking = false; $('speakBtn').textContent = '🔊'; return; }
+    var text = $('rBody').textContent || '';
+    if (!text) return;
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ru-RU';
+    u.onend = function () { speaking = false; $('speakBtn').textContent = '🔊'; };
+    speaking = true;
+    $('speakBtn').textContent = '■';
+    window.speechSynthesis.speak(u);
+  });
+
+  loadModels();
+  checkHealth();
+  grow();
+
+  // ─── Новая оболочка: то, чего не было в прежней разметке ───────────
+
+  // Движение включается классом на <html>, а не только медиа-запросом.
+  // Причина: при выключенных системных анимациях prefers-reduced-motion
+  // навсегда остаётся reduce, и планета мертва без способа её оживить.
+  // Выбор человека имеет приоритет над настройкой ОС — в обе стороны.
+  var motionKey = 'azrail_motion';
+  var motionSaved = local.get(motionKey);
+  var systemLikesMotion = window.matchMedia
+    ? window.matchMedia('(prefers-reduced-motion: no-preference)').matches
+    : true;
+  var motionOn = motionSaved === null ? systemLikesMotion : motionSaved === '1';
+  function applyMotion() {
+    document.documentElement.classList.toggle('motion', motionOn);
+  }
+  applyMotion();
+
+  // Боковая навигация: раскрывает нужный блок и ведёт к нему. Пункты
+  // без поведения сюда не добавляются — пустая кнопка обещает то, чего нет.
+  Array.prototype.forEach.call(document.querySelectorAll('.nav-item'), function (b) {
+    b.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.nav-item'), function (x) {
+        x.classList.remove('active');
+      });
+      b.classList.add('active');
+
+      var openId = b.getAttribute('data-open');
+      if (openId) { openView(openId); return; }
+      var goto = b.getAttribute('data-goto');
+      if (goto === 'askStage') { openView('viewHome'); show('askStage'); ta.focus(); }
+    });
+  });
+
+
+  /* ─── Экраны ────────────────────────────────────────────────────────
+     Один раздел за раз, во всю ширину. Раньше всё лежало одной лентой:
+     чтобы дойти до песочницы, приходилось прокручивать чужие разделы. */
+  var VIEWS = ['viewHome', 'viewChat', 'viewLive', 'viewSandbox', 'viewHistory', 'viewOps', 'viewSkills'];
+
+  function openView(id) {
+    if (VIEWS.indexOf(id) === -1) id = 'viewHome';
+
+    VIEWS.forEach(function (v) {
+      var el = $(v);
+      if (el) el.classList.toggle('hidden', v !== id);
+    });
+
+    // Подсветка в меню — чтобы было видно, где ты сейчас.
+    Array.prototype.forEach.call(document.querySelectorAll('.nav-item'), function (n) {
+      var target = n.getAttribute('data-open') || (n.getAttribute('data-goto') ? 'viewHome' : null);
+      n.classList.toggle('active', target === id);
+    });
+
+    (viewHooks[id] || []).forEach(function (fn) {
+      // Крючок не должен ронять переход: экран уже показан, и если
+      // подгрузка данных не удалась, человек всё равно на нужном месте.
+      try { fn(); } catch (e) { /* см. комментарий выше */ }
+    });
+
+    // Наверх БЕЗ анимации: плавная прокрутка при смене экрана читается
+    // как промах, а не как переход.
+    window.scrollTo(0, 0);
+
+    // На телефоне меню выезжает поверх — после выбора его надо убрать,
+    // иначе оно закрывает то, что человек только что открыл.
+    if (window.matchMedia('(max-width: 860px)').matches) closeNav();
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll('[data-back]'), function (b) {
+    b.addEventListener('click', function () { openView('viewHome'); });
+  });
+
+  /* ─── Меню ──────────────────────────────────────────────────────────
+     На телефоне полоса слева занимала место постоянно, хотя нужна раз в
+     несколько минут. Закрыто по умолчанию на узком экране, открыто на
+     широком: там место есть, и прятать навигацию незачем. */
+  var navVeil = null;
+
+  function navOpen() { return !$('layout').classList.contains('nav-closed'); }
+
+  function closeNav() {
+    $('layout').classList.add('nav-closed');
+    $('menuBtn').setAttribute('aria-expanded', 'false');
+    if (navVeil) { navVeil.remove(); navVeil = null; }
+    // Фон снова прокручивается. Пока меню лежало поверх, страница под ним
+    // уезжала от случайного движения пальца — и было непонятно, что вообще
+    // двигается: меню или то, что под ним.
+    document.body.style.overflow = '';
+  }
+
+  function openNav() {
+    $('layout').classList.remove('nav-closed');
+    $('menuBtn').setAttribute('aria-expanded', 'true');
+    // Затемнение только на телефоне: там меню лежит ПОВЕРХ содержимого, и
+    // без него непонятно, что нажатие мимо закроет его, а не выберет пункт.
+    if (window.matchMedia('(max-width: 860px)').matches && !navVeil) {
+      navVeil = document.createElement('div');
+      navVeil.className = 'nav-veil';
+      navVeil.addEventListener('click', closeNav);
+      document.body.appendChild(navVeil);
+      document.body.style.overflow = 'hidden';
+    }
+  }
+
+  /* Панель состояния. На широком экране встаёт третьей колонкой, на
+     узком выезжает справа поверх. Одно и то же нажатие, разное поведение
+     — потому что 570 точек на две панели там просто нет. */
+  $('stateBtn').addEventListener('click', function () {
+    var L = $('layout');
+    var opening = !L.classList.contains('state-open');
+    L.classList.toggle('state-open', opening);
+    // Свежие данные при каждом открытии: показывать состояние минутной
+    // давности хуже, чем не показывать вовсе.
+    if (opening) checkHealth();
+  });
+
+  $('stateClose').addEventListener('click', function () {
+    $('layout').classList.remove('state-open');
+  });
+
+  $('menuBtn').addEventListener('click', function () {
+    if (navOpen()) closeNav(); else openNav();
+  });
+
+  // Escape закрывает меню — тем же жестом, что и всё остальное поверх.
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    if ($('layout').classList.contains('state-open') && !window.matchMedia('(min-width: 1180px)').matches) {
+      $('layout').classList.remove('state-open');
+      return;
+    }
+    if (navOpen() && window.matchMedia('(max-width: 860px)').matches) closeNav();
+  });
+
+  // Стартовое состояние по ширине: на телефоне закрыто, на широком открыто.
+  if (window.matchMedia('(max-width: 860px)').matches) $('layout').classList.add('nav-closed');
+
+  // Счётчик умений рядом с пунктом «Умения» — из реестра, а не из головы.
+  // Показывает исполнимые, а не все зарегистрированные: разница между
+  // ними и была той самой ложью реестра, которую мы чинили.
+  /* Строка списка умений. Узлами, а не innerHTML: имена и описания
+     приходят с сервера. */
+  function srow(box, name, desc, live) {
+    var row = document.createElement('div');
+    row.className = 'srow' + (live ? '' : ' off');
+    row.appendChild(document.createElement('i'));
+    var t = document.createElement('div');
+    var b = document.createElement('b');
+    b.textContent = name;
+    var s = document.createElement('span');
+    s.textContent = desc || '';
+    t.appendChild(b); t.appendChild(s);
+    row.appendChild(t);
+    box.appendChild(row);
+  }
+
+  api('/api/tools')
+    .then(function (d) {
+      var all = (d && d.tools) || [];
+      var live = all.filter(function (t) { return t.available; });
+      $('toolCount').textContent = live.length + '/' + all.length;
+      renderSandboxState(all);
+
+      var box = $('skillTools');
+      box.textContent = '';
+      // Исполнимые сверху: недоступное листать первым бессмысленно.
+      all.slice().sort(function (a, b) { return (b.available ? 1 : 0) - (a.available ? 1 : 0); })
+        .forEach(function (t) {
+          srow(box, t.name, t.available ? t.description : (t.description || '') + ' — недоступен', t.available);
+        });
+      $('skillToolsNote').textContent = 'Исполнимо ' + live.length + ' из ' + all.length +
+        '. Недоступные показаны серым — это честнее, чем короткий список.';
+    })
+    .catch(function () {
+      // Токена может ещё не быть — это не ошибка, просто счётчик пуст.
+      $('toolCount').textContent = '';
+    });
+
+  /* Реестр агентов. До сих пор /api/agents не читал никто: сервер отдавал
+     список в пустоту. Это тот же класс, что уже ловился здесь трижды. */
+  api('/api/agents')
+    .then(function (d) {
+      var box = $('skillAgents');
+      box.textContent = '';
+      (d && d.agents ? d.agents : []).forEach(function (a) {
+        var caps = Array.isArray(a.capabilities) ? a.capabilities.join(', ') : '';
+        srow(box, a.name || a.id, caps, true);
+      });
+    })
+    .catch(function () { /* без токена список недоступен — не ошибка */ });
+
+  if (token) api('/api/me').then(function (me) {
+    if (me.account.role !== 'admin') {
+      var accountProject = 'p_' + me.account.id.replace(/-/g, '');
+      if (!currentProject || currentProject.indexOf(accountProject) !== 0) {
+        currentProject = accountProject;
+        local.set('azrail_project', currentProject);
+      }
+    }
+    $('pulseText').textContent = me.account.name;
+  }).catch(function () {});
+})();
+</script>
+
+
+
+</body>
+</html>

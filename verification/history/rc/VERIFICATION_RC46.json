@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.46",
+  "stage": 32,
+  "master_item": 37,
+  "title": "GitHub PR Preparation",
+  "generated_at": "2026-10-10T09:28:00Z",
+  "result": "PREPARED_PUBLICATION_BLOCKED",
+  "github_pr": {
+    "preparation_status": "PREPARED",
+    "plan_status": "BLOCKED",
+    "repository": "mnmllpulse/azrail-os",
+    "base_branch": "main",
+    "reviewed_base_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
+    "reviewed_tree_sha": "9dddb40c96c97064ceb235514c2fff9952220a6c",
+    "branch_name": "release/azrail-pulse-1.5.0-rc.46",
+    "pr_title": "release: AZRAIL PULSE 1.5.0-rc.46",
+    "initial_draft": true,
+    "branch_created": false,
+    "commit_created": false,
+    "push_performed": false,
+    "pull_request_created": false,
+    "merge_performed": false,
+    "publication_ticket_present": false,
+    "blockers": [
+      "production approval receipt missing",
+      "current main has no .github workflow directory; workflow publication must be proven and may not be silently omitted",
+      "branch protection is unavailable to the integration and cannot be assumed absent",
+      "open PR #12 is stale for RC46 and has historical Verify failure",
+      "fresh main SHA re-check is required immediately before any branch creation",
+      "fresh Verify success on exact new PR head is required",
+      "separate explicit GitHub publication approval is required"
+    ],
+    "preparation_checks": {
+      "passed": 28,
+      "failed": 0
+    }
+  },
+  "github_readonly": {
+    "remote_package_version": "1.4.0",
+    "rulesets": [],
+    "branch_protection_read": "403_RESOURCE_NOT_ACCESSIBLE_BY_INTEGRATION",
+    "main_has_dotgithub": false,
+    "historical_workflow_scope_commit": "aad9f1e94f2ae652e609d6d53e08d18bd160af20",
+    "open_prs": [
+      8,
+      12
+    ],
+    "pr12": {
+      "base_sha": "12e904e092e4803b7fdef7571f561e1931bfea87",
+      "head_sha": "94a1a586f6efe37f6e6686e05d9ffe46dc4763d9",
+      "changed_files": 128,
+      "historical_verify_run": 37925437137,
+      "historical_verify_conclusion": "failure"
+    }
+  },
+  "ci_contract": {
+    "node_version_source": ".nvmrc",
+    "reference_node": "24.18.0",
+    "checkout_persist_credentials": false,
+    "contents_permission": "read",
+    "source_manifest_check": true,
+    "static_quality": true,
+    "node24_suite": true,
+    "production_deploy_workflow_disabled": true
+  },
+  "cross_system_readonly_baseline": {
+    "cloudflare": {
+      "staging_deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+      "staging_version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+      "production_deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+      "production_version_id": "476a3e6d-c066-484c-a0f8-d986bc630119"
+    },
+    "canva": {
+      "visual_reference_id": "DAHWmofp_Os",
+      "title": "AZRAIL Unified Interface Website"
+    }
+  },
+  "negative_tests": {
+    "workflow_checkout_credentials": {
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "exit_code": 1,
+      "marker": "ci-no-persisted-credentials"
+    },
+    "source_manifest_untracked_probe": {
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "exit_code": 1,
+      "marker": "missing manifest entry: .stage32-manifest-negative-probe"
+    },
+    "publication_ticket_without_production_approval": {
+      "expected": "BLOCK",
+      "actual": "BLOCK",
+      "exit_code": 1,
+      "marker": "production approval receipt missing",
+      "ticket_created": false
+    }
+  },
+  "runtime": {
+    "node": "v22.16.0",
+    "required_node": ">=24",
+    "node24_suite_status": "BLOCKED",
+    "canonical_node24_full_suite_executed": false
+  },
+  "quality": {
+    "static": {
+      "status": "VERIFIED",
+      "passed": 41,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full": {
+      "status": "BLOCKED",
+      "passed": 41,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    }
+  },
+  "release_package": {
+    "status": "BLOCKED",
+    "reason": "Node24 suite status is BLOCKED",
+    "production_package_created": false
+  },
+  "truth_boundaries": [
+    "A plus sign is not treated as GitHub publication approval.",
+    "No GitHub branch, commit, push, pull request, review, merge, or ref mutation was performed.",
+    "No Cloudflare deploy, migration, settings update, secret write, D1 write, KV write, R2 write, or restore was performed.",
+    "No Canva design mutation was performed.",
+    "PR #12 is historical evidence only and is not treated as RC46 release proof.",
+    "Missing or failed fresh GitHub Actions CI blocks Stage D #37 completion.",
+    "Production release remains separate Stage D #38."
+  ],
+  "next_master_item": 38,
+  "typescript": {
+    "ui_typecheck": "PASS",
+    "canonical_full_typecheck": "BLOCKED_BY_NODE24_ENVIRONMENT"
+  },
+  "source_manifest": {
+    "status": "PASS",
+    "file_count": 1005,
+    "algorithm": "sha256"
+  },
+  "sbom_determinism": {
+    "status": "PASS",
+    "locked_packages": 365,
+    "repeat_sha256": "b638751aa2fa017684f57e78b2a6cc39f0d475fdad26184f013895296df592e2",
+    "note": "Repeated SBOM generation preserves creation timestamp and bytes for unchanged release/dependency graph."
+  },
+  "upstream_release_evidence": {
+    "production_approval": "GATE_PREPARED_APPROVAL_BLOCKED",
+    "production_drift": "RECONCILIATION_REQUIRED",
+    "backup_restore_local": "VERIFIED_LOCAL_DISPOSABLE",
+    "backup_restore_cloud": "PENDING",
+    "staging_migration": "PREPARED_NOT_APPLIED",
+    "staging_deploy": "PREPARED_NOT_DEPLOYED",
+    "staging_smoke": "PREPARED_NOT_VERIFIED",
+    "security_verification": "PREPARED_NOT_VERIFIED"
+  }
+}

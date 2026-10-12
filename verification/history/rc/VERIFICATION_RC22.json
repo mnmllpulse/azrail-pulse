@@ -1,0 +1,78 @@
+{
+  "release": "1.5.0-rc.22",
+  "stage": 8,
+  "stage_name": "Studio Module Registry",
+  "status": "review_candidate",
+  "production_ready": false,
+  "cloud_mutations": false,
+  "github_mutations": false,
+  "canva_mutations": false,
+  "architecture": {
+    "studio_count": 9,
+    "app_shell_lines": 296,
+    "canonical_manifest": "ui/studio-manifest.ts",
+    "lazy_registry": "ui/studio-registry.ts",
+    "module_contract": "ui/studio-types.ts",
+    "module_directory": "ui/studio-modules",
+    "central_per_studio_branching": false
+  },
+  "checks": {
+    "studio_architecture": "PASS",
+    "studio_architecture_negative_test": "PASS",
+    "ui_typescript_typecheck": "PASS",
+    "fallback_bundle_syntax": "PASS",
+    "version_truth": "PASS",
+    "documentation_truth": "PASS",
+    "migration_integrity": "PASS",
+    "canonical_config": "PASS",
+    "release_preflight": "PASS",
+    "lint": "PASS",
+    "format": "PASS",
+    "security": "PASS",
+    "staging_drift": "PASS_WITH_1_WARNING",
+    "static_quality_gate": "VERIFIED",
+    "full_quality_gate": "BLOCKED",
+    "release_package": "BLOCKED_BY_NON_RELEASE_UI_BUILD"
+  },
+  "quality_gate": {
+    "static": {
+      "passed": 10,
+      "failed": 0,
+      "blocked": 0,
+      "status": "VERIFIED"
+    },
+    "full": {
+      "passed": 10,
+      "failed": 0,
+      "blocked": 5,
+      "status": "BLOCKED"
+    }
+  },
+  "environment": {
+    "node": "22.16.0",
+    "required_node": ">=24.0.0",
+    "npm_ci": "TIMED_OUT_180S",
+    "local_node_modules": false,
+    "ui_build_mode": "typescript-fallback",
+    "ui_build_release_verified": false
+  },
+  "release_blockers": [
+    "Run npm ci under Node >=24",
+    "Run canonical esbuild UI build under Node >=24",
+    "Run dependency-backed full TypeScript typecheck",
+    "Run full Vitest suite",
+    "Run Wrangler staging/production dry-runs",
+    "Run authenticated runtime smoke",
+    "Verify production OIDC values",
+    "Reconcile production Cloudflare drift only after explicit approval"
+  ],
+  "notes": [
+    "Fallback UI build exists only to keep the local preview synchronized with source; release packaging refuses it.",
+    "GitHub main was checked read-only and remains on version 1.4.0.",
+    "Canva was inspected read-only for AZRAIL visual references; no Brand Kit was returned and no Canva design was modified."
+  ],
+  "source_manifest": {
+    "file_count": 816,
+    "algorithm": "sha256"
+  }
+}

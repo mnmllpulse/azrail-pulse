@@ -1,0 +1,23 @@
+# Dependencies and local environments
+node_modules/
+.env
+.env.*
+!.env.example
+.dev.vars
+
+# Cloudflare/local build state
+.wrangler/
+.work/
+.build/
+dist/
+coverage/
+backups/
+wrangler.generated.json
+
+# Local logs / OS metadata
+*.log
+.DS_Store
+
+# Python cache artifacts
+__pycache__/
+*.py[cod]

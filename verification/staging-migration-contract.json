@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "environment": "staging",
+  "required_release_stage": 30,
+  "requires_node24_verified_receipt": true,
+  "requires_explicit_cloud_mutation_unlock": true,
+  "requires_exact_release_approval": true,
+  "approval_env": "AZRAIL_STAGING_MIGRATION_APPROVAL",
+  "cloud_unlock_env": "AZRAIL_ALLOW_CLOUD_MUTATION",
+  "cloud_unlock_value": "I_UNDERSTAND",
+  "plan": {
+    "baseline_migrations": [
+      "002-mission-async.sql"
+    ],
+    "apply_from": "003-bench.sql",
+    "apply_through": "035-series-g-system-intelligence.sql"
+  },
+  "required_preconditions": [
+    "staging canonical bindings match the read-only snapshot",
+    "schema_migrations is absent or every existing checksum matches source",
+    "missions.result_json exists before baselining migration 002",
+    "all planned migrations are additive/non-destructive",
+    "local staging migration simulation passes",
+    "Node24 suite status is VERIFIED for the exact release",
+    "operator explicitly authorizes Cloudflare mutation"
+  ]
+}

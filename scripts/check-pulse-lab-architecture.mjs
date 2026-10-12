@@ -1,0 +1,14 @@
+import {readFileSync} from 'node:fs';
+let failed=false;const fail=m=>{console.error('PULSE LAB ARCHITECTURE FAIL:',m);failed=true;};const read=p=>readFileSync(p,'utf8');
+const backend=read('src/lib/pulse-lab.ts'),ui=read('ui/pulse-lab.ts'),module=read('ui/studio-modules/lab.ts'),manifest=read('ui/studio-manifest.ts'),route=read('src/unified/studios.ts'),schema=read('schema.sql'),migration=read('migrations/028-pulse-lab-release-evidence.sql'),tests=read('tests/pulse-lab.test.ts'),types=read('src/types.ts');
+for(const marker of ["title:'Pulse Lab'","type:'SYSTEM CONTROL'","action:'Обновить систему'","capabilities:['system-diagnostics']"])if(!manifest.includes(marker))fail(`Pulse Lab manifest contract missing ${marker}`);
+for(const marker of ['SYSTEM','AUTH','STORAGE','AI','RUNTIME','RELEASE','HEALTH','READ ONLY · NO MODEL CALLS','Export JSON'])if(!ui.includes(marker))fail(`Pulse Lab UI contract missing ${marker}`);
+for(const marker of ['Build SHA','Migration version','Config drift','Last staging smoke','API latency','Errors','Queue','Workers AI','Gateway','Model Registry','Orchestrator','Sandbox','Cron'])if(!backend.includes(marker))fail(`Pulse Lab backend signal missing ${marker}`);
+for(const marker of ['buildPulseControlReport','mutationFree:true','paidModelCalls:false','schema_migrations','release_evidence','event_stream','MODEL_REGISTRY.length','AZRAIL_BUILD_SHA'])if(!backend.includes(marker)&&!types.includes(marker))fail(`Pulse backend truth boundary missing ${marker}`);
+if(!module.includes('mountPulseLab')||!module.includes('runPulseLab'))fail('Pulse Lab registry module must mount the professional control center');
+for(const marker of ["path==='/api/studio/pulse'","buildPulseControlReport(request,env,auth.principal!)"])if(!route.includes(marker))fail(`Pulse API integration missing ${marker}`);
+for(const marker of ['CREATE TABLE IF NOT EXISTS release_evidence',"'config_drift'","'staging_smoke'",'recorded_at INTEGER NOT NULL','idx_release_evidence_kind_time'])if(!schema.includes(marker)||!migration.includes(marker))fail(`Release evidence schema missing ${marker}`);
+for(const marker of ['no paid AI health call','SYSTEM','release evidence','model calls remain zero'])if(!tests.includes(marker))fail(`Pulse Lab regression suite missing ${marker}`);
+if(/env\.AI\.run|cloudflare\.request|wrangler deploy|AZRAIL_QUEUE\.send|\.put\(/.test(backend+ui))fail('Pulse Lab must not dispatch paid AI, control-plane mutations, queue messages, or storage writes');
+if(/renderLab\(/.test(read('ui/studio-reports.ts')))fail('Legacy basic Pulse Lab renderer must not remain active beside System Control Center');
+if(failed)process.exit(1);console.log('PULSE LAB ARCHITECTURE PASS: SYSTEM/AUTH/STORAGE/AI/RUNTIME/RELEASE/HEALTH are wired with read-only probes, explicit unknown states, durable release evidence and no synthetic paid traffic.');

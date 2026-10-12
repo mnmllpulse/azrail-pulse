@@ -1,0 +1,78 @@
+{
+  "release": "1.5.0-rc.7",
+  "status": "review_candidate",
+  "generated_at": "2026-10-08T16:01:33Z",
+  "mutation_policy": {
+    "github_write_performed": false,
+    "cloudflare_write_performed": false,
+    "deployment_performed": false,
+    "notes": "GitHub and Cloudflare were used read-only only."
+  },
+  "passed": {
+    "release_preflight": true,
+    "package_lock_version_consistency": true,
+    "typescript_syntax": {
+      "files": 175,
+      "errors": 0
+    },
+    "relative_imports": {
+      "checked": 585,
+      "missing": 0
+    },
+    "strict_json": {
+      "files": 43,
+      "errors": 0
+    },
+    "jsonc": {
+      "files": 1,
+      "errors": 0
+    },
+    "yaml": {
+      "files": 2,
+      "errors": 0
+    },
+    "mjs_syntax": true,
+    "shell_syntax": true,
+    "targeted_runtime_assertions": {
+      "passed": 5,
+      "total": 5,
+      "coverage": [
+        "workspace publication response-loss preserves a committed R2 tree",
+        "workspace proven non-publication cleans staged R2 objects",
+        "snapshot partial-copy cleanup",
+        "metered provider timeout transitions model_calls to uncertain",
+        "version restore byte budget prevents oversized materialization"
+      ]
+    },
+    "secret_pattern_scan": {
+      "files": 128,
+      "real_findings": 0,
+      "notes": "push-to-github.sh contains intentional scanner/example patterns and was excluded from the production-source result."
+    },
+    "source_manifest": {
+      "files": 701,
+      "missing": 0,
+      "extra": 0,
+      "sha_mismatch": 0
+    }
+  },
+  "not_freshly_verified": {
+    "npm_ci": "Timed out after 90 seconds in the isolated environment; dependency installation did not complete.",
+    "semantic_typescript_typecheck": "Requires the project dependency tree.",
+    "full_vitest_suite": "Requires the project dependency tree.",
+    "wrangler_staging_dry_run": "Requires Wrangler from the project dependency tree.",
+    "wrangler_production_dry_run": "Requires Wrangler from the project dependency tree.",
+    "staging_migration_smoke": "Not executed; no remote mutation was authorized."
+  },
+  "release_blockers": [
+    "Fresh dependency-enabled npm ci/typecheck/full Vitest must pass.",
+    "Fresh Wrangler dry-run must pass for staging and production configs.",
+    "Disposable staging migration/smoke must pass before any production apply.",
+    "Production OIDC issuer/client provenance must be explicitly verified; values are intentionally not guessed."
+  ],
+  "notes": [
+    "RC7 is not production-ready.",
+    "No GitHub publication/commit and no Cloudflare deployment/configuration mutation were performed in this RC7 pass.",
+    "Historical verification from earlier releases is not used as evidence for RC7."
+  ]
+}

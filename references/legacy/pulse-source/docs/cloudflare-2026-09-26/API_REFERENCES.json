@@ -1,0 +1,437 @@
+[
+  {
+    "api": "/api/admin/routing",
+    "files": [
+      "src/pages/studios/BillingStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/archive/list",
+    "files": [
+      "src/components/ConceptWorkbench.tsx",
+      "src/services/cloudflareService.ts"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/auth/login",
+    "files": [
+      "src/contexts/SessionContext.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/auth/logout",
+    "files": [
+      "src/contexts/SessionContext.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/auth/session",
+    "files": [
+      "src/contexts/SessionContext.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/dependencies",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": false,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/doc",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": false,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/env",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": false,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/performance",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/pixel-patch",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": false,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/status",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/toggle-approval",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": false,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/toggle-connection",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": false,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/validate",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": false,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/bridge/write-file",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": false,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/chat/intelligent",
+    "files": [
+      "src/components/studios/StudioAIChat.tsx",
+      "src/pages/QuantumMind.tsx",
+      "src/pages/studios/CodeStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/circuit-breaker",
+    "files": [
+      "src/components/ConceptWorkbench.tsx",
+      "src/components/TelemetryWidget.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/circuit-breaker/toggle",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/cloudflare/config",
+    "files": [
+      "src/pages/InfrastructureHub.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/cloudflare/status",
+    "files": [
+      "src/components/studios/StudioTerminal.tsx",
+      "src/pages/InfrastructureHub.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/cloudflare/workers",
+    "files": [
+      "src/services/cloudflareService.ts"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/cloudflare/zones",
+    "files": [
+      "src/services/cloudflareService.ts"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/deploy",
+    "files": [
+      "src/pages/studios/DeployStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/deploy/status",
+    "files": [
+      "src/pages/studios/DeployStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/docs/export",
+    "files": [
+      "src/components/DocExporter.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/generate",
+    "files": [
+      "src/components/studios/PsychologyCivilization.tsx",
+      "src/pages/studios/AgentChatSimulator.tsx",
+      "src/pages/studios/AgentForgePanel.tsx",
+      "src/pages/studios/MusicStudioPanel.tsx",
+      "src/pages/studios/PulseLabPanel.tsx",
+      "src/pages/studios/SwarmConfigurationPanel.tsx",
+      "src/pages/studios/VideoStudioPanel.tsx",
+      "src/pages/SwarmChat.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/generate-avatar",
+    "files": [
+      "src/pages/studios/AgentForgePanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/generate-image",
+    "files": [
+      "src/components/studios/image-studio/ImageStudioContext.tsx",
+      "src/pages/studios/ImageStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/generate-music",
+    "files": [
+      "src/pages/studios/MusicStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/generate-video-veo",
+    "files": [
+      "src/pages/studios/VideoStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/memory/clear",
+    "files": [
+      "src/components/AzrailMemoryCorePanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/memory/delete",
+    "files": [
+      "src/components/AzrailMemoryCorePanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/memory/get",
+    "files": [
+      "src/components/AzrailMemoryCorePanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/memory/save",
+    "files": [
+      "src/pages/studios/AgentChatSimulator.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/memory/status",
+    "files": [
+      "src/components/AzrailMemoryCorePanel.tsx",
+      "src/components/SystemSyncIndicator.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/metatron/heartbeat",
+    "files": [
+      "src/components/SystemLogExporter.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/metatron/status",
+    "files": [
+      "src/components/SystemLogExporter.tsx",
+      "src/contexts/SystemStateContext.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/metatron/swarm/synthesis",
+    "files": [
+      "src/components/ConceptWorkbench.tsx",
+      "src/components/TelemetryWidget.tsx",
+      "src/services/cloudflareService.ts"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/models",
+    "files": [
+      "src/pages/studios/BillingStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/music/analyze-als",
+    "files": [
+      "src/components/studios/MusicIntelligenceAgent.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/music/remix-plan",
+    "files": [
+      "src/components/studios/MusicIntelligenceAgent.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/swarm/enqueue",
+    "files": [
+      "src/components/ConceptWorkbench.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/telegram-bots",
+    "files": [
+      "src/services/TelegramBotService.ts"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/telegram-bots/",
+    "files": [
+      "src/services/TelegramBotService.ts"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/telegram-bots/logs",
+    "files": [
+      "src/services/TelegramBotService.ts"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/telemetry",
+    "files": [
+      "src/components/ConceptWorkbench.tsx",
+      "src/components/TelemetryWidget.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/translate",
+    "files": [
+      "src/components/common/SmartTranslator.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/upload",
+    "files": [
+      "src/components/FileUploadButton.tsx",
+      "src/components/studios/StudioAIChat.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/user-status",
+    "files": [
+      "src/contexts/UserContext.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/video-download-veo",
+    "files": [
+      "src/pages/studios/VideoStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/video-status-veo",
+    "files": [
+      "src/pages/studios/VideoStudioPanel.tsx"
+    ],
+    "literalMentionInWorker": true,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  },
+  {
+    "api": "/api/webhook/",
+    "files": [
+      "src/components/TelegramBotsPortal.tsx"
+    ],
+    "literalMentionInWorker": false,
+    "note": "Literal matches do not establish method, dynamic route or response-contract coverage."
+  }
+]

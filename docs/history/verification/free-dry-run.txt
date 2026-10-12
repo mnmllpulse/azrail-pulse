@@ -1,0 +1,33 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> azrail-pulse-unified@1.2.0 build:check
+> wrangler deploy --dry-run --outdir .work/worker --containers-rollout=none
+
+▲ [WARNING] Proxy environment variables detected. We'll use your proxy for fetch requests.
+
+
+
+ ⛅️ wrangler 4.139.0
+────────────────────
+✨ Read 8 files from the assets directory <project>/site
+Total Upload: 3053.54 KiB / gzip: 602.08 KiB
+Your Worker has access to the following bindings:
+Binding                                                                         Resource                  
+env.Orchestrator (Orchestrator)                                                 Durable Object            
+env.AZRAIL_KV (00000000000000000000000000000000)                                KV Namespace              
+env.AZRAIL_D1 (azrail-pulse-db)                                                 D1 Database               
+env.AZRAIL_R2 (azrail-pulse-artifacts)                                          R2 Bucket                 
+env.AI                                                                          AI                        
+env.ASSETS                                                                      Assets                    
+env.AUTH_MODE ("oidc")                                                          Environment Variable      
+env.PUBLIC_ORIGINS ("https://mnmllpulse.com,https://mnmllp...")                 Environment Variable      
+env.AZRAIL_WORKERS_PLAN ("free")                                                Environment Variable      
+env.AZRAIL_METERING ("enforce")                                                 Environment Variable      
+env.UNIFIED_LEDGER ("true")                                                     Environment Variable      
+env.DAILY_PROVIDER_CALLS ("200")                                                Environment Variable      
+env.AZRAIL_MISSION_BUDGET_USD ("1")                                             Environment Variable      
+env.AI_GATEWAY_ID ("default")                                                   Environment Variable      
+
+--dry-run: exiting now.
+
+Cloudflare collects anonymous telemetry about your usage of Wrangler. Learn more at https://github.com/cloudflare/workers-sdk/tree/main/packages/wrangler/telemetry.md

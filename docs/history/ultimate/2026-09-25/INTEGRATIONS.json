@@ -1,0 +1,337 @@
+{
+  "schemaVersion": 1,
+  "asOf": "2026-09-25",
+  "catalogOnly": true,
+  "items": [
+    {
+      "number": 1,
+      "name": "Cloudflare",
+      "documentation": "https://developers.cloudflare.com/",
+      "implementationStatus": "adapter_present",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 2,
+      "name": "Canva",
+      "documentation": "https://www.canva.dev/docs/connect/",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 3,
+      "name": "Figma",
+      "documentation": "https://developers.figma.com/docs/rest-api/",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 4,
+      "name": "GitHub",
+      "documentation": "https://docs.github.com/en/rest",
+      "implementationStatus": "adapter_present",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 5,
+      "name": "Vercel",
+      "documentation": "https://vercel.com/docs/rest-api",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 6,
+      "name": "Netlify",
+      "documentation": "https://docs.netlify.com/api-and-cli-guides/api-guides/get-started-with-api/",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 7,
+      "name": "Supabase",
+      "documentation": "https://supabase.com/docs",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 8,
+      "name": "Neon",
+      "documentation": "https://neon.com/docs/reference/api-reference",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 9,
+      "name": "Upstash",
+      "documentation": "https://upstash.com/docs/common/account/developerapi",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 10,
+      "name": "Stripe",
+      "documentation": "https://docs.stripe.com/api",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 11,
+      "name": "Clerk",
+      "documentation": "https://clerk.com/docs/reference/backend-api",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 12,
+      "name": "Auth0",
+      "documentation": "https://auth0.com/docs/api",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 13,
+      "name": "Resend",
+      "documentation": "https://resend.com/docs/api-reference/introduction",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 14,
+      "name": "Postmark",
+      "documentation": "https://postmarkapp.com/developer",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 15,
+      "name": "Google Drive",
+      "documentation": "https://developers.google.com/workspace/drive/api/guides/about-sdk",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 16,
+      "name": "Google Sheets",
+      "documentation": "https://developers.google.com/workspace/sheets/api/guides/concepts",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 17,
+      "name": "Google Calendar",
+      "documentation": "https://developers.google.com/workspace/calendar/api/guides/overview",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 18,
+      "name": "Notion",
+      "documentation": "https://developers.notion.com/",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 19,
+      "name": "Slack",
+      "documentation": "https://docs.slack.dev/apis/",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 20,
+      "name": "Discord",
+      "documentation": "https://docs.discord.com/developers/intro",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 21,
+      "name": "Telegram",
+      "documentation": "https://core.telegram.org/bots/api",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 22,
+      "name": "Linear",
+      "documentation": "https://linear.app/developers",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 23,
+      "name": "Jira",
+      "documentation": "https://developer.atlassian.com/cloud/jira/platform/rest/v3/intro/",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 24,
+      "name": "Sentry",
+      "documentation": "https://docs.sentry.io/api/",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 25,
+      "name": "PostHog",
+      "documentation": "https://posthog.com/docs/api",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 26,
+      "name": "Datadog",
+      "documentation": "https://docs.datadoghq.com/api/latest/",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 27,
+      "name": "Cloudinary",
+      "documentation": "https://cloudinary.com/documentation/cloudinary_references",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 28,
+      "name": "Replicate",
+      "documentation": "https://replicate.com/docs",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 29,
+      "name": "Hugging Face",
+      "documentation": "https://huggingface.co/docs/inference-providers/index",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 30,
+      "name": "ElevenLabs",
+      "documentation": "https://elevenlabs.io/docs/overview/intro",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 31,
+      "name": "Stability AI",
+      "documentation": "https://platform.stability.ai/docs/api-reference",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 32,
+      "name": "Beatport",
+      "documentation": "https://www.beatport.com/genre/melodic-house-techno/90/top-100",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    },
+    {
+      "number": 33,
+      "name": "Shopify",
+      "documentation": "https://shopify.dev/docs/api",
+      "implementationStatus": "planned",
+      "runtimeConnected": null,
+      "requiredScopes": "Resolve against exact selected actions before implementation",
+      "externalWritesRequireGrant": true,
+      "priceVerified": false
+    }
+  ]
+}

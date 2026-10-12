@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.41",
+  "stage": 27,
+  "master_item": 32,
+  "scope": "staging-smoke-preparation",
+  "status": "PREPARED_BLOCKED_FOR_REAL_SMOKE",
+  "runtime": {
+    "node": "v22.16.0",
+    "required_node": ">=24.0.0"
+  },
+  "static_quality": {
+    "status": "VERIFIED",
+    "passed": 31,
+    "failed": 0,
+    "blocked": 0
+  },
+  "full_quality": {
+    "status": "BLOCKED",
+    "passed": 31,
+    "failed": 0,
+    "blocked": 5
+  },
+  "smoke_simulation": {
+    "positive_exact_release": "VERIFIED",
+    "negative_wrong_release": "FAILED_HEALTH_AS_EXPECTED"
+  },
+  "cloudflare_readonly_baseline": {
+    "worker": "azrail-pulse-staging",
+    "workers_dev_enabled": true,
+    "previews_enabled": false,
+    "deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+    "version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+    "version_number": 3,
+    "post_deploy": false
+  },
+  "mutation_policy": {
+    "github_write_performed": false,
+    "cloudflare_write_performed": false,
+    "canva_write_performed": false,
+    "deployment_performed": false,
+    "remote_migration_performed": false,
+    "real_staging_smoke_performed": false
+  }
+}

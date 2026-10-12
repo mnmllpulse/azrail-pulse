@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "runtime": {
+    "node_major_min": 24,
+    "reference_node": "24.18.0",
+    "package_manager": "npm",
+    "install_command": "npm ci"
+  },
+  "required_gates": [
+    "version-truth",
+    "documentation-truth",
+    "migration-integrity",
+    "canonical-config",
+    "staging-migration-preparation",
+    "staging-migration-simulation",
+    "production-drift-reconciliation",
+    "production-drift-simulation",
+    "github-pr-preparation",
+    "production-release-preparation",
+    "production-release-simulation",
+    "source-manifest-check",
+    "lint",
+    "format",
+    "security",
+    "typecheck",
+    "canonical-ui-build",
+    "vitest",
+    "wrangler-staging-dry-run",
+    "wrangler-production-dry-run",
+    "release-preflight"
+  ],
+  "truth_boundaries": [
+    "A Node 22 or dependency-less run can never produce VERIFIED Node24 evidence.",
+    "The suite is local-only and does not deploy, apply remote migrations, write KV/R2, or mutate GitHub/Canva.",
+    "Authenticated runtime smoke is intentionally separate because it requires a deployed URL and credential.",
+    "Production packaging requires a VERIFIED Node24 suite receipt for the exact current release."
+  ]
+}

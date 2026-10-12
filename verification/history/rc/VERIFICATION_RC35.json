@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.35",
+  "stage": "Stage 21 / Professional Ledger Studio",
+  "generated_at": "2026-10-10T05:01:41.315376+00:00",
+  "environment": {
+    "node": "v22.16.0",
+    "release_contract": "Node >=24",
+    "canonical_dependencies_installed": false
+  },
+  "verification": {
+    "ledger_studio_architecture": {
+      "status": "PASSED",
+      "negative_test": "PASSED (intentional Export CSV UI marker removal produced exit 1)"
+    },
+    "ledger_report_runtime": {
+      "status": "PASSED",
+      "checks": [
+        "owned-resource filtering",
+        "provider provenance",
+        "route/retry attempts",
+        "tokens/calls",
+        "project budget/remaining",
+        "hour-over-hour spend anomaly"
+      ]
+    },
+    "migration_027": {
+      "status": "PASSED",
+      "checks": [
+        "schema + migration apply",
+        "second apply idempotence",
+        "historical provider=unknown backfill",
+        "model_call FK",
+        "ON DELETE CASCADE"
+      ]
+    },
+    "ui_typecheck": {
+      "status": "PASSED",
+      "command": "tsc -p tsconfig.ui.json --noEmit",
+      "note": "global TypeScript compiler; canonical Node24 dependency-backed typecheck remains blocked"
+    },
+    "typescript_syntax": {
+      "status": "PASSED",
+      "active_files": 251,
+      "parse_diagnostics": 0
+    },
+    "fallback_preview": {
+      "status": "PASSED",
+      "modules": 33,
+      "release_verified": false
+    },
+    "release_package_guard": {
+      "status": "PASSED",
+      "detail": "release:package correctly blocked typescript-fallback / release_verified=false"
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 23,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 23,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "staging_drift": {
+      "status": "WARNING",
+      "counts": {
+        "PASS": 34,
+        "WARNING": 1,
+        "DRIFT": 0,
+        "BLOCKER": 0
+      }
+    }
+  },
+  "truth_boundaries": [
+    "Ledger Studio is read-only and reports only model calls visible through the authenticated account ownership boundary.",
+    "model_calls remains authoritative for call state and cost; model_call_dimensions stores provider and route/retry attempt provenance.",
+    "Historical calls are backfilled with provider=unknown rather than fabricated provenance; UI may label registry/slug-derived provider values as inferred.",
+    "Budget overview selects one semantic boundary (mission, project, account, or operator paid-month) instead of summing overlapping hierarchy levels.",
+    "Estimated/reserved values are internal AZRAIL accounting values and are not presented as exact Cloudflare/provider invoices.",
+    "No GitHub, Cloudflare, or Canva mutation was performed."
+  ],
+  "release_blockers": [
+    "Full Node24 dependency-backed typecheck/build/test suite not executed in current Node22 environment",
+    "Canonical esbuild UI build not release-verified",
+    "Vitest blocked by environment",
+    "Wrangler dry-run blocked by environment",
+    "Authenticated runtime smoke target/credential not provided"
+  ]
+}

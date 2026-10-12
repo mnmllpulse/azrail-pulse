@@ -1,0 +1,5 @@
+import { useNavigate } from 'react-router-dom';
+export default function PricingModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void; isLight?: boolean }) {
+  const navigate = useNavigate(); if (!isOpen) return null;
+  return <div className="fixed inset-0 z-[100] bg-black/75 flex items-center justify-center p-6"><section role="dialog" aria-modal="true" aria-labelledby="billing-title" className="max-w-md p-8 rounded-2xl bg-zinc-950 border border-violet-400/20 text-zinc-200"><h2 id="billing-title" className="text-xl mb-3">Доступ владельца</h2><p className="text-sm text-zinc-400 leading-7">Публичные подписки пока не запущены. Лимиты и подключение сторонних моделей доступны в разделе расходов.</p><div className="flex gap-3 mt-6"><button className="px-4 py-2 bg-violet-500 rounded-lg" onClick={() => { onClose(); navigate('/studio/billing'); }}>Открыть настройки</button><button className="px-4 py-2 border border-white/15 rounded-lg" onClick={onClose}>Закрыть</button></div></section></div>;
+}

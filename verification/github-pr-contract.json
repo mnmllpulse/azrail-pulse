@@ -1,0 +1,71 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.63",
+  "master_item": 37,
+  "name": "github-pr-publication",
+  "snapshot": "verification/github-pr-readonly-snapshot.json",
+  "production_approval_receipt": ".work/production-approval.json",
+  "publication_ticket": ".work/github-pr-publication-ticket.json",
+  "post_publish_receipt": ".work/github-pr-published.json",
+  "repository": "mnmllpulse/azrail-os",
+  "base_branch": "main",
+  "base_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
+  "branch_name": "release/azrail-pulse-1.5.0-rc.63",
+  "pull_request": {
+    "title": "release: AZRAIL PULSE 1.5.0-rc.63",
+    "initial_draft": true,
+    "template": "verification/GITHUB_PR_TEMPLATE.md",
+    "must_not_reuse_open_prs": [
+      8,
+      12
+    ],
+    "required_ci_workflow": "Verify",
+    "required_ci_conclusion": "success",
+    "merge_method_preference": "squash",
+    "auto_merge_allowed": false
+  },
+  "required_source": {
+    "source_manifest": "SOURCE_MANIFEST.json",
+    "source_manifest_algorithm": "sha256",
+    "manifest_must_match_worktree": true,
+    "workflow_files_mandatory": [
+      ".github/workflows/check.yml",
+      ".github/workflows/deploy.yml",
+      ".github/workflows/staging-auto-deploy.yml"
+    ],
+    "workflow_omission_is_blocker": true
+  },
+  "required_ci": {
+    "node_version_file": ".nvmrc",
+    "source_manifest_check": "npm run source:manifest:check",
+    "static_quality": "npm run quality:static",
+    "node24_suite": "npm run node24:suite",
+    "checkout_persist_credentials": false,
+    "repository_write_permissions": false,
+    "production_deploy_workflow_must_remain_disabled": true
+  },
+  "required_operator_inputs": {
+    "github_mutation_unlock_env": "AZRAIL_ALLOW_GITHUB_MUTATION",
+    "github_mutation_unlock_value": "I_UNDERSTAND",
+    "github_pr_approval_env": "AZRAIL_GITHUB_PR_APPROVAL"
+  },
+  "policy": {
+    "github_mutation_allowed_in_preparation": false,
+    "cloudflare_mutation_allowed": false,
+    "canva_mutation_allowed": false,
+    "production_mutation_allowed": false,
+    "publication_ticket_is_local_only": true,
+    "production_approval_required_before_ticket": true,
+    "production_approval_must_be_unexpired": true,
+    "approval_source_manifest_must_match": true,
+    "approval_github_base_sha_must_match": true,
+    "fresh_base_sha_required_immediately_before_branch_creation": true,
+    "exact_manifest_required_on_branch": true,
+    "fresh_ci_success_required_on_pr_head": true,
+    "failed_or_missing_ci_blocks_merge": true,
+    "workflow_files_must_never_be_silently_dropped": true,
+    "production_release_only_after_verified_pr": true,
+    "production_release_is_separate_master_item": 38
+  },
+  "readonly_evidence_source_release": "1.5.0-rc.54"
+}

@@ -1,0 +1,48 @@
+{
+  "release": "1.5.0-rc.19",
+  "stage": 5,
+  "status": "BLOCKED",
+  "quality_model": [
+    "VERIFIED",
+    "UNVERIFIED",
+    "BLOCKED",
+    "FAILED"
+  ],
+  "verified_here": [
+    "version truth",
+    "documentation truth",
+    "migration integrity",
+    "canonical configuration",
+    "release preflight",
+    "source lint",
+    "format check",
+    "static security check",
+    "staging config drift snapshot"
+  ],
+  "blocked_here": [
+    "Node >=24 typecheck",
+    "Node >=24 UI build",
+    "Vitest suite",
+    "Wrangler worker dry-run",
+    "authenticated runtime smoke"
+  ],
+  "block_reason": "The ChatGPT working runtime is Node 22.16.0 and has no local npm dev dependencies; runtime smoke credentials are intentionally not present.",
+  "cloud_mutations": false,
+  "github_mutations": false,
+  "static_gate_status": "VERIFIED",
+  "full_gate_status": "BLOCKED",
+  "static_gate_counts": {
+    "PASSED": 9,
+    "FAILED": 0,
+    "BLOCKED": 0
+  },
+  "full_gate_counts": {
+    "PASSED": 9,
+    "FAILED": 0,
+    "BLOCKED": 5
+  },
+  "negative_tests": [
+    "format gate rejects trailing whitespace",
+    "security gate rejects source .env file"
+  ]
+}

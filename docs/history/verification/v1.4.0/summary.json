@@ -1,0 +1,85 @@
+{
+  "release": "1.4.0",
+  "date": "2026-10-03",
+  "inputArchive": "AZRAIL_PULSE_Unified_1.3.1.zip",
+  "baseline": {
+    "tests": 1154,
+    "suites": 56,
+    "standaloneBytes": 1025455
+  },
+  "final": {
+    "tests": 1181,
+    "suites": 57,
+    "passed": true,
+    "standaloneBytes": 115127,
+    "node": "24.19.0",
+    "typecheck": "passed",
+    "freeDryRun": "passed",
+    "paidDryRun": "passed",
+    "npmAudit": {
+      "production": 0,
+      "all": 0
+    }
+  },
+  "browser": {
+    "passed": true,
+    "browser": "153.0.8010.0",
+    "results": [
+      "Standalone home loads without globe",
+      "Direct URL and reload: web",
+      "Direct URL and reload: image",
+      "Direct URL and reload: music",
+      "Direct URL and reload: video",
+      "Direct URL and reload: audio",
+      "Direct URL and reload: als",
+      "Direct URL and reload: data",
+      "Direct URL and reload: ledger",
+      "Direct URL and reload: lab",
+      "Back/Forward and local studio draft restoration",
+      "Real WAV/MIDI synthesis and media URL cleanup",
+      "Real CSV upload and rendered report",
+      "Real MediaRecorder WebM export",
+      "No horizontal overflow at 320px",
+      "No horizontal overflow at 390px",
+      "No horizontal overflow at 768px",
+      "No horizontal overflow at 1440px",
+      "No page JavaScript errors"
+    ],
+    "errors": []
+  },
+  "smokeAuth": {
+    "cookie": "mock-response check passed",
+    "token": "mock-response check passed",
+    "production": "not exercised"
+  },
+  "liveNotExercised": [
+    "OIDC provider",
+    "Workers AI provider",
+    "OAuth connections",
+    "Docker runtime",
+    "Cloudflare invoice"
+  ],
+  "studios": [
+    "web",
+    "image",
+    "music",
+    "video",
+    "audio",
+    "als",
+    "data",
+    "ledger",
+    "lab"
+  ],
+  "additionalReferenceStudios": [
+    "code",
+    "sandbox",
+    "agent",
+    "knowledge",
+    "model",
+    "automation",
+    "analytics",
+    "deploy",
+    "security",
+    "marketplace"
+  ]
+}

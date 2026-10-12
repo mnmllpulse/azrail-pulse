@@ -1,0 +1,52 @@
+{
+  "release": "1.5.0-rc.3",
+  "scope": "local review candidate; no GitHub publish and no Cloudflare writes",
+  "timestamp_utc": "2026-10-08T12:55:05Z",
+  "status": "partial-pass",
+  "passed": {
+    "release_preflight": true,
+    "mjs_syntax": true,
+    "shell_syntax": true,
+    "json_jsonc": {"checked": 39, "errors": 0},
+    "yaml": {"checked": 2, "errors": 0},
+    "typescript_syntax_transpile": {"checked": 170, "errors": 0},
+    "relative_imports_ast": {"checked": 530, "missing": 0},
+    "package_lock_version_consistency": true,
+    "filtered_provider_secret_scan": true,
+    "targeted_runtime": {
+      "waiting_approval_cancel_cancels_prepared_connector_call": true,
+      "running_external_action_blocks_false_clean_cancel": true
+    }
+  },
+  "not_reproduced": {
+    "npm_ci": "dependency installation did not complete in the isolated environment; npm cache is empty",
+    "semantic_typecheck": "requires installed project dependencies and Cloudflare/Agents types",
+    "full_vitest_suite": "requires installed project dependencies",
+    "wrangler_staging_dry_run": "requires installed Wrangler package",
+    "wrangler_production_dry_run": "requires installed Wrangler package"
+  },
+  "cloud_read_only_findings": {
+    "production_compatibility_date_live": "2026-08-08",
+    "production_compatibility_date_config": "2026-09-29",
+    "production_metering_live": "observe",
+    "production_metering_config": "enforce",
+    "production_legacy_cors_origin_live": "*",
+    "production_oidc_provenance": "not proven as plain-text bindings; deployment remains blocked",
+    "staging_oidc_provenance": "live non-secret issuer/client observed read-only and pinned into staging config"
+  },
+  "safety_interlocks": {
+    "package_deploy_disabled": true,
+    "package_staging_deploy_disabled": true,
+    "package_production_deploy_disabled": true,
+    "direct_db_schema_write_disabled": true,
+    "direct_db_security_write_disabled": true,
+    "cloud_scripts_require_AZRAIL_ALLOW_CLOUD_MUTATION": true,
+    "github_push_requires_AZRAIL_ALLOW_GITHUB_MUTATION": true,
+    "github_actions_production_deploy_job_disabled": true
+  },
+  "notes": [
+    "Historical VERIFICATION.json and VERIFICATION_RC2.json are not evidence for RC3.",
+    "RC3 is intentionally not production-ready until npm ci, semantic typecheck, full tests and both Wrangler dry-runs are reproduced.",
+    "No remote mutation was performed while preparing RC3."
+  ]
+}

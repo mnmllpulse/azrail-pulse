@@ -1,0 +1,1 @@
+sed -i 's/interface SystemState {/interface SystemConfig {\n  azrailCoreSensitivity: number;\n  cloudLocalRatio: number;\n  swarmPriority: number;\n  securityAlertLevel: number;\n  p2pSyncStatus: number;\n  globalNodesOnline: number;\n}\n\ninterface SystemState {/g' src/contexts/SystemStateContext.tsx

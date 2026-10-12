@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.51",
+  "status": "FULL_ARCHIVE_SOURCE_AUDIT_VERIFIED_RUNTIME_GATES_PENDING",
+  "scope": "complete current + history + legacy GitHub source archive with RC50 hardening applied to the active tree",
+  "full_archive_audit": {
+    "includes_current_runtime": true,
+    "includes_docs_history": true,
+    "includes_verification_history": true,
+    "includes_references_legacy": true,
+    "inventory_files_including_source_manifest": 1039,
+    "source_manifest_tracked_files": 1038,
+    "text_lines_scanned": 187299,
+    "typescript_tsx_parsed": 543,
+    "active_relative_imports_resolved": 925,
+    "relative_markdown_links_checked": 31,
+    "exhaustive_checks_passed": 20,
+    "exhaustive_failures": 0,
+    "exact_duplicate_groups_warning": 7
+  },
+  "active_tree_hardening": [
+    "DeployAgent uses bounded ZIP central-directory inspection instead of fully decompressing untrusted uploads",
+    "Git, QA and Deploy agents share a hardened GitHub transport with timeout, redirect rejection and bounded body reads",
+    "npm freshness and OSV requests use bounded JSON reads and capped concurrency",
+    "Video Studio explicitly disposes ImageBitmap preview resources",
+    "Image, Music, Video and Data history loaders expose loading/error/retry states",
+    "shared UI DOM and panel-state helpers reduce repeated component logic",
+    "Web Workbench snapshot labels are fully HTML-escaped",
+    "repo:deep and repo:exhaustive are mandatory static quality gates"
+  ],
+  "quality": {
+    "static_gates": {
+      "status": "VERIFIED",
+      "passed": 47,
+      "failed": 0,
+      "blocked": 0
+    },
+    "node24_suite": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "blocked": 1,
+      "reason": "audit host is Node v22.16.0; canonical runtime is Node 24.18.0"
+    },
+    "runtime_release_gates": {
+      "status": "PENDING_NODE24_AND_AUTHENTICATED_RUNTIME",
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "migration_integrity": "PASS: 29 numbered migrations 002-030",
+    "dependency_lock": "PASS: lockfileVersion 3, 365 locked entries, 0 warnings",
+    "current_dependency_cve_audit": "PENDING_GITHUB_CI_NETWORK"
+  },
+  "github_cloudflare_delivery": {
+    "github_main_observed_version": "1.4.0",
+    "staging_auto_deploy_workflow": ".github/workflows/staging-auto-deploy.yml",
+    "trigger": "push to main after verification",
+    "target": "Cloudflare staging only",
+    "required_node": "24.18.0",
+    "production_auto_deploy": false,
+    "production_workflow_fail_closed": true,
+    "production_drift_status": "RECONCILIATION_REQUIRED"
+  },
+  "remote_reads": {
+    "github": "repository/package metadata checked read-only",
+    "cloudflare": "staging and production Worker settings/deployments checked read-only",
+    "canva": "AZRAIL Unified Interface Website reference checked read-only",
+    "ads_manager": "no accessible ad accounts returned; unrelated to repository packaging"
+  },
+  "remote_mutations_performed": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "ads_manager": false
+  }
+}

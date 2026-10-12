@@ -1,0 +1,18 @@
+import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+const pkg=JSON.parse(readFileSync('package.json','utf8'));
+const contract=JSON.parse(readFileSync('verification/security-verification-contract.json','utf8'));
+const p=spawnSync(process.execPath,['scripts/check-security-verification-preparation.mjs'],{stdio:'inherit'});if(p.status!==0)process.exit(p.status??2);
+const read=(x)=>existsSync(x)?JSON.parse(readFileSync(x,'utf8')):null;
+const r=contract.required_receipts;const node=read(r.node24),mig=read(r.migration_applied),dep=read(r.deploy_applied),smoke=read(r.staging_smoke),prep=read(r.preparation);
+const blockers=[];
+if(node?.status!=='VERIFIED'||node?.release!==pkg.version)blockers.push('Node24 VERIFIED receipt for exact release is missing.');
+if(mig?.status!=='APPLIED'||mig?.release!==pkg.version)blockers.push('Staging migration APPLIED receipt for exact release is missing.');
+if(dep?.status!=='DEPLOY_COMMAND_SUCCEEDED'||dep?.release!==pkg.version)blockers.push('Staging deploy receipt for exact release is missing.');
+if(smoke?.status!=='VERIFIED'||smoke?.release!==pkg.version)blockers.push('Authenticated staging smoke VERIFIED receipt for exact release is missing.');
+if(prep?.status!=='PREPARED'||prep?.release!==pkg.version)blockers.push('Security preparation receipt is missing.');
+if(!process.env.AZRAIL_SESSION_COOKIE&&!process.env.AZRAIL_TOKEN)blockers.push('Live staging credential is not present in process environment.');
+if(prep?.known_release_gaps?.audit_event_crypto_chain)blockers.push('Tamper-evident audit event checksum/signature chain is not implemented.');
+if(prep?.known_release_gaps?.live_dependency_cve_audit)blockers.push('Current dependency vulnerability audit has not been proven in the release environment.');
+const plan={schema_version:1,release:pkg.version,environment:'staging',status:blockers.length?'BLOCKED':'READY',target:contract.target_url,blockers,steps:['Complete Node24 verification for the exact RC.','Apply approved staging migrations and deploy the exact RC.','Pass authenticated staging smoke on the new deployment identity.','Run current dependency vulnerability audit in the Node24 release environment.','Close tamper-evident audit-event integrity gap or explicitly hold production approval.','Run security:verify:run using GET/OPTIONS only.','Keep GitHub, production, and Canva mutation-free until owner approval.']};
+console.log(JSON.stringify(plan,null,2));if(blockers.length)process.exit(2);

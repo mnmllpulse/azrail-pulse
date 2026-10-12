@@ -1,0 +1,27 @@
+{
+  "release": "1.5.0-rc.2",
+  "status": "local_candidate_partially_verified",
+  "github_publish": false,
+  "cloudflare_deploy": false,
+  "checks": {
+    "release_preflight": "passed",
+    "json_integrity": "passed",
+    "source_manifest": "passed_after_regeneration",
+    "static_mission_recovery_audit": "passed_after_fix",
+    "npm_ci": "blocked_registry_timeout",
+    "typecheck": "pending_dependencies",
+    "tests": "pending_dependencies",
+    "staging_dry_run": "pending_dependencies",
+    "production_dry_run": "pending_dependencies",
+    "typescript_syntax_transpile": "passed_170_files",
+    "node_script_syntax": "passed",
+    "package_lock_version": "passed",
+    "yaml_parse": "passed"
+  },
+  "notes": [
+    "Historical VERIFICATION.json belongs to 1.4.0 and is not evidence for this RC.",
+    "RC1 contained a stale SOURCE_MANIFEST and stale 1.4.0 release wording; both are corrected here.",
+    "Direct deployment is intentionally disabled until repeated ZIP verification is complete.",
+    "npm registry access timed out in the current isolated runtime, so dependency-based checks are not claimed as passed."
+  ]
+}

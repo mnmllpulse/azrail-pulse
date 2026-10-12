@@ -1,0 +1,2 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+✗ Daemon process exited during startup with no error output. Re-run with --debug for more details.

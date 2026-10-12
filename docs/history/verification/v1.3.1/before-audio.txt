@@ -1,0 +1,29 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+ RUN  v4.1.11 <project-root>
+
+ ❯ tests/audio-analysis.test.ts (7 tests | 1 failed) 353ms
+   × keeps valid band ranges and reports the measured ceiling at low sample rates 31ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/audio-analysis.test.ts > keeps valid band ranges and reports the measured ceiling at low sample rates
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ tests/audio-analysis.test.ts:13:100
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  19:35:34
+   Duration  686ms (transform 61ms, setup 0ms, import 77ms, tests 353ms, environment 0ms)
+

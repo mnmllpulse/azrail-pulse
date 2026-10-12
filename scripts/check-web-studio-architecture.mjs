@@ -1,0 +1,12 @@
+import {existsSync,readFileSync} from 'node:fs';
+let failed=false;const fail=m=>{console.error('WEB STUDIO ARCHITECTURE FAIL:',m);failed=true;};const read=p=>readFileSync(p,'utf8');
+if(!existsSync('migrations/021-web-studio-workbench.sql'))fail('migration 021 missing');
+const migration=read('migrations/021-web-studio-workbench.sql'),schema=read('schema.sql'),lib=read('src/lib/web-workbench.ts'),route=read('src/unified/web-workbench.ts'),web=read('ui/web-workbench.ts'),module=read('ui/studio-modules/web.ts'),index=read('src/index.ts');
+for(const marker of ['CREATE TABLE IF NOT EXISTS workspace_snapshots','prefix TEXT NOT NULL','manifest_hash TEXT NOT NULL','idx_workspace_snapshots_project']){if(!migration.includes(marker))fail(`migration missing ${marker}`);if(!schema.includes(marker))fail(`schema missing ${marker}`);}
+for(const marker of ['MAX_FILES=400','MAX_TOTAL_BYTES=16*1024*1024','MAX_TEXT_BYTES=1024*1024','withProjectLock','publishWorkspace','approvalDigest','actionType:"delete_file"','actionType:"restore"','workspace_snapshot','expectedSha256','createWorkspaceSnapshot','compareWorkspaceSnapshot','restoreWorkspaceSnapshot','revertWorkbenchFile'])if(!lib.includes(marker))fail(`workbench backend missing ${marker}`);
+for(const marker of ['workbench/file','workbench/search','workbench/components','workbench/browser-qa','workbench/files','workbench/snapshots','workbench/compare','workbench/restore','workbench/revert-file'])if(!route.includes(marker.split('workbench/')[1]??marker))fail(`workbench route missing ${marker}`);
+for(const marker of ['Files','Preview','Layers','Changes','Tests','Logs','Versions','data-web-tab','web-code-stack','expectedSha256','1440','1024','768','390','Content-Security-Policy','network disabled by CSP','Visual ↔ Code Inspector','Run Browser QA','Unified Event Stream','Run AZRAIL QA','Restore → new revision'])if(!web.includes(marker))fail(`Web Studio UI missing ${marker}`);
+if(!module.includes('mountWebWorkbench'))fail('Web Studio module must delegate to mountWebWorkbench');
+if(!index.includes('webWorkbenchRoute'))fail('src/index.ts missing webWorkbenchRoute');
+if(/auto.?merge/i.test(web))fail('Web Studio must not expose auto-merge');
+if(failed)process.exit(1);console.log('WEB STUDIO ARCHITECTURE PASS: immutable editing, source-aware layers, visual-to-code inspection, responsive preview, browser QA, diff, logs and versions are wired.');

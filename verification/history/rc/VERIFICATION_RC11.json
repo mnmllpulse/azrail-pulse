@@ -1,0 +1,46 @@
+{
+  "release": "1.5.0-rc.11",
+  "generated_at": "2026-10-08T19:48:15.306556+00:00",
+  "status": "review_candidate_not_production_ready",
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "deploy": false
+  },
+  "passed": {
+    "release_preflight": true,
+    "targeted_runtime_assertions": 21,
+    "typescript_syntax_files": 468,
+    "typescript_syntax_errors": 0,
+    "relative_import_checks_src_tests": 600,
+    "missing_relative_imports": 0,
+    "dependency_free_semantic_probe_nonignored": 0,
+    "strict_json_files": 46,
+    "jsonc_config_files_parsed": 2,
+    "yaml_files": 2,
+    "mjs_syntax_files": 7,
+    "shell_syntax_files": 1,
+    "schema_application_tables": 47,
+    "migration_011_reapply": true,
+    "secret_scan_files": 142,
+    "secret_scan_findings": 0,
+    "package_lock_version_consistent": true
+  },
+  "not_proven": {
+    "npm_ci": "NOT PASS: online install made no observable progress in bounded attempt; offline mode fails ENOTCACHED for undici",
+    "node_runtime": "current sandbox is Node 22.16.0 while package engines require Node >=24",
+    "full_semantic_typecheck": "not run with installed dependency/platform type tree",
+    "full_vitest": "not run; dependencies unavailable",
+    "wrangler_staging_dry_run": "not run; Wrangler dependency unavailable",
+    "wrangler_production_dry_run": "not run; Wrangler dependency unavailable",
+    "staging_migration_smoke": "not run against remote/disposable staging D1; remote mutations intentionally disabled"
+  },
+  "rc11_focus": [
+    "fail-closed checkpoint replay validation and approval evidence",
+    "durable plan reload instead of re-planning after restart",
+    "transactional multi-row plan mutations",
+    "restart-safe plan revision and regression retry budgets",
+    "first-write-wins mission test baseline",
+    "repair stale compile-contract tests discovered by dependency-free probe"
+  ]
+}

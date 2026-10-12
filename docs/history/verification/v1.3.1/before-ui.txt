@@ -1,0 +1,38 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+ RUN  v4.1.11 <project-root>
+
+ ❯ tests/ui-workflow.test.ts (6 tests | 2 failed) 223ms
+   × keeps edits typed while an explicit draft reload is in flight 20ms
+   × does not display an unverified model check as passed, and names cancellation in progress 11ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/ui-workflow.test.ts > keeps edits typed while an explicit draft reload is in flight
+AssertionError: expected 'Other tab' to be 'New typing' // Object.is equality
+
+Expected: "New typing"
+Received: "Other tab"
+
+ ❯ tests/ui-workflow.test.ts:17:226
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/ui-workflow.test.ts > does not display an unverified model check as passed, and names cancellation in progress
+AssertionError: expected 'Последняя проверка: пройдена' not to contain 'пройдена'
+
+Expected: "пройдена"
+Received: "Последняя проверка: пройдена"
+
+ ❯ tests/ui-workflow.test.ts:21:226
+
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 passed (6)
+   Start at  19:30:55
+   Duration  973ms (transform 109ms, setup 0ms, import 472ms, tests 223ms, environment 0ms)
+

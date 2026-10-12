@@ -1,0 +1,60 @@
+{
+  "release": "1.5.0-rc.20",
+  "stage": 6,
+  "status": "BLOCKED",
+  "stage_name": "Execution Engine Decomposition",
+  "verified_here": [
+    "version truth",
+    "documentation truth",
+    "migration integrity",
+    "canonical configuration",
+    "release preflight",
+    "source lint",
+    "format check",
+    "static security check",
+    "staging config drift snapshot",
+    "TypeScript parser for changed source/tests",
+    "targeted compiler diagnostics for execution decomposition modules",
+    "execution decomposition architecture assertions"
+  ],
+  "decomposition": {
+    "execution_engine_lines_before": 1754,
+    "execution_engine_lines_after": 1095,
+    "new_runtime_modules": [
+      "src/core/execution-types.ts",
+      "src/core/execution-tools.ts",
+      "src/core/execution-planning.ts",
+      "src/core/execution-journal.ts",
+      "src/core/mission-workspace.ts"
+    ],
+    "public_contracts_preserved": [
+      "ExecutionEngine.executeTool",
+      "ExecutionEngine.runMission",
+      "parseDecision",
+      "renderHistory",
+      "ExecutionContext re-export"
+    ]
+  },
+  "blocked_here": [
+    "Node >=24 typecheck",
+    "Node >=24 UI build",
+    "Vitest suite",
+    "Wrangler worker dry-run",
+    "authenticated runtime smoke"
+  ],
+  "block_reason": "The ChatGPT working runtime is Node 22.16.0 and npm ci could not complete in the available runtime; full dependency-backed Node 24 verification remains a release gate.",
+  "cloud_mutations": false,
+  "github_mutations": false,
+  "static_gate_status": "VERIFIED",
+  "full_gate_status": "BLOCKED",
+  "static_gate_counts": {
+    "PASSED": 9,
+    "FAILED": 0,
+    "BLOCKED": 0
+  },
+  "full_gate_counts": {
+    "PASSED": 9,
+    "FAILED": 0,
+    "BLOCKED": 5
+  }
+}

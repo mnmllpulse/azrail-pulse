@@ -1,0 +1,24 @@
+{
+  "release": "1.5.0-rc.27",
+  "stage": 13,
+  "stage_name": "Attachment Manager",
+  "production_ready": false,
+  "remote_mutations": {"github": false, "cloudflare": false, "canva": false},
+  "features": {
+    "r2_backed_uploads": true,
+    "project_binding": true,
+    "upload_queue": true,
+    "retry_remove": true,
+    "reference_submission": true,
+    "max_files_per_request": 12,
+    "max_upload_bytes": 52428800,
+    "legacy_inline_prompt_stuffing_removed": true
+  },
+  "release_blockers": [
+    "Node >=24 canonical environment not available in this execution runtime",
+    "Canonical esbuild UI build is not release-verified",
+    "Full Vitest/Wrangler dry-run suite remains a later Release gate",
+    "Authenticated runtime smoke not supplied",
+    "Production OIDC/drift reconciliation remains pending"
+  ]
+}

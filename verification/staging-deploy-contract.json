@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "environment": "staging",
+  "worker_name": "azrail-pulse-staging",
+  "config_file": "wrangler.staging.json",
+  "readonly_snapshot": "verification/staging-deploy-readonly-snapshot.json",
+  "snapshot_max_age_hours": 24,
+  "required_runtime": {
+    "node_major_min": 24
+  },
+  "required_receipts": {
+    "node24": ".work/node24-suite.json",
+    "migration_applied": ".work/staging-migration-applied.json",
+    "ui_build": ".work/ui-build-mode.json",
+    "preparation": ".work/staging-deploy-preparation.json"
+  },
+  "cloud_unlock_env": "AZRAIL_ALLOW_CLOUD_MUTATION",
+  "cloud_unlock_value": "I_UNDERSTAND",
+  "approval_env": "AZRAIL_STAGING_DEPLOY_APPROVAL",
+  "expected_previous_deployment_env": "AZRAIL_EXPECTED_STAGING_DEPLOYMENT",
+  "deployment_command": [
+    "node_modules/wrangler/bin/wrangler.js",
+    "deploy",
+    "--config",
+    "wrangler.staging.json"
+  ],
+  "policy": {
+    "github_write_allowed": false,
+    "production_cloud_write_allowed": false,
+    "staging_deploy_requires_explicit_user_authorization": true,
+    "staging_migration_must_complete_first": true,
+    "production_release_allowed": false
+  },
+  "readonly_evidence_source_release": "1.5.0-rc.54"
+}

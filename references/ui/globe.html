@@ -1,0 +1,1209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DARK MNMLL PULSE OS — Intelligence That Moves the Planet</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet"
+  />
+
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <style>
+    :root {
+      --bg: #05010a;
+      --panel: rgba(10, 5, 25, 0.66);
+      --border: rgba(123, 77, 255, 0.22);
+      --border-strong: rgba(123, 77, 255, 0.42);
+      --text: #f0eef5;
+      --muted: #9a8ab0;
+      --faint: #5e4f75;
+      --accent: #b388ff;
+      --accent-dim: rgba(123, 77, 255, 0.16);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      margin: 0;
+      height: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: "Space Grotesk", system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .mono { font-family: "JetBrains Mono", monospace; }
+
+    #canvas-container {
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+    }
+
+    /* Subtle vignette so the UI reads over the 3D scene */
+    #vignette {
+      position: fixed;
+      inset: 0;
+      z-index: 2;
+      pointer-events: none;
+      background: radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+    }
+
+    #ui {
+      position: fixed;
+      inset: 0;
+      z-index: 3;
+      pointer-events: none;
+    }
+    #ui .interactive { pointer-events: auto; }
+
+    .glass {
+      background: var(--panel);
+      backdrop-filter: blur(14px) saturate(140%);
+      -webkit-backdrop-filter: blur(14px) saturate(140%);
+      border: 1px solid var(--border);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    /* ---------- Header ---------- */
+    header {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 22px 26px;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      line-height: 1;
+    }
+    .brand h1 span { color: var(--accent); }
+    .brand p {
+      margin: 6px 0 0;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .status {
+      display: flex;
+      gap: 10px;
+      align-items: stretch;
+    }
+    .chip {
+      border-radius: 10px;
+      padding: 9px 13px;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      min-width: 92px;
+    }
+    .chip .val {
+      color: var(--text);
+      font-size: 15px;
+    }
+    .chip .val.ok { color: var(--accent); }
+    .dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: var(--accent);
+      display: inline-block;
+      margin-right: 6px;
+      box-shadow: 0 0 8px var(--accent);
+      animation: pulse 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+    /* ---------- Hint ---------- */
+    #hint {
+      position: absolute;
+      left: 50%;
+      bottom: 26px;
+      transform: translateX(-50%);
+      padding: 9px 16px;
+      border-radius: 999px;
+      font-size: 12px;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      transition: opacity 0.5s ease;
+    }
+    #hint b { color: var(--accent); font-weight: 600; }
+
+    /* ---------- Tooltip ---------- */
+    #tooltip {
+      position: absolute;
+      z-index: 4;
+      transform: translate(-50%, -140%);
+      padding: 5px 11px;
+      border-radius: 8px;
+      font-size: 12px;
+      letter-spacing: 1px;
+      color: var(--text);
+      opacity: 0;
+      transition: opacity 0.15s ease;
+      white-space: nowrap;
+    }
+    #tooltip .mono { color: var(--accent); }
+
+    /* ---------- Controls ---------- */
+    .controls {
+      position: absolute;
+      right: 26px;
+      bottom: 26px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .ctl {
+      width: 42px; height: 42px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      color: var(--muted);
+      cursor: pointer;
+      transition: color 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+    .ctl:hover { color: var(--accent); border-color: var(--border-strong); }
+    .ctl.active { color: var(--accent); background: var(--accent-dim); border-color: var(--border-strong); }
+    .ctl svg { width: 20px; height: 20px; }
+
+    /* ---------- Info panel ---------- */
+    #panel {
+      position: absolute;
+      top: 0; right: 0;
+      height: 100%;
+      width: 380px;
+      max-width: 90vw;
+      display: flex;
+      flex-direction: column;
+      transform: translateX(105%);
+      transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+      border-left: 1px solid var(--border);
+      border-top: none; border-bottom: none; border-right: none;
+    }
+    #panel.open { transform: translateX(0); }
+
+    .panel-head {
+      position: relative;
+      padding: 26px 24px 20px;
+      border-bottom: 1px solid var(--border);
+      overflow: hidden;
+    }
+    .panel-head::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(90% 120% at 15% 0%, var(--accent-dim), transparent 60%);
+      opacity: 0.9;
+    }
+    .panel-head .idx {
+      position: relative;
+      font-size: 11px;
+      letter-spacing: 3px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .panel-head h2 {
+      position: relative;
+      margin: 8px 0 2px;
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      line-height: 1.05;
+    }
+    .panel-head .sub {
+      position: relative;
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+    .close {
+      position: absolute;
+      top: 18px; right: 18px;
+      width: 30px; height: 30px;
+      border-radius: 8px;
+      display: grid; place-items: center;
+      color: var(--muted);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: rgba(0,0,0,0.25);
+      transition: color 0.2s ease;
+      z-index: 2;
+    }
+    .close:hover { color: var(--text); }
+
+    .panel-body {
+      padding: 22px 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .stat {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 13px;
+      background: rgba(255,255,255,0.02);
+    }
+    .stat .k {
+      font-size: 10px;
+      letter-spacing: 2px;
+      color: var(--faint);
+      text-transform: uppercase;
+    }
+    .stat .v {
+      margin-top: 5px;
+      font-size: 17px;
+      color: var(--text);
+    }
+    .section-title {
+      margin: 24px 0 10px;
+      font-size: 11px;
+      letter-spacing: 2.5px;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .log {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--muted);
+    }
+
+    /* ---------- Live session rows ---------- */
+    .sessions {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .sessions li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 9px 11px;
+      background: rgba(255,255,255,0.02);
+      font-size: 12px;
+      color: var(--muted);
+    }
+    .sessions li.empty {
+      justify-content: center;
+      color: var(--faint);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 10px;
+    }
+    .sessions li.is-self {
+      border-color: rgba(179,136,255,0.55);
+      background: rgba(123,77,255,0.12);
+    }
+    .sessions .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex: none;
+      box-shadow: 0 0 8px rgba(179,136,255,0.9);
+    }
+    .sessions li.is-self .dot { background: #fff; box-shadow: 0 0 10px #fff; }
+    .sessions .sid { color: var(--text); letter-spacing: 0.5px; }
+    .sessions .coords { margin-left: auto; color: var(--faint); font-size: 11px; }
+    .sessions .you {
+      font-size: 9px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--accent);
+      border: 1px solid rgba(179,136,255,0.5);
+      border-radius: 4px;
+      padding: 1px 5px;
+    }
+
+    /* ---------- Loader ---------- */
+    #loader {
+      position: fixed;
+      inset: 0;
+      z-index: 20;
+      background: var(--bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      transition: opacity 0.8s ease;
+    }
+    #loader.done { opacity: 0; pointer-events: none; }
+    #loader .title {
+      font-size: clamp(18px, 4vw, 30px);
+      letter-spacing: 6px;
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+      padding: 0 20px;
+    }
+    #loader .title span { color: var(--accent); }
+    .bar {
+      width: min(280px, 70vw);
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    #bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      box-shadow: 0 0 12px var(--accent);
+      transition: width 0.3s ease;
+    }
+    #loader .status-text {
+      font-size: 12px;
+      letter-spacing: 2px;
+      color: var(--faint);
+    }
+
+    @media (max-width: 640px) {
+      header { padding: 16px; }
+      .brand h1 { font-size: 20px; letter-spacing: 2px; }
+      .status .chip:nth-child(2) { display: none; }
+      #panel { width: 100%; border-left: none; border-top: 1px solid var(--border); top: auto; bottom: 0; height: 62%; transform: translateY(105%); }
+      #panel.open { transform: translateY(0); }
+      .controls { bottom: 16px; right: 16px; }
+      #hint { bottom: 84px; }
+    }
+  </style>
+</head>
+<body>
+  <div id="canvas-container"></div>
+  <div id="vignette"></div>
+
+  <div id="tooltip" class="glass"><span class="mono" id="tooltip-text">—</span></div>
+
+  <div id="ui">
+    <header>
+      <div class="brand">
+        <h1>PULSE<span>OS</span></h1>
+        <p>Intelligence That Moves the Planet</p>
+      </div>
+      <div class="status">
+        <div class="chip glass">
+          <span><span class="dot"></span>SYSTEM</span>
+          <span class="val ok">ONLINE</span>
+        </div>
+        <div class="chip glass">
+          <span>NODES</span>
+          <span class="val mono" id="sat-count">6</span>
+        </div>
+      </div>
+    </header>
+
+    <div id="hint" class="glass interactive">
+      <b>Drag</b> to orbit &nbsp;·&nbsp; <b>Scroll</b> to zoom &nbsp;·&nbsp; <b>Click</b> a region for live sessions
+    </div>
+
+    <div class="controls">
+      <div class="ctl glass interactive active" id="btn-rotate" title="Toggle auto-rotation" role="button" tabindex="0">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+      </div>
+      <div class="ctl glass interactive" id="btn-reset" title="Reset view" role="button" tabindex="0">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3a9 9 0 109 9M12 3v4m0-4L9 6" />
+        </svg>
+      </div>
+    </div>
+
+    <aside id="panel" class="glass interactive">
+      <div class="panel-head">
+        <div class="idx" id="p-idx">REGION //  ---</div>
+        <button class="close" id="p-close" aria-label="Close">
+          <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <h2 id="p-name">—</h2>
+        <div class="sub" id="p-sub">Awaiting selection</div>
+      </div>
+      <div class="panel-body">
+        <div class="grid">
+          <div class="stat"><div class="k">Live sessions</div><div class="v mono" id="p-sessions">0</div></div>
+          <div class="stat"><div class="k">Edge regions</div><div class="v mono" id="p-edges">—</div></div>
+          <div class="stat"><div class="k">Latitude</div><div class="v mono" id="p-lat">—</div></div>
+          <div class="stat"><div class="k">Longitude</div><div class="v mono" id="p-lon">—</div></div>
+        </div>
+        <div class="section-title">Active coordinates</div>
+        <ul class="sessions" id="p-sessions-list">
+          <li class="empty mono">No live sessions in this region.</li>
+        </ul>
+        <div class="section-title">Analysis</div>
+        <p class="log" id="p-log">Select a country on the globe to read live presence telemetry.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div id="loader">
+    <div class="title">INITIALIZING <span>PULSE OS</span></div>
+    <div class="bar"><div id="bar-fill"></div></div>
+    <div class="status-text mono" id="loader-status">LOADING WORLD GEOMETRY…</div>
+  </div>
+
+  <script type="module">
+    import * as THREE from "three";
+    import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+    const CONFIG = {
+      radius: 10,
+      texW: 2048,
+      texH: 1024,
+      colors: {
+        ocean: "#08040f",
+        land: "#1b1236",
+        landLine: "#4a3a70",
+        border: "#6b56a0",
+        highlight: "#b388ff",
+        accent: 0xb388ff,
+      },
+      satColors: [0xb388ff, 0x7b4dff, 0x9d7bff, 0xc9b3ff, 0x8a63ff, 0xd8c7ff],
+      rotationSpeed: 0.00045,
+    };
+
+    let scene, camera, renderer, controls;
+    let globeGroup, globeMesh, borderMesh, highlightMesh, atmosphere;
+    let stars, satGroup;
+    const satellites = [];
+    let raycaster, pointer;
+    let isRotating = true;
+
+    let geo = null;
+    const features = []; // { name, rings:[[[lon,lat]...]], centroid:[lon,lat] }
+    let baseTex, highlightTex, highlightCtx;
+    let pickCanvas, pickCtx;
+    const colorToFeature = new Map();
+
+    let hovered = null;
+    let selected = null;
+    let introDone = false;
+
+    const $ = (id) => document.getElementById(id);
+    const setLoad = (pct, txt) => {
+      $("bar-fill").style.width = pct + "%";
+      if (txt) $("loader-status").textContent = txt;
+    };
+
+    init();
+
+    async function init() {
+      scene = new THREE.Scene();
+      scene.background = new THREE.Color(0x05010a);
+      scene.fog = new THREE.FogExp2(0x05010a, 0.014);
+
+      camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.1, 2000);
+      camera.position.set(0, 6, 90);
+
+      renderer = new THREE.WebGLRenderer({ antialias: true });
+      renderer.setSize(innerWidth, innerHeight);
+      renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+      $("canvas-container").appendChild(renderer.domElement);
+
+      controls = new OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.06;
+      controls.rotateSpeed = 0.5;
+      controls.minDistance = 14;
+      controls.maxDistance = 70;
+      controls.enablePan = false;
+
+      scene.add(new THREE.AmbientLight(0x9385b8, 1.35));
+      const key = new THREE.DirectionalLight(0xf0eef5, 2.2);
+      key.position.set(60, 35, 55);
+      scene.add(key);
+      const rim = new THREE.DirectionalLight(0x7b4dff, 1.9);
+      rim.position.set(-60, -10, -40);
+      scene.add(rim);
+
+      createStars();
+
+      setLoad(15, "FETCHING BORDER DATA…");
+      try {
+        const res = await fetch(
+          "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json"
+        );
+        geo = await res.json();
+      } catch (e) {
+        console.error("[v0] geojson fetch failed", e);
+      }
+      setLoad(45, "RENDERING SURFACE…");
+      if (geo) processFeatures();
+
+      createGlobe();
+      createAtmosphere();
+      createSatellites(6);
+
+      setLoad(80, "CALIBRATING OPTICS…");
+
+      raycaster = new THREE.Raycaster();
+      pointer = new THREE.Vector2();
+
+      addEventListener("resize", onResize);
+      renderer.domElement.addEventListener("pointermove", onMove);
+      renderer.domElement.addEventListener("pointerleave", clearHover);
+      renderer.domElement.addEventListener("click", onClick);
+
+      $("btn-rotate").addEventListener("click", toggleRotate);
+      $("btn-reset").addEventListener("click", resetView);
+      $("p-close").addEventListener("click", closePanel);
+
+      initPresenceLayer();
+
+      setLoad(100, "READY");
+      setTimeout(() => $("loader").classList.add("done"), 500);
+
+      intro();
+      animate();
+
+      // Tell the parent we can accept presence snapshots now.
+      window.parent?.postMessage({ type: "pulse:globe-ready" }, window.location.origin);
+    }
+
+    /* ---------- GeoJSON ---------- */
+    function processFeatures() {
+      for (const f of geo.features) {
+        const name = f.properties && (f.properties.name || f.properties.admin || "Unknown");
+        const rings = [];
+        const g = f.geometry;
+        if (!g) continue;
+        if (g.type === "Polygon") rings.push(...g.coordinates);
+        else if (g.type === "MultiPolygon") g.coordinates.forEach((p) => rings.push(...p));
+        if (!rings.length) continue;
+        features.push({ name, rings, centroid: centroidOf(rings) });
+      }
+    }
+
+    function centroidOf(rings) {
+      // area-weighted-ish: use the largest ring's average
+      let best = rings[0], bestLen = 0;
+      for (const r of rings) if (r.length > bestLen) { bestLen = r.length; best = r; }
+      let x = 0, y = 0;
+      for (const p of best) { x += p[0]; y += p[1]; }
+      return [x / best.length, y / best.length];
+    }
+
+    // equirectangular projection into our canvases
+    const projX = (lon) => ((lon + 180) / 360) * CONFIG.texW;
+    const projY = (lat) => ((90 - lat) / 180) * CONFIG.texH;
+
+    function drawFeaturePath(ctx, feat) {
+      ctx.beginPath();
+      for (const ring of feat.rings) {
+        ring.forEach((pt, i) => {
+          const x = projX(pt[0]);
+          const y = projY(pt[1]);
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        });
+        ctx.closePath();
+      }
+    }
+
+    /* ---------- Globe surface ---------- */
+    function createGlobe() {
+      globeGroup = new THREE.Group();
+      scene.add(globeGroup);
+
+      // base + borders texture
+      const canvas = document.createElement("canvas");
+      canvas.width = CONFIG.texW;
+      canvas.height = CONFIG.texH;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = CONFIG.colors.ocean;
+      ctx.fillRect(0, 0, CONFIG.texW, CONFIG.texH);
+
+      // graticule
+      ctx.strokeStyle = "rgba(123,77,255,0.12)";
+      ctx.lineWidth = 1;
+      for (let lon = -180; lon <= 180; lon += 30) {
+        ctx.beginPath(); ctx.moveTo(projX(lon), 0); ctx.lineTo(projX(lon), CONFIG.texH); ctx.stroke();
+      }
+      for (let lat = -60; lat <= 60; lat += 30) {
+        ctx.beginPath(); ctx.moveTo(0, projY(lat)); ctx.lineTo(CONFIG.texW, projY(lat)); ctx.stroke();
+      }
+
+      // land fill + borders
+      ctx.lineJoin = "round";
+      for (const feat of features) {
+        drawFeaturePath(ctx, feat);
+        ctx.fillStyle = CONFIG.colors.land;
+        ctx.fill("evenodd");
+      }
+      ctx.strokeStyle = CONFIG.colors.border;
+      ctx.lineWidth = 1.1;
+      for (const feat of features) {
+        drawFeaturePath(ctx, feat);
+        ctx.stroke();
+      }
+
+      baseTex = new THREE.CanvasTexture(canvas);
+      baseTex.colorSpace = THREE.SRGBColorSpace;
+      baseTex.anisotropy = renderer.capabilities.getMaxAnisotropy();
+
+      const geom = new THREE.SphereGeometry(CONFIG.radius, 96, 96);
+      globeMesh = new THREE.Mesh(
+        geom,
+        new THREE.MeshPhongMaterial({
+          map: baseTex,
+          specular: new THREE.Color(0x35265c),
+          shininess: 12,
+        })
+      );
+      globeGroup.add(globeMesh);
+
+      // highlight overlay (transparent, redrawn on hover/select)
+      const hc = document.createElement("canvas");
+      hc.width = CONFIG.texW;
+      hc.height = CONFIG.texH;
+      highlightCtx = hc.getContext("2d");
+      highlightTex = new THREE.CanvasTexture(hc);
+      highlightTex.colorSpace = THREE.SRGBColorSpace;
+      highlightMesh = new THREE.Mesh(
+        new THREE.SphereGeometry(CONFIG.radius + 0.03, 96, 96),
+        new THREE.MeshBasicMaterial({
+          map: highlightTex,
+          transparent: true,
+          blending: THREE.AdditiveBlending,
+          depthWrite: false,
+        })
+      );
+      globeGroup.add(highlightMesh);
+
+      // offscreen pick canvas (unique color per feature)
+      pickCanvas = document.createElement("canvas");
+      pickCanvas.width = CONFIG.texW;
+      pickCanvas.height = CONFIG.texH;
+      pickCtx = pickCanvas.getContext("2d", { willReadFrequently: true });
+      pickCtx.fillStyle = "#000000";
+      pickCtx.fillRect(0, 0, CONFIG.texW, CONFIG.texH);
+      features.forEach((feat, i) => {
+        const col = i + 1; // avoid 0 (background)
+        const r = (col >> 16) & 255, g = (col >> 8) & 255, b = col & 255;
+        const key = `${r},${g},${b}`;
+        colorToFeature.set(key, feat);
+        pickCtx.fillStyle = `rgb(${r},${g},${b})`;
+        drawFeaturePath(pickCtx, feat);
+        pickCtx.fill("evenodd");
+      });
+    }
+
+    function createAtmosphere() {
+      const vsh = `varying vec3 vNormal; void main(){ vNormal = normalize(normalMatrix * normal); gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`;
+      const fsh = `varying vec3 vNormal; void main(){ float i = pow(0.62 - dot(vNormal, vec3(0.0,0.0,1.0)), 3.0); gl_FragColor = vec4(0.48,0.30,1.0,1.0) * i; }`;
+      atmosphere = new THREE.Mesh(
+        new THREE.SphereGeometry(CONFIG.radius + 1.6, 96, 96),
+        new THREE.ShaderMaterial({
+          vertexShader: vsh,
+          fragmentShader: fsh,
+          blending: THREE.AdditiveBlending,
+          side: THREE.BackSide,
+          transparent: true,
+        })
+      );
+      globeGroup.add(atmosphere);
+    }
+
+    /* ---------- Stars ---------- */
+    function createStars() {
+      const n = 2600;
+      const pos = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) {
+        const r = 300 + Math.random() * 500;
+        const t = Math.acos(2 * Math.random() - 1);
+        const p = Math.random() * Math.PI * 2;
+        pos[i * 3] = r * Math.sin(t) * Math.cos(p);
+        pos[i * 3 + 1] = r * Math.sin(t) * Math.sin(p);
+        pos[i * 3 + 2] = r * Math.cos(t);
+      }
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+      stars = new THREE.Points(
+        g,
+        new THREE.PointsMaterial({ color: 0xc4b9e0, size: 1.1, sizeAttenuation: true, transparent: true, opacity: 0.8 })
+      );
+      scene.add(stars);
+    }
+
+    /* ---------- Satellites ---------- */
+    function createSatellites(count) {
+      satGroup = new THREE.Group();
+      scene.add(satGroup);
+      for (let i = 0; i < count; i++) {
+        const color = CONFIG.satColors[i % CONFIG.satColors.length];
+        const orbit = new THREE.Group();
+        orbit.rotation.x = Math.random() * Math.PI;
+        orbit.rotation.y = Math.random() * Math.PI;
+        orbit.rotation.z = Math.random() * Math.PI;
+
+        const r = CONFIG.radius + 3 + Math.random() * 6;
+
+        // orbit ring
+        const ring = new THREE.Mesh(
+          new THREE.TorusGeometry(r, 0.02, 8, 128),
+          new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.18 })
+        );
+        ring.rotation.x = Math.PI / 2;
+        orbit.add(ring);
+
+        // satellite body
+        const sat = new THREE.Mesh(
+          new THREE.SphereGeometry(0.16, 16, 16),
+          new THREE.MeshBasicMaterial({ color })
+        );
+        const glow = new THREE.Sprite(
+          new THREE.SpriteMaterial({ map: glowTexture(color), transparent: true, blending: THREE.AdditiveBlending, depthWrite: false })
+        );
+        glow.scale.set(1.6, 1.6, 1);
+        sat.add(glow);
+        orbit.add(sat);
+
+        satGroup.add(orbit);
+        satellites.push({ orbit, sat, r, speed: 0.15 + Math.random() * 0.35, angle: Math.random() * Math.PI * 2 });
+      }
+      $("sat-count").textContent = String(count);
+    }
+
+    function glowTexture(color) {
+      const c = document.createElement("canvas");
+      c.width = c.height = 64;
+      const g = c.getContext("2d");
+      const col = new THREE.Color(color);
+      const grd = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+      grd.addColorStop(0, `rgba(${col.r * 255 | 0},${col.g * 255 | 0},${col.b * 255 | 0},0.9)`);
+      grd.addColorStop(1, "rgba(0,0,0,0)");
+      g.fillStyle = grd;
+      g.fillRect(0, 0, 64, 64);
+      const t = new THREE.CanvasTexture(c);
+      t.colorSpace = THREE.SRGBColorSpace;
+      return t;
+    }
+
+    /* ---------- Interaction ---------- */
+    function featureAtEvent(e) {
+      pointer.x = (e.clientX / innerWidth) * 2 - 1;
+      pointer.y = -(e.clientY / innerHeight) * 2 + 1;
+      raycaster.setFromCamera(pointer, camera);
+      const hit = raycaster.intersectObject(globeMesh, false)[0];
+      if (!hit || !hit.uv) return null;
+      const px = Math.min(CONFIG.texW - 1, Math.max(0, Math.floor(hit.uv.x * CONFIG.texW)));
+      const py = Math.min(CONFIG.texH - 1, Math.max(0, Math.floor((1 - hit.uv.y) * CONFIG.texH)));
+      const d = pickCtx.getImageData(px, py, 1, 1).data;
+      const key = `${d[0]},${d[1]},${d[2]}`;
+      return colorToFeature.get(key) || null;
+    }
+
+    function onMove(e) {
+      const feat = features.length ? featureAtEvent(e) : null;
+      const tip = $("tooltip");
+      if (feat) {
+        renderer.domElement.style.cursor = "pointer";
+        tip.style.opacity = "1";
+        tip.style.left = e.clientX + "px";
+        tip.style.top = e.clientY + "px";
+        $("tooltip-text").textContent = feat.name.toUpperCase();
+      } else {
+        renderer.domElement.style.cursor = "grab";
+        tip.style.opacity = "0";
+      }
+      if (feat !== hovered) {
+        hovered = feat;
+        redrawHighlight();
+      }
+    }
+
+    function clearHover() {
+      hovered = null;
+      $("tooltip").style.opacity = "0";
+      redrawHighlight();
+    }
+
+    function onClick(e) {
+      const feat = featureAtEvent(e);
+      if (!feat) return;
+      selected = feat;
+      redrawHighlight();
+      openPanel(feat);
+    }
+
+    function redrawHighlight() {
+      if (!highlightCtx) return;
+      highlightCtx.clearRect(0, 0, CONFIG.texW, CONFIG.texH);
+      const paint = (feat, fill, line, lw) => {
+        drawFeaturePath(highlightCtx, feat);
+        highlightCtx.fillStyle = fill;
+        highlightCtx.fill("evenodd");
+        highlightCtx.lineWidth = lw;
+        highlightCtx.strokeStyle = line;
+        highlightCtx.stroke();
+      };
+      if (selected) paint(selected, "rgba(123,77,255,0.32)", "rgba(179,136,255,0.95)", 2.2);
+      if (hovered && hovered !== selected) paint(hovered, "rgba(123,77,255,0.16)", "rgba(179,136,255,0.65)", 1.6);
+      highlightTex.needsUpdate = true;
+    }
+
+    /* ---------- Panel ---------- */
+    function openPanel(feat) {
+      const [lon, lat] = feat.centroid;
+      $("p-idx").textContent = "REGION //  " + String(features.indexOf(feat) + 1).padStart(3, "0");
+      $("p-name").textContent = feat.name;
+      $("panel").classList.add("open");
+      $("hint").style.opacity = "0";
+      renderPanelPresence();
+      focusOn(lat, lon);
+    }
+
+    /**
+     * Renders live presence for the selected region. All values come from the
+     * presence API — nothing here is synthesised.
+     */
+    function renderPanelPresence() {
+      if (!selected) return;
+      const inRegion = sessionsWithin(selected);
+      const listEl = $("p-sessions-list");
+
+      $("p-sessions").textContent = String(inRegion.length);
+
+      const edges = [...new Set(inRegion.map((s) => s.edge).filter(Boolean))];
+      $("p-edges").textContent = edges.length ? edges.join(" · ") : "—";
+
+      // Latitude / longitude reflect the mean of live sessions when we have
+      // them, so the readout describes real people, not a country centroid.
+      if (inRegion.length) {
+        const meanLat = inRegion.reduce((a, s) => a + s.lat, 0) / inRegion.length;
+        const meanLon = inRegion.reduce((a, s) => a + s.lon, 0) / inRegion.length;
+        $("p-lat").textContent = `${Math.abs(meanLat).toFixed(2)}° ${meanLat >= 0 ? "N" : "S"}`;
+        $("p-lon").textContent = `${Math.abs(meanLon).toFixed(2)}° ${meanLon >= 0 ? "E" : "W"}`;
+        $("p-sub").textContent = `${inRegion.length} live ${inRegion.length === 1 ? "session" : "sessions"} · mean fix`;
+      } else {
+        $("p-lat").textContent = "—";
+        $("p-lon").textContent = "—";
+        $("p-sub").textContent = "No live presence";
+      }
+
+      listEl.innerHTML = "";
+      if (!inRegion.length) {
+        const li = document.createElement("li");
+        li.className = "empty mono";
+        li.textContent = "No live sessions in this region.";
+        listEl.appendChild(li);
+      } else {
+        for (const s of inRegion) {
+          const li = document.createElement("li");
+          li.className = "mono" + (s.isSelf ? " is-self" : "");
+
+          const dot = document.createElement("span");
+          dot.className = "dot";
+          li.appendChild(dot);
+
+          const sid = document.createElement("span");
+          sid.className = "sid";
+          sid.textContent = s.label;
+          li.appendChild(sid);
+
+          if (s.isSelf) {
+            const you = document.createElement("span");
+            you.className = "you";
+            you.textContent = "you";
+            li.appendChild(you);
+          }
+
+          const coords = document.createElement("span");
+          coords.className = "coords";
+          coords.textContent =
+            `${Math.abs(s.lat).toFixed(2)}°${s.lat >= 0 ? "N" : "S"} ` +
+            `${Math.abs(s.lon).toFixed(2)}°${s.lon >= 0 ? "E" : "W"}`;
+          li.appendChild(coords);
+
+          listEl.appendChild(li);
+        }
+      }
+
+      $("p-log").textContent = analysisFor(selected, inRegion);
+    }
+
+    /** Factual summary derived only from live session data. */
+    function analysisFor(feat, inRegion) {
+      if (!inRegion.length) {
+        return `No live sessions are resolving inside ${feat.name}. ` +
+          `Presence is measured from active heartbeats only — regions stay dark until someone is actually connected.`;
+      }
+
+      const selfIn = inRegion.some((s) => s.isSelf);
+      const precise = inRegion.filter((s) => s.source === "precise").length;
+      const edges = [...new Set(inRegion.map((s) => s.edge).filter(Boolean))];
+      const oldest = Math.min(...inRegion.map((s) => s.firstSeen));
+      const heldMin = Math.max(0, Math.round((Date.now() - oldest) / 60000));
+
+      const parts = [
+        `${inRegion.length} live ${inRegion.length === 1 ? "session" : "sessions"} inside ${feat.name}` +
+          (selfIn ? ", including yours" : "") + ".",
+        edges.length
+          ? `Served through ${edges.length} edge ${edges.length === 1 ? "region" : "regions"} (${edges.join(", ")}).`
+          : `Edge region unresolved — headers stripped in this environment.`,
+        precise
+          ? `${precise} of them shared a precise fix; the rest are edge estimates.`
+          : `All positions are edge estimates fuzzed to ~1.1 km.`,
+        `Longest-held link in this region: ${heldMin} min.`,
+      ];
+      return parts.join(" ");
+    }
+
+    function closePanel() {
+      $("panel").classList.remove("open");
+      selected = null;
+      redrawHighlight();
+    }
+
+    /* ---------- Camera helpers ---------- */
+    function latLonToVec(lat, lon, r) {
+      const phi = (90 - lat) * (Math.PI / 180);
+      const theta = (lon + 180) * (Math.PI / 180);
+      return new THREE.Vector3(
+        -r * Math.sin(phi) * Math.cos(theta),
+        r * Math.cos(phi),
+        r * Math.sin(phi) * Math.sin(theta)
+      );
+    }
+    function focusOn(lat, lon) {
+      // rotate globe so the target faces the camera (camera is on +Z)
+      const targetTheta = -((lon) * Math.PI) / 180;
+      const targetPhi = (lat * Math.PI) / 180;
+      animateGlobe(targetTheta, targetPhi);
+    }
+    let globeTween = null;
+    function animateGlobe(toY, toX) {
+      globeTween = { fromY: globeGroup.rotation.y, fromX: globeGroup.rotation.x, toY, toX, t: 0 };
+    }
+
+    function toggleRotate() {
+      isRotating = !isRotating;
+      $("btn-rotate").classList.toggle("active", isRotating);
+    }
+    function resetView() {
+      closePanel();
+      const d = fitDistance();
+      camTween = { from: camera.position.clone(), to: new THREE.Vector3(0, d * 0.18, d), t: 0 };
+      animateGlobe(0, 0);
+    }
+
+    /* ---------- Intro ---------- */
+    let camTween = null;
+    function intro() {
+      const d = fitDistance();
+      camTween = { from: camera.position.clone(), to: new THREE.Vector3(0, d * 0.18, d), t: 0 };
+    }
+
+    /* ---------- Resize ---------- */
+    // Distance at which the whole globe (plus atmosphere) fits the smaller viewport axis.
+    function fitDistance() {
+      const R = CONFIG.radius + 2.2;
+      const vFov = (camera.fov * Math.PI) / 180;
+      const aspect = innerWidth / innerHeight;
+      const hFov = 2 * Math.atan(Math.tan(vFov / 2) * aspect);
+      const minFov = Math.min(vFov, hFov);
+      return Math.min(64, Math.max(20, R / Math.tan(minFov / 2)));
+    }
+
+    function onResize() {
+      camera.aspect = innerWidth / innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(innerWidth, innerHeight);
+      // Re-fit only when idle (not mid-intro / mid-focus) to avoid fighting tweens.
+      if (introDone && !camTween) {
+        const dir = camera.position.clone().normalize();
+        camera.position.copy(dir.multiplyScalar(fitDistance()));
+      }
+    }
+
+    /* ---------- Loop ---------- */
+    const clock = new THREE.Clock();
+    function animate() {
+      requestAnimationFrame(animate);
+      const dt = clock.getDelta();
+
+      if (camTween) {
+        camTween.t = Math.min(1, camTween.t + dt / 1.4);
+        const e = easeOutCubic(camTween.t);
+        camera.position.lerpVectors(camTween.from, camTween.to, e);
+        if (camTween.t >= 1) { camTween = null; introDone = true; }
+      }
+
+      if (globeTween) {
+        globeTween.t = Math.min(1, globeTween.t + dt / 1.1);
+        const e = easeOutCubic(globeTween.t);
+        globeGroup.rotation.y = lerpAngle(globeTween.fromY, globeTween.toY, e);
+        globeGroup.rotation.x = lerpAngle(globeTween.fromX, globeTween.toX, e);
+        if (globeTween.t >= 1) globeTween = null;
+      } else if (isRotating && introDone) {
+        globeGroup.rotation.y += CONFIG.rotationSpeed * 60 * dt;
+      }
+
+      // satellites
+      for (const s of satellites) {
+        s.angle += s.speed * dt;
+        s.sat.position.set(Math.cos(s.angle) * s.r, 0, Math.sin(s.angle) * s.r);
+      }
+      if (stars) stars.rotation.y += 0.006 * dt;
+
+      // Breathing presence markers — each session pulses on its own phase.
+      const now = clock.elapsedTime;
+      for (const m of presenceMarkers) {
+        const pulse = 0.5 + 0.5 * Math.sin(now * 2.1 + m.phase);
+        m.sprite.scale.setScalar(m.baseScale * (0.86 + pulse * 0.28));
+        m.halo.scale.setScalar(m.baseScale * (2.1 + pulse * 1.5));
+        m.halo.material.opacity = 0.34 * (1 - pulse * 0.72);
+      }
+
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    const easeOutCubic = (t) => 1 - Math.pow(1 - t, 3);
+    function lerpAngle(a, b, t) { return a + (b - a) * t; }
+
+    /* ==================== LIVE PRESENCE ==================== */
+    /* Sessions arrive from the parent page (which owns the heartbeat) via
+       postMessage. This iframe never fetches or stores anything itself. */
+
+    let presenceSessions = [];   // [{ label, lat, lon, country, edge, source, firstSeen, isSelf }]
+    let presenceGroup = null;    // THREE.Group of marker sprites
+    const presenceMarkers = [];  // [{ sprite, halo, phase, isSelf }]
+    let markerTex = null;
+
+    function initPresenceLayer() {
+      presenceGroup = new THREE.Group();
+      globeGroup.add(presenceGroup);
+      markerTex = glowTexture(0xffffff);
+    }
+
+    /** Rebuilds marker sprites to match the current session list. */
+    function syncPresenceMarkers() {
+      if (!presenceGroup) return;
+
+      for (const m of presenceMarkers) {
+        presenceGroup.remove(m.sprite);
+        presenceGroup.remove(m.halo);
+        m.sprite.material.dispose();
+        m.halo.material.dispose();
+      }
+      presenceMarkers.length = 0;
+
+      const placeable = presenceSessions.filter(
+        (s) => typeof s.lat === "number" && typeof s.lon === "number"
+      );
+
+      for (const s of placeable) {
+        // Sit slightly above the surface so markers are never z-fought.
+        const pos = latLonToVec(s.lat, s.lon, CONFIG.radius * 1.012);
+
+        const core = new THREE.Sprite(
+          new THREE.SpriteMaterial({
+            map: markerTex,
+            color: s.isSelf ? 0xffffff : CONFIG.colors.accent,
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+          })
+        );
+        core.position.copy(pos);
+        core.scale.setScalar(s.isSelf ? 0.62 : 0.46);
+
+        const halo = new THREE.Sprite(
+          new THREE.SpriteMaterial({
+            map: markerTex,
+            color: s.isSelf ? 0xffffff : CONFIG.colors.accent,
+            transparent: true,
+            opacity: 0.32,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+          })
+        );
+        halo.position.copy(pos);
+
+        presenceGroup.add(core);
+        presenceGroup.add(halo);
+        presenceMarkers.push({
+          sprite: core,
+          halo,
+          phase: Math.random() * Math.PI * 2,
+          isSelf: !!s.isSelf,
+          baseScale: s.isSelf ? 0.62 : 0.46,
+        });
+      }
+    }
+
+    /** Ray-casting point-in-polygon against a feature's rings. */
+    function pointInFeature(feat, lat, lon) {
+      let inside = false;
+      for (const ring of feat.rings) {
+        for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+          const [xi, yi] = ring[i];
+          const [xj, yj] = ring[j];
+          if (yi > lat !== yj > lat) {
+            const x = ((xj - xi) * (lat - yi)) / (yj - yi) + xi;
+            if (lon < x) inside = !inside;
+          }
+        }
+      }
+      return inside;
+    }
+
+    /** Live sessions whose coordinates fall inside the given feature. */
+    function sessionsWithin(feat) {
+      return presenceSessions.filter(
+        (s) =>
+          typeof s.lat === "number" &&
+          typeof s.lon === "number" &&
+          pointInFeature(feat, s.lat, s.lon)
+      );
+    }
+
+    window.addEventListener("message", (event) => {
+      // Same-origin only: the parent page is the sole trusted sender.
+      if (event.origin !== window.location.origin) return;
+      const data = event.data;
+      if (!data || data.type !== "pulse:presence") return;
+
+      presenceSessions = Array.isArray(data.sessions) ? data.sessions : [];
+      syncPresenceMarkers();
+      if (selected) renderPanelPresence();
+    });
+  </script>
+</body>
+</html>

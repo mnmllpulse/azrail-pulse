@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.54",
+  "master_item": 37,
+  "captured_at": "2026-10-10T09:12:00Z",
+  "mutation_free": true,
+  "github": {
+    "repository": "mnmllpulse/azrail-os",
+    "visibility": "public",
+    "default_branch": "main",
+    "head_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
+    "head_tree_sha": "9dddb40c96c97064ceb235514c2fff9952220a6c",
+    "remote_package_version": "1.4.0",
+    "rulesets": [],
+    "branch_protection_read": {
+      "status": "UNAVAILABLE_TO_INTEGRATION",
+      "http_status": 403,
+      "assumption_allowed": false
+    },
+    "workflow_directory_on_main": {
+      "present": false,
+      "evidence": "GET /contents/.github?ref=main returned 404"
+    },
+    "historical_workflow_scope_signal": {
+      "commit_sha": "aad9f1e94f2ae652e609d6d53e08d18bd160af20",
+      "message": "remove .github (PAT lacks workflow scope)",
+      "meaning": "Future publication must fail closed if workflow files cannot be written; never silently omit .github/workflows."
+    },
+    "open_pull_requests": [
+      {
+        "number": 12,
+        "title": "AZRAIL Workbench 1.5: проекты, плагины и проверенное staging-окружение",
+        "base": "main",
+        "base_sha": "12e904e092e4803b7fdef7571f561e1931bfea87",
+        "head": "codex/azrail-workbench-staging-20261008",
+        "head_sha": "94a1a586f6efe37f6e6686e05d9ffe46dc4763d9",
+        "mergeable": true,
+        "draft": false,
+        "changed_files": 128,
+        "ci": {
+          "workflow": "Verify",
+          "run_id": 37925437137,
+          "status": "completed",
+          "conclusion": "failure",
+          "note": "Historical PR text reports the job did not start because the account was locked due to a billing issue. Fresh RC CI must be green; this old run is not release evidence."
+        },
+        "reuse_allowed": false,
+        "reason": "PR #12 predates the reviewed current main lease and is not the exact RC46 source-manifest publication."
+      },
+      {
+        "number": 8,
+        "title": "Staging readiness: isolated Cloudflare resources and fail-closed checks",
+        "state": "open",
+        "reuse_allowed": false
+      }
+    ],
+    "remote_write_performed": false
+  },
+  "cloudflare": {
+    "staging": {
+      "worker": "azrail-pulse-staging",
+      "deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+      "version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+      "compatibility_date": "2026-09-29"
+    },
+    "production": {
+      "worker": "azrail-os",
+      "deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+      "version_id": "476a3e6d-c066-484c-a0f8-d986bc630119",
+      "compatibility_date": "2026-08-08"
+    },
+    "remote_write_performed": false
+  },
+  "canva": {
+    "visual_reference_id": "DAHWmofp_Os",
+    "title": "AZRAIL Unified Interface Website",
+    "remote_write_performed": false
+  }
+}

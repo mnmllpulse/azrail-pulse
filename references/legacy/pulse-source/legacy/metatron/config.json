@@ -1,0 +1,12 @@
+{
+  "port": 3001,
+  "telemetry": true,
+  "paths": {
+    "src": "./src",
+    "backup": "./backup"
+  },
+  "limits": {
+    "maxRetries": 3,
+    "timeoutMs": 30000
+  }
+}

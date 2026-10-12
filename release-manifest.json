@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "version_source": "package.json",
+  "artifact_pattern": "AZRAIL_PULSE_{version}_release",
+  "include_roots": [
+    "src",
+    "ui",
+    "public",
+    "site",
+    "migrations",
+    "scripts",
+    "tests",
+    "config",
+    "verification",
+    ".github/workflows",
+    "docs/current",
+    "docs/runbooks",
+    "docs/product"
+  ],
+  "include_files": [
+    "package.json",
+    "package-lock.json",
+    ".npmrc",
+    ".gitignore",
+    ".env.example",
+    "tsconfig.json",
+    "tsconfig.ui.json",
+    "vitest.config.ts",
+    "Dockerfile",
+    "schema.sql",
+    "wrangler.staging.json",
+    "wrangler.production.json",
+    "README.md",
+    "DEPLOY.md",
+    "DEPLOY_RU.md",
+    "START_HERE_RU.md",
+    "index.html",
+    ".nvmrc",
+    ".node-version"
+  ],
+  "include_current_version_files": [
+    "docs/releases/CHANGELOG_{version}.md",
+    "verification/current/VERIFICATION_RC{rc}.json"
+  ],
+  "forbidden_active_paths": [
+    "wrangler.json",
+    "wrangler.paid.json",
+    "wrangler.free.example.toml",
+    "deploy/free.json",
+    "deploy/paid.json"
+  ],
+  "forbidden_release_prefixes": [
+    "references/",
+    "docs/archive/",
+    "docs/review/",
+    "docs/verification/",
+    "docs/ultimate-",
+    ".work/",
+    "node_modules/",
+    "docs/history/",
+    "verification/history/"
+  ],
+  "forbidden_release_extensions": [
+    ".pdf",
+    ".png",
+    ".jpg",
+    ".jpeg",
+    ".webp"
+  ],
+  "notes": [
+    "Historical/reference assets stay in the working source archive, not in the clean release package.",
+    "Tests are included because they are release-verification assets."
+  ]
+}

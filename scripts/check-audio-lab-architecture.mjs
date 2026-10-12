@@ -1,0 +1,12 @@
+import {readFileSync} from 'node:fs';
+let failed=false;const fail=m=>{console.error('AUDIO LAB ARCHITECTURE FAIL:',m);failed=true;};const read=p=>readFileSync(p,'utf8');
+const engine=read('ui/audio-analysis.ts'),module=read('ui/studio-modules/audio.ts'),media=read('ui/media.ts'),manifest=read('ui/studio-manifest.ts'),tests=read('tests/audio-analysis.test.ts');
+for(const marker of ['integratedLufs','shortTermLufsMax','loudnessRangeLu','truePeakDbTP','rmsDbFS','crestDb','stereoCorrelation','stereoWidthPercent','clippedSamplePercent','silencePercent','dcOffsetPercent','spectralCentroidHz','bpmConfidence','keyConfidence','waveform','spectrogram','compareAudio'])if(!engine.includes(marker))fail(`Audio analyzer missing ${marker}`);
+for(const marker of ['BS.1770-style K-weighting','absolute -70 LUFS','relative -10 LU','4x cubic inter-sample estimate','Energy-onset autocorrelation','FFT chroma'])if(!engine.includes(marker))fail(`Audio methodology boundary missing ${marker}`);
+for(const marker of ['Integrated LUFS','Short-term LUFS','Loudness Range','True Peak','RMS','Crest Factor','stereo correlation/width','clipping','silence','DC offset','spectral balance','BPM','key','Waveform','Spectrogram','Reference Comparison'])if(!module.includes(marker))fail(`Audio Lab UI contract missing ${marker}`);
+for(const marker of ['MASTERING ANALYSIS','Loudness & Dynamics','Stereo & Musical','Spectral Balance','Reference Comparison','Export Report JSON'])if(!engine.includes(marker))fail(`Audio report UI missing ${marker}`);
+if(!media.includes('analyzeAudio')||!media.includes('file.size>30*1024*1024')||!media.includes('measurePCM'))fail('Audio decode boundary must remain bounded and local');
+if(!manifest.includes("title:'Audio Lab'")||!manifest.includes("cloud:false")||!manifest.includes("capabilities:['audio-analysis']"))fail('Audio Lab capability must remain truthful and local');
+if(/env\.AI\.run|\/api\/studio\/audio/.test(module+engine))fail('Audio metering must not pretend to be cloud AI or upload PCM');
+for(const marker of ['120 BPM','C major','stereoWidthPercent','integratedLufsDifference','silencePercent'])if(!tests.includes(marker))fail(`Audio regression suite missing ${marker}`);
+if(failed)process.exit(1);console.log('AUDIO LAB ARCHITECTURE PASS: bounded offline loudness/dynamics/stereo/spectrum/rhythm/key analysis, visuals, reference comparison and truthful non-certified measurement boundaries are wired.');

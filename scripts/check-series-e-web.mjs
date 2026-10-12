@@ -1,0 +1,15 @@
+import {readFileSync,existsSync} from 'node:fs';
+let failed=false;const read=p=>readFileSync(p,'utf8');const ok=(name,cond)=>{console.log((cond?'PASS ':'FAIL ')+name);if(!cond)failed=true;};
+const design=read('src/unified/design-contract.ts'),lib=read('src/lib/web-workbench.ts'),route=read('src/unified/web-workbench.ts'),ui=read('ui/web-workbench.ts'),app=read('ui/app.ts'),css=read('ui/app.css');
+ok('E17 strict Design Contract v2',design.includes('version:2')&&design.includes('typography:')&&design.includes('grid:')&&design.includes('breakpoints:')&&design.includes("emptyStatePolicy:'guided'")&&design.includes("errorStatePolicy:'recoverable'"));
+ok('E17 legacy contract upgrade',design.includes('upgradeLegacy')&&design.includes('version===1'));
+ok('E17 contract editor',app.includes("dialog('Design Contract'")&&app.includes('design-density')&&app.includes('design-gutter'));
+ok('E18 source component scanner',lib.includes('scanWorkbenchComponents')&&lib.includes('react-function')&&lib.includes('html-component')&&route.includes('tail==="components"'));
+ok('E18 visual-to-code inspector',ui.includes('Visual ↔ Code Inspector')&&ui.includes('azrail-inspect-selection')&&ui.includes('Edit with AZRAIL')&&ui.includes('Open source'));
+ok('E19 layers panel',ui.includes("layers:'Layers'")&&ui.includes('Source-aware component tree')&&ui.includes('renderLayers'));
+ok('E20 canonical responsive widths',ui.includes('data-width="1440"')&&ui.includes('data-width="1024"')&&ui.includes('data-width="768"')&&ui.includes('data-width="390"'));
+ok('E20 responsive canvas CSS',css.includes('--preview-width')&&css.includes('.web-inspector-grid'));
+ok('E21 in-browser QA collector',ui.includes('azrail-run-browser-qa')&&ui.includes('horizontal-overflow')&&ui.includes('form-label')&&ui.includes('image-alt')&&ui.includes('contrast'));
+ok('E21 QA persisted in event stream',lib.includes('recordBrowserQa')&&lib.includes('verification.web.browser_qa')&&route.includes('tail==="browser-qa"'));
+ok('E21 no fake server browser PASS',!lib.includes('browserQaPassed=true')&&!ui.includes('Browser QA PASSED'));
+if(failed)process.exit(1);console.log('SERIES E WEB PASS: E17–E21 design contract, visual-to-code, layers, responsive editing and browser QA are wired.');

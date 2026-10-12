@@ -1,0 +1,144 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.47",
+  "stage": "Stage 33 / Stage D #38 — Production Release Preparation",
+  "master_item": 38,
+  "generated_at": "2026-10-10T09:47:00Z",
+  "status": "PREPARED_BLOCKED",
+  "master_source_truth": "Item 38 is production release only after the preceding release gates; production remains frozen in preparation.",
+  "stage_results": {
+    "production_release_preparation": {
+      "status": "PREPARED",
+      "passed": 23,
+      "failed": 0
+    },
+    "production_release_simulation": {
+      "status": "VERIFIED_LOCAL_STATE_MACHINE"
+    },
+    "production_release_plan": {
+      "status": "BLOCKED",
+      "blocker_count": 18
+    },
+    "negative_apply_guard": {
+      "status": "PASSED",
+      "blocked_on": "missing exact-release Node24 receipt",
+      "remote_action_started": false
+    },
+    "negative_finalize_guard": {
+      "status": "PASSED",
+      "blocked_on": "missing production release command receipt"
+    },
+    "negative_readonly_snapshot_guard": {
+      "status": "PASSED",
+      "detail": "mutation_free=false was rejected; restored snapshot passed"
+    },
+    "release_preflight": {
+      "status": "PASSED",
+      "warning": "production OIDC issuer/client are intentionally operator-supplied and not pinned in the ZIP"
+    },
+    "static_quality_gate": {
+      "status": "VERIFIED",
+      "passed": 43,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality_gate": {
+      "status": "BLOCKED",
+      "passed": 43,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "node24_contract": {
+      "status": "PASSED",
+      "reference_node": "24.18.0"
+    },
+    "node24_suite": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "blocked": 1,
+      "runtime": "v22.16.0"
+    },
+    "ui_typescript": {
+      "status": "PASSED",
+      "command": "npx tsc -p tsconfig.ui.json --noEmit"
+    },
+    "dependency_lock": {
+      "status": "PASSED",
+      "locked_entries": 365
+    },
+    "release_package_guard": {
+      "status": "PASSED_AS_GUARD",
+      "detail": "release package correctly blocked because Node24 suite status is BLOCKED"
+    }
+  },
+  "fresh_readonly_baseline": {
+    "github": {
+      "repository": "mnmllpulse/azrail-os",
+      "main_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
+      "remote_package_version": "1.4.0",
+      "exact_rc47_pr_present": false
+    },
+    "cloudflare_production": {
+      "worker": "azrail-os",
+      "deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+      "version_id": "476a3e6d-c066-484c-a0f8-d986bc630119",
+      "d1_bookmark": "00000e1f-00000000-00005100-9c9850f11ed7d9569fb8f9c8c00edf1b"
+    },
+    "cloudflare_staging": {
+      "worker": "azrail-pulse-staging",
+      "deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+      "version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9"
+    },
+    "canva": {
+      "design_id": "DAHWmofp_Os",
+      "title": "AZRAIL Unified Interface Website",
+      "mode": "read-only"
+    }
+  },
+  "production_release_contract": {
+    "requires_verified_merged_github_pr": true,
+    "requires_fresh_live_lease": true,
+    "requires_backup_before_schema_write": true,
+    "observed_production_migration_start": "002",
+    "latest_migration": "029",
+    "requires_migration_before_worker_deploy": true,
+    "requires_explicit_oidc_injection": true,
+    "keep_vars_forbidden": true,
+    "requires_new_postdeploy_identity": true,
+    "requires_authenticated_smoke": true,
+    "requires_security_verification": true,
+    "requires_postdeploy_drift": "ALIGNED",
+    "final_status": "VERIFIED_RELEASED"
+  },
+  "truth_boundaries": {
+    "github_mutation_performed": false,
+    "cloudflare_mutation_performed": false,
+    "canva_mutation_performed": false,
+    "production_migration_performed": false,
+    "production_deploy_performed": false,
+    "production_restore_performed": false,
+    "github_pr_created": false,
+    "production_release_verified": false,
+    "plus_treated_as_release_authorization": false
+  },
+  "remaining_release_blockers": [
+    "#29 exact Node24 suite",
+    "#30 staging migration apply",
+    "#31 staging deploy",
+    "#32 authenticated staging smoke",
+    "#33 real staging security verification and known security gaps",
+    "#35 disposable Cloudflare restore drill",
+    "#36 production approval receipt",
+    "#37 exact GitHub PR publication, fresh CI and merge",
+    "fresh production live lease immediately before mutation",
+    "explicit owner production release authorization"
+  ]
+}

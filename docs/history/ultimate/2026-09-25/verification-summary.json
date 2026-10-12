@@ -1,0 +1,18 @@
+{
+  "version": "0.8.0",
+  "reviewed_at": "2026-09-25",
+  "deployment_performed": false,
+  "verification": {
+    "typescript": "passed",
+    "test_files_passed": 42,
+    "tests_passed": 1004,
+    "ui_javascript_syntax": "passed",
+    "npm_audit_known_vulnerabilities": 0,
+    "docx_pdf_pages_visually_reviewed": 32,
+    "browser_e2e": "not_run",
+    "free_profile_deploy": "not_run",
+    "free_profile_dry_run": "blocked_by_automatic_approval_review",
+    "docker_build": "not_run"
+  },
+  "note": "Test run completed after code changes, before the package version label changed from 0.7.0 to 0.8.0. See 08_VALIDATION_RU.md for scope and limits."
+}

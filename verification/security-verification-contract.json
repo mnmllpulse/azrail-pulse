@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "environment": "staging",
+  "worker_name": "azrail-pulse-staging",
+  "target_url": "https://azrail-pulse-staging.mnmllpulse.workers.dev",
+  "required_runtime": {
+    "node_major_min": 24
+  },
+  "required_receipts": {
+    "node24": ".work/node24-suite.json",
+    "migration_applied": ".work/staging-migration-applied.json",
+    "deploy_applied": ".work/staging-deploy-applied.json",
+    "staging_smoke": ".work/staging-smoke-verified.json",
+    "preparation": ".work/security-verification-preparation.json",
+    "runtime_security": ".work/staging-security-verified.json"
+  },
+  "policy": {
+    "cloudflare_mutation_allowed": false,
+    "github_mutation_allowed": false,
+    "canva_mutation_allowed": false,
+    "model_calls_allowed": false,
+    "http_methods": [
+      "GET",
+      "OPTIONS"
+    ],
+    "wildcard_cors_forbidden": true,
+    "secret_values_must_never_be_persisted": true
+  },
+  "required_checks": [
+    "strict-cors",
+    "security-headers",
+    "unauthenticated-boundary",
+    "authenticated-boundary",
+    "permission-matrix",
+    "session-revocation-semantics",
+    "rate-limit-semantics",
+    "secret-leakage",
+    "dependency-lock-integrity",
+    "sbom-present",
+    "approval-boundary",
+    "audit-integrity",
+    "exact-release"
+  ]
+}

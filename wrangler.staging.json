@@ -1,0 +1,73 @@
+{
+  "name": "azrail-pulse-staging",
+  "main": "src/unified.free.ts",
+  "compatibility_date": "2026-09-29",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./site",
+    "binding": "ASSETS",
+    "run_worker_first": true
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "Orchestrator",
+        "class_name": "Orchestrator"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "Orchestrator"
+      ]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "AZRAIL_D1",
+      "database_name": "azrail-db-staging",
+      "database_id": "509b9a03-444d-4bd7-9081-19651ea9b50f"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "AZRAIL_KV",
+      "id": "4b1b2455cfaf4fc3aa766ea2af5da0e2"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "AZRAIL_R2",
+      "bucket_name": "azrail-artifacts-staging"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "triggers": {
+    "crons": [
+      "*/10 * * * *"
+    ]
+  },
+  "vars": {
+    "AUTH_MODE": "oidc",
+    "PUBLIC_ORIGINS": "https://azrail-pulse-staging.mnmllpulse.workers.dev",
+    "AZRAIL_WORKERS_PLAN": "free",
+    "AZRAIL_FORCE_FREE": "true",
+    "AZRAIL_METERING": "enforce",
+    "UNIFIED_LEDGER": "true",
+    "DAILY_PROVIDER_CALLS": "20",
+    "AZRAIL_MISSION_BUDGET_USD": "0.10",
+    "AZRAIL_WRITE_BUDGET": "1000",
+    "AI_GATEWAY_ID": "default",
+    "OIDC_CLIENT_ID": "5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a",
+    "OIDC_ISSUER": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a"
+  },
+  "observability": {
+    "enabled": true
+  }
+}

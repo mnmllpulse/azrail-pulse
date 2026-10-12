@@ -1,0 +1,1711 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AZRAIL // реестр</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* ═══════════════════════════════════════════════════════════════════
+     AZRAIL — панель управления
+     ───────────────────────────────────────────────────────────────────
+     Принцип: спящее — серое, работающее — светится.
+     Это не приём оформления, а отражение того, как система устроена:
+     Durable Objects поднимаются по запросу и засыпают, поэтому агенты
+     в реестре помечены как "в реестре", а не "онлайн". Фиолетовый
+     работает здесь как источник света в тёмной комнате, а не как
+     декоративная заливка — площадь его применения намеренно мала.
+     ═══════════════════════════════════════════════════════════════════ */
+
+  :root {
+    /* Основа: почти чёрный с фиолетовым подтоном. Чистый #000 читается
+       плоско и дёшево — подтон даёт глубину, не заявляя о себе. */
+    --void:      #09070D;
+    --panel:     #100D16;
+    --well:      #15111C;
+    --line:      #221C2E;
+    --line-lit:  #392E52;
+
+    --text:      #E6E2ED;
+    /* Поднят с #6E6785 (3.76:1 — ниже нормы) до 5.13:1. Проверялся не
+       только на основном фоне, но и на панелях: на #100D16 промежуточный
+       вариант давал 4.40:1 и норму не проходил.
+       Этим цветом набраны подписи и описания в 10-11px, то есть обычный
+       текст по классификации WCAG, а не крупный. */
+    --dim:       #847D99;
+
+    /* Единственный акцент. Не пара для градиента — одна лампа. */
+    --uv:        #9A6BFF;
+    --uv-deep:   #6B4BB8;
+
+    /* Статусы приглушены намеренно: они метки, а не плашки. */
+    --ok:        #52D6A0;
+    --warn:      #D9A441;
+    --fail:      #E85D75;
+
+    --step:      clamp(28px, 5vw, 44px);
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    background: var(--void);
+    color: var(--text);
+    font-family: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
+    font-size: 13px;
+    line-height: 1.65;
+    letter-spacing: .01em;
+    padding: 0 20px 80px;
+    max-width: 880px;
+    margin-inline: auto;
+    /* Слабая засветка сверху — как от лампы над пультом */
+    background-image: radial-gradient(120% 60% at 50% -10%, #140F20 0%, var(--void) 60%);
+    background-attachment: fixed;
+  }
+
+  /* ─── Шапка ────────────────────────────────────────────────────── */
+
+  .masthead {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 42px 0 18px;
+  }
+
+  .mark {
+    font-family: 'Syne', system-ui, sans-serif;
+    font-weight: 800;
+    font-size: 27px;
+    letter-spacing: -.02em;
+    line-height: 1;
+    color: var(--text);
+  }
+
+  .mark small {
+    display: block;
+    margin-top: 9px;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 400;
+    font-size: 10px;
+    letter-spacing: .22em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+
+  .pulse {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--dim);
+    white-space: nowrap;
+  }
+
+  .dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--dim);
+    flex: none;
+  }
+  .dot.up   { background: var(--ok);   box-shadow: 0 0 10px rgba(82,214,160,.55); }
+  .dot.down { background: var(--fail); box-shadow: 0 0 10px rgba(232,93,117,.5); }
+
+  /* ─── Сигнатура: линия пульса ──────────────────────────────────────
+     Одна линия в 1px под шапкой. В покое — ровная и тусклая. Когда
+     идёт задача, по ней проходит световая волна. Название бренда
+     (mnmllpulse) и реальное состояние системы — в одном элементе.
+     Это единственное место, где дизайн повышает голос. */
+
+  .pulse-line {
+    height: 1px;
+    background: var(--line);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: var(--step);
+  }
+
+  .pulse-line::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      var(--uv-deep) 35%,
+      var(--uv) 50%,
+      var(--uv-deep) 65%,
+      transparent 100%);
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: opacity .35s ease;
+  }
+
+  .pulse-line.working::after {
+    opacity: 1;
+    animation: sweep 1.5s linear infinite;
+  }
+
+  @keyframes sweep {
+    to { transform: translateX(100%); }
+  }
+
+  /* ─── Секции: плоские полосы, не карточки ─────────────────────────
+     Плавающие карточки с тенями — язык типовых панелей. Здесь всё
+     лежит на одной плоскости, разделённое волосяными линиями. */
+
+  section {
+    padding: var(--step) 0;
+    border-top: 1px solid var(--line);
+  }
+
+  /* Первый экран должен отвечать на «что мне делать», а не показывать
+     девять равнозначных кнопок. Эта секция — единственная выделенная,
+     остальное убрано под раскрывающийся блок. */
+  section.primary {
+    background: var(--panel);
+    border: 1px solid var(--line-lit);
+    border-radius: 3px;
+    padding: var(--step);
+    margin-top: var(--step);
+  }
+
+  .lede {
+    font-family: 'Syne', system-ui, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0 0 8px;
+    letter-spacing: -.01em;
+  }
+
+  button.big {
+    padding: 16px;
+    font-size: 12px;
+    background: var(--uv-deep);
+    color: var(--text);
+  }
+
+  .fold > summary {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--dim);
+    cursor: pointer;
+    padding: 18px 0;
+    border-top: 1px solid var(--line);
+    list-style: none;
+  }
+
+  .fold > summary::before {
+    content: '+ ';
+    color: var(--uv);
+  }
+
+  .fold[open] > summary::before { content: '– '; }
+
+  .fold > summary:hover { color: var(--text); }
+
+  .fold > section:first-of-type { border-top: none; }
+
+  .eyebrow {
+    font-family: 'Syne', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 11px;
+    letter-spacing: .3em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin: 0 0 20px;
+  }
+
+  label {
+    display: block;
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--dim);
+    margin: 18px 0 7px;
+  }
+  label:first-of-type { margin-top: 0; }
+
+  /* ─── Поля ввода ──────────────────────────────────────────────── */
+
+  input, select, textarea {
+    width: 100%;
+    background: var(--well);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    padding: 11px 12px;
+    outline: none;
+    transition: border-color .18s ease, background .18s ease;
+  }
+
+  /* Плейсхолдер намеренно тусклее нормы: он подсказка, а не содержимое,
+     и не должен спорить с введённым значением. Само значение — 15:1. */
+  input::placeholder, textarea::placeholder { color: #5E587A; }
+
+  input:focus, select:focus, textarea:focus {
+    border-color: var(--uv-deep);
+    background: var(--panel);
+  }
+  /* Видимый фокус с клавиатуры — отдельно от :focus, чтобы мышь
+     не получала кольцо, а Tab получал. */
+  input:focus-visible, select:focus-visible, textarea:focus-visible,
+  button:focus-visible, .dropzone:focus-visible {
+    outline: 2px solid var(--uv);
+    outline-offset: 2px;
+  }
+
+  textarea { resize: vertical; min-height: 92px; line-height: 1.6; }
+  select { appearance: none; cursor: pointer; }
+
+  .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  @media (max-width: 560px) { .row2 { grid-template-columns: 1fr; } }
+
+  /* ─── Кнопки ──────────────────────────────────────────────────── */
+
+  button {
+    width: 100%;
+    margin-top: 20px;
+    background: transparent;
+    border: 1px solid var(--uv-deep);
+    border-radius: 2px;
+    color: var(--uv);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    padding: 13px;
+    cursor: pointer;
+    transition: background .18s ease, border-color .18s ease, color .18s ease;
+  }
+
+  button:hover:not(:disabled) {
+    background: rgba(154,107,255,.08);
+    border-color: var(--uv);
+  }
+  button:active:not(:disabled) { background: rgba(154,107,255,.16); }
+  button:disabled { opacity: .35; cursor: default; }
+
+  .token-row { display: flex; gap: 10px; }
+  .token-row input { flex: 1; }
+  .token-row button { margin-top: 0; width: auto; padding: 11px 18px; }
+
+  /* ─── Сервисы ─────────────────────────────────────────────────── */
+
+  .docket-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+    gap: 1px;
+    background: var(--line);
+    border: 1px solid var(--line);
+  }
+
+  .docket-cell {
+    background: var(--panel);
+    padding: 14px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .docket-cell .name {
+    font-size: 9px;
+    letter-spacing: .2em;
+    color: var(--dim);
+  }
+
+  .docket-cell .state {
+    font-size: 12px;
+    color: var(--ok);
+  }
+  .docket-cell .state.down { color: var(--fail); }
+
+  /* ─── Самопроверка ────────────────────────────────────────────── */
+
+  .probe {
+    display: grid;
+    grid-template-columns: 14px 1fr auto;
+    gap: 10px;
+    align-items: baseline;
+    padding: 9px 0;
+    border-top: 1px solid var(--line);
+    font-size: 12px;
+  }
+  .probe:first-child { border-top: none; }
+  .probe .sign { font-size: 11px; line-height: 1; }
+  .probe.pass .sign { color: var(--ok); }
+  .probe.fail .sign { color: var(--fail); }
+  .probe .ms { font-size: 10px; color: var(--dim); }
+  .probe .why {
+    grid-column: 2 / -1;
+    font-size: 11px;
+    color: var(--fail);
+    line-height: 1.55;
+    word-break: break-word;
+  }
+
+  /* ─── Реестр агентов ──────────────────────────────────────────── */
+
+  .agent-row {
+    border-top: 1px solid var(--line);
+    padding: 14px 0;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 14px;
+    align-items: baseline;
+  }
+  .agent-row:first-child { border-top: none; padding-top: 0; }
+
+  .agent-row .name { font-size: 13px; color: var(--text); }
+  .agent-row .ver { font-size: 10px; letter-spacing: .1em; color: var(--dim); }
+  .agent-row .desc { grid-column: 1 / -1; font-size: 11px; color: var(--dim); line-height: 1.6; }
+  .agent-row .caps { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
+
+  .cap {
+    font-size: 9px;
+    letter-spacing: .1em;
+    color: var(--uv);
+    border: 1px solid var(--line-lit);
+    border-radius: 2px;
+    padding: 2px 7px;
+  }
+
+  /* ─── Загрузка файла ──────────────────────────────────────────── */
+
+  .dropzone {
+    border: 1px dashed var(--line-lit);
+    border-radius: 2px;
+    padding: 26px 16px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--dim);
+    cursor: pointer;
+    transition: border-color .18s ease, color .18s ease, background .18s ease;
+  }
+  .dropzone:hover, .dropzone.over {
+    border-color: var(--uv);
+    color: var(--uv);
+    background: rgba(154,107,255,.05);
+  }
+  .dropzone.uploading { border-style: solid; color: var(--uv); }
+
+  .attached {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 10px;
+    padding: 10px 12px;
+    background: var(--well);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    font-size: 11px;
+  }
+  .attached .clear {
+    color: var(--dim);
+    cursor: pointer;
+    font-size: 10px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    flex: none;
+  }
+  .attached .clear:hover { color: var(--fail); }
+
+  /* ─── Результат ───────────────────────────────────────────────── */
+
+  .verdict {
+    display: none;
+    border-top: 1px solid var(--line-lit);
+  }
+
+  .stamp {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .2em;
+    text-transform: uppercase;
+    padding: 4px 11px;
+    border: 1px solid currentColor;
+    border-radius: 2px;
+    margin-bottom: 16px;
+  }
+  .stamp.done        { color: var(--ok); }
+  .stamp.needs_input { color: var(--warn); }
+  .stamp.failed      { color: var(--fail); }
+
+  .summary { white-space: pre-wrap; line-height: 1.75; margin: 0; }
+
+  .questions { margin: 16px 0 0; padding-left: 18px; color: var(--warn); }
+  .questions li { margin-bottom: 5px; }
+
+  .meta { font-size: 10px; letter-spacing: .1em; color: var(--dim); margin-top: 14px; }
+
+  details { margin-top: 18px; }
+  summary {
+    cursor: pointer;
+    font-size: 10px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  summary:hover { color: var(--uv); }
+
+  pre {
+    background: var(--well);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 14px;
+    overflow-x: auto;
+    font-size: 11px;
+    line-height: 1.6;
+    margin: 10px 0 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .diagram {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 2px;
+    padding: 18px;
+    margin-top: 12px;
+    overflow-x: auto;
+  }
+
+  /* ─── Сгенерированные файлы ───────────────────────────────────── */
+
+  .file-block { margin-top: 14px; }
+  .file-block .path {
+    font-size: 11px;
+    color: var(--uv);
+    margin-bottom: 5px;
+    word-break: break-all;
+  }
+  .file-block .commit {
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: var(--dim);
+    margin-top: 5px;
+  }
+
+  /* ─── Находки безопасности / QA ───────────────────────────────── */
+
+  .finding {
+    border-left: 2px solid var(--line-lit);
+    padding: 3px 0 3px 13px;
+    margin-top: 13px;
+  }
+  .finding.critical, .finding.high { border-left-color: var(--fail); }
+  .finding .what { font-size: 12px; }
+  .finding .loc  { font-size: 10px; color: var(--dim); margin-top: 3px; word-break: break-all; }
+  .finding .head {
+    font-size: 9px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--dim);
+  }
+  /* medium оставлен нейтральным намеренно: критичное и высокое должны
+     выделяться, а если подсветить и среднее, выделяться перестанет всё. */
+  .finding.medium { border-left-color: var(--line-lit); }
+  .finding.clean  { border-left-color: var(--ok); }
+
+  /* ─── История ─────────────────────────────────────────────────── */
+
+  .history-controls { display: flex; gap: 10px; }
+  .history-controls input { flex: 1; }
+  .history-controls button { margin-top: 0; width: auto; padding: 11px 18px; }
+
+  .ledger {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+    font-size: 11px;
+  }
+  .ledger th {
+    text-align: left;
+    font-weight: 400;
+    font-size: 9px;
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: var(--dim);
+    padding: 0 10px 9px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .ledger td {
+    padding: 9px 10px 9px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--dim);
+    vertical-align: top;
+  }
+  .ledger td:nth-child(2) { color: var(--text); }
+  .ledger .status.done   { color: var(--ok); }
+  .ledger .status.failed { color: var(--fail); }
+  .ledger .status.running, .ledger .status.needs_input { color: var(--warn); }
+
+  /* ─── Память проекта ──────────────────────────────────────────── */
+
+  .memory-card {
+    border-top: 1px solid var(--line);
+    padding: 13px 0;
+  }
+  .memory-card:first-child { border-top: none; padding-top: 0; }
+
+  .memory-card .tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: .16em;
+    text-transform: uppercase;
+    color: var(--uv);
+    margin-bottom: 7px;
+  }
+  .memory-card .key {
+    display: inline-block;
+    min-width: 130px;
+    color: var(--dim);
+    font-size: 11px;
+    padding-right: 12px;
+    vertical-align: top;
+  }
+  .memory-card .value { font-size: 12px; }
+
+  /* ─── Служебное ───────────────────────────────────────────────── */
+
+  .empty { color: var(--dim); font-size: 11px; margin: 0; }
+  .err   { color: var(--fail); font-size: 11px; }
+  .ok    { color: var(--ok); }
+
+  footer {
+    border-top: 1px solid var(--line);
+    margin-top: var(--step);
+    padding-top: 22px;
+    font-size: 10px;
+    letter-spacing: .08em;
+    color: var(--dim); /* был #453F58 — 2.01:1, нечитаемо */
+    word-break: break-word;
+  }
+
+  /* Уважаем системную настройку: анимация пульса — единственная
+     непрерывная в интерфейсе, и она первой должна отключаться. */
+  @media (prefers-reduced-motion: reduce) {
+    .pulse-line.working::after { animation: none; transform: none; opacity: .8; }
+    * { transition-duration: .01ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="mark">AZRAIL<small>реестр // оркестратор</small></div>
+  <div class="pulse"><span class="dot" id="pulseDot"></span><span id="pulseText">проверяю</span></div>
+</header>
+
+<div class="pulse-line" id="pulseLine"></div>
+
+<section>
+  <p class="eyebrow">Доступ</p>
+  <div class="token-row">
+    <input id="apiToken" type="password" placeholder="токен доступа (AZRAIL_TOKEN)">
+    <button id="tokenBtn">Сохранить</button>
+  </div>
+  <p id="tokenNote" class="empty">Токен хранится только во вкладке браузера и стирается при её закрытии.</p>
+</section>
+
+<section class="primary" id="startHere">
+  <p class="eyebrow">С чего начать</p>
+  <h2 class="lede">Проверить репозиторий</h2>
+  <p class="empty">AZRAIL прочитает код и вернёт список проблем. Занимает около минуты, стоит примерно 6 центов.</p>
+  <input id="quickRepo" placeholder="owner/name" value="mnmllpulse/azrail-os" spellcheck="false">
+  <button id="quickBtn" class="big">Проверить →</button>
+  <p class="empty" id="quickHint"></p>
+</section>
+
+<details class="fold">
+<summary>Состояние системы</summary>
+
+<section>
+  <p class="eyebrow">Сервисы</p>
+  <div class="docket-grid" id="docketGrid"></div>
+</section>
+
+<section>
+  <p class="eyebrow">Самопроверка</p>
+  <p class="empty">Поднимает каждого агента и прогоняет запись в D1, KV и R2. Модели не вызывает — бесплатно.</p>
+  <button id="selftestBtn" style="margin-top:14px">Проверить систему →</button>
+  <div id="selftestOut"></div>
+</section>
+
+<section>
+  <p class="eyebrow">Реестр агентов</p>
+  <div id="registryOut"></div>
+</section>
+
+</details>
+
+<section>
+  <p class="eyebrow">Новая задача</p>
+  <label>Прикрепить файл (zip / pdf / docx)</label>
+  <div class="dropzone" id="dropzone">
+    <input type="file" id="fileInput" accept=".zip,.pdf,.docx" hidden>
+    <span id="dropzoneText">перетащи файл или нажми, чтобы выбрать</span>
+  </div>
+  <div class="attached" id="attachedInfo"></div>
+
+  <label for="inputType">Тип входа</label>
+  <select id="inputType">
+    <option value="text">text — просто текст</option>
+    <option value="json">json — структура</option>
+    <option value="zip">zip — архив проекта</option>
+    <option value="pdf">pdf — документ</option>
+    <option value="docx">docx — документ</option>
+    <option value="github">github — репозиторий owner/repo</option>
+  </select>
+
+  <label for="payload">Содержимое задачи</label>
+  <textarea id="payload" placeholder="Текст задачи, либо owner/repo для github"></textarea>
+
+  <div class="row2">
+    <div>
+      <label for="r2Key">R2 key (заполнится сам после загрузки, либо впиши вручную)</label>
+      <input id="r2Key" placeholder="uploads/project.zip">
+    </div>
+    <div>
+      <label for="projectId">ID проекта</label>
+      <input id="projectId" placeholder="test-1" value="test-1">
+    </div>
+  </div>
+
+  <label for="intent">Intent (опционально — иначе классифицирует сам)</label>
+  <select id="intent">
+    <option value="">— определить автоматически —</option>
+    <option value="analyze_spec">analyze_spec — разобрать спецификацию</option>
+    <option value="review_repo">review_repo — ревью кода</option>
+    <option value="generate_code">generate_code — написать код</option>
+    <option value="deploy">deploy — деплой</option>
+  </select>
+
+  <button id="submitBtn">Отправить задачу →</button>
+</section>
+
+<section class="verdict" id="verdict">
+  <span class="stamp" id="stampLabel"></span>
+  <div class="summary" id="verdictSummary"></div>
+  <ul class="questions" id="verdictQuestions"></ul>
+  <div id="evoWrap" style="display:none">
+    <p class="eyebrow" style="margin-top:16px">Аудит</p>
+    <div id="evoOut"></div>
+  </div>
+  <div id="qaWrap" style="display:none">
+    <p class="eyebrow" style="margin-top:16px">Качество</p>
+    <div id="qaOut"></div>
+  </div>
+  <div id="secWrap" style="display:none">
+    <p class="eyebrow" style="margin-top:16px">Находки безопасности</p>
+    <div id="secOut"></div>
+  </div>
+  <div id="filesWrap" style="display:none">
+    <p class="eyebrow" style="margin-top:16px">Сгенерированные файлы</p>
+    <div id="filesOut"></div>
+  </div>
+  <div id="diagramWrap" style="display:none">
+    <p class="eyebrow" style="margin-top:16px">Архитектура</p>
+    <div class="diagram" id="diagramOut"></div>
+  </div>
+  <details id="verdictDataWrap">
+    <summary>ответ целиком</summary>
+    <pre id="verdictData"></pre>
+  </details>
+</section>
+
+<section>
+  <p class="eyebrow">История задач</p>
+  <div class="history-controls">
+    <input id="historyProjectId" placeholder="id проекта" value="test-1">
+    <button id="historyBtn">Показать →</button>
+  </div>
+  <div id="historyOut"></div>
+</section>
+
+<section>
+  <p class="eyebrow">Аудит проекта</p>
+  <p style="font-size:11px;color:var(--bone-dim);margin:0 0 10px">
+    Анализирует накопленную историю проекта, а не разовый вход: что ломалось повторно, что висит непочиненным,
+    какие зависимости устарели. Нужен project id с уже выполненными задачами.
+  </p>
+  <button id="evoBtn" style="margin-top:0">Запустить аудит →</button>
+</section>
+
+<section>
+  <p class="eyebrow">Тесты и качество</p>
+  <label for="qaOpType">Операция</label>
+  <select id="qaOpType">
+    <option value="coverage_gaps">coverage_gaps — модули без тестов</option>
+    <option value="latest_run">latest_run — последний прогон CI</option>
+    <option value="trigger_tests">trigger_tests — запустить прогон</option>
+    <option value="check_run">check_run — что упало в прогоне</option>
+  </select>
+  <div id="qaFields"></div>
+  <button id="qaBtn">Проверить →</button>
+</section>
+
+<section>
+  <p class="eyebrow">Проверка безопасности</p>
+  <p style="font-size:11px;color:var(--bone-dim);margin:0 0 10px">
+    Сканирует то, что уже прикреплено выше (файл или GitHub-репо): утёкшие ключи + CVE зависимостей по базе OSV.
+  </p>
+  <button id="secBtn" style="margin-top:0">Проверить безопасность →</button>
+</section>
+
+<section>
+  <p class="eyebrow">Генерация интерфейса</p>
+  <label for="uiPrompt">Какой интерфейс нужен</label>
+  <textarea id="uiPrompt" placeholder="Экран истории задач: список запусков агентов со статусами, фильтр по проекту"></textarea>
+
+  <label for="uiDesignBrief">Дизайн-направление (опционально — иначе выберет сам)</label>
+  <input id="uiDesignBrief" placeholder="напр. тёмный, техничный, без градиентов">
+
+  <label for="uiCommitBranch">Ветка для коммита (опционально — пусто = только вернуть файлы)</label>
+  <input id="uiCommitBranch" placeholder="feature/ui">
+
+  <button id="uiBtn">Сгенерировать →</button>
+</section>
+
+<section>
+  <p class="eyebrow">Git-операции</p>
+  <label for="gitRepo">Репозиторий (owner/name)</label>
+  <input id="gitRepo" placeholder="mnmllpulse/azrail-os">
+
+  <label for="gitOpType">Операция</label>
+  <select id="gitOpType">
+    <option value="list_commits">list_commits — список коммитов</option>
+    <option value="diff">diff — сравнить ветки</option>
+    <option value="create_branch">create_branch — создать ветку</option>
+    <option value="commit_file">commit_file — закоммитить файл</option>
+    <option value="open_pr">open_pr — открыть PR</option>
+  </select>
+
+  <div id="gitFields"></div>
+  <button id="gitBtn">Выполнить →</button>
+</section>
+
+<section>
+  <p class="eyebrow">Память проекта</p>
+  <div class="history-controls">
+    <input id="memoryProjectId" placeholder="id проекта" value="test-1">
+    <button id="memoryBtn">Показать →</button>
+  </div>
+  <div id="memoryOut"></div>
+</section>
+
+<footer>api того же origin · /health /api/task /api/agents /api/projects/:id/history</footer>
+
+<script type="module">
+  // Mermaid — только для рендера диаграмм от Architect Agent. Если CDN недоступен,
+  // диаграмма покажется как исходный текст (см. renderDiagram) — не ломает страницу.
+  try {
+    var mermaidMod = await import('https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs');
+    mermaidMod.default.initialize({ startOnLoad: false, theme: 'neutral' });
+    window.__mermaid = mermaidMod.default;
+  } catch (e) {
+    window.__mermaid = null;
+  }
+</script>
+<script>
+(function () {
+  // Токен живёт в sessionStorage: переживает переход между экранами,
+  // но стирается при закрытии вкладки — на общем устройстве это важнее,
+  // чем удобство не вводить его снова.
+  //
+  // Доступ ТОЛЬКО через обёртку. sessionStorage бросает исключение, а не
+  // возвращает null, когда origin непрозрачный: страница открыта локально
+  // (content://, file://), приватный режим, куки сайта отключены. Прямой
+  // вызов ронял бы первое же действие с токеном — то есть весь смысл
+  // этой панели. Ровно эту ошибку уже чинили в основном интерфейсе; здесь
+  // она осталась, потому что файл писался раньше.
+  var memToken = null;
+
+  function getToken() {
+    try {
+      return sessionStorage.getItem('azrail_token') || '';
+    } catch (e) {
+      return memToken || '';
+    }
+  }
+
+  function setToken(v) {
+    try {
+      if (v) sessionStorage.setItem('azrail_token', v);
+      else sessionStorage.removeItem('azrail_token');
+    } catch (e) {
+      // Запасное хранилище в памяти: панель работает, но токен не
+      // переживёт перезагрузку. Лучше, чем неработающая панель.
+      memToken = v || null;
+    }
+  }
+
+  // ЕДИНАЯ точка сетевых запросов. Токен подставляется здесь, а не в каждом
+  // вызове — иначе рано или поздно один из них забудут и получат 401.
+  // Счётчик, а не флаг: параллельные запросы иначе гасили бы линию
+  // по завершении первого из них, пока остальные ещё в работе.
+  var inFlight = 0;
+  function markBusy(delta) {
+    inFlight = Math.max(0, inFlight + delta);
+    var line = document.getElementById('pulseLine');
+    if (line) line.classList.toggle('working', inFlight > 0);
+  }
+
+  function api(path, options) {
+    options = options || {};
+    var headers = options.headers || {};
+    var token = getToken();
+    if (token) headers['Authorization'] = 'Bearer ' + token;
+    options.headers = headers;
+    markBusy(1);
+    return fetch(path, options).finally(function () { markBusy(-1); }).then(function (r) {
+      return r.json().then(function (data) {
+        if (r.status === 401 || r.status === 503) {
+          showVerdict({ status: 'needs_input', summary: data.error || 'Нужен токен доступа.',
+            questions: ['Введи токен в блоке «Доступ» вверху страницы.'] });
+        } else if (r.status === 429) {
+          showVerdict({ status: 'needs_input', summary: data.error || 'Лимит запросов исчерпан.' });
+        }
+        return data;
+      });
+    });
+  }
+
+  var BINDINGS = ['d1','kv','r2','ai','vectorize','queue'];
+
+  function setPulse(up) {
+    var dot = document.getElementById('pulseDot');
+    var text = document.getElementById('pulseText');
+    dot.className = 'dot ' + (up ? 'up' : 'down');
+    text.textContent = up ? 'на связи' : 'недоступен';
+  }
+
+  function renderDocket(data) {
+    var grid = document.getElementById('docketGrid');
+    grid.innerHTML = '';
+    if (!data) {
+      BINDINGS.forEach(function (key) {
+        var cell = document.createElement('div');
+        cell.className = 'docket-cell';
+        cell.innerHTML = '<span class="name">' + key.toUpperCase() + '</span><span class="state down">нет данных</span>';
+        grid.appendChild(cell);
+      });
+      return;
+    }
+
+    // Реально проверенные сервисы — со временем ответа
+    (data.services || []).forEach(function (svc) {
+      var cell = document.createElement('div');
+      cell.className = 'docket-cell';
+      var state = svc.status === 'ok' ? 'up' : svc.status === 'absent' ? '' : 'down';
+      var SVC_RU = { ok: 'ок', error: 'ошибка', absent: 'не подключён' };
+      var label = svc.status === 'ok' ? 'ок ' + svc.ms + ' мс' : (SVC_RU[svc.status] || svc.status);
+      cell.innerHTML = '<span class="name">' + svc.name.toUpperCase() + '</span>' +
+        '<span class="state ' + state + '">' + label + '</span>';
+      if (svc.error) cell.title = svc.error;
+      grid.appendChild(cell);
+    });
+
+    // Биндинги, которые НЕ пробуются запросом — помечены отдельно, чтобы
+    // "bound" не читался как "проверено и работает"
+    Object.keys(data.bindings || {}).forEach(function (key) {
+      var cell = document.createElement('div');
+      cell.className = 'docket-cell';
+      var bound = data.bindings[key] === 'bound';
+      cell.innerHTML = '<span class="name">' + key.toUpperCase() + '</span>' +
+        '<span class="state ' + (bound ? '' : 'down') + '">' + (bound ? 'подключён*' : 'не подключён') + '</span>';
+      cell.title = 'Только наличие биндинга — реальный запрос не выполнялся';
+      grid.appendChild(cell);
+    });
+  }
+
+  function renderRegistry(agents) {
+    var out = document.getElementById('registryOut');
+    out.innerHTML = '';
+    if (!agents || !agents.length) { out.innerHTML = '<p class="empty">Реестр недоступен.</p>'; return; }
+    agents.forEach(function (a) {
+      var el = document.createElement('div');
+      el.className = 'agent-row';
+      var head = document.createElement('div'); head.className = 'head';
+      var n = document.createElement('span'); n.className = 'name'; n.textContent = a.name;
+      var v = document.createElement('span'); v.className = 'ver'; v.textContent = 'v' + a.version + ' · ' + (a.status === 'registered' ? 'в реестре' : a.status);
+      head.appendChild(n); head.appendChild(v);
+      var caps = document.createElement('div'); caps.className = 'caps';
+      (a.capabilities || []).forEach(function (c) {
+        var t = document.createElement('span'); t.className = 'cap'; t.textContent = c;
+        caps.appendChild(t);
+      });
+      var d = document.createElement('div'); d.className = 'desc'; d.textContent = a.description;
+      el.appendChild(head); el.appendChild(caps); el.appendChild(d);
+      out.appendChild(el);
+    });
+  }
+
+  function checkHealth() {
+    fetch('/health').then(function (r) { return r.json(); }).then(function (data) {
+      // status может быть "degraded" — тогда воркер жив, но сервис под ним нет
+      setPulse(data.status === 'healthy');
+      var RU_STATUS = { healthy: 'всё работает', degraded: 'есть проблемы' };
+      document.getElementById('pulseText').textContent = RU_STATUS[data.status] || 'неизвестно';
+      renderDocket(data);
+    }).catch(function () {
+      setPulse(false);
+      renderDocket(null);
+    });
+
+    api('/api/agents').then(function (data) {
+      renderRegistry(data.agents);
+    }).catch(function () {
+      renderRegistry(null);
+    });
+  }
+
+  function renderEvolution(d) {
+    var wrap = document.getElementById('evoWrap');
+    var out = document.getElementById('evoOut');
+    var isEvo = d && (d.repeatOffenders !== undefined || d.freshness !== undefined);
+    if (!isEvo) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    out.innerHTML = '';
+
+    if (d.tasksAnalyzed !== undefined) {
+      var stat = document.createElement('p');
+      stat.className = 'empty';
+      stat.textContent = 'Задач в истории: ' + d.tasksAnalyzed + ' · упало: ' + (d.failedTasks || 0) +
+        ' · версий артефактов: ' + (d.versionCount || 0);
+      out.appendChild(stat);
+    }
+
+    (d.repeatOffenders || []).forEach(function (r) {
+      var el = document.createElement('div');
+      el.className = 'finding critical';
+      var w = document.createElement('span'); w.className = 'what'; w.textContent = '×' + r.count;
+      var l = document.createElement('span'); l.className = 'loc'; l.textContent = ' — ' + r.signature;
+      el.appendChild(w); el.appendChild(l);
+      out.appendChild(el);
+    });
+
+    (d.openIssues || []).forEach(function (i) {
+      var el = document.createElement('div');
+      el.className = 'finding high';
+      var w = document.createElement('span'); w.className = 'what'; w.textContent = i.key;
+      var m = document.createElement('span'); m.className = 'meta'; m.textContent = i.value;
+      el.appendChild(w); el.appendChild(m);
+      out.appendChild(el);
+    });
+
+    (d.freshness || []).forEach(function (f) {
+      var el = document.createElement('div');
+      el.className = 'finding ' + (f.deprecated || f.stale ? 'critical' : f.drift === 'major' ? 'high' : 'medium');
+      var w = document.createElement('span'); w.className = 'what'; w.textContent = f.package;
+      var l = document.createElement('span'); l.className = 'loc'; l.textContent = ' ' + f.current + ' → ' + f.latest;
+      var m = document.createElement('span'); m.className = 'meta';
+      var marks = [];
+      var DRIFT_RU = { major: 'мажорная версия', minor: 'минорная версия', patch: 'патч' };
+      if (f.drift && f.drift !== 'up-to-date') marks.push('отставание: ' + (DRIFT_RU[f.drift] || f.drift));
+      if (f.deprecated) marks.push('DEPRECATED');
+      if (f.stale) marks.push('нет релизов ' + Math.floor((f.daysSinceRelease || 0) / 365) + '+ лет');
+      m.textContent = marks.join(' · ');
+      el.appendChild(w); el.appendChild(l); el.appendChild(m);
+      out.appendChild(el);
+    });
+
+    if (d.freshnessNote) {
+      var note = document.createElement('p');
+      note.className = 'empty';
+      note.textContent = d.freshnessNote;
+      out.appendChild(note);
+    }
+  }
+
+  var QA_FIELDS = {
+    coverage_gaps: [],
+    latest_run: [['workflow', 'файл workflow, напр. ci.yml (необязательно)'], ['branch', 'ветка (необязательно)']],
+    trigger_tests: [['workflow', 'файл workflow, напр. ci.yml'], ['ref', 'ветка (по умолчанию main)']],
+    check_run: [['runId', 'номер прогона (число)']]
+  };
+
+  function renderQaFields() {
+    var type = document.getElementById('qaOpType').value;
+    document.getElementById('qaFields').innerHTML = QA_FIELDS[type].map(function (f) {
+      return '<label for="qa_' + f[0] + '">' + f[0] + '</label><input id="qa_' + f[0] + '" placeholder="' + f[1] + '">';
+    }).join('');
+  }
+
+  function renderQa(d) {
+    var wrap = document.getElementById('qaWrap');
+    var out = document.getElementById('qaOut');
+    var isQa = d && (d.modulesWithoutTests !== undefined || d.failures !== undefined || d.run !== undefined);
+    if (!isQa) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    out.innerHTML = '';
+
+    if (d.method) {
+      var note = document.createElement('p');
+      note.className = 'empty';
+      note.textContent = 'Метод: ' + d.method;
+      out.appendChild(note);
+    }
+    (d.modulesWithoutTests || []).forEach(function (m) {
+      var el = document.createElement('div');
+      el.className = 'finding high';
+      var w = document.createElement('span'); w.className = 'what'; w.textContent = 'без тестов';
+      var l = document.createElement('span'); l.className = 'loc'; l.textContent = ' — ' + m;
+      el.appendChild(w); el.appendChild(l);
+      out.appendChild(el);
+    });
+    (d.failures || []).forEach(function (f) {
+      var el = document.createElement('div');
+      el.className = 'finding critical';
+      var w = document.createElement('span'); w.className = 'what'; w.textContent = f.job;
+      var l = document.createElement('span'); l.className = 'loc'; l.textContent = ' — ' + f.conclusion;
+      var m = document.createElement('span'); m.className = 'meta';
+      m.textContent = (f.failedSteps || []).map(function (s) { return s.step + ': ' + s.conclusion; }).join(' · ');
+      el.appendChild(w); el.appendChild(l); el.appendChild(m);
+      out.appendChild(el);
+    });
+    if (!out.querySelector('.finding')) {
+      var ok = document.createElement('p');
+      ok.className = 'clean';
+      ok.textContent = 'Проблем не найдено.';
+      out.appendChild(ok);
+    }
+  }
+
+  function renderSecurity(d) {
+    var wrap = document.getElementById('secWrap');
+    var out = document.getElementById('secOut');
+    var hasSecScan = d && (d.secrets !== undefined || d.vulnerabilities !== undefined);
+    if (!hasSecScan) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    out.innerHTML = '';
+
+    (d.secrets || []).forEach(function (s) {
+      var el = document.createElement('div');
+      // Только известные уровни: если в severity появится новое значение,
+      // пусть лучше будет нейтральный вид, чем класс, которому ничего
+      // не соответствует в стилях.
+      var LEVELS = { critical: 1, high: 1, medium: 1 };
+      el.className = 'finding ' + (LEVELS[s.severity] ? s.severity : 'medium');
+      var what = document.createElement('span'); what.className = 'what'; what.textContent = s.type;
+      var loc = document.createElement('span'); loc.className = 'loc'; loc.textContent = ' — ' + s.file + ':' + s.line;
+      var meta = document.createElement('span'); meta.className = 'meta'; meta.textContent = s.masked;
+      el.appendChild(what); el.appendChild(loc); el.appendChild(meta);
+      out.appendChild(el);
+    });
+
+    (d.vulnerabilities || []).forEach(function (v) {
+      var el = document.createElement('div');
+      el.className = 'finding ' + (v.severity && /crit|high/i.test(v.severity) ? 'critical' : 'high');
+      var what = document.createElement('span'); what.className = 'what'; what.textContent = v.id;
+      var loc = document.createElement('span'); loc.className = 'loc';
+      loc.textContent = ' — ' + v.package + '@' + v.version + (v.fixedIn ? ' → пофикшено в ' + v.fixedIn : '');
+      var meta = document.createElement('span'); meta.className = 'meta'; meta.textContent = v.summary || '';
+      el.appendChild(what); el.appendChild(loc); el.appendChild(meta);
+      out.appendChild(el);
+    });
+
+    if (!out.children.length) {
+      var ok = document.createElement('p');
+      ok.className = 'clean';
+      ok.textContent = d.cveScanError
+        ? 'Секретов не найдено. CVE-скан не прошёл — это не значит, что уязвимостей нет.'
+        : 'Ни секретов, ни уязвимых зависимостей не найдено.';
+      out.appendChild(ok);
+    }
+  }
+
+  function renderFiles(files, commits) {
+    var wrap = document.getElementById('filesWrap');
+    var out = document.getElementById('filesOut');
+    if (!files || !files.length) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+    out.innerHTML = '';
+
+    files.forEach(function (f) {
+      var commit = (commits || []).filter(function (c) { return c.path === f.path; })[0];
+      var block = document.createElement('div');
+      block.className = 'file-block';
+
+      var head = document.createElement('div');
+      head.className = 'path';
+      var nameEl = document.createElement('span');
+      nameEl.textContent = f.path;
+      head.appendChild(nameEl);
+      if (commit) {
+        var badge = document.createElement('span');
+        badge.className = 'commit ' + (commit.status === 'done' ? 'done' : 'failed');
+        badge.textContent = commit.status === 'done' ? 'закоммичено' : 'коммит не прошёл';
+        badge.title = commit.detail || '';
+        head.appendChild(badge);
+      }
+
+      var pre = document.createElement('pre');
+      pre.textContent = f.content; // textContent, не innerHTML — код не исполняется как разметка
+      block.appendChild(head);
+      block.appendChild(pre);
+      out.appendChild(block);
+    });
+  }
+
+  function renderDiagram(code) {
+    var wrap = document.getElementById('diagramWrap');
+    var out = document.getElementById('diagramOut');
+    if (!code) { wrap.style.display = 'none'; return; }
+    wrap.style.display = 'block';
+
+    if (!window.__mermaid) {
+      // CDN не отдал mermaid — показываем исходник, чтобы результат не пропал
+      out.innerHTML = '<pre></pre>';
+      out.querySelector('pre').textContent = code;
+      return;
+    }
+    window.__mermaid.render('azrailDiagram' + Date.now(), code).then(function (res) {
+      out.innerHTML = res.svg;
+    }).catch(function () {
+      out.innerHTML = '<pre></pre>';
+      out.querySelector('pre').textContent = code;
+    });
+  }
+
+  function showVerdict(result) {
+    var box = document.getElementById('verdict');
+    var stamp = document.getElementById('stampLabel');
+    var summary = document.getElementById('verdictSummary');
+    var qList = document.getElementById('verdictQuestions');
+    var dataWrap = document.getElementById('verdictDataWrap');
+    var dataOut = document.getElementById('verdictData');
+
+    box.classList.add('show');
+    var status = result && result.status ? result.status : 'failed';
+    stamp.className = 'stamp ' + status;
+    var VERDICT_RU = { done: 'готово', needs_input: 'нужны данные', failed: 'ошибка' };
+    stamp.textContent = VERDICT_RU[status] || status.replace('_', ' ');
+    summary.textContent = (result && (result.summary || result.error)) || 'Пусто.';
+
+    qList.innerHTML = '';
+    if (result && result.questions && result.questions.length) {
+      result.questions.forEach(function (q) {
+        var li = document.createElement('li');
+        li.textContent = q;
+        qList.appendChild(li);
+      });
+    }
+
+    if (result && result.data !== undefined) {
+      dataWrap.style.display = 'block';
+      dataOut.textContent = JSON.stringify(result.data, null, 2);
+    } else {
+      dataWrap.style.display = 'none';
+    }
+
+    var d = result && result.data;
+    renderEvolution(d);
+    renderQa(d);
+    renderSecurity(d);
+    renderFiles(d && d.files, d && d.commits);
+    renderDiagram(d && (d.architectureDiagram || d.diagram));
+  }
+
+  function humanSize(bytes) {
+    if (bytes > 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+    return Math.round(bytes / 1024) + ' KB';
+  }
+
+  function uploadFile(file) {
+    var dropzone = document.getElementById('dropzone');
+    var dropzoneText = document.getElementById('dropzoneText');
+    var attachedInfo = document.getElementById('attachedInfo');
+
+    dropzone.className = 'dropzone uploading';
+    dropzoneText.textContent = 'загружаю ' + file.name + '…';
+
+    var fd = new FormData();
+    fd.append('file', file);
+
+    markBusy(1);
+    fetch('/api/upload', { method: 'POST', body: fd, headers: getToken() ? { Authorization: 'Bearer ' + getToken() } : {} })
+      .finally(function () { markBusy(-1); })
+      .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+      .then(function (res) {
+        if (!res.ok) throw new Error(res.data.error || 'не удалось загрузить файл');
+        dropzone.className = 'dropzone ok';
+        dropzoneText.textContent = 'перетащи файл или нажми, чтобы выбрать';
+        document.getElementById('r2Key').value = res.data.r2Key;
+        document.getElementById('inputType').value = res.data.inputType;
+        attachedInfo.style.display = 'flex';
+        // fileName — имя файла, выбранного пользователем; через innerHTML
+        // имя вида "<img src=x onerror=...>.zip" исполнилось бы.
+        attachedInfo.innerHTML = '';
+        var info = document.createElement('span');
+        info.textContent = res.data.fileName + ' · ' + humanSize(res.data.size);
+        var clear = document.createElement('span');
+        clear.className = 'clear';
+        clear.id = 'clearAttached';
+        clear.textContent = 'убрать';
+        attachedInfo.appendChild(info);
+        attachedInfo.appendChild(clear);
+        document.getElementById('clearAttached').addEventListener('click', function () {
+          attachedInfo.style.display = 'none';
+          document.getElementById('r2Key').value = '';
+          dropzone.className = 'dropzone';
+        });
+      })
+      .catch(function (err) {
+        dropzone.className = 'dropzone err';
+        dropzoneText.textContent = String((err && err.message) || err);
+      });
+  }
+
+  (function setupDropzone() {
+    var dropzone = document.getElementById('dropzone');
+    var fileInput = document.getElementById('fileInput');
+
+    dropzone.addEventListener('click', function () { fileInput.click(); });
+    fileInput.addEventListener('change', function () {
+      if (fileInput.files[0]) uploadFile(fileInput.files[0]);
+    });
+    ['dragover', 'dragenter'].forEach(function (evt) {
+      dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.add('drag'); });
+    });
+    ['dragleave', 'drop'].forEach(function (evt) {
+      dropzone.addEventListener(evt, function (e) { e.preventDefault(); dropzone.classList.remove('drag'); });
+    });
+    dropzone.addEventListener('drop', function (e) {
+      var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+      if (f) uploadFile(f);
+    });
+  })();
+
+  // Пока задача идёт, экран обязан меняться. Вызов модели с большим окном
+  // занимает 30-90 секунд, и неподвижный экран человек читает как поломку —
+  // уходит раньше, чем придёт ответ. Секундомер стоит дёшево и снимает это.
+  function withElapsed(btn, hintEl, label) {
+    var t0 = Date.now();
+    var timer = setInterval(function () {
+      var s = Math.round((Date.now() - t0) / 1000);
+      btn.textContent = label + ' · ' + s + 'с';
+      if (hintEl && s === 20) hintEl.textContent = 'Большие репозитории читаются дольше. Это нормально.';
+    }, 1000);
+    return function stop() {
+      clearInterval(timer);
+      return Math.round((Date.now() - t0) / 1000);
+    };
+  }
+
+  function quickReview() {
+    var btn = document.getElementById('quickBtn');
+    var hint = document.getElementById('quickHint');
+    var repo = document.getElementById('quickRepo').value.trim();
+    if (!repo) { hint.textContent = 'Впиши репозиторий в виде owner/name.'; return; }
+    btn.disabled = true;
+    hint.textContent = '';
+    var stop = withElapsed(btn, hint, 'Читаю');
+    api('/api/task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ inputType: 'github', payload: repo, intent: 'review_repo' })
+    }).then(function (data) {
+      var sec = stop();
+      hint.textContent = 'Готово за ' + sec + 'с.';
+      showVerdict(data);
+    }).catch(function (err) {
+      stop();
+      hint.textContent = '';
+      showVerdict({ status: 'failed', summary: 'Запрос не прошёл.', error: String(err) });
+    }).finally(function () {
+      btn.disabled = false;
+      btn.textContent = 'Проверить →';
+    });
+  }
+
+  function submitTask() {
+    var btn = document.getElementById('submitBtn');
+    var body = {
+      inputType: document.getElementById('inputType').value,
+      payload: document.getElementById('payload').value,
+      r2Key: document.getElementById('r2Key').value || undefined,
+      projectId: document.getElementById('projectId').value || undefined,
+      intent: document.getElementById('intent').value || undefined
+    };
+    btn.disabled = true;
+    btn.textContent = 'Отправляю…';
+    api('/api/task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }).then(function (data) {
+      showVerdict(data);
+    }).catch(function (err) {
+      showVerdict({ status: 'failed', summary: 'Запрос не прошёл.', error: String(err) });
+    }).finally(function () {
+      btn.disabled = false;
+      btn.textContent = 'Отправить задачу →';
+    });
+  }
+
+  function pullHistory() {
+    var id = document.getElementById('historyProjectId').value.trim();
+    var out = document.getElementById('historyOut');
+    if (!id) { out.innerHTML = '<p class="empty">Укажи project id.</p>'; return; }
+    api('/api/projects/' + encodeURIComponent(id) + '/history').then(function (res) {
+      var rows = (res && res.data) || [];
+      if (!rows.length) { out.innerHTML = '<p class="empty">Пока пусто.</p>'; return; }
+      // Те же соображения, что и с памятью: содержимое пришло из БД, куда
+      // его положил код, обрабатывавший ввод пользователя и вывод модели.
+      out.innerHTML = '';
+      var table = document.createElement('table');
+      table.className = 'ledger';
+      table.innerHTML = '<thead><tr><th>время</th><th>агент</th><th>тип</th><th>статус</th></tr></thead>';
+      var tbody = document.createElement('tbody');
+      rows.forEach(function (row) {
+        var tr = document.createElement('tr');
+        [row.started_at, row.agent, row.intent].forEach(function (v) {
+          var td = document.createElement('td');
+          td.textContent = v || '';
+          tr.appendChild(td);
+        });
+        var st = document.createElement('td');
+        // className задаём отдельно от текста: иначе значение из БД попадало
+        // бы в атрибут class и могло разорвать разметку
+        st.className = 'status ' + String(row.status || '').replace(/[^a-z_]/gi, '');
+        st.textContent = row.status || '';
+        tr.appendChild(st);
+        tbody.appendChild(tr);
+      });
+      table.appendChild(tbody);
+      out.appendChild(table);
+    }).catch(function () {
+      out.innerHTML = '<p class="empty">Не удалось получить историю.</p>';
+    });
+  }
+
+  function pullMemory() {
+    var id = document.getElementById('memoryProjectId').value.trim();
+    var out = document.getElementById('memoryOut');
+    if (!id) { out.innerHTML = '<p class="empty">Укажи project id.</p>'; return; }
+    api('/api/projects/' + encodeURIComponent(id) + '/memory').then(function (res) {
+      var facts = (res && res.data) || [];
+      if (!facts.length) { out.innerHTML = '<p class="empty">Пока ничего не запомнено.</p>'; return; }
+      // ВАЖНО: f.value — это текст, сгенерированный МОДЕЛЬЮ. Через innerHTML
+      // модель могла бы протащить исполняемую разметку. Строим DOM руками,
+      // текст кладём через textContent — он не парсится как HTML.
+      out.innerHTML = '';
+      facts.forEach(function (f) {
+        var card = document.createElement('div');
+        card.className = 'memory-card';
+        var tag = document.createElement('span'); tag.className = 'tag'; tag.textContent = f.category;
+        var key = document.createElement('span'); key.className = 'key'; key.textContent = f.key;
+        var val = document.createElement('span'); val.className = 'value'; val.textContent = f.value;
+        card.appendChild(tag);
+        card.appendChild(document.createElement('br'));
+        card.appendChild(key);
+        card.appendChild(val);
+        out.appendChild(card);
+      });
+    }).catch(function () {
+      out.innerHTML = '<p class="empty">Не удалось получить память.</p>';
+    });
+  }
+
+  // Поля, которые нужны каждой Git-операции. Форма перерисовывается под выбор,
+  // чтобы не показывать нерелевантные поля и не слать в API мусор.
+  var GIT_FIELDS = {
+    list_commits: [['branch', 'ветка (пусто = основная)'], ['limit', 'сколько показать (по умолчанию 10)']],
+    diff: [['base', 'исходная ветка, напр. main'], ['head', 'сравниваемая, напр. feature/x']],
+    create_branch: [['branch', 'имя новой ветки'], ['from', 'от какой ветки (по умолчанию main)']],
+    commit_file: [['branch', 'ветка'], ['path', 'путь к файлу'], ['message', 'сообщение коммита'], ['content', 'содержимое файла']],
+    open_pr: [['head', 'откуда (ветка с изменениями)'], ['base', 'куда (напр. main)'], ['title', 'заголовок PR'], ['body', 'описание (необязательно)']]
+  };
+
+  function renderGitFields() {
+    var type = document.getElementById('gitOpType').value;
+    var wrap = document.getElementById('gitFields');
+    wrap.innerHTML = GIT_FIELDS[type].map(function (f) {
+      var tag = f[0] === 'content'
+        ? '<textarea id="git_' + f[0] + '" placeholder="' + f[1] + '"></textarea>'
+        : '<input id="git_' + f[0] + '" placeholder="' + f[1] + '">';
+      return '<label for="git_' + f[0] + '">' + f[0] + '</label>' + tag;
+    }).join('');
+  }
+
+  function runGitOp() {
+    var type = document.getElementById('gitOpType').value;
+    var op = { type: type };
+    GIT_FIELDS[type].forEach(function (f) {
+      var v = document.getElementById('git_' + f[0]).value.trim();
+      if (v) op[f[0]] = f[0] === 'limit' ? parseInt(v, 10) : v;
+    });
+
+    var btn = document.getElementById('gitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Выполняю…';
+
+    api('/api/task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        gitOp: op,
+        gitRepo: document.getElementById('gitRepo').value.trim() || undefined,
+        projectId: document.getElementById('projectId').value || undefined
+      })
+    }).then(function (data) {
+      showVerdict(data);
+      document.getElementById('verdict').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }).catch(function (err) {
+      showVerdict({ status: 'failed', summary: 'Запрос не прошёл.', error: String(err) });
+    }).finally(function () {
+      btn.disabled = false;
+      btn.textContent = 'Выполнить →';
+    });
+  }
+
+  function runUiAgent() {
+    var btn = document.getElementById('uiBtn');
+    var prompt = document.getElementById('uiPrompt').value.trim();
+    if (!prompt) { showVerdict({ status: 'needs_input', summary: 'Опиши, какой интерфейс нужен.' }); return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Генерирую…';
+
+    api('/api/task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        inputType: 'text',
+        intent: 'generate_ui',
+        payload: prompt,
+        designBrief: document.getElementById('uiDesignBrief').value.trim() || undefined,
+        commitToBranch: document.getElementById('uiCommitBranch').value.trim() || undefined,
+        gitRepo: document.getElementById('gitRepo').value.trim() || undefined,
+        projectId: document.getElementById('projectId').value || undefined
+      })
+    }).then(function (data) {
+      showVerdict(data);
+      document.getElementById('verdict').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }).catch(function (err) {
+      showVerdict({ status: 'failed', summary: 'Запрос не прошёл.', error: String(err) });
+    }).finally(function () {
+      btn.disabled = false;
+      btn.textContent = 'Сгенерировать →';
+    });
+  }
+
+  function runSecurityScan() {
+    var btn = document.getElementById('secBtn');
+    btn.disabled = true; btn.textContent = 'Сканирую…';
+    api('/api/task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        intent: 'security_scan',
+        inputType: document.getElementById('inputType').value,
+        payload: document.getElementById('payload').value || undefined,
+        r2Key: document.getElementById('r2Key').value || undefined,
+        projectId: document.getElementById('projectId').value || undefined
+      })
+    }).then(function (data) {
+      showVerdict(data);
+      document.getElementById('verdict').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }).catch(function (err) {
+      showVerdict({ status: 'failed', summary: 'Запрос не прошёл.', error: String(err) });
+    }).finally(function () {
+      btn.disabled = false; btn.textContent = 'Проверить безопасность →';
+    });
+  }
+
+  function runQa() {
+    var type = document.getElementById('qaOpType').value;
+    var op = { type: type };
+    QA_FIELDS[type].forEach(function (f) {
+      var v = document.getElementById('qa_' + f[0]).value.trim();
+      if (v) op[f[0]] = f[0] === 'runId' ? parseInt(v, 10) : v;
+    });
+
+    var btn = document.getElementById('qaBtn');
+    btn.disabled = true; btn.textContent = 'Проверяю…';
+    api('/api/task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        qaOp: op,
+        gitRepo: document.getElementById('gitRepo').value.trim() || undefined,
+        inputType: type === 'coverage_gaps' ? document.getElementById('inputType').value : undefined,
+        payload: type === 'coverage_gaps' ? (document.getElementById('payload').value || undefined) : undefined,
+        r2Key: type === 'coverage_gaps' ? (document.getElementById('r2Key').value || undefined) : undefined,
+        projectId: document.getElementById('projectId').value || undefined
+      })
+    }).then(function (data) {
+      showVerdict(data);
+      document.getElementById('verdict').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }).catch(function (err) {
+      showVerdict({ status: 'failed', summary: 'Запрос не прошёл.', error: String(err) });
+    }).finally(function () {
+      btn.disabled = false; btn.textContent = 'Проверить →';
+    });
+  }
+
+  function runEvolution() {
+    var btn = document.getElementById('evoBtn');
+    btn.disabled = true; btn.textContent = 'Анализирую…';
+    api('/api/task', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        intent: 'evolution_audit',
+        projectId: document.getElementById('projectId').value || undefined,
+        // Исходники опциональны: без них не будет проверки зависимостей,
+        // но история из D1 проанализируется всё равно.
+        inputType: document.getElementById('inputType').value,
+        r2Key: document.getElementById('r2Key').value || undefined,
+        payload: document.getElementById('payload').value || undefined
+      })
+    }).then(function (data) {
+      showVerdict(data);
+      document.getElementById('verdict').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }).catch(function (err) {
+      showVerdict({ status: 'failed', summary: 'Запрос не прошёл.', error: String(err) });
+    }).finally(function () {
+      btn.disabled = false; btn.textContent = 'Запустить аудит →';
+    });
+  }
+
+  document.getElementById('tokenBtn').addEventListener('click', function () {
+    var v = document.getElementById('apiToken').value.trim();
+    var note = document.getElementById('tokenNote');
+    if (!v) { setToken(''); note.textContent = 'Токен удалён.'; return; }
+    setToken(v);
+    document.getElementById('apiToken').value = '';
+    note.textContent = 'Токен сохранён для этой вкладки. Обновляю данные…';
+    checkHealth();
+  });
+
+  document.getElementById('selftestBtn').addEventListener('click', function () {
+    var btn = this;
+    var out = document.getElementById('selftestOut');
+    btn.disabled = true; btn.textContent = 'Проверяю…';
+    out.innerHTML = '';
+
+    api('/api/selftest', { method: 'POST' }).then(function (data) {
+      out.innerHTML = '';
+      if (!data || (!data.agents && !data.storage)) {
+        var e = document.createElement('p'); e.className = 'err';
+        e.textContent = (data && data.error) || 'Проверка не вернула результат.';
+        out.appendChild(e); return;
+      }
+
+      var head = document.createElement('p');
+      head.className = data.success ? 'eyebrow' : 'err';
+      head.style.marginTop = '20px';
+      head.textContent = data.success ? 'ВСЁ ОТВЕЧАЕТ' : 'ЕСТЬ ПРОБЛЕМЫ';
+      out.appendChild(head);
+
+      // Хранилища идут первыми: если лежит D1, агенты всё равно ничего не сделают
+      var rows = (data.storage || []).map(function (x) { return { name: x.name, ok: x.ok, ms: x.ms, error: x.error }; })
+        .concat((data.agents || []).map(function (a) {
+          return { name: a.id, ok: a.ok, ms: a.ms, error: a.error };
+        }));
+
+      // Маршруты моделей: показываем, что выберет система и почему,
+      // не тратя ни одного вызова модели.
+      (data.routing || []).forEach(function (r) {
+        var row = document.createElement('div');
+        row.className = 'probe pass';
+        var sign = document.createElement('span'); sign.className = 'sign'; sign.textContent = '→';
+        var name = document.createElement('span');
+        name.textContent = r.intent + ': ' + (r.chosen || 'нет подходящей модели');
+        var ms = document.createElement('span'); ms.className = 'ms';
+        ms.textContent = r.fallbacks.length ? '+' + r.fallbacks.length + ' запасных' : 'БЕЗ ЗАПАСНЫХ';
+        row.appendChild(sign); row.appendChild(name); row.appendChild(ms);
+        if (!r.chosen) {
+          row.className = 'probe fail';
+          var why = document.createElement('span'); why.className = 'why';
+          why.textContent = r.reasoning.join(' ');
+          row.appendChild(why);
+        } else if (r.noFallback) {
+          // Одна модель без замены: исчерпается лимит — задача не выполнится.
+          row.className = 'probe fail';
+          var warn = document.createElement('span'); warn.className = 'why';
+          warn.textContent = 'Запасной модели нет. Если она откажет, задачи этого типа перестанут выполняться. Обычно это значит, что не задан AI_GATEWAY_ID — без него сторонние модели недоступны.';
+          row.appendChild(warn);
+        }
+        out.appendChild(row);
+      });
+
+      var lit = rows.filter(function (r) { return r.ok; }).length;
+      var count = document.createElement('p');
+      count.className = 'empty';
+      count.style.marginTop = '6px';
+      count.textContent = 'Отвечает ' + lit + ' из ' + rows.length;
+      out.appendChild(count);
+
+      rows.forEach(function (r) {
+        var row = document.createElement('div');
+        row.className = 'probe ' + (r.ok ? 'pass' : 'fail');
+
+        var sign = document.createElement('span');
+        sign.className = 'sign';
+        sign.textContent = r.ok ? '●' : '×';
+
+        var name = document.createElement('span');
+        name.textContent = r.name;
+
+        var ms = document.createElement('span');
+        ms.className = 'ms';
+        ms.textContent = r.ms + ' мс';
+
+        row.appendChild(sign); row.appendChild(name); row.appendChild(ms);
+
+        if (r.error) {
+          var why = document.createElement('span');
+          why.className = 'why';
+          // textContent, а не innerHTML: текст ошибки приходит из рантайма
+          why.textContent = r.error;
+          row.appendChild(why);
+        }
+        out.appendChild(row);
+      });
+    }).catch(function (err) {
+      var e = document.createElement('p'); e.className = 'err';
+      e.textContent = 'Проверка не дошла до сервера: ' + err.message;
+      out.appendChild(e);
+    }).finally(function () {
+      btn.disabled = false; btn.textContent = 'Проверить систему →';
+    });
+  });
+
+  document.getElementById('quickBtn').addEventListener('click', quickReview);
+  document.getElementById('quickRepo').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') quickReview();
+  });
+  document.getElementById('submitBtn').addEventListener('click', submitTask);
+  document.getElementById('historyBtn').addEventListener('click', pullHistory);
+  document.getElementById('memoryBtn').addEventListener('click', pullMemory);
+  document.getElementById('gitOpType').addEventListener('change', renderGitFields);
+  document.getElementById('gitBtn').addEventListener('click', runGitOp);
+  document.getElementById('uiBtn').addEventListener('click', runUiAgent);
+  document.getElementById('secBtn').addEventListener('click', runSecurityScan);
+  document.getElementById('qaOpType').addEventListener('change', renderQaFields);
+  document.getElementById('qaBtn').addEventListener('click', runQa);
+  document.getElementById('evoBtn').addEventListener('click', runEvolution);
+  renderQaFields();
+  renderGitFields();
+  checkHealth();
+})();
+</script>
+</body>
+</html>

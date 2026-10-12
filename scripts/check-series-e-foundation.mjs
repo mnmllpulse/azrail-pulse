@@ -1,0 +1,18 @@
+import {readFileSync,existsSync} from 'node:fs';
+const required=['ui/components/suggestions.ts','ui/components/studio-toolbar.ts','ui/components/studio-state.ts','ui/components/smart-empty.ts','ui/components/module-frame.ts'];
+const checks=[];
+for(const file of required)checks.push([`${file} exists`,existsSync(file)]);
+const app=readFileSync('ui/app.ts','utf8'),html=readFileSync('ui/app.html','utf8'),draft=readFileSync('ui/studio-draft.ts','utf8'),catalog=readFileSync('src/lib/model-catalog.ts','utf8'),toolbar=readFileSync('ui/components/studio-toolbar.ts','utf8');
+checks.push(['studio toolbar host',html.includes('id="studio-toolbar"')]);
+checks.push(['studio suggestion host',html.includes('id="studio-suggestions"')]);
+checks.push(['chat suggestion host',html.includes('id="chat-suggestions"')]);
+checks.push(['suggestions mounted',app.includes('mountSuggestionBar')]);
+checks.push(['state machine mounted',app.includes('createStudioStateController')]);
+checks.push(['universal toolbar mounted',app.includes('mountStudioToolbar')]);
+checks.push(['smart empty state mounted',app.includes('renderSmartEmptyState')]);
+checks.push(['universal module action frame',app.includes('mountModuleFrameActions')]);
+checks.push(['model quick switch metadata',catalog.includes('contextWindow')&&catalog.includes('speedProfile')&&catalog.includes('costProfile')&&catalog.includes('availability')&&toolbar.includes('studio-model-info')]);
+checks.push(['draft state event',draft.includes("azrail:draft-status")]);
+checks.push(['draft undo event',draft.includes("azrail:studio-undo")]);
+checks.push(['draft redo event',draft.includes("azrail:studio-redo")]);
+const failed=checks.filter(([,ok])=>!ok);for(const [name,ok] of checks)console.log(`${ok?'PASS':'FAIL'} ${name}`);console.log(`SERIES E FOUNDATION: ${checks.length-failed.length} passed, ${failed.length} failed`);if(failed.length)process.exit(1);

@@ -1,0 +1,56 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.59",
+  "generated_at": "2026-10-11T01:57:17Z",
+  "scope": "local-only Series F F41-F60 Video Studio 2.0",
+  "series_f_video": {
+    "f41_f60": "implemented-local",
+    "storyboard_timeline_runtime": true,
+    "continuity_memory": true,
+    "local_canvas_mediarecorder_render": true,
+    "deterministic_video_qa": true,
+    "audio_peak_clipping_measured": true,
+    "captions_source": "scene-script; not speech-to-text",
+    "shot_model_selection": "routing-intent-only",
+    "provider_video_generation_claimed": false,
+    "cloudflare_stream_binding_claimed": false,
+    "cloudflare_media_binding_claimed": false
+  },
+  "persistence": {
+    "latest_migration": "033-video-studio-2.sql",
+    "remote_migration_applied": false
+  },
+  "domain_decision": {
+    "production_origin": "https://mnmllpulse.com",
+    "additional_domains": "deferred"
+  },
+  "runtime": {
+    "host_node": "22.16.0",
+    "canonical_node": "24.18.0"
+  },
+  "checks": {
+    "series_f_video_runtime": "PASS_F41_F60_PLUS_CONTINUITY_SCHEMA_PROVIDER_BOUNDARY",
+    "video_studio_architecture": "PASS",
+    "ui_typescript": "PASS",
+    "fallback_browser_bundle": "PASS_NOT_RELEASE_VERIFIED",
+    "static_quality": "55_PASS_0_FAIL_0_BLOCKED",
+    "full_quality": "55_PASS_0_FAIL_5_BLOCKED",
+    "node24_dependency_backed_proof": "BLOCKED_HOST_NODE22_AND_DEPENDENCY_ENVIRONMENT",
+    "runtime_smoke": "BLOCKED_NO_LIVE_AUTHENTICATED_TARGET",
+    "production_drift": "RECONCILIATION_REQUIRED_17_BLOCKERS_READ_ONLY",
+    "remote_deploy": "NOT_RUN"
+  },
+  "full_quality_blockers": [
+    "typecheck: Node >=24 required / dependency-backed environment unavailable",
+    "build-ui: Node >=24 required",
+    "tests: Node >=24 required",
+    "worker-dry-run: Node >=24 required",
+    "runtime-smoke: live URL + authenticated credential not provided"
+  ],
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "production": false
+  }
+}

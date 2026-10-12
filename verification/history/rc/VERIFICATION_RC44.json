@@ -1,0 +1,66 @@
+{
+  "release": "1.5.0-rc.44",
+  "stage": 30,
+  "master_item": 35,
+  "title": "Backup / Restore Proof",
+  "status": "LOCAL_PROOF_VERIFIED_DISPOSABLE_CLOUD_DRILL_PENDING",
+  "runtime": {
+    "node": "v22.16.0",
+    "npm": "10.9.2",
+    "required_node": ">=24.0.0"
+  },
+  "cloudflare_read_only_evidence": {
+    "production_d1": "azrail-db",
+    "production_database_id": "c76e7d92-648c-45bc-b0df-f26b00d0ff88",
+    "production_bookmark_recorded": true,
+    "staging_d1": "azrail-db-staging",
+    "staging_database_id": "509b9a03-444d-4bd7-9081-19651ea9b50f",
+    "staging_bookmark_recorded": true,
+    "secret_values_read": false,
+    "restore_performed": false,
+    "cloudflare_write_performed": false
+  },
+  "local_backup_restore": {
+    "preparation_checks": 23,
+    "preparation_status": "PASS",
+    "d1_logical_sql_backup_restore": "PASS_EXACT_SCHEMA_AND_DATA_FINGERPRINT",
+    "d1_tamper_rejection": "PASS_BEFORE_RESTORE",
+    "post_restore_migrations": "PASS_002_TO_029",
+    "additive_reapply": "PASS_003_TO_029",
+    "r2_manifest_restore": "PASS_3_FILES_NEW_TARGET_ONLY",
+    "r2_all_hashes_before_first_write": true,
+    "r2_unicode_path_round_trip": true,
+    "r2_corruption_rejected_before_target_write": true,
+    "secret_values_in_backup": false,
+    "production_targeted": false
+  },
+  "negative_tests": {
+    "mutation_free_snapshot_false": "PASS_EXPECTED_EXIT_1",
+    "strict_without_disposable_cloud_receipt": "PASS_EXPECTED_EXIT_2"
+  },
+  "local_verification": {
+    "static_quality_gate": {"status": "VERIFIED", "passed": 38, "failed": 0, "blocked": 0},
+    "full_quality_gate": {"status": "BLOCKED", "passed": 38, "failed": 0, "blocked": 5},
+    "ui_typescript": "PASS",
+    "typescript_syntax": {"files": 254, "diagnostics": 0},
+    "node24_suite": "BLOCKED_BY_NODE22",
+    "release_package": "BLOCKED_BY_NODE24_RECEIPT",
+    "release_preflight": "PASS_WITH_PRODUCTION_OIDC_WARNING"
+  },
+  "strict_proof_blockers": [
+    "Node24 suite has not run in a Node24 release environment.",
+    "Staging migration/deploy/smoke/security have not been executed for this RC.",
+    "A real restore into a disposable Cloudflare D1/R2 recovery environment has not been authorized or executed.",
+    "Secret recovery still requires operator-controlled re-provision/rotation from an external secret authority.",
+    "Live production drift remains RECONCILIATION_REQUIRED.",
+    "Unified Event Stream still lacks cryptographic checksum/signature chaining.",
+    "Current dependency CVE audit has not been proven in the Node24 release environment."
+  ],
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "production": false,
+    "staging": false
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "release": "1.5.0-rc.18",
+  "stage": 4,
+  "title": "Canonical Configuration + Clean Release Package",
+  "cloud_mutations": false,
+  "github_mutations": false,
+  "checks": {
+    "version_truth": "pass",
+    "documentation_truth": "pass",
+    "migration_integrity": "pass",
+    "release_preflight": "pass_with_expected_production_oidc_warning",
+    "canonical_config_generation": "pass",
+    "canonical_config_check": "pass",
+    "config_divergence_negative_test": "pass_blocked_as_expected",
+    "legacy_active_configs_removed": "pass",
+    "provision_staging_plan": "pass_plan_only",
+    "provision_production_plan": "pass_plan_only",
+    "clean_release_package": "pass",
+    "release_checksum_verification": "pass",
+    "release_forbidden_extra_negative_test": "pass_blocked_as_expected",
+    "cloud_drift_staging": "warning_observability_not_exposed"
+  },
+  "release_package": {
+    "artifact": "AZRAIL_PULSE_1.5.0-rc.18_release",
+    "file_count": 288,
+    "forbidden_historical_assets": "excluded",
+    "checksum_algorithm": "sha256"
+  },
+  "known_release_blocks": [
+    "production OIDC identifiers not pinned",
+    "production Cloudflare config drift remains",
+    "full Node 24 install/type/test/build suite not run in current chat runtime"
+  ],
+  "notes": [
+    "GitHub main remains untouched.",
+    "Cloudflare resources remain untouched.",
+    "Generated Wrangler configs are derived from config/environments.json and must not be edited manually."
+  ]
+}

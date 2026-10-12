@@ -1,0 +1,64 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+ RUN  v4.1.11 <project-root>
+
+ ❯ tests/deploy-preflight.test.ts (1 test | 1 failed) 82ms
+   × validates login configuration before spawning any provisioning, migration or deployment 80ms
+ ❯ tests/audit-131.test.ts (15 tests | 1 failed) 164ms
+   × shows the latest 200 mission events in stable chronological order 16ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  tests/audit-131.test.ts > shows the latest 200 mission events in stable chronological order
+AssertionError: expected '0' to be '5' // Object.is equality
+
+Expected: "5"
+Received: "0"
+
+ ❯ tests/audit-131.test.ts:37:110
+     35|  const {listMissionEvents}=await import('../src/lib/event-store');cons…
+     36|  for(let i=0;i<205;i++)f.sqlite.prepare('INSERT INTO mission_events (i…
+     37|  const events=await listMissionEvents(f.env,'mission');expect(events).…
+       |                                                                                                              ^
+     38| });
+     39| it('rejects malformed MCP content and output-schema violations after d…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  tests/deploy-preflight.test.ts > validates login configuration before spawning any provisioning, migration or deployment
+AssertionError: expected 'file:///workspace/scratch/ef09ec95089…' to contain 'OIDC_ISSUER'
+
+- Expected
++ Received
+
+- OIDC_ISSUER
++ file://<project-root>/scripts/deploy-ci.mjs:4
++ const run=(args,input)=>{const r=spawnSync(process.execPath,args,{stdio:input?['pipe','inherit','inherit']:'inherit',input,encoding:'utf8'});if(r.status!==0)throw Error(`Command failed: ${args[0]}`);};
++                                                                                                                                                                    ^
++
++ Error: Command failed: scripts/provision.mjs
++     at run (file://<project-root>/scripts/deploy-ci.mjs:4:164)
++     at file://<project-root>/scripts/deploy-ci.mjs:5:1
++     at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
++     at async node:internal/modules/esm/loader:643:26
++     at async file://<project-root>/[eval1]:2:116
++
++ Node.js v24.19.0
++
+
+ ❯ tests/deploy-preflight.test.ts:10:58
+      8|  cp.spawnSync=(_exe,args)=>{console.log('CHILD:'+JSON.stringify(args))…
+      9|  const result=spawnSync(process.execPath,['--input-type=module','-e',s…
+     10|  expect(result.status).not.toBe(0);expect(result.stderr).toContain('OI…
+       |                                                          ^
+     11| });
+     12|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 14 passed (16)
+   Start at  19:34:24
+   Duration  3.10s (transform 2.19s, setup 0ms, import 2.92s, tests 247ms, environment 1ms)
+

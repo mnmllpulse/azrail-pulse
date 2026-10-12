@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "principals": ["anonymous", "viewer", "editor", "operator", "admin"],
+  "rules": [
+    {"surface":"public-shell","method":"GET","anonymous":true,"viewer":true,"editor":true,"operator":true,"admin":true},
+    {"surface":"health","method":"GET","anonymous":true,"viewer":true,"editor":true,"operator":true,"admin":true},
+    {"surface":"authenticated-read","method":"GET","anonymous":false,"viewer":true,"editor":true,"operator":true,"admin":true},
+    {"surface":"project-write","method":"POST|DELETE","anonymous":false,"viewer":false,"editor":true,"operator":true,"admin":true},
+    {"surface":"approval-decision","method":"POST","anonymous":false,"viewer":false,"editor":false,"operator":false,"admin":true},
+    {"surface":"admin","method":"GET|POST|DELETE","anonymous":false,"viewer":false,"editor":false,"operator":"limited-explicit-routes","admin":true},
+    {"surface":"connector-mutation","method":"POST|DELETE","anonymous":false,"viewer":false,"editor":"approval-gated","operator":"approval-gated","admin":"approval-gated"},
+    {"surface":"github-write","method":"POST","anonymous":false,"viewer":false,"editor":false,"operator":false,"admin":"approval+mutation-interlock"},
+    {"surface":"deployment","method":"POST","anonymous":false,"viewer":false,"editor":false,"operator":false,"admin":"approval+mutation-interlock"},
+    {"surface":"production-migration","method":"POST","anonymous":false,"viewer":false,"editor":false,"operator":false,"admin":"approval+mutation-interlock"}
+  ],
+  "notes": [
+    "Resource ownership is independently enforced through requireResource().",
+    "OIDC public sessions downgrade legacy admin identities to editor/operator semantics unless explicitly configured.",
+    "Dangerous external mutations require the Unified Approval Engine in addition to role checks."
+  ]
+}

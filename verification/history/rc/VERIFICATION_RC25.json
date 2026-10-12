@@ -1,0 +1,102 @@
+{
+  "release": "1.5.0-rc.25",
+  "stage": 11,
+  "stage_name": "Observability IDs / Trace Correlation",
+  "status": "review_candidate",
+  "production_ready": false,
+  "cloud_mutations": false,
+  "github_mutations": false,
+  "canva_mutations": false,
+  "architecture": {
+    "trace_contract": "src/lib/observability-context.ts",
+    "migration": "migrations/019-observability-trace-links.sql",
+    "table": "trace_links",
+    "chain": "request_id -> trace_id -> mission/task -> model/tool -> approval/connector -> event/publication",
+    "response_headers": ["X-Request-Id", "X-Trace-Id"],
+    "trace_lookup_api": "GET /api/observability/traces/:traceId?after={seq}&limit={n}",
+    "trace_lookup_role": "admin",
+    "event_trace_replay": "listTraceEvents",
+    "sidecar_failure_policy": "best-effort diagnostics; never replay/abort authoritative business mutations",
+    "entity_links": [
+      "mission",
+      "task",
+      "model_call",
+      "tool_call",
+      "mission_check",
+      "approval",
+      "connector_call",
+      "event"
+    ]
+  },
+  "checks": {
+    "observability_architecture": "PASS",
+    "observability_negative_test": "PASS_BLOCKED_DETACHED_TASK_TRACE",
+    "migration_019_sqlite_schema": "PASS",
+    "migration_019_idempotence": "PASS",
+    "trace_chain_sqlite_query": "PASS",
+    "ui_typecheck": "PASS",
+    "typescript_syntax_parse": "PASS_226_FILES_0_DIAGNOSTICS",
+    "full_typescript_typecheck": "BLOCKED_MISSING_LOCAL_TYPE_PACKAGES_UNDER_NODE22",
+    "version_truth": "PASS",
+    "documentation_truth": "PASS",
+    "migration_integrity": "PASS_18_NUMBERED_MIGRATIONS",
+    "canonical_config": "PASS",
+    "release_preflight": "PASS_WITH_PRODUCTION_OIDC_WARNING",
+    "studio_architecture": "PASS",
+    "approval_architecture": "PASS",
+    "event_stream_architecture": "PASS",
+    "lint": "PASS_253_FILES",
+    "format": "PASS_253_FILES",
+    "security": "PASS",
+    "staging_drift": "PASS_WITH_1_WARNING",
+    "static_quality_gate": "VERIFIED",
+    "full_quality_gate": "BLOCKED",
+    "release_package": "BLOCKED_BY_NON_RELEASE_UI_BUILD"
+  },
+  "quality_gate": {
+    "static": {
+      "passed": 13,
+      "failed": 0,
+      "blocked": 0,
+      "status": "VERIFIED"
+    },
+    "full": {
+      "passed": 13,
+      "failed": 0,
+      "blocked": 5,
+      "status": "BLOCKED"
+    }
+  },
+  "cloudflare_staging_drift": {
+    "pass": 34,
+    "warning": 1,
+    "drift": 0,
+    "blocker": 0,
+    "warning_detail": "Worker settings snapshot did not expose observability; verify separately before release."
+  },
+  "environment": {
+    "node": "22.16.0",
+    "required_node": ">=24.0.0",
+    "local_node_modules": false,
+    "ui_build_mode": "typescript-fallback",
+    "ui_build_release_verified": false
+  },
+  "release_blockers": [
+    "Run npm ci under Node >=24",
+    "Run canonical esbuild UI build under Node >=24",
+    "Run dependency-backed full TypeScript typecheck",
+    "Run full Vitest suite",
+    "Run Wrangler staging/production dry-runs",
+    "Run authenticated runtime smoke",
+    "Verify production OIDC values",
+    "Reconcile production Cloudflare drift only after explicit approval"
+  ],
+  "notes": [
+    "W3C traceparent is accepted only after version/trace-id/parent-id/flags structural validation; malformed input gets a new trace id.",
+    "Trace links are durable diagnostic metadata and do not replace subsystem state tables or security audit receipts.",
+    "An immutable entity keeps its original request_id/trace_id; later linking can only fill missing child identifiers.",
+    "Publication events inherit mission/tool traces when publication occurs inside the execution pipeline; backup restore also forwards its approval trace.",
+    "Fallback UI build remains preview-only; release packaging correctly fails closed.",
+    "No GitHub or Cloudflare mutation was performed during Stage 11."
+  ]
+}

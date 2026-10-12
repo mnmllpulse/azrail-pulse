@@ -1,0 +1,5 @@
+export const VIDEO_PIPELINE_STAGES=['brief','storyboard','shots','generation','timeline','audio','render','qa','export'] as const;
+export type VideoPipelineStage=typeof VIDEO_PIPELINE_STAGES[number];
+export type ContinuityMemory={character:string[];clothing:string[];lighting:string[];location:string[];camera:string[];props:string[];palette:string[]};
+export type VideoPipelineState={id:string;stage:VideoPipelineStage;completed:VideoPipelineStage[];continuity:ContinuityMemory;renderQueue:Array<{id:string;quality:'proxy'|'final';status:'waiting'|'running'|'done'|'failed'}>;qa:Array<{severity:'critical'|'major'|'minor';code:string;message:string}>};
+export function advanceVideoPipeline(state:VideoPipelineState,next:VideoPipelineStage):VideoPipelineState{const i=VIDEO_PIPELINE_STAGES.indexOf(state.stage),j=VIDEO_PIPELINE_STAGES.indexOf(next);if(j<i||j>i+1)throw new Error(`Invalid video pipeline transition ${state.stage} -> ${next}`);return{...state,completed:[...new Set([...state.completed,state.stage])],stage:next};}

@@ -1,0 +1,7 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> react-example@0.0.0 lint
+> tsc --noEmit
+
+src/pages/Studio.tsx(348,29): error TS2322: Type '{ isLight: boolean; }' is not assignable to type 'IntrinsicAttributes'.
+  Property 'isLight' does not exist on type 'IntrinsicAttributes'.

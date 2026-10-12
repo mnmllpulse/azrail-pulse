@@ -1,0 +1,56 @@
+{
+  "release": "0.8.1",
+  "date": "2026-09-26",
+  "baseArchiveFiles": 191,
+  "typecheck": "passed",
+  "tests": {
+    "passed": 1052,
+    "failed": 0,
+    "files": 46,
+    "runner": "vitest 4.1.11"
+  },
+  "bundles": [
+    {
+      "entry": "src/index.ts",
+      "bytes": 2804945,
+      "gzipBytes": 539481
+    },
+    {
+      "entry": "src/index.free.ts",
+      "bytes": 2802045,
+      "gzipBytes": 538400
+    }
+  ],
+  "html": [
+    {
+      "file": "public/control.html",
+      "duplicateIds": [],
+      "missingAssets": [],
+      "scriptsParsed": 0
+    },
+    {
+      "file": "public/ultimate.html",
+      "duplicateIds": [],
+      "missingAssets": [],
+      "scriptsParsed": 1
+    },
+    {
+      "file": "public/index.html",
+      "duplicateIds": [],
+      "missingAssets": [],
+      "scriptsParsed": 1
+    },
+    {
+      "file": "public/classic.html",
+      "duplicateIds": [],
+      "missingAssets": [],
+      "scriptsParsed": 2
+    }
+  ],
+  "migration": "tested on real SQLite with subprocess stubs",
+  "browser": "not available; DOM/API stub tests only",
+  "deployment": "not run",
+  "npmAudit": "not refreshed; dependencies unchanged",
+  "workersTypes": "4.20260702.1",
+  "archiveFiles": 202
+}

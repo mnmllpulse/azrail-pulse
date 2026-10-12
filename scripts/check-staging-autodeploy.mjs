@@ -1,0 +1,23 @@
+import { readFileSync } from 'node:fs';
+const staging=readFileSync('.github/workflows/staging-auto-deploy.yml','utf8');
+const production=readFileSync('.github/workflows/deploy.yml','utf8');
+const deployCi=readFileSync('scripts/deploy-ci.mjs','utf8');
+const failures=[];const checks=[];
+const must=(name,cond,detail)=>{checks.push({name,status:cond?'PASSED':'FAILED',detail});if(!cond)failures.push(`${name}: ${detail}`)};
+must('main-push',/push:\s*[\s\S]*branches:\s*\[main\]/.test(staging),'staging deploy triggers from main only');
+must('read-only-repo-token',/permissions:\s*\n\s*contents:\s*read/.test(staging),'workflow repository token is contents:read');
+must('checkout-no-credentials',(staging.match(/persist-credentials:\s*false/g)||[]).length>=2,'both jobs disable persisted checkout credentials');
+must('canonical-node',(staging.match(/node-version-file:\s*\.nvmrc/g)||[]).length>=2,'verify and deploy use .nvmrc');
+must('verify-before-deploy',/deploy_staging:\s*\n\s*needs:\s*verify/.test(staging),'deployment requires verify job');
+for(const cmd of ['npm ci','npm run dependency:audit','npm run source:manifest:check','npm run repo:exhaustive','npm run repo:hygiene','npm run quality:static','npm run node24:suite'])must(`verify:${cmd}`,staging.includes(`- run: ${cmd}`),`verify contains ${cmd}`);
+must('staging-environment',/environment:\s*staging/.test(staging)&&/AZRAIL_TARGET_ENV:\s*staging/.test(staging),'deployment target is staging');
+must('cloud-secrets',/secrets\.CLOUDFLARE_ACCOUNT_ID/.test(staging)&&/secrets\.CLOUDFLARE_API_TOKEN/.test(staging)&&/secrets\.OIDC_CLIENT_SECRET/.test(staging),'Cloudflare credentials and OIDC secret come from GitHub environment secrets');
+must('mutation-unlock-scoped',/deploy_staging:[\s\S]*AZRAIL_ALLOW_CLOUD_MUTATION:\s*I_UNDERSTAND/.test(staging)&&!/verify:[\s\S]*AZRAIL_ALLOW_CLOUD_MUTATION:\s*I_UNDERSTAND[\s\S]*deploy_staging:/.test(staging),'mutation interlock exists only in deployment job');
+must('deploy-ci',/- run:\s*npm run deploy:ci/.test(staging),'deployment uses guarded deploy-ci path');
+must('post-deploy-health',/- run:\s*npm run staging:auto-health/.test(staging),'deployment verifies public /health exact release afterward');
+must('production-disabled',production.includes('if: ${{ false }}'),'production auto-deploy remains disabled');
+must('oidc-secret-required',deployCi.includes('OIDC_CLIENT_SECRET is required for an OIDC deployment'),'deploy-ci refuses missing OIDC secret');
+must('staging-oidc-fallback',deployCi.includes("baseConfig.vars?.OIDC_ISSUER")&&deployCi.includes("baseConfig.vars?.OIDC_CLIENT_ID"),'staging may use canonical public OIDC identifiers');
+for(const c of checks)console.log(`${c.status.padEnd(7)} ${c.name} — ${c.detail}`);
+if(failures.length){console.error(`STAGING AUTO-DEPLOY CHECK FAILED: ${failures.length}`);for(const f of failures)console.error(`- ${f}`);process.exit(1)}
+console.log(`STAGING AUTO-DEPLOY CHECK VERIFIED: ${checks.length} checks passed; production remains gated.`);

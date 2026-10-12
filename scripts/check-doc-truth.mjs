@@ -1,0 +1,44 @@
+import { readFileSync } from 'node:fs';
+const version=JSON.parse(readFileSync('package.json','utf8')).version;
+const required=[
+  ['README.md',version],
+  ['START_HERE_RU.md',version],
+  ['DEPLOY_RU.md',version],
+  ['DEPLOY.md',version],
+  ['docs/current/RELEASE_STATUS_RU.md',version],
+  ['docs/runbooks/MIGRATIONS_RU.md','schema_migrations'],
+  ['docs/current/CONFIGURATION_TRUTH_RU.md','config/environments.json'],
+  ['docs/runbooks/RELEASE_PACKAGE_RU.md','release-manifest.json'],
+  ['docs/current/QUALITY_GATE_RU.md','UNVERIFIED'],
+  ['docs/current/REPOSITORY_AUDIT_RU.md','npm run repo:hygiene'],
+  ['docs/current/REPO_LAYOUT_RU.md','docs/history/'],
+  [`docs/releases/CHANGELOG_${version}.md`,version],
+  ['docs/current/APPROVAL_ENGINE_RU.md','payload_digest'],
+  ['docs/current/EVENT_STREAM_RU.md','event_stream'],
+  ['docs/current/OBSERVABILITY_RU.md','trace_links'],
+  ['docs/current/PROJECTS_RU.md','project_profiles'],
+  ['docs/current/ATTACHMENTS_RU.md','AttachmentRef'],
+  ['docs/current/WEB_STUDIO_RU.md','workspace revision'],
+  ['docs/current/MUSIC_STUDIO_RU.md','music_sessions'],
+  ['docs/current/VIDEO_STUDIO_ARCHITECTURE_RU.md','video_sessions'],
+  ['docs/current/AUDIO_LAB_RU.md','Integrated LUFS'],
+  ['docs/current/ABLETON_LAB_RU.md','ableton_analyses'],
+  ['docs/current/DATA_STUDIO_RU.md','data_analyses'],
+  ['docs/current/LEDGER_STUDIO_RU.md','model_call_dimensions'],
+  ['docs/current/PULSE_LAB_RU.md','System Control Center'],
+  ['docs/current/CONNECTIONS_RU.md','connector_health_checks'],
+  ['docs/current/METATRON_LAB_RU.md','Agent Operations Center'],
+  ['docs/current/UNIVERSAL_MODULE_SYSTEM_RU.md','ModuleDefinition'],
+  ['docs/current/CROSS_CUTTING_FINAL_RU.md','Universal Compare Center'],
+  ['docs/current/FINAL_GAP_AUDIT_RU.md','RECONCILIATION_REQUIRED'],
+  ['docs/runbooks/STAGING_DEPLOY_RU.md','AZRAIL_EXPECTED_STAGING_DEPLOYMENT'],
+  ['docs/runbooks/STAGING_SMOKE_RU.md','staging-smoke-verified.json'],
+  ['docs/runbooks/SECURITY_VERIFICATION_RU.md','staging-security-verified.json'],
+  ['docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md','RECONCILIATION_REQUIRED'],
+  ['docs/runbooks/BACKUP_RESTORE_PROOF_RU.md','VERIFIED_DISPOSABLE_CLOUD'],
+  ['docs/runbooks/PRODUCTION_RELEASE_RU.md','VERIFIED_RELEASED'],
+];
+for(const [file,marker] of required){const text=readFileSync(file,'utf8');if(!text.includes(marker))throw Error(`Documentation truth drift: ${file} missing ${marker}`);}
+const deployRu=readFileSync('DEPLOY_RU.md','utf8');
+for(const forbidden of ['Node 20 или новее','автоматический deploy включён','wrangler d1 execute azrail-db --remote --file=./schema.sql']) if(deployRu.includes(forbidden)) throw Error(`Unsafe/stale deployment instruction in DEPLOY_RU.md: ${forbidden}`);
+console.log(`Documentation truth OK: ${version}; canonical operator docs are current.`);

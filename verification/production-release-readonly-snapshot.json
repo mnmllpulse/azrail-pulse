@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.54",
+  "master_item": 38,
+  "generated_at": "2026-10-10T09:42:01Z",
+  "source": "GitHub, Cloudflare and Canva connectors; read-only inspection for production release preparation",
+  "mutation_free": true,
+  "github": {
+    "repository": "mnmllpulse/azrail-os",
+    "default_branch": "main",
+    "main_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
+    "remote_package_version": "1.4.0",
+    "exact_release_pr_present": false,
+    "exact_release_pr_verified": false,
+    "exact_release_pr_merged": false,
+    "known_open_pr_12": {
+      "reusable": false,
+      "reason": "not exact RC54 release PR; historical CI was not successful"
+    }
+  },
+  "cloudflare": {
+    "production": {
+      "worker_name": "azrail-os",
+      "deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+      "version_id": "476a3e6d-c066-484c-a0f8-d986bc630119",
+      "compatibility_date": "2026-08-08",
+      "d1_database_id": "c76e7d92-648c-45bc-b0df-f26b00d0ff88",
+      "d1_bookmark": "00000e1f-00000000-00005100-9c9850f11ed7d9569fb8f9c8c00edf1",
+      "known_drift": [
+        "compatibility_date differs from canonical RC",
+        "AUTH_MODE/OIDC/PUBLIC_ORIGINS/UNIFIED_LEDGER are not aligned",
+        "legacy CORS_ORIGIN=* is still bound",
+        "observability is not enabled in live settings",
+        "legacy AZRAIL_TOKEN secret remains"
+      ]
+    },
+    "staging": {
+      "worker_name": "azrail-pulse-staging",
+      "deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+      "version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+      "compatibility_date": "2026-09-29"
+    }
+  },
+  "canva": {
+    "design_id": "DAHWmofp_Os",
+    "title": "AZRAIL Unified Interface Website",
+    "read_only": true
+  },
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "production": false
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.34",
+  "stage": "Stage 20 / Professional Data Studio",
+  "generated_at": "2026-10-10T04:05:17.425105+00:00",
+  "environment": {
+    "node": "v22.16.0",
+    "release_contract": "Node >=24"
+  },
+  "verification": {
+    "data_studio_architecture": {
+      "status": "PASSED",
+      "negative_test": "PASSED (intentional Save dataset to Project UI marker removal produced exit 1)"
+    },
+    "data_engine_runtime": {
+      "status": "PASSED",
+      "checks": [
+        "semicolon delimiter",
+        "decimal-comma numeric inference",
+        "stable mean",
+        "explicit cleanup",
+        "RFC-style CSV quoting"
+      ]
+    },
+    "migration_026": {
+      "status": "PASSED",
+      "checks": [
+        "schema + migration apply",
+        "second apply idempotence",
+        "dataset artifact FK",
+        "ON DELETE SET NULL"
+      ]
+    },
+    "ui_typecheck": {
+      "status": "PASSED",
+      "command": "tsc -p tsconfig.ui.json --noEmit"
+    },
+    "typescript_syntax": {
+      "status": "PASSED",
+      "files": 247,
+      "parse_diagnostics": 0
+    },
+    "fallback_preview": {
+      "status": "PASSED",
+      "modules": 32,
+      "release_verified": false
+    },
+    "release_package_guard": {
+      "status": "PASSED",
+      "detail": "release:package correctly blocked typescript-fallback / release_verified=false"
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 22,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 22,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "staging_drift": {
+      "status": "WARNING",
+      "counts": {
+        "PASS": 34,
+        "WARNING": 1,
+        "DRIFT": 0,
+        "BLOCKER": 0
+      }
+    }
+  },
+  "truth_boundaries": [
+    "CSV/TSV parsing, schema inference, filter/sort, statistics, charts and transformations run locally in the browser.",
+    "Schema/type inference is diagnostic and does not silently rewrite source values.",
+    "Transformations are explicit and reversible in the workbench until export/save; the original File is not modified.",
+    "Cloudflare R2/D1 are used only after explicit Save dataset to Project.",
+    "Saved dataset artifacts must match the authenticated account, selected project and studio_id=data before data_analyses history is written.",
+    "No GitHub, Cloudflare, or Canva mutation was performed."
+  ],
+  "release_blockers": [
+    "Full Node24 dependency-backed suite not executed in current Node22 environment",
+    "Canonical esbuild UI build not release-verified",
+    "Vitest blocked by environment",
+    "Wrangler dry-run blocked by environment",
+    "Authenticated runtime smoke target/credential not provided"
+  ]
+}

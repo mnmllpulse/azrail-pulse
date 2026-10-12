@@ -1,0 +1,197 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> dark-mnmll-pulse-os@1.0.0-cf check
+> npm run typecheck && npm test && npm run build
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> dark-mnmll-pulse-os@1.0.0-cf typecheck
+> tsc --noEmit && tsc -p tsconfig.worker.json --noEmit
+
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> dark-mnmll-pulse-os@1.0.0-cf test
+> node --import tsx --test tests/*.test.ts
+
+✔ three domains share a Worker and have explicit landing roles (20.212291ms)
+✔ health is public; API and storage are protected; unknown API never becomes HTML (40.13498ms)
+✔ login stores only hashes; cookie flags, logout and key rotation revoke access (9.728303ms)
+✔ missing or weak owner key fails closed (1.537081ms)
+✔ login is rate limited and does not disclose the key (8.489928ms)
+✔ cross-origin and missing-origin writes are rejected even with a valid session (8.022144ms)
+✔ malformed JSON, oversized JSON and role injection are rejected (8.55855ms)
+✔ memory persists, accepts only caller ownership and supports deletion (6.197221ms)
+✔ chat matches client contract and records real attempted calls without fabricated token counts (4.739465ms)
+✔ model identifiers are allowlisted before AI calls (5.852167ms)
+✔ swarm validates every model before making its first generation (4.507848ms)
+✔ swarm archive keeps the authoritative artifact ID and unknown telemetry values (8.277436ms)
+✔ provider model configuration cannot bypass the external billing lock (4.273394ms)
+✔ server-side daily quota holds across concurrent requests; zero disables AI (5.354157ms)
+✔ quota expiration allows a fresh window and invalid limits fail closed (1.227571ms)
+✔ external calls require both policy layers and an explicit quota (20.052612ms)
+✔ failed image generation is a failure, not a fabricated SVG success (3.935952ms)
+✔ image adapter uses supported input and reports the actual model (3.561078ms)
+✔ uploads roundtrip through R2 with ownership and attachment-only downloads (10.591914ms)
+✔ migration is additive, repeatable, and does not change legacy tables (1.179678ms)
+✔ ALS parser handles supported tempo paths without inventing missing music metadata (175.867297ms)
+✔ legacy disconnected endpoints do not fake success or disclose secrets (11.067734ms)
+✔ scheduled cleanup removes expired sessions and marks abandoned calls (2.978492ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1734.543777
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+
+> dark-mnmll-pulse-os@1.0.0-cf build
+> node scripts/prepare-assets.mjs && vite build && node scripts/build-worker.mjs
+
+vite v6.4.3 building for production...
+transforming...
+✓ 3723 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                    0.65 kB │ gzip:   0.44 kB
+dist/assets/SandboxStudioPanel-Cg1sXqY3.css        1.31 kB │ gzip:   0.57 kB
+dist/assets/Studio-Beg8tuEN.css                    3.97 kB │ gzip:   1.64 kB
+dist/assets/index-PwO8PSee.css                   359.20 kB │ gzip:  41.85 kB
+dist/assets/check-Gs40B1HC.js                      0.29 kB │ gzip:   0.24 kB
+dist/assets/chevron-right-D99F_xcy.js              0.30 kB │ gzip:   0.25 kB
+dist/assets/plus-BabzNTH6.js                       0.33 kB │ gzip:   0.25 kB
+dist/assets/x-BcMQdZOi.js                          0.33 kB │ gzip:   0.26 kB
+dist/assets/cloud-ZSZ8n8yW.js                      0.33 kB │ gzip:   0.27 kB
+dist/assets/code-BFn96oNS.js                       0.34 kB │ gzip:   0.26 kB
+dist/assets/clock-D8BzKBRg.js                      0.34 kB │ gzip:   0.27 kB
+dist/assets/arrow-left-dnaVoZ6m.js                 0.34 kB │ gzip:   0.27 kB
+dist/assets/search-IQbqGIYn.js                     0.34 kB │ gzip:   0.27 kB
+dist/assets/circle-check-BzeGWm9i.js               0.35 kB │ gzip:   0.27 kB
+dist/assets/circle-check-big-DZSX4pgv.js           0.36 kB │ gzip:   0.28 kB
+dist/assets/play-P_HC66jV.js                       0.36 kB │ gzip:   0.28 kB
+dist/assets/user-DQtXicTM.js                       0.36 kB │ gzip:   0.28 kB
+dist/assets/flame-nfl3IhCY.js                      0.37 kB │ gzip:   0.29 kB
+dist/assets/info-DZqlIQa-.js                       0.37 kB │ gzip:   0.28 kB
+dist/assets/rotate-ccw-C4x5AQJE.js                 0.37 kB │ gzip:   0.29 kB
+dist/assets/lock-CF_yx-BF.js                       0.37 kB │ gzip:   0.29 kB
+dist/assets/credit-card-C4lKnJ1j.js                0.38 kB │ gzip:   0.29 kB
+dist/assets/pause-D01110dZ.js                      0.38 kB │ gzip:   0.27 kB
+dist/assets/target-D7q1vFhc.js                     0.39 kB │ gzip:   0.27 kB
+dist/assets/beaker-Aj-iOtHA.js                     0.40 kB │ gzip:   0.29 kB
+dist/assets/folder-C1R73ieK.js                     0.40 kB │ gzip:   0.29 kB
+dist/assets/ellipsis-vertical-Cr3UtHY1.js          0.40 kB │ gzip:   0.27 kB
+dist/assets/upload-B_2E5RnS.js                     0.40 kB │ gzip:   0.30 kB
+dist/assets/library-BQRhnEnJ.js                    0.40 kB │ gzip:   0.29 kB
+dist/assets/copy-C6E8ap7D.js                       0.40 kB │ gzip:   0.31 kB
+dist/assets/download-viK5LKeU.js                   0.41 kB │ gzip:   0.30 kB
+dist/assets/message-square-B2UUDV1K.js             0.41 kB │ gzip:   0.31 kB
+dist/assets/activity-JGrXxmNX.js                   0.41 kB │ gzip:   0.31 kB
+dist/assets/history-CB3FeWQK.js                    0.41 kB │ gzip:   0.30 kB
+dist/assets/user-check-B4zJa7xx.js                 0.41 kB │ gzip:   0.31 kB
+dist/assets/square-terminal-DSbXV750.js            0.42 kB │ gzip:   0.31 kB
+dist/assets/database-DeqGQSgR.js                   0.42 kB │ gzip:   0.31 kB
+dist/assets/circle-question-mark-ALbinSzW.js       0.42 kB │ gzip:   0.31 kB
+dist/assets/compass-C3N6mqUu.js                    0.42 kB │ gzip:   0.31 kB
+dist/assets/circle-alert-DCTtYB--.js               0.42 kB │ gzip:   0.29 kB
+dist/assets/eye-BMla7sji.js                        0.42 kB │ gzip:   0.30 kB
+dist/assets/calendar-CaOxxkF5.js                   0.43 kB │ gzip:   0.31 kB
+dist/assets/zap-W4_veGxk.js                        0.44 kB │ gzip:   0.31 kB
+dist/assets/leaf-BzoN-gWc.js                       0.44 kB │ gzip:   0.33 kB
+dist/assets/workflow-DSASIyyC.js                   0.44 kB │ gzip:   0.31 kB
+dist/assets/shield-BGiYwwZf.js                     0.44 kB │ gzip:   0.33 kB
+dist/assets/image-ZrJ5p0AH.js                      0.44 kB │ gzip:   0.33 kB
+dist/assets/git-branch-D1WsEofb.js                 0.45 kB │ gzip:   0.32 kB
+dist/assets/book-open-rgevOk5f.js                  0.45 kB │ gzip:   0.31 kB
+dist/assets/scan-Jr3sBHOe.js                       0.46 kB │ gzip:   0.31 kB
+dist/assets/send-DGjhlfay.js                       0.46 kB │ gzip:   0.33 kB
+dist/assets/folder-open-DssLkpA2.js                0.47 kB │ gzip:   0.32 kB
+dist/assets/maximize-BRVZvsTO.js                   0.47 kB │ gzip:   0.30 kB
+dist/assets/grid-3x3-CSpF1M1L.js                   0.47 kB │ gzip:   0.32 kB
+dist/assets/file-down-hb6fw0y3.js                  0.48 kB │ gzip:   0.32 kB
+dist/assets/shield-check-DHTb_n4t.js               0.49 kB │ gzip:   0.35 kB
+dist/assets/file-code-ziEDD-ok.js                  0.49 kB │ gzip:   0.32 kB
+dist/assets/refresh-ccw-B5t_92Iv.js                0.49 kB │ gzip:   0.33 kB
+dist/assets/bot-DomPJ_Ip.js                        0.50 kB │ gzip:   0.33 kB
+dist/assets/trash-2-kE4NVoMe.js                    0.50 kB │ gzip:   0.32 kB
+dist/assets/server-DSBE1MNB.js                     0.51 kB │ gzip:   0.32 kB
+dist/assets/shopping-bag-Cj8D0pBa.js               0.51 kB │ gzip:   0.34 kB
+dist/assets/share-2-KIDEXqbz.js                    0.53 kB │ gzip:   0.34 kB
+dist/assets/binary-uF0QcC6m.js                     0.53 kB │ gzip:   0.33 kB
+dist/assets/sparkle-5HbPu3Tp.js                    0.55 kB │ gzip:   0.33 kB
+dist/assets/network-Bn2WCkHX.js                    0.56 kB │ gzip:   0.34 kB
+dist/assets/sliders-vertical-t8KGFpW-.js           0.60 kB │ gzip:   0.34 kB
+dist/assets/waves-Cy5ecRQJ.js                      0.60 kB │ gzip:   0.32 kB
+dist/assets/sliders-horizontal-CgCUmIUU.js         0.60 kB │ gzip:   0.35 kB
+dist/assets/eye-off-BEjD4TN-.js                    0.60 kB │ gzip:   0.38 kB
+dist/assets/star-CRDDjF70.js                       0.65 kB │ gzip:   0.40 kB
+dist/assets/settings-7vjbZDef.js                   0.66 kB │ gzip:   0.36 kB
+dist/assets/sparkles-B2Kr89nB.js                   0.67 kB │ gzip:   0.39 kB
+dist/assets/palette-C83S4iA0.js                    0.68 kB │ gzip:   0.38 kB
+dist/assets/wand-sparkles-C6IovFwt.js              0.69 kB │ gzip:   0.40 kB
+dist/assets/brain-CICtEa2R.js                      0.75 kB │ gzip:   0.42 kB
+dist/assets/fingerprint-12VZ-F1t.js                0.78 kB │ gzip:   0.46 kB
+dist/assets/dna-DJyKKga-.js                        0.80 kB │ gzip:   0.44 kB
+dist/assets/cpu-DvvzO3hW.js                        0.82 kB │ gzip:   0.40 kB
+dist/assets/panels-top-left-BdWd2o4P.js            0.92 kB │ gzip:   0.46 kB
+dist/assets/mic-CfZP_lEW.js                        0.92 kB │ gzip:   0.44 kB
+dist/assets/useStudioState-CIyR47wl.js             1.01 kB │ gzip:   0.57 kB
+dist/assets/skip-forward-DNZPbMIT.js               1.20 kB │ gzip:   0.48 kB
+dist/assets/FileUploadButton-BzXA0lqc.js           1.39 kB │ gzip:   0.84 kB
+dist/assets/volume-2-4JbUVYwp.js                   2.32 kB │ gzip:   0.78 kB
+dist/assets/DeployStudioPanel-DsP0BO9C.js          2.62 kB │ gzip:   1.42 kB
+dist/assets/TelegramBotService-T1buXywo.js         2.90 kB │ gzip:   1.07 kB
+dist/assets/Skeleton-CAFvOMzh.js                   3.33 kB │ gzip:   1.06 kB
+dist/assets/Tooltip-OR-UUl8u.js                    3.43 kB │ gzip:   1.50 kB
+dist/assets/BillingStudioPanel-Y7V-MOud.js         3.59 kB │ gzip:   1.69 kB
+dist/assets/AzrailOrchestrator-LesgXYa1.js         4.16 kB │ gzip:   1.96 kB
+dist/assets/MarketplaceStudioPanel-CR7Dv_U1.js     4.76 kB │ gzip:   1.86 kB
+dist/assets/BotManagerPanel-Z39xGaCl.js            4.97 kB │ gzip:   2.18 kB
+dist/assets/AnalyticsStudioPanel-CyZkSaqo.js       4.99 kB │ gzip:   1.92 kB
+dist/assets/History-Chez4pnR.js                    5.80 kB │ gzip:   2.09 kB
+dist/assets/AutomationStudioPanel-7F2vwybd.js      7.28 kB │ gzip:   2.00 kB
+dist/assets/VoiceInputButton-3xsTi4W0.js           7.42 kB │ gzip:   2.84 kB
+dist/assets/DNASequencer-BUeAYOjG.js               7.77 kB │ gzip:   2.81 kB
+dist/assets/SecurityStudioPanel-ikkOuINf.js        9.06 kB │ gzip:   2.68 kB
+dist/assets/SwarmChat-Cbw2Yx7o.js                  9.37 kB │ gzip:   3.46 kB
+dist/assets/ModelStudioPanel-CDVVms1I.js          10.02 kB │ gzip:   2.45 kB
+dist/assets/WebStudioPanel-BeSaec3V.js            10.84 kB │ gzip:   3.41 kB
+dist/assets/AzrailMemoryCorePanel-BYokhHtq.js     13.61 kB │ gzip:   4.36 kB
+dist/assets/MainGallery-D2SIryyt.js               15.07 kB │ gzip:   4.64 kB
+dist/assets/QuantumMind-BSglnvU3.js               15.16 kB │ gzip:   5.23 kB
+dist/assets/index-DqDefVzG.js                     15.63 kB │ gzip:   5.44 kB
+dist/assets/AgentConfigurationPanel-ClH-c1Lk.js   15.70 kB │ gzip:   4.33 kB
+dist/assets/DataStudioPanel-BWPbQeAT.js           16.37 kB │ gzip:   4.57 kB
+dist/assets/RealityEngine-CKjTD36Y.js             18.69 kB │ gzip:   5.82 kB
+dist/assets/modules-ByFCBjWZ.js                   21.69 kB │ gzip:   6.85 kB
+dist/assets/purify.es-DedTAGkB.js                 29.05 kB │ gzip:  11.18 kB
+dist/assets/SwarmConfigurationPanel-4GfLLerx.js   29.51 kB │ gzip:   8.25 kB
+dist/assets/SystemBook-CZk0gPQw.js                35.77 kB │ gzip:  10.57 kB
+dist/assets/DeepWorkContext-GWG55PaR.js           36.00 kB │ gzip:  12.64 kB
+dist/assets/CodeStudioPanel-DJzyHQjY.js           36.59 kB │ gzip:  11.03 kB
+dist/assets/ImageStudioPanel-JTdKbZGb.js          37.77 kB │ gzip:  12.65 kB
+dist/assets/AreaChart-Mmu2HUvN.js                 44.97 kB │ gzip:  11.68 kB
+dist/assets/VideoStudioPanel-CcdilcRf.js          50.04 kB │ gzip:  16.71 kB
+dist/assets/SandboxStudioPanel-BGD9WHdV.js        54.87 kB │ gzip:  16.51 kB
+dist/assets/KnowledgeHubPanel--l7BoUuC.js         62.75 kB │ gzip:  18.22 kB
+dist/assets/AgentForgePanel-BVwYnP6O.js           66.16 kB │ gzip:  19.56 kB
+dist/assets/Settings-DEuuMBb1.js                  69.28 kB │ gzip:  18.23 kB
+dist/assets/InfrastructureHub-DJLgcHIj.js         72.63 kB │ gzip:  24.45 kB
+dist/assets/index.es-C36BTVQo.js                 160.96 kB │ gzip:  54.17 kB
+dist/assets/html2canvas.esm-QH1iLAAe.js          202.38 kB │ gzip:  48.04 kB
+dist/assets/MusicStudioPanel-D8lwwzQw.js         202.74 kB │ gzip:  48.98 kB
+dist/assets/MainLayout-D9xKzA5F.js               241.25 kB │ gzip:  60.61 kB
+dist/assets/Dashboard-B5nuHTlY.js                247.20 kB │ gzip:  83.01 kB
+dist/assets/index-CCz_b0no.js                    251.31 kB │ gzip:  81.04 kB
+dist/assets/WorkspaceApp-TgcdCS8y.js             262.02 kB │ gzip:  90.92 kB
+dist/assets/CartesianChart-BjhWvvhN.js           347.74 kB │ gzip: 102.98 kB
+dist/assets/PlanetCanvas-DLQuo5yl.js             554.25 kB │ gzip: 140.21 kB
+dist/assets/PulseLabPanel-Bsp1FjMq.js            622.80 kB │ gzip: 166.89 kB
+dist/assets/Studio-a_BWj8df.js                   904.92 kB │ gzip: 266.44 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 19.54s
+Worker bundle: 450704 bytes (99446 gzip). Local compilation only.

@@ -1,0 +1,55 @@
+{
+  "release": "1.5.0-rc.14",
+  "generated_at": "2026-10-08T21:58:11Z",
+  "status": "review_candidate_not_production_ready",
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "deploy": false
+  },
+  "passed": {
+    "release_preflight": true,
+    "targeted_runtime_assertions": 8,
+    "typescript_ts_tsx_parse_files_src_tests": 176,
+    "typescript_parse_errors": 0,
+    "relative_import_checks_src_tests": 625,
+    "missing_relative_imports": 0,
+    "strict_json_files": 50,
+    "jsonc_config_files_parsed": 1,
+    "yaml_files": 2,
+    "mjs_syntax_files": 7,
+    "shell_syntax_files": 5,
+    "schema_application_tables": 51,
+    "migration_014_reapply": true,
+    "migration_014_legacy_outbox_backfill": true,
+    "secret_scan_real_findings": 0,
+    "package_lock_version_consistent": true,
+    "secret_scan_files": 693,
+    "secret_scan_known_dummy_fixture_matches": 6,
+    "source_manifest_files": 739,
+    "source_manifest_missing": 0,
+    "source_manifest_extra": 0,
+    "source_manifest_sha_mismatch": 0,
+    "zip_integrity": true
+  },
+  "not_proven": {
+    "npm_ci": "NOT PASS: bounded npm ci attempt did not complete in this isolated environment; no successful install signal was produced",
+    "node_runtime": "current sandbox is Node 22.16.0 while package engines require Node >=24",
+    "full_semantic_typecheck": "not run with the complete installed dependency/platform type tree",
+    "full_vitest": "not run; project dependencies are unavailable",
+    "wrangler_staging_dry_run": "not run; Wrangler dependency unavailable",
+    "wrangler_production_dry_run": "not run; Wrangler dependency unavailable",
+    "staging_migration_smoke": "not run against remote/disposable staging D1; remote mutations intentionally disabled",
+    "workers_ai_whisper_binary_runtime": "Cloudflare docs support binary input, but real staging inference was intentionally not invoked"
+  },
+  "rc14_focus": [
+    "durable mission delivery generation fencing across recovery and stale DO schedules",
+    "no-partial-mutation recovery eligibility across outbox/delivery/mission rows",
+    "workspace HEAD publication fenced by exact project lease inside the D1 CAS",
+    "fair fail-closed R2 GC dry-run preview",
+    "per-project/account retention ranking",
+    "Studio Whisper binary input to reduce JavaScript heap expansion",
+    "legacy Firebase reference config sanitation",
+    "additive idempotent migration 014"
+  ]
+}

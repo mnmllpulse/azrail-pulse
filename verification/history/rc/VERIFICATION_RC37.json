@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.37",
+  "stage": "Stage 23 / Professional Connections",
+  "generated_at": "2026-10-10T05:30:58.405855+00:00",
+  "environment": {
+    "node": "v22.16.0",
+    "release_contract": "Node >=24",
+    "canonical_dependencies_installed": false
+  },
+  "verification": {
+    "connections_architecture": {
+      "status": "PASSED",
+      "negative_test": "PASSED (intentional Credential lifecycle UI marker removal produced exit 1)"
+    },
+    "migration_029": {
+      "status": "PASSED",
+      "checks": [
+        "schema apply",
+        "migration apply",
+        "second apply idempotence",
+        "8 required columns",
+        "health indexes",
+        "FK ON DELETE CASCADE"
+      ]
+    },
+    "ui_typecheck": {
+      "status": "PASSED",
+      "command": "tsc -p tsconfig.ui.json --noEmit",
+      "note": "global TypeScript compiler; canonical Node24 dependency-backed full typecheck remains blocked"
+    },
+    "typescript_syntax": {
+      "status": "PASSED",
+      "active_files": 254,
+      "parse_diagnostics": 0
+    },
+    "fallback_preview": {
+      "status": "PASSED",
+      "modules": 34,
+      "release_verified": false
+    },
+    "release_package_guard": {
+      "status": "PASSED",
+      "detail": "release:package correctly blocked typescript-fallback / release_verified=false"
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 25,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 25,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "staging_drift": {
+      "status": "WARNING",
+      "counts": {
+        "PASS": 34,
+        "WARNING": 1,
+        "DRIFT": 0,
+        "BLOCKER": 0
+      }
+    }
+  },
+  "truth_boundaries": [
+    "Connections public API/UI does not return connector secret_cipher, bearer tokens, OAuth client secrets, or provider access tokens.",
+    "Health history records only safe status/error codes, latency, tool count, account/connection ownership and timestamps; no connector payload bodies or credentials are stored there.",
+    "Bearer and OAuth credential rotation require exact secret_rotation approval; successful rotation advances connection revision, invalidates stale discovered tools and requires re-verification.",
+    "OAuth re-authorization preserves origin/resource/PKCE binding and does not persist refresh_token.",
+    "No GitHub, Cloudflare, or Canva mutation was performed."
+  ],
+  "release_blockers": [
+    "Full Node24 dependency-backed typecheck/build/test suite not executed in current Node22 environment",
+    "Canonical esbuild UI build not release-verified",
+    "Vitest blocked by environment",
+    "Wrangler dry-run blocked by environment",
+    "Authenticated runtime smoke target/credential not provided"
+  ]
+}

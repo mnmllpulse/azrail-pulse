@@ -1,0 +1,220 @@
+{
+  "base": "0.8.0",
+  "release": "0.8.1",
+  "excludes": [
+    "RELEASE_FILES.json",
+    "docs/audit-2026-09-26/CHANGED_FILES.json"
+  ],
+  "changes": [
+    {
+      "path": "DEPLOY.md",
+      "change": "modified",
+      "bytes": 13237
+    },
+    {
+      "path": "README.md",
+      "change": "modified",
+      "bytes": 108986
+    },
+    {
+      "path": "START_HERE_RU.md",
+      "change": "modified",
+      "bytes": 8363
+    },
+    {
+      "path": "docs/audit-2026-09-26/AUDIT_RU.md",
+      "change": "added",
+      "bytes": 22812
+    },
+    {
+      "path": "docs/audit-2026-09-26/CHECK_OUTPUT.txt",
+      "change": "added",
+      "bytes": 906
+    },
+    {
+      "path": "docs/audit-2026-09-26/CHECK_RESULTS.json",
+      "change": "added",
+      "bytes": 1198
+    },
+    {
+      "path": "migrations/007-mission-hints.sql",
+      "change": "added",
+      "bytes": 433
+    },
+    {
+      "path": "package-lock.json",
+      "change": "modified",
+      "bytes": 163642
+    },
+    {
+      "path": "package.json",
+      "change": "modified",
+      "bytes": 1123
+    },
+    {
+      "path": "public/ultimate.css",
+      "change": "modified",
+      "bytes": 8977
+    },
+    {
+      "path": "public/ultimate.html",
+      "change": "modified",
+      "bytes": 33182
+    },
+    {
+      "path": "public/ultimate.js",
+      "change": "modified",
+      "bytes": 14418
+    },
+    {
+      "path": "schema.sql",
+      "change": "modified",
+      "bytes": 14987
+    },
+    {
+      "path": "scripts/build-ultimate.mjs",
+      "change": "added",
+      "bytes": 841
+    },
+    {
+      "path": "scripts/migrate.mjs",
+      "change": "modified",
+      "bytes": 3987
+    },
+    {
+      "path": "src/agents/orchestrator.ts",
+      "change": "modified",
+      "bytes": 53198
+    },
+    {
+      "path": "src/core/azrail-sandbox.ts",
+      "change": "modified",
+      "bytes": 4906
+    },
+    {
+      "path": "src/core/execution-engine.ts",
+      "change": "modified",
+      "bytes": 102862
+    },
+    {
+      "path": "src/core/mission-guard.ts",
+      "change": "modified",
+      "bytes": 13524
+    },
+    {
+      "path": "src/core/workspace-sync.ts",
+      "change": "modified",
+      "bytes": 5561
+    },
+    {
+      "path": "src/index.ts",
+      "change": "modified",
+      "bytes": 71179
+    },
+    {
+      "path": "src/lib/backups.ts",
+      "change": "modified",
+      "bytes": 4486
+    },
+    {
+      "path": "src/lib/billing.ts",
+      "change": "modified",
+      "bytes": 5452
+    },
+    {
+      "path": "src/lib/event-store.ts",
+      "change": "modified",
+      "bytes": 1767
+    },
+    {
+      "path": "src/lib/mission-state.ts",
+      "change": "modified",
+      "bytes": 10297
+    },
+    {
+      "path": "src/lib/model-policy.ts",
+      "change": "modified",
+      "bytes": 5735
+    },
+    {
+      "path": "src/lib/project.ts",
+      "change": "modified",
+      "bytes": 835
+    },
+    {
+      "path": "src/lib/request-body.ts",
+      "change": "modified",
+      "bytes": 5623
+    },
+    {
+      "path": "src/lib/socket-access.ts",
+      "change": "added",
+      "bytes": 1237
+    },
+    {
+      "path": "src/lib/source-reader.ts",
+      "change": "modified",
+      "bytes": 7886
+    },
+    {
+      "path": "src/lib/workspace-head.ts",
+      "change": "modified",
+      "bytes": 2148
+    },
+    {
+      "path": "src/lib/workspace.ts",
+      "change": "modified",
+      "bytes": 11189
+    },
+    {
+      "path": "tests/audit-081.test.ts",
+      "change": "added",
+      "bytes": 12931
+    },
+    {
+      "path": "tests/hints.test.ts",
+      "change": "modified",
+      "bytes": 11183
+    },
+    {
+      "path": "tests/logic.test.ts",
+      "change": "modified",
+      "bytes": 47687
+    },
+    {
+      "path": "tests/migration-script.test.ts",
+      "change": "added",
+      "bytes": 2357
+    },
+    {
+      "path": "tests/mission-async.test.ts",
+      "change": "modified",
+      "bytes": 18076
+    },
+    {
+      "path": "tests/platform-http.test.ts",
+      "change": "modified",
+      "bytes": 4957
+    },
+    {
+      "path": "tests/regressions.test.ts",
+      "change": "modified",
+      "bytes": 197143
+    },
+    {
+      "path": "tests/sandbox-lifetime-runtime.test.ts",
+      "change": "added",
+      "bytes": 1198
+    },
+    {
+      "path": "tests/snapshot-safety.test.ts",
+      "change": "modified",
+      "bytes": 2703
+    },
+    {
+      "path": "tests/ultimate-ui.test.ts",
+      "change": "added",
+      "bytes": 7113
+    }
+  ]
+}

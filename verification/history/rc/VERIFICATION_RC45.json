@@ -1,0 +1,167 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.45",
+  "stage": 31,
+  "master_item": 36,
+  "title": "Production Approval Gate",
+  "generated_at": "2026-10-10T08:58:00Z",
+  "result": "GATE_PREPARED_APPROVAL_BLOCKED",
+  "production_approval": {
+    "preparation_status": "PREPARED",
+    "architecture_checks": {
+      "passed": 28,
+      "failed": 0
+    },
+    "plan_status": "BLOCKED",
+    "ready_evidence": [
+      "production_drift: ready",
+      "backup_local: ready"
+    ],
+    "blockers": [
+      "node24: found status=BLOCKED for release=1.5.0-rc.45",
+      "staging_migration: receipt missing",
+      "staging_deploy: receipt missing",
+      "staging_smoke: receipt missing",
+      "security: receipt missing",
+      "backup_cloud: receipt missing",
+      "ui_build: found status=typescript-fallback for release=unknown",
+      "production observability is not enabled in the live reviewed baseline; canonical release must enable it.",
+      "legacy production CORS_ORIGIN binding is still present; release must reconcile to strict PUBLIC_ORIGINS.",
+      "production AUTH_MODE=oidc is not present in the reviewed live baseline.",
+      "operator input pending: exact production OIDC issuer/client ID must be verified, not copied from staging.",
+      "operator input pending: production preview policy must be disabled or Access-protected.",
+      "owner approval pending: set AZRAIL_PRODUCTION_APPROVAL=1.5.0-rc.45 and exact approval phrase only after every technical prerequisite is green."
+    ],
+    "approval_receipt_present": false,
+    "owner_approval_issued": false,
+    "approval_phrase_required": "I_APPROVE_PRODUCTION_RELEASE",
+    "receipt_ttl_hours": 24,
+    "bindings": [
+      "exact release",
+      "SOURCE_MANIFEST SHA-256",
+      "package-lock SHA-256",
+      "GitHub main SHA",
+      "production deployment lease",
+      "staging verified deployment",
+      "upstream evidence SHA-256",
+      "production OIDC identity hash",
+      "preview policy"
+    ]
+  },
+  "negative_tests": {
+    "readonly_snapshot_mutation_flag": {
+      "expected": "FAIL",
+      "actual": "FAIL",
+      "exit_code": 1,
+      "marker": "snapshot-read-only"
+    },
+    "authorize_without_verified_node24": {
+      "expected": "BLOCK",
+      "actual": "BLOCK",
+      "exit_code": 1,
+      "receipt_created": false,
+      "marker": "node24 evidence is not in the required state"
+    },
+    "release_package_without_production_approval_after_temporary_node24_harness": {
+      "expected": "BLOCK",
+      "actual": "BLOCK",
+      "exit_code": 1,
+      "marker": "production approval receipt missing",
+      "temporary_harness_restored": true
+    }
+  },
+  "runtime": {
+    "node": "v22.16.0",
+    "required_node": ">=24",
+    "node24_suite_status": "BLOCKED",
+    "canonical_node24_full_suite_executed": false
+  },
+  "quality": {
+    "static": {
+      "status": "VERIFIED",
+      "passed": 39,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full": {
+      "status": "BLOCKED",
+      "passed": 39,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    }
+  },
+  "typescript": {
+    "ui_typecheck": "PASS",
+    "syntax_transpile": {
+      "files": 254,
+      "diagnostics": 0
+    },
+    "canonical_full_typecheck": "BLOCKED_BY_NODE24_ENVIRONMENT"
+  },
+  "ui_build": {
+    "fallback_modules": 34,
+    "release_verified": false,
+    "canonical_esbuild": "PENDING_NODE24"
+  },
+  "release_preflight": {
+    "status": "PASS",
+    "warning": "production OIDC client/issuer are not pinned in ZIP and must be explicitly verified/injected before release"
+  },
+  "upstream_release_evidence": {
+    "production_drift": {
+      "status": "RECONCILIATION_REQUIRED",
+      "counts": {
+        "PASS": 16,
+        "WARNING": 2,
+        "DRIFT": 2,
+        "BLOCKER": 17
+      },
+      "remote_apply_performed": false
+    },
+    "backup_restore_local": {
+      "status": "VERIFIED_LOCAL_DISPOSABLE",
+      "production_targeted": false
+    },
+    "staging_migration": "PREPARED_NOT_APPLIED",
+    "staging_deploy": "PREPARED_NOT_DEPLOYED",
+    "staging_smoke": "PREPARED_NOT_VERIFIED",
+    "security_verification": "PREPARED_NOT_VERIFIED",
+    "disposable_cloud_restore": "PENDING"
+  },
+  "readonly_baseline": {
+    "github": {
+      "repo": "mnmllpulse/azrail-os",
+      "branch": "main",
+      "head_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
+      "remote_package_version": "1.4.0",
+      "package_blob_sha": "0bb7a70370c07dbacb4993eca8224e7c118d841d"
+    },
+    "cloudflare": {
+      "staging_deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
+      "staging_version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+      "production_deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+      "production_version_id": "476a3e6d-c066-484c-a0f8-d986bc630119"
+    },
+    "canva": {
+      "visual_reference_id": "DAHWmofp_Os",
+      "title": "AZRAIL Unified Interface Website"
+    }
+  },
+  "truth_boundaries": [
+    "A plus sign is not treated as explicit production approval.",
+    "No production approval receipt was issued.",
+    "No GitHub branch, commit, push, pull request, review, merge, or ref mutation was performed.",
+    "No Cloudflare deploy, migration, settings update, secret write, D1 write, KV write, R2 write, or restore was performed.",
+    "No Canva design mutation was performed.",
+    "Production drift remains RECONCILIATION_REQUIRED and is not described as ALIGNED.",
+    "Local fallback UI build is not canonical release evidence."
+  ],
+  "next_master_item": 37
+}

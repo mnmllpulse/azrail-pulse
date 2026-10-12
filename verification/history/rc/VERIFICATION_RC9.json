@@ -1,0 +1,88 @@
+{
+  "release": "1.5.0-rc.9",
+  "status": "review_candidate",
+  "generated_at": "2026-10-08T18:45:37.995384+00:00",
+  "mutation_policy": {
+    "github_write_performed": false,
+    "cloudflare_write_performed": false,
+    "deployment_performed": false,
+    "notes": "GitHub and Cloudflare were used read-only only. No repository or account mutation was performed in the RC9 pass."
+  },
+  "passed": {
+    "release_preflight": true,
+    "package_lock_version_consistency": true,
+    "typescript_syntax": {
+      "files": 462,
+      "errors": 0
+    },
+    "relative_imports": {
+      "checked": 580,
+      "missing": 0,
+      "scope": "src + tests AST imports"
+    },
+    "strict_json": {
+      "files": 43,
+      "errors": 0
+    },
+    "jsonc": {
+      "files": 2,
+      "errors": 0
+    },
+    "yaml": {
+      "files": 2,
+      "errors": 0
+    },
+    "mjs_syntax": {
+      "files": 7,
+      "errors": 0
+    },
+    "shell_syntax": true,
+    "targeted_runtime_assertions": {
+      "passed": 7,
+      "total": 7,
+      "coverage": [
+        "waiting_approval remains suspended instead of terminal",
+        "completed remains terminal",
+        "backup R2 cursor cycle fails closed",
+        "version restore R2 cursor cycle fails closed",
+        "ambiguous provider network loss raises ProviderOutcomeUncertainError",
+        "ambiguous provider call persists model_calls.status=uncertain",
+        "explicit 429 quota response remains distinguishable from transport ambiguity"
+      ]
+    },
+    "schema_smoke": {
+      "application_tables": 45,
+      "sqlite_internal_tables": 1
+    },
+    "secret_pattern_scan": {
+      "files": 139,
+      "real_findings": 0
+    },
+    "source_manifest": {
+      "files": 709,
+      "missing": 0,
+      "extra": 0,
+      "sha_mismatch": 0
+    }
+  },
+  "not_freshly_verified": {
+    "npm_ci": "Attempted for 90 seconds in the isolated environment; dependency installation did not complete before timeout and no dependency-backed test run was claimed.",
+    "semantic_typescript_typecheck": "Requires the complete project dependency tree.",
+    "full_vitest_suite": "Requires the complete project dependency tree.",
+    "wrangler_staging_dry_run": "Requires Wrangler from the project dependency tree.",
+    "wrangler_production_dry_run": "Requires Wrangler from the project dependency tree.",
+    "staging_migration_smoke": "Not executed; no remote mutation was authorized."
+  },
+  "release_blockers": [
+    "Fresh dependency-enabled npm ci/typecheck/full Vitest must pass.",
+    "Fresh Wrangler dry-run must pass for staging and production configs.",
+    "Disposable staging migration/smoke must pass before any production apply.",
+    "Production OIDC issuer/client provenance must be explicitly verified; values are intentionally not guessed."
+  ],
+  "notes": [
+    "RC9 is not production-ready.",
+    "waiting_approval is now an explicitly suspended mission state and mission polling remains active.",
+    "Ambiguous provider transport failures are treated as non-retryable until reconciled.",
+    "Historical verification from earlier releases is not used as evidence for RC9."
+  ]
+}

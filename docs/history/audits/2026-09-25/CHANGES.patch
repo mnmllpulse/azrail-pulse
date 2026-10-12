@@ -1,0 +1,2395 @@
+--- /dev/null
++++ b/.github/workflows/check.yml
+@@ -0,0 +1,18 @@
++name: Verify
++on: [push, pull_request]
++permissions:
++  contents: read
++jobs:
++  check:
++    runs-on: ubuntu-latest
++    steps:
++      - uses: actions/checkout@v4
++      - uses: actions/setup-node@v4
++        with:
++          node-version: '24'
++          cache: npm
++      - run: npm ci
++      - run: npm run check
++      - run: npm run build:check
++        env:
++          WRANGLER_SEND_METRICS: 'false'
+--- a/.gitignore
++++ b/.gitignore
+@@ -5,3 +5,5 @@
+ *.log
+ .DS_Store
+ coverage/
++.build/
++.dev.vars
+--- /dev/null
++++ b/START_HERE_RU.md
+@@ -0,0 +1,44 @@
++# AZRAIL OS 0.6.3 — проверенный пакет исправлений
++
++Дата: 25 сентября 2026. Основа: предоставленный azrail-os(2).zip, версия 0.6.2.
++
++Это исходники с исправлениями, тестами и инструкцией обновления. Это не образ уже развёрнутой системы. Cloudflare, GitHub, AI Gateway и контейнер в вашем аккаунте в этой работе не изменялись.
++
++## Что внутри
++
++- `docs/audit-2026-09-25/AUDIT_RU.md` — найденные проблемы, исправления и ограничения.
++- `docs/audit-2026-09-25/ROADMAP_RU.md` — что делать дальше, в каком порядке и как принимать результат.
++- `docs/audit-2026-09-25/VALIDATION.md` — выполненные проверки и границы их достоверности.
++- `docs/audit-2026-09-25/CHANGES.patch` — изменения относительно присланного архива.
++- `docs/audit-2026-09-25/FILES.json` — перечень изменённых и добавленных файлов с SHA-256.
++- `migrations/004-security-hardening.sql` — новые таблицы защиты расходов, билетов и повторов.
++
++## Обновление существующей установки
++
++1. Сохраните резервную копию D1 и рабочей области R2. Зафиксируйте текущую версию Worker для возможного отката.
++2. Используйте Node.js 24 и выполните `npm ci`, затем `npm run check`.
++3. Проверьте `wrangler.toml`: исходные ID D1/KV и имя R2 сохранены. Для другого аккаунта нужны его собственные ресурсы. Секреты хранятся в Cloudflare, не в ZIP.
++4. Примените **сначала миграцию**, затем выкладывайте код:
++   ```sh
++   npm run db:security
++   ```
++   Это команда для удалённой D1. Она добавляет таблицы/индексы, не удаляет существующие данные. Её можно повторять. Предполагается, что исходная схема 0.6.2 уже применена.
++5. Выполните `npm run build:check`. Это только проверка Worker, без сборки контейнера и без публикации.
++6. На машине с Docker выполните `npm run deploy`. Эта команда публикует Worker и собирает контейнер. SDK Sandbox закреплён на 0.12.9, как Dockerfile.
++7. Проверьте: вход по токену; `/health` с Authorization; загрузку ZIP; сообщение в чате; запуск миссии; повтор с тем же Idempotency-Key; отмену; WebSocket; чтение результата.
++
++Для новой базы сначала примените `schema.sql` штатной командой `npm run db:schema`. Не применяйте все исторические SQL подряд к свежей схеме: старые ALTER TABLE могут добавлять уже существующие колонки. Для старой установки проверьте, что миграции 002 и 003 были выполнены ранее.
++
++## Изменения совместимости
++
++- Постоянный токен в `?token=` больше не принимается. Используйте `Authorization: Bearer ...`; браузерный WebSocket получает билет через `/api/stream/ticket`.
++- `/agents/*` закрыт. Используйте прикладные API и `/api/stream`.
++- `/health` требует токен: обновите настройки монитора доступности.
++- Если новые таблицы D1 не созданы или D1 недоступна, защищённые платные операции отказывают. Это намеренное закрытие доступа при невозможности учёта.
++- Подтверждённый повтор миссии возвращает исходный ответ 202 и `Idempotency-Replayed: true` без повторного списания. Пока первый запрос не закончен — 409 `idempotency_pending`; с другим телом — 409 `idempotency_conflict`.
++- Ключ повторов действует 24 часа и сравнивает точные байты JSON. Клиент должен повторять то же тело с тем же ключом. После неоднозначного 5xx ключ сохраняется: сначала проверьте миссии, не создавайте новый ключ автоматически.
++- На проект допускается одна активная миссия через `/api/mission`. Другие изменения через Git/task пока не охвачены общей блокировкой.
++- Квоты отражают условные единицы запуска, а не точную сумму счёта. Отказ после резервирования может израсходовать квоту без вызова модели.
++- Чтение JSON ограничено 1 МиБ фактически полученных байтов. Загрузка файла — 50 МиБ плюс 1 МиБ multipart-оболочки.
++
++Не откатывайте код на старую версию без необходимости: это вернёт исправленные обходы защиты. Добавленные таблицы совместимы с сохранением старых данных, удалять их для отката не требуется.
+--- /dev/null
++++ b/migrations/004-security-hardening.sql
+@@ -0,0 +1,26 @@
++-- Apply before deploying 0.6.3. Safe to repeat; no existing tables are changed.
++CREATE TABLE IF NOT EXISTS request_quotas (
++  scope TEXT NOT NULL,
++  bucket INTEGER NOT NULL,
++  used INTEGER NOT NULL CHECK (used >= 0),
++  PRIMARY KEY (scope, bucket)
++);
++CREATE INDEX IF NOT EXISTS idx_request_quotas_bucket ON request_quotas(bucket);
++CREATE TABLE IF NOT EXISTS websocket_tickets (
++  ticket TEXT PRIMARY KEY,
++  caller TEXT NOT NULL,
++  expires_at INTEGER NOT NULL
++);
++CREATE INDEX IF NOT EXISTS idx_websocket_tickets_expiry ON websocket_tickets(expires_at);
++
++CREATE TABLE IF NOT EXISTS mission_admissions (
++  key TEXT PRIMARY KEY,
++  body_hash TEXT NOT NULL,
++  claim TEXT NOT NULL,
++  expires_at INTEGER NOT NULL,
++  response_body TEXT,
++  response_status INTEGER
++);
++CREATE INDEX IF NOT EXISTS idx_mission_admissions_expiry ON mission_admissions(expires_at);
++
++CREATE INDEX IF NOT EXISTS idx_missions_project_status ON missions(project_id, status);
+--- a/package-lock.json
++++ b/package-lock.json
+@@ -1,14 +1,14 @@
+ {
+   "name": "azrail-os",
+-  "version": "0.6.2",
++  "version": "0.6.3",
+   "lockfileVersion": 3,
+   "requires": true,
+   "packages": {
+     "": {
+       "name": "azrail-os",
+-      "version": "0.6.2",
+-      "dependencies": {
+-        "@cloudflare/sandbox": "^0.12.9",
++      "version": "0.6.3",
++      "dependencies": {
++        "@cloudflare/sandbox": "0.12.9",
+         "agents": "^0.8.0",
+         "fflate": "^0.8.2"
+       },
+@@ -17,6 +17,9 @@
+         "typescript": "^5.6.0",
+         "vitest": "^4.1.11",
+         "wrangler": "^4.0.0"
++      },
++      "engines": {
++        "node": ">=24.0.0"
+       }
+     },
+     "node_modules/@apidevtools/json-schema-ref-parser": {
+@@ -354,9 +357,9 @@
+       }
+     },
+     "node_modules/@cloudflare/unenv-preset": {
+-      "version": "2.16.1",
+-      "resolved": "https://registry.npmjs.org/@cloudflare/unenv-preset/-/unenv-preset-2.16.1.tgz",
+-      "integrity": "sha512-ECxObrMfyTl5bhQf/lZCXwo5G6xX9IAUo+nDMKK4SZ8m4Jvvxp52vilxyySSWh2YTZz8+HQ07qGH/2rEom1vDw==",
++      "version": "2.16.2",
++      "resolved": "https://registry.npmjs.org/@cloudflare/unenv-preset/-/unenv-preset-2.16.2.tgz",
++      "integrity": "sha512-JBP1+Z7ZSNG/d4mRP+y8VC5dka3tZVMLEZRvS+rzQ4DGV1EoxRFQckcJTTkXbHSQiTj0DtNI01Zwb/V2fX0mvQ==",
+       "dev": true,
+       "license": "MIT OR Apache-2.0",
+       "peerDependencies": {
+@@ -370,9 +373,9 @@
+       }
+     },
+     "node_modules/@cloudflare/workerd-darwin-64": {
+-      "version": "1.20260815.1",
+-      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-64/-/workerd-darwin-64-1.20260815.1.tgz",
+-      "integrity": "sha512-7PsLdcz6pT9EMd1EJGZEgMyYRfs0CHxGs62PS2L1w3s6+xGmQcRXKm/zoMftmqZF45JBa4MzFeownRKbRt/x5g==",
++      "version": "1.20260923.1",
++      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-64/-/workerd-darwin-64-1.20260923.1.tgz",
++      "integrity": "sha512-sFMyHjABspfVxAf9bmcRdYWm3rO5Vrmhb3fLboMB5Lt+Eo+X1Fj4n/3hgMYmXb6P+zW+cjWjZdH1ilE+Ad5kDw==",
+       "cpu": [
+         "x64"
+       ],
+@@ -387,9 +390,9 @@
+       }
+     },
+     "node_modules/@cloudflare/workerd-darwin-arm64": {
+-      "version": "1.20260815.1",
+-      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20260815.1.tgz",
+-      "integrity": "sha512-60wtg8ng7FVWeOg/UMbZ9Ye0sslpRRAKoftPbdtuH2volq676quxVr6Zm2EjVULH/JFZeCn72dbLlrnbh0Mpcw==",
++      "version": "1.20260923.1",
++      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-darwin-arm64/-/workerd-darwin-arm64-1.20260923.1.tgz",
++      "integrity": "sha512-t/O1jcuag+JO5VnFblf20B960FU/WSmn/n2Lcy021cBUhWnhApO9yx1VjJ7I4KhS09yXLgC2shHTzB9EnbSQpg==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -404,9 +407,9 @@
+       }
+     },
+     "node_modules/@cloudflare/workerd-linux-64": {
+-      "version": "1.20260815.1",
+-      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-linux-64/-/workerd-linux-64-1.20260815.1.tgz",
+-      "integrity": "sha512-MuqKIHPo0Qyo8MZMmy0lP2B5PeAL7f4T9Fu4Usk3QdbV4JIrKG/OoybN3Ign7m/Dff+L1Oo/ZHydB+hEg1ueFw==",
++      "version": "1.20260923.1",
++      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-linux-64/-/workerd-linux-64-1.20260923.1.tgz",
++      "integrity": "sha512-6X9fp5vFBJG0BXrjOcB4yqyqZRtZ/Jx4KRAmEp5FPxuNUbf3n6ogzZvD2s0YS+DC2zNKb0gd1lIiOye7AaGnvA==",
+       "cpu": [
+         "x64"
+       ],
+@@ -421,9 +424,9 @@
+       }
+     },
+     "node_modules/@cloudflare/workerd-linux-arm64": {
+-      "version": "1.20260815.1",
+-      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-linux-arm64/-/workerd-linux-arm64-1.20260815.1.tgz",
+-      "integrity": "sha512-XNFtJ5rIqJxnY6ISjkfbhT/ODiWJ6LcBvNbntuPD6I/F2k7aZeKgPaXrvWvKde66LXyzFKzc8Hn+Ydx4shevQg==",
++      "version": "1.20260923.1",
++      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-linux-arm64/-/workerd-linux-arm64-1.20260923.1.tgz",
++      "integrity": "sha512-esOXfxhDp2YPjZmMrO3OLa/9qAfa/uXQGwFGDyUWNF3aXkwE8fc6oauZS01UDk8YwuYlxsyjLQIKjJOrzJ2N+g==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -438,9 +441,9 @@
+       }
+     },
+     "node_modules/@cloudflare/workerd-windows-64": {
+-      "version": "1.20260815.1",
+-      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-windows-64/-/workerd-windows-64-1.20260815.1.tgz",
+-      "integrity": "sha512-PiIUWrhbMg3quolwjgMvPOd75vKESjT4aDm7nL6mSjL5IOgmpO/zKstXnYfnEH3pq7sC0UCvKlF8ZPcfsh8NMw==",
++      "version": "1.20260923.1",
++      "resolved": "https://registry.npmjs.org/@cloudflare/workerd-windows-64/-/workerd-windows-64-1.20260923.1.tgz",
++      "integrity": "sha512-Hlda2apkBcRtPQD4NnEZiEqKLIhR7au+8skF+tBHBa1jsX1/GfuYEdIR0HJ6He1qkSNkxD/Y0VXo+TNgUc1EUg==",
+       "cpu": [
+         "x64"
+       ],
+@@ -961,9 +964,9 @@
+       }
+     },
+     "node_modules/@img/sharp-darwin-arm64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.35.2.tgz",
+-      "integrity": "sha512-eEieHsMksAW4IiO5NzauESRl2D2qz3J/kwUxUrSfV06A93eEaRfMpHXyUb1mAqrR7i8U9A0GRqE9pjn6u1Jjpg==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-arm64/-/sharp-darwin-arm64-0.35.4.tgz",
++      "integrity": "sha512-Uhfl4V4lhP2nbUVF9+hyH1+luj86f1gUFeo8ALYxFoULoU+G87D43BfeMP8XHsk9boxAnCY/bf2EHwhA7MuGsA==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -980,13 +983,13 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-darwin-arm64": "1.3.1"
++        "@img/sharp-libvips-darwin-arm64": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-darwin-x64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-x64/-/sharp-darwin-x64-0.35.2.tgz",
+-      "integrity": "sha512-BaktuGPCeHJMARpodR8jK4uKiZrPAy9WrfQW0sdI37clracq8Bp01AYS3SZgi5FS/y5twa9t4+LIuuxQjqRrWw==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-darwin-x64/-/sharp-darwin-x64-0.35.4.tgz",
++      "integrity": "sha512-hWniXY3bG5qKpkKrAwPe4y+VTPmf086YQAnkxWh7uA1YrlRouWGa0M0Mxj3ZjnXFkv7/TD1bTy9lGUK26vRvWw==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1003,13 +1006,13 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-darwin-x64": "1.3.1"
++        "@img/sharp-libvips-darwin-x64": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-freebsd-wasm32": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-freebsd-wasm32/-/sharp-freebsd-wasm32-0.35.2.tgz",
+-      "integrity": "sha512-YoAxdnd8hPUkvLHd3bWY+YA8nw3xM/RyRopYucNsWHVSan8NLVM3X2volsfoRDcXdUJPg6tXahSd7HXPK7lRnw==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-freebsd-wasm32/-/sharp-freebsd-wasm32-0.35.4.tgz",
++      "integrity": "sha512-lIsKw/BU+kjB4eZjxrYrZmwOJYi3Ajrv66iAlBmUPyKc3HpnloevB1g3wxGD9P/5BbQ1brBGl65VRRrCvQDEqA==",
+       "dev": true,
+       "license": "Apache-2.0",
+       "optional": true,
+@@ -1017,7 +1020,7 @@
+         "freebsd"
+       ],
+       "dependencies": {
+-        "@img/sharp-wasm32": "0.35.2"
++        "@img/sharp-wasm32": "0.35.4"
+       },
+       "engines": {
+         "node": ">=20.9.0"
+@@ -1027,9 +1030,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-darwin-arm64": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.3.1.tgz",
+-      "integrity": "sha512-4V/M3roRMTYjiwZY9IOVQOE8OyeCxFAkYmyZDrZl51uOKjibm3oeEJ4WAmLxutAfzFbC9jqUiPs2gbnGflH+7g==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-arm64/-/sharp-libvips-darwin-arm64-1.3.3.tgz",
++      "integrity": "sha512-suTBPTDGrI9WodccaDdwZItTSaBYASlBk1NSfElSHrUfzu3szG6lvIF58+WiFvnfzuK8ZBFS5zE00PxqxnRiPg==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1044,9 +1047,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-darwin-x64": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-x64/-/sharp-libvips-darwin-x64-1.3.1.tgz",
+-      "integrity": "sha512-c0/DxItpJv2+dGhgycJBBgotdqruGYDvA79drdh0MD1dFpy7JzJ/PlXwi1H4rFf0eTy8tgbI91aHDnZIceY3jQ==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-darwin-x64/-/sharp-libvips-darwin-x64-1.3.3.tgz",
++      "integrity": "sha512-FVJZ5mITMobmXIz/hPDTw0EintTW5H3WfrxwLqEqjiIihlu+hVRyGrFQ60xl0Lxn7Bt3zdpevPaQi0HEzqz9fw==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1061,9 +1064,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-linux-arm": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm/-/sharp-libvips-linux-arm-1.3.1.tgz",
+-      "integrity": "sha512-aGGy9aWzXgHBG7HNyQPWorZthlp7+x6fDRoPAQbGO3ThcttuTyKIx3NuSHb6zb4gBNq6/yNn9f1cy9nFKS/Vmg==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm/-/sharp-libvips-linux-arm-1.3.3.tgz",
++      "integrity": "sha512-3rbU4vqXXc3hY/OiXdl52xZvT0F1yEngWfvqudtPJg/KkyiaQw2DRsFrNzpmLvfavbwOq3qXn36GP8obHRULQA==",
+       "cpu": [
+         "arm"
+       ],
+@@ -1078,9 +1081,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-linux-arm64": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm64/-/sharp-libvips-linux-arm64-1.3.1.tgz",
+-      "integrity": "sha512-JznefmcK9j1JKPz8AkQDh89kjojubyfOasWBPKfzMIhPwsgDy9evpE/naJTXXXmghS1iFwR8u/kTwh/I2/+GCw==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-arm64/-/sharp-libvips-linux-arm64-1.3.3.tgz",
++      "integrity": "sha512-0DaL0A6Xu6sQSQFwe4iVCrKWU2cCTItnRsYsCdxAMm9NF6twAA9BKnoqy4hqz4+azQ0JHuA26qiUKsf1XJ/v5A==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1095,9 +1098,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-linux-ppc64": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-ppc64/-/sharp-libvips-linux-ppc64-1.3.1.tgz",
+-      "integrity": "sha512-1EkwGNCZk6iWNCMWqrvdJ+r1j0PT1zIz60CNPhYnJlK/zyeWqlsPZIe+ocBVqPF8k/Ssee/NCk+tE9Ryrko6ng==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-ppc64/-/sharp-libvips-linux-ppc64-1.3.3.tgz",
++      "integrity": "sha512-cdn1OvUBwsXhbC0zSzJnNzf5MZ/mTrobawDvNXBTxe8VtqKAm0sRuEY2Evzovb/w9JMk4TvRxqt1mekSuJz64w==",
+       "cpu": [
+         "ppc64"
+       ],
+@@ -1112,9 +1115,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-linux-riscv64": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-riscv64/-/sharp-libvips-linux-riscv64-1.3.1.tgz",
+-      "integrity": "sha512-Ilays+w2bXdnxzxtQdmXR62u8o8GYa3eL4+Gr+1KiE4xperMZUslRaVPJwwPkzlHEjGfXAfRVAa/7CYCtSqsBw==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-riscv64/-/sharp-libvips-linux-riscv64-1.3.3.tgz",
++      "integrity": "sha512-HjPVx7yKz+0lqdhDlTw1tt90wamBoxhiXpvl1XZpJLiHH4RCJ5yDTqH+VlYPv2fwFs89JFw4c1IexYOcQUi4IQ==",
+       "cpu": [
+         "riscv64"
+       ],
+@@ -1129,9 +1132,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-linux-s390x": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-s390x/-/sharp-libvips-linux-s390x-1.3.1.tgz",
+-      "integrity": "sha512-VfBwVHQTbRoj4XlpA/KLZ7ltgMpz+4WSejFzQ+GnoImjo1PtEJ59QB2qR1xQEeRPYIkNrPIm2L4cICMvz4C2ew==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-s390x/-/sharp-libvips-linux-s390x-1.3.3.tgz",
++      "integrity": "sha512-neWLh+3yCNThxnfy3c4BbVBeGgt9aftno+XbT56iK28RgeDs3UOFWviLWlUu0bArYVYJaFDK+RRohbicUNCm8Q==",
+       "cpu": [
+         "s390x"
+       ],
+@@ -1146,9 +1149,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-linux-x64": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.3.1.tgz",
+-      "integrity": "sha512-+c8ukgwU62DS54nCAjw7keOfHUkmr0B5QHEdcOqRnodF/MNXJbVI8Eopoj4B/0H8Asr65I+A4Amrn7a85/md6A==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linux-x64/-/sharp-libvips-linux-x64-1.3.3.tgz",
++      "integrity": "sha512-4vKmvAst9nrowcqquKFAyZJUDolUaIp8uRiN0mWFguJ1IplC9/pitXtlnnlU4aa/eJw3J7i67V+pwUL+wZGdsA==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1163,9 +1166,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-linuxmusl-arm64": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-arm64/-/sharp-libvips-linuxmusl-arm64-1.3.1.tgz",
+-      "integrity": "sha512-qlKb/pwbkAi1WMsJrYHk7CuDrd12s27U2QnRhFYUoJNrRCmkosMTttuRFat/DDB3IlDm5qE1TJgZ4JDnHX8Ldw==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-arm64/-/sharp-libvips-linuxmusl-arm64-1.3.3.tgz",
++      "integrity": "sha512-Y9kQaLMuNoB0bPYOOdcZMaseNrFpPodIWWMrx+CZyydf2xn68j9WYc6sWWRrDwNkzCQjKYfc68L7jKjGlHMibw==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1180,9 +1183,9 @@
+       }
+     },
+     "node_modules/@img/sharp-libvips-linuxmusl-x64": {
+-      "version": "1.3.1",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-x64/-/sharp-libvips-linuxmusl-x64-1.3.1.tgz",
+-      "integrity": "sha512-yO21HwoUVLN8Qa+/SBjQLMYwBWAVJjeGPNe+hc0OUeMeifEtJqu5a1c4HayE1nNpDih9y3/KkoltfkDodmKAlg==",
++      "version": "1.3.3",
++      "resolved": "https://registry.npmjs.org/@img/sharp-libvips-linuxmusl-x64/-/sharp-libvips-linuxmusl-x64-1.3.3.tgz",
++      "integrity": "sha512-fj8Mv0HHfD1Rr+4I68+3agJynxDWtBFgicTbSOb9Bke6pIwzGcJ+RX/yHjmiEGFMCavY/dxvem7MyNaJF+wDiw==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1197,9 +1200,9 @@
+       }
+     },
+     "node_modules/@img/sharp-linux-arm": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm/-/sharp-linux-arm-0.35.2.tgz",
+-      "integrity": "sha512-SE4kzF2mepn6z+6E7L6lsV8FzuLL6IPQdyX8ZiwROAG/G8td+hP/m7FsFPwidtrF19gvajuC9l6TxAVcsA4S7A==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm/-/sharp-linux-arm-0.35.4.tgz",
++      "integrity": "sha512-7OAS8gI0EReKGVN2HssHlM6umJgxF5VI3xN0p9FA91p/YO+ou5hiNghLdZ5BEHztwaaK5+bLKRf8x/o2L2nk9A==",
+       "cpu": [
+         "arm"
+       ],
+@@ -1216,13 +1219,13 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-linux-arm": "1.3.1"
++        "@img/sharp-libvips-linux-arm": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-linux-arm64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm64/-/sharp-linux-arm64-0.35.2.tgz",
+-      "integrity": "sha512-af12Pnd0ZGu2HfP8NayB0kk6eC/lrfbQE6HlR4jD+34wdJ1Vw9TF6TMn6ZvffT+WgqVsl0hRbmNvz2u/23VmwA==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-arm64/-/sharp-linux-arm64-0.35.4.tgz",
++      "integrity": "sha512-De4jpEnAU8Hd5oT0j1G3uL4ZvTuipVMn7YC6vPaJhy6/7EwEae0SVAoBrUMYQbkLGDm85taVWwuPc1a44LTzCQ==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1239,13 +1242,13 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-linux-arm64": "1.3.1"
++        "@img/sharp-libvips-linux-arm64": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-linux-ppc64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-ppc64/-/sharp-linux-ppc64-0.35.2.tgz",
+-      "integrity": "sha512-hYSBm7zcNtDCozCxQHYZJiu63b/bXsgRZuOxCIBZsStMM9Vap47iFHdbX4kCvQsblPB/k+clhELpdQJHQLSHvg==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-ppc64/-/sharp-linux-ppc64-0.35.4.tgz",
++      "integrity": "sha512-2oYZJeIl4kCcMGk4ouZVjnkCtFrpQFlNEtJ6GbxzhHQchwH0NH/qEb9ykmOl29dqwMq+JhFdZn+1ak2FKhI9fQ==",
+       "cpu": [
+         "ppc64"
+       ],
+@@ -1262,13 +1265,13 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-linux-ppc64": "1.3.1"
++        "@img/sharp-libvips-linux-ppc64": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-linux-riscv64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-riscv64/-/sharp-linux-riscv64-0.35.2.tgz",
+-      "integrity": "sha512-qQt0Kc13+Hoan/Awq/qMSQw3L+RI1NCRPgD5cUJ/1WSSmIoysLOc72jlRM3E0OHN9Yr313jgeQ2T+zW+F03QFA==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-riscv64/-/sharp-linux-riscv64-0.35.4.tgz",
++      "integrity": "sha512-cPbNChoRURAWdebDIHSenxRpgEdy7JkPydSnUxRm9VvKD7m0/xVaR/8Fzlu81pk5nHEvHH87UZUA7cTtwnbJSA==",
+       "cpu": [
+         "riscv64"
+       ],
+@@ -1285,13 +1288,13 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-linux-riscv64": "1.3.1"
++        "@img/sharp-libvips-linux-riscv64": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-linux-s390x": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-s390x/-/sharp-linux-s390x-0.35.2.tgz",
+-      "integrity": "sha512-E4fLLfRPzDLlEeDaTzI98OFLcv++WL5ChLLMwPoVd0CIoZQqupBSNbOisPL5am9XsbQ9T84+iiMpUvbFtkunbA==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-s390x/-/sharp-linux-s390x-0.35.4.tgz",
++      "integrity": "sha512-RY0JFY8Fd6RonCBtHz+DvadaPkXDSI1AUn6yWL9TipqkZ1vY8w8evqdgyDFnkm4/K1ve1TvZiaePP5oSd4+WVQ==",
+       "cpu": [
+         "s390x"
+       ],
+@@ -1308,13 +1311,13 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-linux-s390x": "1.3.1"
++        "@img/sharp-libvips-linux-s390x": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-linux-x64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.35.2.tgz",
+-      "integrity": "sha512-gi0zFJJRLswfCZmHtJdikXPOc5u7qamSOS3NHedLqLd4W8Q0NqjdBr6TTRIgsfFjqfTsHFgdfvJ9LwqSgcHiAA==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linux-x64/-/sharp-linux-x64-0.35.4.tgz",
++      "integrity": "sha512-9qvvEAuk8k89TfWUoX2htWjbAMX8p+NxCppjpcg5k6xMsjhBQPTsoIh36h9Qde4WRuGpJeYnOjdosDn/cnv+OA==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1331,13 +1334,13 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-linux-x64": "1.3.1"
++        "@img/sharp-libvips-linux-x64": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-linuxmusl-arm64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-arm64/-/sharp-linuxmusl-arm64-0.35.2.tgz",
+-      "integrity": "sha512-siWbOW1u6HFnFLrp0waKyW7VEf7jYvcDWdrXEFa8AkdAQgEvuu5Fz8/Y70w9EeqAdwDtfU012BhEHHaDqvQNzg==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-arm64/-/sharp-linuxmusl-arm64-0.35.4.tgz",
++      "integrity": "sha512-KB5jxpfWQTr0nc3xdHtWChdbifHrBGsd2SM62Eyxrl8afikm+f5qGBU75SJIZBT/S1MC8XyacdlXBMSWq6OURA==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1354,13 +1357,13 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-linuxmusl-arm64": "1.3.1"
++        "@img/sharp-libvips-linuxmusl-arm64": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-linuxmusl-x64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-x64/-/sharp-linuxmusl-x64-0.35.2.tgz",
+-      "integrity": "sha512-YBqMMcjDi4QGYiSn4vNOYBhmlC4z5AXqkOUUqI2e0AFA4urNv4ESgOgwNl3K+4etQhha0twXlzeF20bbULm9Yg==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-linuxmusl-x64/-/sharp-linuxmusl-x64-0.35.4.tgz",
++      "integrity": "sha512-f+eZJZIQNEEd26RPSW+76chwOf1XtA2Y/O+5ocVyLliHkeih3e+jhLVBdNTd2rS3IbNXK8+ug93Vf5ZXtF5Lxg==",
+       "cpu": [
+         "x64"
+       ],
+@@ -1377,18 +1380,18 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-libvips-linuxmusl-x64": "1.3.1"
++        "@img/sharp-libvips-linuxmusl-x64": "1.3.3"
+       }
+     },
+     "node_modules/@img/sharp-wasm32": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-wasm32/-/sharp-wasm32-0.35.2.tgz",
+-      "integrity": "sha512-Mrv4JQNYVQ94xH+jzZ9r+gowleN8mv2FTgKT+PI6bx5C0G8TdNYndu161pg2i7uoBwxy2ImPMHrJOM2LZef7Bw==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-wasm32/-/sharp-wasm32-0.35.4.tgz",
++      "integrity": "sha512-zQnl4Kwp7Q6NHsENtU2T/00Zi+w3AQNwz3+UaTyVBy2FpXrzXzGjndpK61onhZjRtRpQXxCTeqw19bVyXOh7jA==",
+       "dev": true,
+       "license": "Apache-2.0 AND LGPL-3.0-or-later AND MIT",
+       "optional": true,
+       "dependencies": {
+-        "@emnapi/runtime": "^1.11.1"
++        "@emnapi/runtime": "^1.11.3"
+       },
+       "engines": {
+         "node": ">=20.9.0"
+@@ -1398,9 +1401,9 @@
+       }
+     },
+     "node_modules/@img/sharp-webcontainers-wasm32": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-webcontainers-wasm32/-/sharp-webcontainers-wasm32-0.35.2.tgz",
+-      "integrity": "sha512-QNV27pxs9wpApEiCfvHM1RDoP1w1+2KrUWWDPEhEwg+latvOrfuhWrHWZKwdSFwU6jh3myjw/yOCRsUIuOft3g==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-webcontainers-wasm32/-/sharp-webcontainers-wasm32-0.35.4.tgz",
++      "integrity": "sha512-ESfNkywmCfPNyaZjxooddJQiQ+l/nTpGEOGthxiLnIHXC/CmcBixnfwUleX9mCz9ovrUUvKMap/pm8RYbzfwaA==",
+       "cpu": [
+         "wasm32"
+       ],
+@@ -1408,7 +1411,7 @@
+       "license": "Apache-2.0",
+       "optional": true,
+       "dependencies": {
+-        "@img/sharp-wasm32": "0.35.2"
++        "@img/sharp-wasm32": "0.35.4"
+       },
+       "engines": {
+         "node": ">=20.9.0"
+@@ -1418,9 +1421,9 @@
+       }
+     },
+     "node_modules/@img/sharp-win32-arm64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-win32-arm64/-/sharp-win32-arm64-0.35.2.tgz",
+-      "integrity": "sha512-BiVRYc/t6/Vl3e1hBx0hugG4oN9Pydf4fgMSpxTQJmwGUg/YoXTWHiFeRymHfCZzifxu4F4rpk/I67D0LQ20wQ==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-win32-arm64/-/sharp-win32-arm64-0.35.4.tgz",
++      "integrity": "sha512-iNdlBX9gLVvqe2I3uIJSIKTq6wckP/DYxZtcqxm09x5Gi24DnFBmPAWZmr60ZyYMG0xlzo6goG3670ar+RXvRw==",
+       "cpu": [
+         "arm64"
+       ],
+@@ -1438,9 +1441,9 @@
+       }
+     },
+     "node_modules/@img/sharp-win32-ia32": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-win32-ia32/-/sharp-win32-ia32-0.35.2.tgz",
+-      "integrity": "sha512-YYEhx9PImCC7T0tI8JDMi4DB9LwLCXCU5OWNYEXAxh5Q1ShKkyC6byxzoBJ3gEFDnH2lQckWuDe70G7mB2XJog==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-win32-ia32/-/sharp-win32-ia32-0.35.4.tgz",
++      "integrity": "sha512-kqRsbaa5CS6KHlpxnN7WhE6vAAugXyZButpRdvDWetlv6Qv4N9WTcrWzF7tXfB9T7MsoadqdI8hmwLq6UlLvtw==",
+       "cpu": [
+         "ia32"
+       ],
+@@ -1458,9 +1461,9 @@
+       }
+     },
+     "node_modules/@img/sharp-win32-x64": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/@img/sharp-win32-x64/-/sharp-win32-x64-0.35.2.tgz",
+-      "integrity": "sha512-imoOyBcoM/iiUr4J6VPpCNjPnjvP/Gks95898yB8YqoGGYmHYbOyCuNv9FMhFgtaiHFGbHW8bxKqRV6VjtXThQ==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/@img/sharp-win32-x64/-/sharp-win32-x64-0.35.4.tgz",
++      "integrity": "sha512-XtmnYhBcrORsJ4XJngyzr/EWP0hRZLAZRFaApdKuviyqF78+ylxh2y06ZmtULAMOnObJ3ucpN0AcwSWnMowTRg==",
+       "cpu": [
+         "x64"
+       ],
+@@ -2751,9 +2754,9 @@
+       "license": "MIT"
+     },
+     "node_modules/fast-uri": {
+-      "version": "3.1.5",
+-      "resolved": "https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.5.tgz",
+-      "integrity": "sha512-gHwA1O9LDIcKunMKhObS/HimwtehO1nPUECKAu5TpKgaO19fcWEl4bliWe1jWxVFvIXztJjjQ4L8XQ1EU9f7Jw==",
++      "version": "3.1.8",
++      "resolved": "https://registry.npmjs.org/fast-uri/-/fast-uri-3.1.8.tgz",
++      "integrity": "sha512-GZMtZUTNRpOVIECoXwLNZS5xUGE+mVNbTB8h/7Rwh2TFWcBQiPzTgyZi05BF9UMZKkLJv8XBRJTlU7zg8+ZfMg==",
+       "funding": [
+         {
+           "type": "github",
+@@ -2947,9 +2950,9 @@
+       }
+     },
+     "node_modules/hono": {
+-      "version": "4.13.3",
+-      "resolved": "https://registry.npmjs.org/hono/-/hono-4.13.3.tgz",
+-      "integrity": "sha512-r8AO2mYHoLxSHkgafNeC/BXyb2vWRxD3jem4Ts+ptav8oTG5FIRifAjuJEmZI4bSvvc2ns0GxmIYiZnHqN3mMw==",
++      "version": "4.13.9",
++      "resolved": "https://registry.npmjs.org/hono/-/hono-4.13.9.tgz",
++      "integrity": "sha512-7dMkQmZoC4E6F7AtaQSPhlWAdnBti+j7rreMZl8QB4jFiEhP9TWbGWUMi8WYzBCgmgulxuvLQupKqo+Co6Omyg==",
+       "license": "MIT",
+       "engines": {
+         "node": ">=16.9.0"
+@@ -3070,9 +3073,9 @@
+       "license": "MIT"
+     },
+     "node_modules/js-yaml": {
+-      "version": "4.3.1",
+-      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.1.tgz",
+-      "integrity": "sha512-CY6crGq313MX8GkwvB7tzgp99vjQxY1++5y10/BKN/GUfHqWaOGQMNZkBvqSzsZKWk/ijwHlWzzkLulsGHhjWQ==",
++      "version": "4.3.2",
++      "resolved": "https://registry.npmjs.org/js-yaml/-/js-yaml-4.3.2.tgz",
++      "integrity": "sha512-SFNOvSJ+Dgf/9An904Yx+CgSlIPCkIpao4qo51lpee25TIRejdH3rhR4EZMGoNx3/TP3O+wzWuiTFl4sqbltzA==",
+       "funding": [
+         {
+           "type": "github",
+@@ -3528,16 +3531,16 @@
+       }
+     },
+     "node_modules/miniflare": {
+-      "version": "5.20260815.0-alpha",
+-      "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20260815.0-alpha.tgz",
+-      "integrity": "sha512-YAaGj4Sh5f4fqHKiMQ8zRHDOOM5IGUVtMhnLIeyjuQfU+9P6hcOTrHUVtbfj/ZPay9Kzik4pWELB39pGgefjiQ==",
++      "version": "5.20260923.0-alpha",
++      "resolved": "https://registry.npmjs.org/miniflare/-/miniflare-5.20260923.0-alpha.tgz",
++      "integrity": "sha512-tmICPUd2P+/4WNa2A9kE22SPZexlu+Dw8nZIvaXCzRj2OVu62hc751Xq4S1P4HEscT5viDle3zxyHyxT2XY3Fw==",
+       "dev": true,
+       "license": "MIT",
+       "dependencies": {
+         "@cspotcode/source-map-support": "0.8.1",
+-        "sharp": "0.35.2",
++        "sharp": "0.35.4",
+         "undici": "7.29.0",
+-        "workerd": "1.20260815.1",
++        "workerd": "1.20260923.1",
+         "ws": "8.21.0",
+         "youch": "4.1.0-beta.10"
+       },
+@@ -3811,9 +3814,9 @@
+       }
+     },
+     "node_modules/qs": {
+-      "version": "6.15.3",
+-      "resolved": "https://registry.npmjs.org/qs/-/qs-6.15.3.tgz",
+-      "integrity": "sha512-O9gl3zCl5h5blw1KGUzQKhA5oUXSl8rwUIM5o0S3nCXMliSvy5Dzx7/DJcI+SwgICv+IneSZwhBh1oSyEHA71A==",
++      "version": "6.16.0",
++      "resolved": "https://registry.npmjs.org/qs/-/qs-6.16.0.tgz",
++      "integrity": "sha512-h6fhOIaRrID2CbEY2fqs+7t+UXZo+MLAnU5gRIq85uFtdiUPCdsApMlHhXogKVM4HM2DVbIjGNTTYH2OcmP1vA==",
+       "license": "BSD-3-Clause",
+       "dependencies": {
+         "es-define-property": "^1.0.1",
+@@ -3980,15 +3983,15 @@
+       "license": "ISC"
+     },
+     "node_modules/sharp": {
+-      "version": "0.35.2",
+-      "resolved": "https://registry.npmjs.org/sharp/-/sharp-0.35.2.tgz",
+-      "integrity": "sha512-FVtFjtBCMiJS6yb5CX7Sop45WFMpeGw6oRKuJnXYgf/f1ms/D7LE/ZUSNxnW7rZ/dbslQWYkoqFHGPaDBtaK4w==",
++      "version": "0.35.4",
++      "resolved": "https://registry.npmjs.org/sharp/-/sharp-0.35.4.tgz",
++      "integrity": "sha512-n++8XWcj+jCOr2IOl7h8LbKnGBDY4aPbmprMONBNFdn0ImXqpGVv5zliDs0V9HbmbCQLpbuo2ej9rAoOQTvMDA==",
+       "dev": true,
+       "license": "Apache-2.0",
+       "dependencies": {
+         "@img/colour": "^1.1.0",
+         "detect-libc": "^2.1.2",
+-        "semver": "^7.8.4"
++        "semver": "^7.8.5"
+       },
+       "engines": {
+         "node": ">=20.9.0"
+@@ -3997,31 +4000,36 @@
+         "url": "https://opencollective.com/libvips"
+       },
+       "optionalDependencies": {
+-        "@img/sharp-darwin-arm64": "0.35.2",
+-        "@img/sharp-darwin-x64": "0.35.2",
+-        "@img/sharp-freebsd-wasm32": "0.35.2",
+-        "@img/sharp-libvips-darwin-arm64": "1.3.1",
+-        "@img/sharp-libvips-darwin-x64": "1.3.1",
+-        "@img/sharp-libvips-linux-arm": "1.3.1",
+-        "@img/sharp-libvips-linux-arm64": "1.3.1",
+-        "@img/sharp-libvips-linux-ppc64": "1.3.1",
+-        "@img/sharp-libvips-linux-riscv64": "1.3.1",
+-        "@img/sharp-libvips-linux-s390x": "1.3.1",
+-        "@img/sharp-libvips-linux-x64": "1.3.1",
+-        "@img/sharp-libvips-linuxmusl-arm64": "1.3.1",
+-        "@img/sharp-libvips-linuxmusl-x64": "1.3.1",
+-        "@img/sharp-linux-arm": "0.35.2",
+-        "@img/sharp-linux-arm64": "0.35.2",
+-        "@img/sharp-linux-ppc64": "0.35.2",
+-        "@img/sharp-linux-riscv64": "0.35.2",
+-        "@img/sharp-linux-s390x": "0.35.2",
+-        "@img/sharp-linux-x64": "0.35.2",
+-        "@img/sharp-linuxmusl-arm64": "0.35.2",
+-        "@img/sharp-linuxmusl-x64": "0.35.2",
+-        "@img/sharp-webcontainers-wasm32": "0.35.2",
+-        "@img/sharp-win32-arm64": "0.35.2",
+-        "@img/sharp-win32-ia32": "0.35.2",
+-        "@img/sharp-win32-x64": "0.35.2"
++        "@img/sharp-darwin-arm64": "0.35.4",
++        "@img/sharp-darwin-x64": "0.35.4",
++        "@img/sharp-freebsd-wasm32": "0.35.4",
++        "@img/sharp-libvips-darwin-arm64": "1.3.3",
++        "@img/sharp-libvips-darwin-x64": "1.3.3",
++        "@img/sharp-libvips-linux-arm": "1.3.3",
++        "@img/sharp-libvips-linux-arm64": "1.3.3",
++        "@img/sharp-libvips-linux-ppc64": "1.3.3",
++        "@img/sharp-libvips-linux-riscv64": "1.3.3",
++        "@img/sharp-libvips-linux-s390x": "1.3.3",
++        "@img/sharp-libvips-linux-x64": "1.3.3",
++        "@img/sharp-libvips-linuxmusl-arm64": "1.3.3",
++        "@img/sharp-libvips-linuxmusl-x64": "1.3.3",
++        "@img/sharp-linux-arm": "0.35.4",
++        "@img/sharp-linux-arm64": "0.35.4",
++        "@img/sharp-linux-ppc64": "0.35.4",
++        "@img/sharp-linux-riscv64": "0.35.4",
++        "@img/sharp-linux-s390x": "0.35.4",
++        "@img/sharp-linux-x64": "0.35.4",
++        "@img/sharp-linuxmusl-arm64": "0.35.4",
++        "@img/sharp-linuxmusl-x64": "0.35.4",
++        "@img/sharp-webcontainers-wasm32": "0.35.4",
++        "@img/sharp-win32-arm64": "0.35.4",
++        "@img/sharp-win32-ia32": "0.35.4",
++        "@img/sharp-win32-x64": "0.35.4"
++      },
++      "peerDependenciesMeta": {
++        "@types/node": {
++          "optional": true
++        }
+       }
+     },
+     "node_modules/sharp/node_modules/semver": {
+@@ -4558,9 +4566,9 @@
+       }
+     },
+     "node_modules/workerd": {
+-      "version": "1.20260815.1",
+-      "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20260815.1.tgz",
+-      "integrity": "sha512-8bArFkHmlp7qFEKVPyNzDzHzS35gc2fg0PYBcDtaNLF7UCDryCX2BQnpkUkTHYIy824IRrHOTwOEoTj0sUO2Fg==",
++      "version": "1.20260923.1",
++      "resolved": "https://registry.npmjs.org/workerd/-/workerd-1.20260923.1.tgz",
++      "integrity": "sha512-1xynegnJJqkgk/zuhNVcOFzAJXzsJ4UxazfThUe0K80eZXKpsRIXI2sHcT4trswLfeHCc+3uWTBvtSWLFRozbQ==",
+       "dev": true,
+       "hasInstallScript": true,
+       "license": "Apache-2.0",
+@@ -4571,28 +4579,28 @@
+         "node": ">=16"
+       },
+       "optionalDependencies": {
+-        "@cloudflare/workerd-darwin-64": "1.20260815.1",
+-        "@cloudflare/workerd-darwin-arm64": "1.20260815.1",
+-        "@cloudflare/workerd-linux-64": "1.20260815.1",
+-        "@cloudflare/workerd-linux-arm64": "1.20260815.1",
+-        "@cloudflare/workerd-windows-64": "1.20260815.1"
++        "@cloudflare/workerd-darwin-64": "1.20260923.1",
++        "@cloudflare/workerd-darwin-arm64": "1.20260923.1",
++        "@cloudflare/workerd-linux-64": "1.20260923.1",
++        "@cloudflare/workerd-linux-arm64": "1.20260923.1",
++        "@cloudflare/workerd-windows-64": "1.20260923.1"
+       }
+     },
+     "node_modules/wrangler": {
+-      "version": "4.124.0",
+-      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.124.0.tgz",
+-      "integrity": "sha512-75euoZKjVTJYFy+Xhctt/5JlZL4M6A4xmovZsUlep+6GHcCm14n9VtdGzNIybOW2t8wuNxRj5iMUwjT5E7Ctog==",
++      "version": "4.139.0",
++      "resolved": "https://registry.npmjs.org/wrangler/-/wrangler-4.139.0.tgz",
++      "integrity": "sha512-9RtaWkIkxqntg58bGwNVRfGVSgf+cAq/45YzC87LN5YniCt4DDNrFM2gXK5SHMj3iG5YnDHhRVvh63FWnmJnaA==",
+       "dev": true,
+       "license": "MIT OR Apache-2.0",
+       "dependencies": {
+         "@cloudflare/kv-asset-handler": "0.5.0",
+-        "@cloudflare/unenv-preset": "2.16.1",
++        "@cloudflare/unenv-preset": "2.16.2",
+         "blake3-wasm": "2.1.5",
+         "esbuild": "0.28.1",
+-        "miniflare": "5.20260815.0-alpha",
++        "miniflare": "5.20260923.0-alpha",
+         "path-to-regexp": "6.3.0",
+         "unenv": "2.0.0-rc.24",
+-        "workerd": "1.20260815.1"
++        "workerd": "1.20260923.1"
+       },
+       "bin": {
+         "cf-wrangler": "bin/cf-wrangler.js",
+@@ -4606,7 +4614,7 @@
+         "fsevents": "2.3.3"
+       },
+       "peerDependencies": {
+-        "@cloudflare/workers-types": "^5.20260815.1"
++        "@cloudflare/workers-types": "^5.20260923.1"
+       },
+       "peerDependenciesMeta": {
+         "@cloudflare/workers-types": {
+--- a/package.json
++++ b/package.json
+@@ -1,6 +1,6 @@
+ {
+   "name": "azrail-os",
+-  "version": "0.6.2",
++  "version": "0.6.3",
+   "private": true,
+   "type": "module",
+   "scripts": {
+@@ -9,10 +9,14 @@
+     "types": "wrangler types",
+     "db:schema": "wrangler d1 execute azrail-db --remote --file=./schema.sql",
+     "test": "vitest run",
+-    "test:watch": "vitest"
++    "test:watch": "vitest",
++    "typecheck": "tsc --noEmit",
++    "check": "npm run typecheck && npm test",
++    "build:check": "wrangler deploy --dry-run --containers-rollout=none",
++    "db:security": "wrangler d1 execute azrail-db --remote --file=./migrations/004-security-hardening.sql"
+   },
+   "dependencies": {
+-    "@cloudflare/sandbox": "^0.12.9",
++    "@cloudflare/sandbox": "0.12.9",
+     "agents": "^0.8.0",
+     "fflate": "^0.8.2"
+   },
+@@ -21,5 +25,8 @@
+     "typescript": "^5.6.0",
+     "vitest": "^4.1.11",
+     "wrangler": "^4.0.0"
++  },
++  "engines": {
++    "node": ">=24.0.0"
+   }
+ }
+--- /dev/null
++++ b/public/_headers
+@@ -0,0 +1,5 @@
++/*
++  X-Content-Type-Options: nosniff
++  Referrer-Policy: no-referrer
++  X-Frame-Options: DENY
++  Permissions-Policy: camera=(), microphone=(self), geolocation=()
+--- a/schema.sql
++++ b/schema.sql
+@@ -241,3 +241,30 @@
+ 
+ CREATE INDEX IF NOT EXISTS idx_bench_results_run ON bench_results(run_id, case_id);
+ CREATE INDEX IF NOT EXISTS idx_bench_results_case ON bench_results(case_id, run_id);
++
++-- Apply before deploying 0.6.3. Safe to repeat; no existing tables are changed.
++CREATE TABLE IF NOT EXISTS request_quotas (
++  scope TEXT NOT NULL,
++  bucket INTEGER NOT NULL,
++  used INTEGER NOT NULL CHECK (used >= 0),
++  PRIMARY KEY (scope, bucket)
++);
++CREATE INDEX IF NOT EXISTS idx_request_quotas_bucket ON request_quotas(bucket);
++CREATE TABLE IF NOT EXISTS websocket_tickets (
++  ticket TEXT PRIMARY KEY,
++  caller TEXT NOT NULL,
++  expires_at INTEGER NOT NULL
++);
++CREATE INDEX IF NOT EXISTS idx_websocket_tickets_expiry ON websocket_tickets(expires_at);
++
++CREATE TABLE IF NOT EXISTS mission_admissions (
++  key TEXT PRIMARY KEY,
++  body_hash TEXT NOT NULL,
++  claim TEXT NOT NULL,
++  expires_at INTEGER NOT NULL,
++  response_body TEXT,
++  response_status INTEGER
++);
++CREATE INDEX IF NOT EXISTS idx_mission_admissions_expiry ON mission_admissions(expires_at);
++
++CREATE INDEX IF NOT EXISTS idx_missions_project_status ON missions(project_id, status);
+--- a/src/agents/orchestrator.ts
++++ b/src/agents/orchestrator.ts
+@@ -1,3 +1,4 @@
++import { checkRateLimit } from "../lib/auth";
+ import { Agent } from "agents";
+ import { log } from "../lib/resilience";
+ import { runModel, route, extractText } from "../lib/model-router";
+@@ -90,6 +91,7 @@
+   }
+ 
+   onConnect(connection: import("agents").Connection) {
++    this.setConnectionReadonly(connection, true);
+     log("info", "orchestrator.ws_connect", { connectionId: connection.id });
+   }
+ 
+@@ -109,7 +111,7 @@
+    * обычных HTTP-роутов, а не только через сокет.
+    */
+   async onMessage(connection: import("agents").Connection, message: string | ArrayBuffer | ArrayBufferView) {
+-    if (typeof message !== "string") return;
++    if (typeof message !== "string" || message.length > 16_384) return;
+ 
+     let parsed: { type?: string; text?: string; conversationId?: string; preferredModel?: string };
+     try {
+@@ -117,7 +119,14 @@
+     } catch {
+       return; // не наш формат — не JSON вовсе
+     }
+-    if (parsed.type !== "chat" || !parsed.text?.trim()) return;
++    if (!parsed || parsed.type !== "chat" || typeof parsed.text !== "string" || !parsed.text.trim()) return;
++    if (parsed.conversationId !== undefined && (typeof parsed.conversationId !== "string" || parsed.conversationId.length > 128)) return;
++    if (parsed.preferredModel !== undefined && typeof parsed.preferredModel !== "string") return;
++    const quota = await checkRateLimit(this.env, "shared");
++    if (!quota.allowed) {
++      connection.send(JSON.stringify({ type: "chat_reply", text: "Часовой лимит исчерпан или учёт расходов недоступен." }));
++      return;
++    }
+ 
+     const userText = parsed.text.trim().slice(0, 4000);
+     // Имя экземпляра объекта — это projectId, поэтому оно же годится как
+--- a/src/core/mission-guard.ts
++++ b/src/core/mission-guard.ts
+@@ -107,6 +107,25 @@
+   files: number;
+ }
+ 
++/** Read all pages before changing anything; never treat a partial listing as complete. */
++async function listSnapshotObjects(env: Env, prefix: string) {
++  const objects: Array<{ key: string; size: number }> = [];
++  let cursor: string | undefined;
++  const seen = new Set<string>();
++  let bytes = 0;
++  do {
++    const page = await env.AZRAIL_R2.list({ prefix, limit: 300, cursor });
++    objects.push(...page.objects);
++    bytes += page.objects.reduce((n, o) => n + o.size, 0);
++    if (objects.length > 1000 || bytes > 16 * 1024 * 1024) throw new Error("Snapshot budget exceeded (1000 files / 16 MiB)");
++    if (!page.truncated) break;
++    if (!page.cursor || seen.has(page.cursor)) throw new Error("Incomplete R2 listing");
++    seen.add(page.cursor);
++    cursor = page.cursor;
++  } while (true);
++  return { objects };
++}
++
+ /**
+  * Снять состояние рабочей области перед миссией.
+  *
+@@ -122,18 +141,18 @@
+ ): Promise<Snapshot | null> {
+   try {
+     const prefix = `projects/${projectId}/workspace/`;
+-    const listed = await env.AZRAIL_R2.list({ prefix, limit: 300 });
++    const listed = await listSnapshotObjects(env, prefix);
+     if (!listed.objects.length) return null;
+ 
+     const stamp = new Date().toISOString().replace(/[:.]/g, "-");
+-    const key = `projects/${projectId}/snapshots/${stamp}/`;
++    const key = `projects/${projectId}/snapshots/${stamp}-${crypto.randomUUID()}/`;
+ 
+     // Копируем содержимое, а не ссылку: объект в рабочей области будет
+     // перезаписан миссией, и ссылка на него после этого указывала бы на
+     // уже изменённые данные — то есть снимок не был бы снимком.
+     for (const obj of listed.objects) {
+       const body = await env.AZRAIL_R2.get(obj.key);
+-      if (!body) continue;
++      if (!body) throw new Error("Snapshot source disappeared");
+       await env.AZRAIL_R2.put(key + obj.key.slice(prefix.length), await body.text());
+     }
+ 
+@@ -174,14 +193,23 @@
+   try {
+     const prefix = `projects/${projectId}/workspace/`;
+ 
+-    const snap = await env.AZRAIL_R2.list({ prefix: snapshotKey, limit: 300 });
++    if (!snapshotKey.startsWith(`projects/${projectId}/snapshots/`) || !snapshotKey.endsWith("/")) throw new Error("Invalid snapshot scope");
++    const snap = await listSnapshotObjects(env, snapshotKey);
++    if (!snap.objects.length) throw new Error("Empty or missing snapshot; rollback refused");
+     const wanted = new Map<string, string>();
+     for (const obj of snap.objects) {
+       const body = await env.AZRAIL_R2.get(obj.key);
+-      if (body) wanted.set(obj.key.slice(snapshotKey.length), await body.text());
+-    }
+-
+-    const current = await env.AZRAIL_R2.list({ prefix, limit: 300 });
++      if (!body) throw new Error("Snapshot object missing; rollback refused");
++      wanted.set(obj.key.slice(snapshotKey.length), await body.text());
++    }
++
++    const current = await listSnapshotObjects(env, prefix);
++    // Restore first: a failed write must not already have deleted current files.
++    let restored = 0;
++    for (const [rel, content] of wanted) {
++      await env.AZRAIL_R2.put(prefix + rel, content);
++      restored++;
++    }
+     let removed = 0;
+     for (const obj of current.objects) {
+       const rel = obj.key.slice(prefix.length);
+@@ -191,12 +219,6 @@
+       }
+     }
+ 
+-    let restored = 0;
+-    for (const [rel, content] of wanted) {
+-      await env.AZRAIL_R2.put(prefix + rel, content);
+-      restored++;
+-    }
+-
+     return { restored, removed };
+   } catch (err) {
+     log("error", "rollback.failed", {
+--- a/src/index.ts
++++ b/src/index.ts
+@@ -1,5 +1,7 @@
+-import { getAgentByName, routeAgentRequest } from "agents";
++import { getAgentByName } from "agents";
+ import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
++import { cleanupSecurityState } from "./lib/quota";
++import { readBoundedBody, BodyLimitError, validateJsonObject } from "./lib/request-body";
+ import { getCors } from "./lib/cors";
+ import { Orchestrator } from "./agents/orchestrator";
+ import { forgetFact, listFacts, type MemoryCategory } from "./lib/memory-agent";
+@@ -26,7 +28,9 @@
+   sendHint,
+ } from "./lib/mission-state";
+ import { issueTicket, redeemTicket } from "./lib/ws-ticket";
+-import { lookup as idemLookup, readKey as idemKey, remember as idemRemember } from "./lib/idempotency";
++import { readKey as idemKey } from "./lib/idempotency";
++import { createMission } from "./lib/mission-concurrency";
++import { claimMission, finishAdmission } from "./lib/mission-admission";
+ import { SEED_CASES } from "./bench/cases";
+ import { runBench } from "./bench/runner";
+ import { listRuns, loadOutcomes, saveRun } from "./bench/store";
+@@ -86,6 +90,31 @@
+     // которого ждёт клиент. Общая сетка ниже не меняет поведение уже
+     // обработанных путей — она ловит только то, что раньше не ловилось нигде.
+     try {
++      const path = new URL(request.url).pathname;
++      const key = path === "/api/mission" && request.method === "POST" ? idemKey(request) : "";
++      if (key) {
++        const auth = checkAuth(request, env);
++        if (!auth.ok) return json({error:auth.error},env,auth.status ?? 401);
++        let raw: string;
++        try {
++          raw = new TextDecoder().decode(await readBoundedBody(request, MAX_TASK_BODY_BYTES));
++          validateJsonObject(JSON.parse(raw));
++        } catch (err) {
++          return json({error:err instanceof Error ? err.message : "Некорректный JSON."},env,err instanceof BodyLimitError ? 413 : 400);
++        }
++        const admission = await claimMission(env, key, raw);
++        if (admission.kind === "replay") return new Response(admission.body, {
++          status:admission.status, headers:getCors(env,{"Content-Type":"application/json", "Idempotency-Replayed":"true"}),
++        });
++        if (admission.kind !== "claimed") return json({
++          error:admission.kind === "conflict" ? "Этот Idempotency-Key уже использован с другим содержимым." : "Запрос уже принят и обрабатывается; повторите позже с тем же ключом.",
++          code:admission.kind === "conflict" ? "idempotency_conflict" : "idempotency_pending",
++        },env,409);
++        const response = await handleRequest(new Request(request,{body:raw}),env);
++        try { await finishAdmission(env,key,admission.claim,response); }
++        catch (err) { log("error","admission.finalize_failed",{error:err instanceof Error ? err.message : String(err)}); }
++        return response;
++      }
+       return await handleRequest(request, env);
+     } catch (err) {
+       log("error", "fetch.uncaught", {
+@@ -112,6 +141,7 @@
+     ctx.waitUntil(
+       (async () => {
+         try {
++          await cleanupSecurityState(env);
+           const { reaped } = await reapStaleMissions(env);
+           log("info", "cron.reaper_done", { cron: event.cron, reaped });
+         } catch (err) {
+@@ -126,8 +156,15 @@
+ 
+ async function handleRequest(request: Request, env: Env): Promise<Response> {
+     const url = new URL(request.url);
++    // SDK RPC bypasses application validation and budgets. Only /api/stream is public transport.
++    if (url.pathname === "/agents" || url.pathname.startsWith("/agents/")) {
++      return json({ error: "Прямой доступ к агентам отключён." }, env, 404);
++    }
++
+ 
+     if (url.pathname === "/health") {
++      const auth = checkAuth(request, env);
++      if (!auth.ok) return json({ error: auth.error }, env, auth.status ?? 401);
+       // Раньше здесь проверялось только наличие биндинга (`!!env.AZRAIL_D1`) —
+       // это показывало "всё зелено" даже когда D1 недоступна. Теперь делается
+       // реальный round-trip к каждому сервису.
+@@ -194,6 +231,7 @@
+     // на несуществующий tests/routes.test.ts — файла с таким именем в
+     // проекте нет, тест живёт в общем регрессионном файле.
+     const isProtected =
++      url.pathname.startsWith("/api/") ||
+       url.pathname === "/api/task" ||
+       url.pathname === "/api/upload" ||
+       url.pathname === "/api/agents" ||
+@@ -224,9 +262,8 @@
+        * эндпоинтов — значит раздать его насовсем.
+        *
+        * Билет годен минуту и один раз (см. lib/ws-ticket.ts): утечь он
+-       * может так же легко, но утекает уже мусор. Токен в query всё ещё
+-       * принимается checkAuth — ради curl и старых клиентов, но интерфейс
+-       * им больше не пользуется. */
++       * может так же легко, но постоянный токен в query больше не принимается.
++       * Старые клиенты должны использовать Authorization или одноразовый билет. */
+       const ticket = url.pathname === "/api/stream" ? url.searchParams.get("ticket") : null;
+       const auth = ticket
+         ? await (async () => {
+@@ -255,7 +292,19 @@
+         "/api/polish": 1,
+         "/api/mission": 0, // считается ниже по maxIterations
+       };
+-      if (url.pathname in MODEL_ROUTES) {
++      // Bound actual streamed bytes before parsing or cloning, not only Content-Length.
++      if (request.method === "POST" && url.pathname !== "/api/upload") {
++        try {
++          const bytes = await readBoundedBody(request, MAX_TASK_BODY_BYTES);
++          const raw = new TextDecoder().decode(bytes);
++          validateJsonObject(JSON.parse(raw));
++          request = new Request(request, { body: raw });
++        } catch (err) {
++          return json({ error: err instanceof Error ? err.message : "Некорректный JSON." }, env,
++            err instanceof BodyLimitError ? 413 : 400);
++        }
++      }
++      if (request.method === "POST" && url.pathname in MODEL_ROUTES) {
+         let cost = MODEL_ROUTES[url.pathname];
+         if (url.pathname === "/api/mission") {
+           // Тело нужно прочитать заранее, чтобы узнать потолок шагов.
+@@ -444,20 +493,6 @@
+        * от самого клиента — раньше каждый из этих случаев стоил ещё
+        * одного полного прогона моделей, и заметить это можно было только
+        * по счёту. Ключ необязателен: без него поведение прежнее. */
+-      const idemScope = "mission";
+-      const idempotencyKey = idemKey(request);
+-      if (idempotencyKey) {
+-        const seen = await idemLookup(env, idemScope, idempotencyKey);
+-        if (seen) {
+-          log("info", "mission.idempotent_hit", { missionId: seen.missionId });
+-          return json(
+-            { success: true, missionId: seen.missionId, status: "accepted", deduplicated: true },
+-            env,
+-            200,
+-          );
+-        }
+-      }
+-
+       const missionId = crypto.randomUUID();
+       const maxIterations = clampIterations(body.maxIterations);
+ 
+@@ -465,11 +500,9 @@
+       // missions миссию нечем отслеживать и не к чему привязать события.
+       // Отказ ДО работы дешевле, чем осиротевший прогон, потративший модели.
+       try {
+-        await env.AZRAIL_D1.prepare(
+-          `INSERT INTO missions (id, project_id, goal, status, created_at, updated_at) VALUES (?, ?, ?, ?, ?, ?)`,
+-        )
+-          .bind(missionId, body.projectId, goal, "queued", new Date().toISOString(), new Date().toISOString())
+-          .run();
++        if (!await createMission(env, missionId, body.projectId, goal)) {
++          return json({error:"В проекте уже выполняется миссия. Дождитесь завершения или отмените её.", code:"project_busy"},env,409);
++        }
+       } catch (err) {
+         log("error", "mission.create_failed", {
+           missionId,
+@@ -529,7 +562,7 @@
+         return json({ error: "Не удалось запустить миссию.", missionId }, env, 500);
+       }
+ 
+-      if (idempotencyKey) await idemRemember(env, idemScope, idempotencyKey, missionId);
++      // The fetch admission boundary persists the accepted response before returning.
+ 
+       // Бюджет и остаток уходят в ответ: интерфейс предупреждает о
+       // приближении к потолку заранее, а не сообщает об упоре постфактум.
+@@ -730,6 +763,13 @@
+         );
+       }
+ 
++      const plannedCases = benchBody.only?.length ? SEED_CASES.filter(c => benchBody.only!.includes(c.id)) : SEED_CASES;
++      const estimatedCalls = plannedCases.reduce((sum, c) => sum + c.maxIterations, 0);
++      if (!plannedCases.length) return json({ error: "Нет выбранных тестов." }, env, 400);
++      const quota = await checkRateLimit(env, "shared", estimatedCalls);
++      if (!quota.allowed) return json({ error: "Недостаточно часового лимита для benchmark." }, env, 429);
++      const writes = await chargeWrites(env, plannedCases.reduce((sum, c) => sum + estimateMissionWrites(c.maxIterations), 0));
++      if (!writes.allowed) return json({ error: "Недостаточно бюджета записей для benchmark." }, env, 429);
+       const runId = crypto.randomUUID().slice(0, 8);
+       const startedAt = new Date().toISOString();
+       const orchestrator = await getAgentByName(env.Orchestrator, `bench-${runId}`);
+@@ -1001,8 +1041,7 @@
+ 
+     // Маршрутизация напрямую к агентам (WebSocket/RPC от клиента) — на будущее,
+     // для панели управления AZRAIL.
+-    const agentResponse = await routeAgentRequest(request, env, { cors: true });
+-    if (agentResponse) return agentResponse;
++    // Direct SDK routing deliberately disabled: application routes own authorization.
+ 
+     /* Неизвестный путь отдаёт ПРИЛОЖЕНИЕ, а не голую строку.
+      *
+--- a/src/lib/attachments.ts
++++ b/src/lib/attachments.ts
+@@ -87,7 +87,7 @@
+     .map((e) => `  ${e.path}  (${e.size >= 1024 ? Math.round(e.size / 1024) + " КБ" : e.size + " Б"})`)
+     .join("\n");
+ 
+-  const hiddenNote = total > visible.length ? `\n  …и ${total - visible.length} служебных файлов (node_modules, .git и подобное) — пропущены` : "";
++  const hiddenNote = total > visible.length ? `\n  …и ${total - visible.length} файлов вне показанного перечня (служебные или превышение лимита) — пропущены` : "";
+ 
+   const out: LoadedAttachment[] = [{
+     fileName: `${archiveName} — оглавление`,
+@@ -106,10 +106,10 @@
+ 
+   for (const entry of queue) {
+     if (read >= ZIP_MAX_READ || budget <= 0) break;
+-    if (entry.size > ZIP_MAX_ONE) continue;
++    if (entry.size > Math.min(ZIP_MAX_ONE, budget)) continue;
+ 
+     try {
+-      const bytes = await readEntry(buf, entry);
++      const bytes = await readEntry(buf, entry, Math.min(ZIP_MAX_ONE, budget));
+       const text = new TextDecoder("utf-8").decode(bytes);
+       out.push({ fileName: `${archiveName} → ${entry.path}`, text, bytes: bytes.byteLength });
+       budget -= bytes.byteLength;
+@@ -174,6 +174,7 @@
+           out.push({ fileName: name, skipped: "файл не найден в хранилище" });
+           continue;
+         }
++        if (obj.size > 50 * 1024 * 1024) throw new ZipError("архив превышает 50 МБ");
+         out.push(...(await readZip(await obj.arrayBuffer(), name)));
+       } catch (err) {
+         const why = err instanceof ZipError ? err.message : err instanceof Error ? err.message : String(err);
+--- a/src/lib/auth.ts
++++ b/src/lib/auth.ts
+@@ -9,7 +9,7 @@
+ // забытая настройка = открытый кошелёк. Лучше явная ошибка при старте.
+ 
+ import type { Env } from "../types";
+-import { log } from "./resilience";
++import { positiveLimit, reserveQuota } from "./quota";
+ 
+ export interface AuthResult {
+   ok: boolean;
+@@ -43,19 +43,10 @@
+   }
+ 
+   const header = request.headers.get("Authorization") ?? "";
+-  let token = header.startsWith("Bearer ") ? header.slice(7) : "";
+-
+-  // WebSocket-хендшейк не даёт JS выставить кастомный заголовок (ограничение
+-  // самого браузерного API, не этого проекта) — единственный канал для
+-  // токена там URL. Запасной путь читается, только если заголовка нет, а не
+-  // вместо него: тот, кто прислал оба, не получает два шанса подобрать токен.
+-  if (!token) {
+-    const url = new URL(request.url);
+-    token = url.searchParams.get("token") ?? "";
+-  }
++  const token = header.startsWith("Bearer ") ? header.slice(7) : "";
+ 
+   if (!token) {
+-    return { ok: false, status: 401, error: "Нужен заголовок Authorization: Bearer <токен> (или ?token= для WebSocket)." };
++    return { ok: false, status: 401, error: "Нужен заголовок Authorization: Bearer <токен>." };
+   }
+   if (!safeEqual(token, env.AZRAIL_TOKEN)) {
+     return { ok: false, status: 401, error: "Неверный токен." };
+@@ -66,84 +57,7 @@
+   return { ok: true, caller: "shared" };
+ }
+ 
+-// ─── Лимит расхода ────────────────────────────────────────────────────────
+-
+-const DEFAULT_HOURLY_LIMIT = 50;
+-
+-export interface RateLimitResult {
+-  allowed: boolean;
+-  used: number;
+-  limit: number;
+-  /** Unix-время, когда счётчик обнулится */
+-  resetAt: number;
++/** Atomic model-call reservations; unavailable storage fails closed. */
++export async function checkRateLimit(env: Env, caller: string, cost = 1) {
++  return reserveQuota(env, `models:${caller}`, cost, positiveLimit(env.AZRAIL_HOURLY_LIMIT, 50));
+ }
+-
+-/** Счётчик задач за час, в KV. Окно фиксированное (по часам календаря), а не
+- *  скользящее: скользящее требует хранить таймстемпы каждого запроса, что при
+- *  KV-хранилище дороже самой защиты. Это упрощение — на границе часа лимит
+- *  можно превысить почти вдвое, и это осознанный компромисс, а не недосмотр. */
+-/**
+- * Лимит запусков модели в час.
+- *
+- * `cost` — сколько единиц списать. Он появился не для симметрии: обычная
+- * задача через /api/task — это ОДИН проход агента, а миссия через
+- * /api/mission прогоняет до двадцати вызовов модели подряд. Считать их
+- * одинаково значит оставить самый дорогой путь фактически без ограничения:
+- * двадцать миссий подряд стоят как четыреста обычных задач, а счётчик
+- * покажет двадцать.
+- */
+-export async function checkRateLimit(env: Env, caller: string, cost = 1): Promise<RateLimitResult> {
+-  const limit = Number(env.AZRAIL_HOURLY_LIMIT) || DEFAULT_HOURLY_LIMIT;
+-  const now = Date.now();
+-  const hourBucket = Math.floor(now / 3_600_000);
+-  const key = `ratelimit:${caller}:${hourBucket}`;
+-  const resetAt = (hourBucket + 1) * 3_600_000;
+-
+-  let used = 0;
+-  try {
+-    used = Number(await env.AZRAIL_KV.get(key)) || 0;
+-  } catch (err) {
+-    // KV недоступен — не блокируем работу из-за счётчика. Раньше комментарий
+-    // здесь утверждал, что "вызывающий код это залогирует" — неправда:
+-    // index.ts логирует только ветку rl.allowed === false, а этот путь
+-    // всегда возвращает allowed: true, так что вызывающий код её никогда
+-    // не увидит. Найдено при аудите. Логируем здесь же, у источника.
+-    log("error", "ratelimit.kv_unavailable", {
+-      caller,
+-      error: err instanceof Error ? err.message : String(err),
+-    });
+-    /* FAIL-CLOSED, как и сама авторизация выше.
+-     *
+-     * Здесь раньше стояло `allowed: true`: недоступность KV СНИМАЛА лимит
+-     * расхода целиком. То есть защита кошелька открывалась ровно в тот
+-     * момент, когда переставала работать — и именно в такие моменты
+-     * клиенты обычно и молотят повторами.
+-     *
+-     * Осознанная цена: при сбое KV платные пути отказывают. Это заметно
+-     * и чинится; неограниченный счёт — нет. Оба решения нельзя иметь
+-     * одновременно, и выбирается то, чья ошибка обратима. */
+-    return { allowed: false, used: 0, limit, resetAt };
+-  }
+-
+-  // Проверяем ПОЛНУЮ стоимость до списания, а не факт «остался хоть один».
+-  // Иначе миссия ценой в 8 единиц пролезала бы при одном свободном месте,
+-  // и лимит превращался бы в пожелание.
+-  if (used + cost > limit) {
+-    return { allowed: false, used, limit, resetAt };
+-  }
+-
+-  try {
+-    // TTL чуть больше часа: ключ уйдёт сам, чистить не нужно.
+-    await env.AZRAIL_KV.put(key, String(used + cost), { expirationTtl: 3900 });
+-  } catch (err) {
+-    // Инкремент не прошёл — пропускаем запрос, счётчик просто менее точен.
+-    // Ниже серьёзности предыдущего catch (лимит не отключается целиком),
+-    // но тот же принцип: не молчать про недоступность KV.
+-    log("warn", "ratelimit.kv_increment_failed", {
+-      caller,
+-      error: err instanceof Error ? err.message : String(err),
+-    });
+-  }
+-
+-  return { allowed: true, used: used + cost, limit, resetAt };
+-}
+--- a/src/lib/chat-store.ts
++++ b/src/lib/chat-store.ts
+@@ -15,9 +15,13 @@
+ }
+ 
+ export async function listMessages(env: Env, conversationId: string, limit = 80) {
++  const safeLimit = Number.isFinite(limit) ? Math.max(1, Math.min(200, Math.floor(limit))) : 80;
+   const { results } = await env.AZRAIL_D1.prepare(
+-    `SELECT id, role, content, parent_message_id, model, created_at FROM messages WHERE conversation_id = ? ORDER BY created_at ASC LIMIT ?`
+-  ).bind(conversationId, limit).all();
++    `SELECT id, role, content, parent_message_id, model, created_at FROM (
++       SELECT rowid AS seq, id, role, content, parent_message_id, model, created_at
++       FROM messages WHERE conversation_id = ? ORDER BY created_at DESC, rowid DESC LIMIT ?
++     ) ORDER BY created_at ASC, seq ASC`
++  ).bind(conversationId, safeLimit).all();
+   return results;
+ }
+ 
+--- a/src/lib/cors.ts
++++ b/src/lib/cors.ts
+@@ -5,7 +5,10 @@
+ export function getCors(env: Env, extra?: HeadersInit): Headers {
+   const headers = new Headers(extra);
+   headers.set("Access-Control-Allow-Origin", env.CORS_ORIGIN || "*");
+-  headers.set("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+-  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
++  headers.set("Access-Control-Allow-Methods", "GET, POST, DELETE, OPTIONS");
++  headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization, Idempotency-Key");
++  headers.set("X-Content-Type-Options", "nosniff");
++  headers.set("Referrer-Policy", "no-referrer");
++  headers.set("Cache-Control", "no-store");
+   return headers;
+ }
+--- /dev/null
++++ b/src/lib/mission-admission.ts
+@@ -0,0 +1,39 @@
++import type { Env } from "../types";
++
++const TTL = 24 * 60 * 60 * 1000;
++export type Admission =
++  | { kind: "claimed"; claim: string }
++  | { kind: "replay"; body: string; status: number }
++  | { kind: "pending" | "conflict" };
++
++/** Durable reservation before spending money. No KV read/write race. */
++export async function claimMission(env: Env, key: string, body: string): Promise<Admission> {
++  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(body));
++  const hash = Array.from(new Uint8Array(digest), b => b.toString(16).padStart(2, "0")).join("");
++  const claim = crypto.randomUUID();
++  const now = Date.now();
++  const row = await env.AZRAIL_D1.prepare(`
++    INSERT INTO mission_admissions (key, body_hash, claim, expires_at) VALUES (?, ?, ?, ?)
++    ON CONFLICT(key) DO UPDATE SET body_hash = excluded.body_hash, claim = excluded.claim,
++      expires_at = excluded.expires_at, response_body = NULL, response_status = NULL
++    WHERE expires_at <= ? RETURNING claim
++  `).bind(key, hash, claim, now + TTL, now).first<{ claim: string }>();
++  if (row?.claim === claim) return { kind: "claimed", claim };
++  const stored = await env.AZRAIL_D1.prepare(
++    "SELECT body_hash, response_body, response_status FROM mission_admissions WHERE key = ?",
++  ).bind(key).first<{ body_hash: string; response_body: string | null; response_status: number | null }>();
++  if (!stored || stored.body_hash !== hash) return { kind: "conflict" };
++  if (stored.response_body && stored.response_status) return {kind:"replay",body:stored.response_body,status:stored.response_status};
++  return { kind: "pending" };
++}
++
++export async function finishAdmission(env: Env, key: string, claim: string, response: Response): Promise<void> {
++  if (response.ok) {
++    await env.AZRAIL_D1.prepare(
++      "UPDATE mission_admissions SET response_body = ?, response_status = ? WHERE key = ? AND claim = ?",
++    ).bind(await response.clone().text(), response.status, key, claim).run();
++  } else if (response.status >= 400 && response.status < 500) {
++    await env.AZRAIL_D1.prepare("DELETE FROM mission_admissions WHERE key = ? AND claim = ?").bind(key,claim).run();
++  }
++  // 5xx is ambiguous: keep the reservation, rather than launch a second paid job.
++}
+--- /dev/null
++++ b/src/lib/mission-concurrency.ts
+@@ -0,0 +1,13 @@
++import type { Env } from "../types";
++
++/** D1 serializes this single statement: concurrent admissions cannot both see an empty project. */
++export async function createMission(env: Env, id: string, projectId: string, goal: string): Promise<boolean> {
++  const now = new Date().toISOString();
++  const row = await env.AZRAIL_D1.prepare(`
++    INSERT INTO missions (id, project_id, goal, status, created_at, updated_at)
++    SELECT ?, ?, ?, 'queued', ?, ? WHERE NOT EXISTS (
++      SELECT 1 FROM missions WHERE project_id = ? AND status IN ('queued', 'executing', 'cancelling')
++    ) RETURNING id
++  `).bind(id,projectId,goal,now,now,projectId).first<{id:string}>();
++  return !!row;
++}
+--- /dev/null
++++ b/src/lib/quota.ts
+@@ -0,0 +1,40 @@
++import type { Env } from "../types";
++import { log } from "./resilience";
++
++export function positiveLimit(value: string | undefined, fallback: number): number {
++  const n = Number(value);
++  return Number.isSafeInteger(n) && n > 0 ? n : fallback;
++}
++
++/** One SQL statement reserves a fixed-window quota, including concurrent requests. */
++export async function reserveQuota(env: Env, scope: string, cost: number, limit: number) {
++  const bucket = Math.floor(Date.now() / 3_600_000);
++  const resetAt = (bucket + 1) * 3_600_000;
++  if (!Number.isSafeInteger(cost) || cost <= 0 || cost > limit) {
++    return { allowed: false, used: 0, limit, resetAt };
++  }
++  try {
++    const row = await env.AZRAIL_D1.prepare(`
++      INSERT INTO request_quotas (scope, bucket, used) VALUES (?, ?, ?)
++      ON CONFLICT(scope, bucket) DO UPDATE SET used = used + excluded.used
++      WHERE used + excluded.used <= ? RETURNING used
++    `).bind(scope, bucket, cost, limit).first<{ used: number }>();
++    if (row) return { allowed: true, used: row.used, limit, resetAt };
++    const current = await env.AZRAIL_D1.prepare(
++      "SELECT used FROM request_quotas WHERE scope = ? AND bucket = ?",
++    ).bind(scope, bucket).first<{ used: number }>();
++    return { allowed: false, used: current?.used ?? limit, limit, resetAt };
++  } catch (err) {
++    log("error", "quota.unavailable", { scope, error: err instanceof Error ? err.message : String(err) });
++    return { allowed: false, used: 0, limit, resetAt };
++  }
++}
++
++export async function cleanupSecurityState(env: Env): Promise<void> {
++  await env.AZRAIL_D1.batch([
++    env.AZRAIL_D1.prepare("DELETE FROM mission_admissions WHERE expires_at <= ?").bind(Date.now()),
++    env.AZRAIL_D1.prepare("DELETE FROM request_quotas WHERE bucket < ?")
++      .bind(Math.floor(Date.now() / 3_600_000) - 1),
++    env.AZRAIL_D1.prepare("DELETE FROM websocket_tickets WHERE expires_at <= ?").bind(Date.now()),
++  ]);
++}
+--- /dev/null
++++ b/src/lib/request-body.ts
+@@ -0,0 +1,47 @@
++export class BodyLimitError extends Error {}
++
++/** Stop consumption at the limit even when Content-Length is absent or forged. */
++export async function readBoundedBody(request: Request, limit: number): Promise<Uint8Array> {
++  if (Number(request.headers.get("Content-Length")) > limit) throw new BodyLimitError("Тело запроса превышает лимит.");
++  if (!request.body) return new Uint8Array();
++  const reader = request.body.getReader();
++  const chunks: Uint8Array[] = [];
++  let size = 0;
++  try {
++    while (true) {
++      const { done, value } = await reader.read();
++      if (done) break;
++      size += value.byteLength;
++      if (size > limit) {
++        await reader.cancel().catch(() => {});
++        throw new BodyLimitError("Тело запроса превышает лимит.");
++      }
++      chunks.push(value);
++    }
++  } finally { reader.releaseLock(); }
++  const bytes = new Uint8Array(size);
++  let offset = 0;
++  for (const chunk of chunks) { bytes.set(chunk, offset); offset += chunk.length; }
++  return bytes;
++}
++
++/** Common API shape guard; route-specific required-field checks remain in handlers. */
++export function validateJsonObject(value: unknown): asserts value is Record<string, unknown> {
++  if (!value || typeof value !== "object" || Array.isArray(value)) throw new Error("Ожидался JSON-объект.");
++  const body = value as Record<string, unknown>;
++  for (const key of ["message", "text", "goal", "payload", "projectId", "conversationId", "missionId", "preferredModel", "r2Key", "inputType", "intent", "note"]) {
++    if (body[key] !== undefined && typeof body[key] !== "string") throw new Error(`Поле ${key} должно быть строкой.`);
++  }
++  for (const key of ["projectId", "conversationId", "missionId"]) {
++    if (typeof body[key] === "string" && (body[key].length > 128 || !body[key].trim())) throw new Error(`Недопустимое поле ${key}.`);
++  }
++  if (body.confirm !== undefined && typeof body.confirm !== "boolean") throw new Error("confirm должно быть boolean.");
++  if (body.only !== undefined && (!Array.isArray(body.only) || body.only.length > 100 || body.only.some(v => typeof v !== "string"))) throw new Error("only должно быть массивом строк.");
++  if (body.attachments !== undefined) {
++    if (!Array.isArray(body.attachments) || body.attachments.length > 12) throw new Error("Допустимо не более 12 вложений.");
++    for (const ref of body.attachments) {
++      if (!ref || typeof ref !== "object" || typeof ref.fileName !== "string" || typeof ref.r2Key !== "string" ||
++        (ref.mimeType !== undefined && typeof ref.mimeType !== "string")) throw new Error("Некорректное вложение.");
++    }
++  }
++}
+--- a/src/lib/source-reader.ts
++++ b/src/lib/source-reader.ts
+@@ -5,7 +5,7 @@
+ // а Code Agent склеивает всё в один блоб для промпта. Один источник, два формата —
+ // поэтому ридер отдаёт структуру, а склейка живёт отдельной функцией.
+ 
+-import { unzipSync, strFromU8 } from "fflate";
++import { listZip, readEntry } from "./zip-reader";
+ import { pathSegments, splitRepo } from "./safe-path";
+ import type { Env, TaskRequest, GeneratedFile } from "../types";
+ 
+@@ -24,16 +24,18 @@
+       if (!request.r2Key) throw new Error("r2Key отсутствует для input_type=zip");
+       const obj = await env.AZRAIL_R2.get(request.r2Key);
+       if (!obj) throw new Error(`Объект ${request.r2Key} не найден в AZRAIL_R2`);
+-      const unzipped = unzipSync(new Uint8Array(await obj.arrayBuffer()));
+-
++      if (obj.size > 50 * 1024 * 1024) throw new Error("Архив превышает 50 МБ");
++      const buf = await obj.arrayBuffer();
++      const { entries } = listZip(buf);
+       const files: GeneratedFile[] = [];
+       let total = 0;
+-      for (const [name, data] of Object.entries(unzipped)) {
+-        if (name.endsWith("/") || !TEXT_FILE_RE.test(name) || SKIP_RE.test(name)) continue;
+-        const content = strFromU8(data);
+-        files.push({ path: name, content });
++      for (const entry of entries) {
++        if (entry.skipped || !TEXT_FILE_RE.test(entry.path) || SKIP_RE.test(entry.path)) continue;
++        if (entry.size > 256 * 1024) continue;
++        const content = new TextDecoder().decode(await readEntry(buf, entry, 256 * 1024)).slice(0, Math.max(0, maxChars - total));
++        files.push({ path: entry.path, content });
+         total += content.length;
+-        if (total > maxChars) break;
++        if (total >= maxChars || files.length >= 40) break;
+       }
+       if (files.length === 0) throw new Error("В архиве не найдено текстовых файлов поддерживаемых типов");
+       return files;
+@@ -119,5 +121,5 @@
+     total += part.length;
+     if (total > maxChars) break;
+   }
+-  return parts.join("\n\n");
++  return parts.join("\n\n").slice(0, Math.max(0, maxChars));
+ }
+--- a/src/lib/upload.ts
++++ b/src/lib/upload.ts
+@@ -1,5 +1,6 @@
+ // AZRAIL — загрузка файлов напрямую из чата/дашборда в AZRAIL_R2
+ 
++import { readBoundedBody, BodyLimitError } from "./request-body";
+ import type { Env, InputType } from "../types";
+ 
+ const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // 50MB — мягкий лимит приложения,
+@@ -63,8 +64,10 @@
+ export async function handleUpload(request: Request, env: Env): Promise<UploadResult | UploadError> {
+   let form: FormData;
+   try {
+-    form = await request.formData();
+-  } catch {
++    const bytes = await readBoundedBody(request, MAX_UPLOAD_BYTES + 1024 * 1024);
++    form = await new Response(bytes, { headers: request.headers }).formData();
++  } catch (err) {
++    if (err instanceof BodyLimitError) return { error: err.message, status: 413 };
+     return { error: "Ожидался multipart/form-data.", status: 400 };
+   }
+ 
+--- a/src/lib/write-budget.ts
++++ b/src/lib/write-budget.ts
+@@ -1,87 +1,12 @@
+ import type { Env } from "../types";
+-import { log } from "../lib/resilience";
++import { positiveLimit, reserveQuota } from "./quota";
+ 
+-/**
+- * АВАРИЙНЫЙ СТОП ПО ЗАПИСЯМ.
+- *
+- * Cloudflare берёт деньги за каждую операцию записи и НЕ ДАЁТ поставить
+- * жёсткий потолок расходов. Узнают по счёту. Публично описанные случаи:
+- * $36 000 у побочного проекта с 81 пользователем (зациклившаяся очередь,
+- * 16 млрд записей в Durable Objects), $34 000 за восемь дней при нуле
+- * пользователей (объект переставлял себе будильник, не проверяя, не стоит
+- * ли он уже), $4 868 у соло-разработчика с обычным счётом в $5.
+- *
+- * У AZRAIL сейчас этих паттернов нет: будильников не используется вовсе,
+- * цикл ограничен двадцатью шагами, записи идут пачками по несколько штук
+- * на шаг. И на бесплатном плане переплата невозможна в принципе —
+- * Cloudflare перестаёт обслуживать, а не выставляет счёт.
+- *
+- * Этот файл существует ради момента ПЕРЕХОДА НА ПЛАТНЫЙ ПЛАН. Ровно
+- * тогда защита перестаёт быть бесплатной, а её отсутствие — становится
+- * дорогим. Ставить её надо ДО оплаты: после первого счёта она уже не
+- * поможет.
+- *
+- * Считается грубо и дёшево: счётчик в KV с часовым окном. Точность здесь
+- * не нужна — нужен порядок величины и способность остановиться. Точный
+- * учёт стоил бы записей, то есть той самой проблемы, которую решает.
+- */
++export interface BudgetState { allowed: boolean; used: number; limit: number; remaining: number }
+ 
+-/** Потолок записей в час. Нормальная миссия — до 60. */
+-const DEFAULT_HOURLY_WRITES = 5000;
+-
+-export interface BudgetState {
+-  allowed: boolean;
+-  used: number;
+-  limit: number;
+-  /** Сколько осталось до потолка — для предупреждения заранее. */
+-  remaining: number;
+-}
+-
+-const hourKey = (): string => {
+-  const now = new Date();
+-  return `writes:${now.getUTCFullYear()}-${now.getUTCMonth() + 1}-${now.getUTCDate()}:${now.getUTCHours()}`;
+-};
+-
+-const limitFor = (env: Env): number => Number(env.AZRAIL_WRITE_BUDGET) || DEFAULT_HOURLY_WRITES;
+-
+-/**
+- * Проверить и списать бюджет записей.
+- *
+- * Списывается ЗАРАНЕЕ, по заявленной стоимости, а не по факту. Причина
+- * та же, что и у лимита моделей: узнать о превышении после того, как
+- * записи уже сделаны, бесполезно.
+- */
++/** Estimated writes, reserved atomically. This is not an exact billing ceiling. */
+ export async function chargeWrites(env: Env, cost: number): Promise<BudgetState> {
+-  const limit = limitFor(env);
+-  const key = hourKey();
+-
+-  let used = 0;
+-  try {
+-    used = Number(await env.AZRAIL_KV.get(key)) || 0;
+-  } catch (err) {
+-    // KV недоступен — считать нечем. Пропускаем, но ГРОМКО: молчаливое
+-    // отключение защиты от расходов — худший из возможных отказов.
+-    log("error", "budget.kv_read_failed", {
+-      error: err instanceof Error ? err.message : String(err),
+-    });
+-    return { allowed: true, used: 0, limit, remaining: limit };
+-  }
+-
+-  if (used + cost > limit) {
+-    log("error", "budget.exceeded", { used, cost, limit });
+-    return { allowed: false, used, limit, remaining: Math.max(0, limit - used) };
+-  }
+-
+-  try {
+-    // TTL чуть больше часа: ключ уходит сам, чистить не нужно.
+-    await env.AZRAIL_KV.put(key, String(used + cost), { expirationTtl: 3900 });
+-  } catch (err) {
+-    log("warn", "budget.kv_write_failed", {
+-      error: err instanceof Error ? err.message : String(err),
+-    });
+-  }
+-
+-  return { allowed: true, used: used + cost, limit, remaining: limit - used - cost };
++  const state = await reserveQuota(env, "writes:shared", cost, positiveLimit(env.AZRAIL_WRITE_BUDGET, 5000));
++  return { ...state, remaining: Math.max(0, state.limit - state.used) };
+ }
+ 
+ /** Сколько записей может потребовать миссия в худшем случае. */
+--- a/src/lib/ws-ticket.ts
++++ b/src/lib/ws-ticket.ts
+@@ -1,49 +1,25 @@
+-// AZRAIL — одноразовые билеты для WebSocket.
+-//
+-// Проблема, которую это закрывает: браузерный конструктор WebSocket не даёт
+-// выставить заголовок Authorization — это ограничение самого API, не проекта.
+-// Поэтому токен уходил в строку запроса: /api/stream?token=<AZRAIL_TOKEN>.
+-// Строка запроса попадает в логи Cloudflare, в историю браузера и в Referer.
+-// То есть ПОСТОЯННЫЙ токен от всех платных эндпоинтов оседал в местах, из
+-// которых его никто не удалит.
+-//
+-// Билет живёт минуту, годен один раз и не даёт ничего, кроме подключения к
+-// потоку. Утечь он может ровно так же — но утекает уже мусор.
+-
+ import type { Env } from "../types";
+ import { log } from "./resilience";
+ 
+-/** Срок жизни билета. Секунд достаточно: между выдачей и рукопожатием
+- *  проходит доли секунды, а всё сверх этого — только окно для чужого. */
+ export const TICKET_TTL_SECONDS = 60;
+ 
+-const keyFor = (ticket: string) => `wsticket:${ticket}`;
+-
+-/** Выдать билет. Вызывается только после успешной проверки токена. */
+ export async function issueTicket(env: Env, caller: string): Promise<{ ticket: string; expiresIn: number }> {
+   const ticket = crypto.randomUUID().replace(/-/g, "") + crypto.randomUUID().replace(/-/g, "");
+-  await env.AZRAIL_KV.put(keyFor(ticket), caller, { expirationTtl: TICKET_TTL_SECONDS });
++  await env.AZRAIL_D1.prepare("INSERT INTO websocket_tickets (ticket, caller, expires_at) VALUES (?, ?, ?)")
++    .bind(ticket, caller, Date.now() + TICKET_TTL_SECONDS * 1000).run();
+   return { ticket, expiresIn: TICKET_TTL_SECONDS };
+ }
+ 
+-/**
+- * Погасить билет. Именно погасить, а не просто проверить: ключ удаляется
+- * сразу после чтения, поэтому подсмотренный в логах билет второй раз не
+- * сработает. Без удаления это был бы просто токен покороче.
+- */
++/** DELETE RETURNING makes consumption atomic; expiry is checked independently of cleanup. */
+ export async function redeemTicket(env: Env, ticket: string): Promise<string | null> {
+-  if (!ticket) return null;
++  if (!/^[a-f0-9]{64}$/.test(ticket)) return null;
+   try {
+-    const caller = await env.AZRAIL_KV.get(keyFor(ticket));
+-    if (!caller) return null;
+-    await env.AZRAIL_KV.delete(keyFor(ticket));
+-    return caller;
++    const row = await env.AZRAIL_D1.prepare(
++      "DELETE FROM websocket_tickets WHERE ticket = ? AND expires_at > ? RETURNING caller",
++    ).bind(ticket, Date.now()).first<{ caller: string }>();
++    return row?.caller ?? null;
+   } catch (err) {
+-    // KV недоступен — билет считается негодным. Здесь fail-closed уместен:
+-    // это ворота авторизации, а не счётчик.
+-    log("error", "wsticket.kv_unavailable", {
+-      error: err instanceof Error ? err.message : String(err),
+-    });
++    log("error", "wsticket.storage_unavailable", { error: err instanceof Error ? err.message : String(err) });
+     return null;
+   }
+ }
+--- a/src/lib/zip-reader.ts
++++ b/src/lib/zip-reader.ts
+@@ -61,7 +61,7 @@
+ function findEocd(view: DataView): number {
+   const min = Math.max(0, view.byteLength - MAX_COMMENT - 22);
+   for (let i = view.byteLength - 22; i >= min; i--) {
+-    if (view.getUint32(i, true) === SIG_EOCD) return i;
++    if (view.getUint32(i, true) === SIG_EOCD && i + 22 + view.getUint16(i + 20, true) === view.byteLength) return i;
+   }
+   throw new ZipError("это не ZIP: не найден конец центрального каталога");
+ }
+@@ -86,12 +86,16 @@
+     throw new ZipError("архив в формате ZIP64 — не поддерживается");
+   }
+ 
++  const cdSize = view.getUint32(eocd + 12, true);
++  if (view.getUint16(eocd + 4, true) || view.getUint16(eocd + 6, true) || view.getUint16(eocd + 8, true) !== count) throw new ZipError("многотомный ZIP не поддерживается");
++  if (cdOffset + cdSize > eocd) throw new ZipError("границы центрального каталога повреждены");
++  const cdEnd = cdOffset + cdSize;
+   const entries: ZipEntry[] = [];
+   let p = cdOffset;
+   let total = 0;
+ 
+   for (let i = 0; i < count; i++) {
+-    if (p + 46 > view.byteLength || view.getUint32(p, true) !== SIG_CENTRAL) {
++    if (p + 46 > cdEnd || view.getUint32(p, true) !== SIG_CENTRAL) {
+       throw new ZipError("центральный каталог повреждён");
+     }
+ 
+@@ -104,6 +108,8 @@
+     const commentLen = view.getUint16(p + 32, true);
+     const localOffset = view.getUint32(p + 42, true);
+ 
++    if (p + 46 + nameLen + extraLen + commentLen > cdEnd) throw new ZipError("обрезана запись центрального каталога");
++    const checksum = view.getUint32(p + 16, true);
+     const path = decodeName(bytes.subarray(p + 46, p + 46 + nameLen));
+     p += 46 + nameLen + extraLen + commentLen;
+ 
+@@ -114,13 +120,15 @@
+ 
+     const entry: ZipEntry = { path, size };
+ 
+-    if (flags & FLAG_ENCRYPTED) entry.skipped = "файл зашифрован";
++    if (!path || path.startsWith("/") || path.includes("\\") || /^[A-Za-z]:/.test(path) || path.includes("\0") || path.split("/").some(s => s === ".." || s === ".")) entry.skipped = "небезопасный путь";
++    else if (flags & FLAG_ENCRYPTED) entry.skipped = "файл зашифрован";
+     else if (method !== 0 && method !== 8) entry.skipped = `способ сжатия ${method} не поддерживается`;
+     else if (size === ZIP64_MARK || compSize === ZIP64_MARK) entry.skipped = "запись в формате ZIP64";
+     else {
+       // Смещения нужны только для распаковки — прячем их от вызывающего
+       // кода за непубличными полями, чтобы их нельзя было принять за часть
+       // описания файла.
++      (entry as ZipEntry & { _crc: number })._crc = checksum;
+       (entry as ZipEntry & { _off: number; _comp: number; _method: number })._off = localOffset;
+       (entry as ZipEntry & { _off: number; _comp: number; _method: number })._comp = compSize;
+       (entry as ZipEntry & { _off: number; _comp: number; _method: number })._method = method;
+@@ -133,13 +141,31 @@
+ }
+ 
+ /** Распаковка одного блока. "deflate-raw" — без заголовка zlib, как в ZIP. */
+-async function inflateRaw(data: Uint8Array): Promise<Uint8Array> {
++async function inflateRaw(data: Uint8Array, limit: number): Promise<Uint8Array> {
+   // Blob принимает Uint8Array; приведение — обход конфликта версий
+   // workers-types в этой связке зависимостей, тот же, что описан в upload.ts.
+   const stream = (new Blob([data as unknown as ArrayBufferView]) as unknown as { stream(): ReadableStream })
+     .stream()
+     .pipeThrough(new DecompressionStream("deflate-raw"));
+-  return new Uint8Array(await new Response(stream).arrayBuffer());
++  const reader = stream.getReader();
++  const chunks: Uint8Array[] = [];
++  let size = 0;
++  try {
++    while (true) {
++      const { value, done } = await reader.read();
++      if (done) break;
++      size += value.byteLength;
++      if (size > limit) {
++        await reader.cancel().catch(() => {});
++        throw new ZipError("распакованный файл превышает лимит");
++      }
++      chunks.push(value);
++    }
++  } finally { reader.releaseLock(); }
++  const out = new Uint8Array(size);
++  let pos = 0;
++  for (const chunk of chunks) { out.set(chunk, pos); pos += chunk.length; }
++  return out;
+ }
+ 
+ /**
+@@ -149,10 +175,11 @@
+  * отличаться от тех же полей в центральном каталоге — это законно по
+  * спецификации, и доверять здесь центральному каталогу нельзя.
+  */
+-export async function readEntry(buf: ArrayBuffer, entry: ZipEntry): Promise<Uint8Array> {
+-  const meta = entry as ZipEntry & { _off?: number; _comp?: number; _method?: number };
++export async function readEntry(buf: ArrayBuffer, entry: ZipEntry, maxBytes = 1024 * 1024): Promise<Uint8Array> {
++  const meta = entry as ZipEntry & { _off?: number; _comp?: number; _method?: number; _crc?: number };
+   if (meta._off === undefined) throw new ZipError(entry.skipped ?? "запись нечитаема");
+ 
++  if (entry.size > maxBytes) throw new ZipError("файл превышает лимит чтения");
+   const view = new DataView(buf);
+   const bytes = new Uint8Array(buf);
+   const off = meta._off;
+@@ -169,5 +196,13 @@
+   if (end > bytes.byteLength) throw new ZipError(`данные файла ${entry.path} обрезаны`);
+ 
+   const raw = bytes.subarray(start, end);
+-  return meta._method === 0 ? raw : inflateRaw(raw);
+-}
++  const out = meta._method === 0 ? raw : await inflateRaw(raw, Math.min(entry.size, maxBytes));
++  if (out.length !== entry.size || out.length > maxBytes) throw new ZipError("размер файла не совпадает с каталогом");
++  let crc = 0xffffffff;
++  for (const byte of out) {
++    crc ^= byte;
++    for (let bit = 0; bit < 8; bit++) crc = (crc >>> 1) ^ ((crc & 1) ? 0xedb88320 : 0);
++  }
++  if (((crc ^ 0xffffffff) >>> 0) !== meta._crc) throw new ZipError("контрольная сумма CRC32 не совпадает");
++  return out;
++}
+--- /dev/null
++++ b/tests/api-security.test.ts
+@@ -0,0 +1,51 @@
++import { describe, it, expect, vi } from "vitest";
++vi.mock("../src/core/azrail-sandbox", () => ({ Sandbox: class {} }));
++import worker from "../src/index";
++import { sqliteD1 } from "./stubs/sqlite-d1";
++import type { Env } from "../src/types";
++const context = { waitUntil: vi.fn() } as unknown as ExecutionContext;
++const env = () => ({AZRAIL_TOKEN:"secret", AZRAIL_D1:sqliteD1().db}) as Env;
++function request(path:string, method = "GET", body?:string, auth=true) {
++  return new Request(`https://test${path}`, { method, body, headers: auth ? {Authorization:"Bearer secret"} : {} });
++}
++describe("Worker HTTP security boundary", () => {
++  it("blocks direct SDK route without authentication", async () => {
++    expect((await worker.fetch(request("/agents/orchestrator/default", "GET", undefined, false),env(),context)).status).toBe(404);
++  });
++  it("protects unknown future API routes by default", async () => {
++    expect((await worker.fetch(request("/api/future", "GET", undefined, false),env(),context)).status).toBe(401);
++  });
++  it("does not reveal health details to anonymous callers", async () => {
++    expect((await worker.fetch(request("/health", "GET", undefined, false),env(),context)).status).toBe(401);
++  });
++  it.each(["null", "[]", "{", '{"goal":1}', '{"attachments":[null]}'])("bad JSON shape gets 400: %s", async body => {
++    const response = await worker.fetch(request("/api/mission", "POST", body),env(),context);
++    expect(response.status).toBe(400);
++  });
++  it("oversized JSON without Content-Length gets 413", async () => {
++    const response = await worker.fetch(request("/api/task", "POST", JSON.stringify({payload:"x".repeat(1024*1024)})),env(),context);
++    expect(response.status).toBe(413);
++  });
++  it("mission polling does not consume model quota", async () => {
++    const e=env();
++    await worker.fetch(request("/api/mission"),e,context);
++    expect(await e.AZRAIL_D1.prepare("SELECT COUNT(*) AS n FROM request_quotas").first()).toEqual({n:0});
++  });
++  it("parsed body remains readable to handler", async () => {
++    const response = await worker.fetch(request("/api/task", "POST", '{}'),env(),context);
++    expect(response.status).toBe(400);
++    expect(await response.text()).toContain("inputType");
++  });
++});
++
++it("idempotent replay returns original mission without charging again", async () => {
++  const { claimMission, finishAdmission } = await import("../src/lib/mission-admission");
++  const e=env(); const body='{"message":"build","projectId":"p"}';
++  const claim=await claimMission(e,"stable-key",body);
++  if(claim.kind!=="claimed") throw Error();
++  await finishAdmission(e,"stable-key",claim.claim,new Response('{"missionId":"original"}',{status:202}));
++  const r=request("/api/mission","POST",body);r.headers.set("Idempotency-Key","stable-key");
++  const response=await worker.fetch(r,e,context);
++  expect(response.status).toBe(202);expect(await response.json()).toEqual({missionId:"original"});
++  expect(await e.AZRAIL_D1.prepare("SELECT COUNT(*) AS n FROM request_quotas").first()).toEqual({n:0});
++});
+--- a/tests/attachments.test.ts
++++ b/tests/attachments.test.ts
+@@ -110,7 +110,7 @@
+   it("самостоятельная миссия", () => {
+     // Починить один путь и забыть второй — ровно так этот класс ошибок
+     // и живёт долго.
+-    const mission = src.slice(src.indexOf('"/api/mission" && request.method === "POST"'));
++    const mission = src.slice(src.lastIndexOf('"/api/mission" && request.method === "POST"'));
+     expect(mission.slice(0, 1200)).toContain("attachmentsToText");
+   });
+ });
+--- /dev/null
++++ b/tests/chat-recency.test.ts
+@@ -0,0 +1,11 @@
++import { it, expect } from "vitest";
++import { sqliteD1 } from "./stubs/sqlite-d1";
++import { listMessages } from "../src/lib/chat-store";
++import type { Env } from "../src/types";
++it("returns the newest messages in chronological order, including timestamp ties",async()=>{
++  const {db,sqlite}=sqliteD1();
++  sqlite.exec("CREATE TABLE messages(id TEXT, conversation_id TEXT, role TEXT, content TEXT, parent_message_id TEXT, model TEXT, created_at TEXT)");
++  for(let i=0;i<30;i++) sqlite.prepare("INSERT INTO messages VALUES (?, 'c', 'user', ?, NULL, NULL, '2026-09-25')").run(String(i),String(i));
++  const messages=await listMessages({AZRAIL_D1:db} as Env,"c",3);
++  expect(messages.map((m:any)=>m.content)).toEqual(["27","28","29"]);
++});
+--- a/tests/logic.test.ts
++++ b/tests/logic.test.ts
+@@ -1,3 +1,4 @@
++import { sqliteD1 } from "./stubs/sqlite-d1";
+ // AZRAIL — тесты чистой логики.
+ //
+ // Здесь нет моков Cloudflare и нет проверок работы с сетью: тестируется то,
+@@ -697,19 +698,9 @@
+ 
+ describe("Бюджет записей — защита от неконтролируемого счёта", () => {
+   const makeEnv = (start = 0, limit?: string) => {
+-    const store = new Map<string, string>();
+-    return {
+-      store,
+-      env: {
+-        AZRAIL_WRITE_BUDGET: limit,
+-        AZRAIL_KV: {
+-          get: async (k: string) => (store.has(k) ? store.get(k)! : String(start)),
+-          put: async (k: string, v: string) => {
+-            store.set(k, v);
+-          },
+-        },
+-      } as never,
+-    };
++    const { db, sqlite } = sqliteD1();
++    sqlite.prepare("INSERT INTO request_quotas VALUES (?, ?, ?)").run("writes:shared", Math.floor(Date.now() / 3_600_000), start);
++    return { env: { AZRAIL_D1: db, AZRAIL_WRITE_BUDGET: limit } as never };
+   };
+ 
+   it("пропускает, пока есть запас", async () => {
+@@ -732,7 +723,7 @@
+     expect((await chargeWrites(env, 60)).allowed).toBe(false);
+   });
+ 
+-  it("недоступный KV не отключает работу молча", async () => {
++  it("недоступное хранилище запрещает расход", async () => {
+     const env = {
+       AZRAIL_KV: {
+         get: async () => {
+@@ -741,8 +732,8 @@
+       },
+     } as never;
+     const r = await chargeWrites(env, 60);
+-    // Пропускаем — но это залогировано как error, а не проглочено.
+-    expect(r.allowed).toBe(true);
++    // Fail closed: отсутствие учёта не открывает бюджет.
++    expect(r.allowed).toBe(false);
+   });
+ 
+   it("оценка стоимости миссии растёт вместе с числом шагов", () => {
+--- /dev/null
++++ b/tests/mission-admission.test.ts
+@@ -0,0 +1,25 @@
++import { it, expect } from "vitest";
++import { claimMission, finishAdmission } from "../src/lib/mission-admission";
++import { sqliteD1 } from "./stubs/sqlite-d1";
++import type { Env } from "../src/types";
++const env=()=>({AZRAIL_D1:sqliteD1().db}) as Env;
++it("only one concurrent request obtains admission",async()=>{
++  const e=env();const all=await Promise.all(Array.from({length:20},()=>claimMission(e,"key","body")));
++  expect(all.filter(a=>a.kind==="claimed")).toHaveLength(1);
++  expect(all.filter(a=>a.kind==="pending")).toHaveLength(19);
++});
++it("same key with different payload conflicts",async()=>{
++  const e=env();await claimMission(e,"key","body");expect((await claimMission(e,"key","other")).kind).toBe("conflict");
++});
++it("completed response is replayed exactly",async()=>{
++  const e=env();const a=await claimMission(e,"key","body");if(a.kind!=="claimed")throw Error();
++  await finishAdmission(e,"key",a.claim,new Response('{"missionId":"m"}',{status:202}));
++  expect(await claimMission(e,"key","body")).toEqual({kind:"replay",body:'{"missionId":"m"}',status:202});
++});
++it("invalid request releases claim; ambiguous server failure does not",async()=>{
++  const e=env();const a=await claimMission(e,"key","body");if(a.kind!=="claimed")throw Error();
++  await finishAdmission(e,"key",a.claim,new Response("bad",{status:400}));
++  const b=await claimMission(e,"key","body");expect(b.kind).toBe("claimed");if(b.kind!=="claimed")throw Error();
++  await finishAdmission(e,"key",b.claim,new Response("failed",{status:500}));
++  expect((await claimMission(e,"key","body")).kind).toBe("pending");
++});
+--- a/tests/mission-async.test.ts
++++ b/tests/mission-async.test.ts
+@@ -1,3 +1,4 @@
++import { sqliteD1 } from "./stubs/sqlite-d1";
+ import { describe, it, expect } from "vitest";
+ import { readFileSync } from "node:fs";
+ import { resolve } from "node:path";
+@@ -310,7 +311,7 @@
+     // Иначе это просто токен покороче: подсмотренный в логах билет
+     // работал бы столько же, сколько живёт.
+     const kv = fakeKV();
+-    const env = envWith({ AZRAIL_KV: kv as unknown as KVNamespace });
++    const env = envWith({ AZRAIL_KV: kv as unknown as KVNamespace, AZRAIL_D1: sqliteD1().db });
+     const { ticket, expiresIn } = await issueTicket(env, "shared");
+     expect(expiresIn).toBe(TICKET_TTL_SECONDS);
+     expect(await redeemTicket(env, ticket)).toBe("shared");
+@@ -343,8 +344,8 @@
+     expect(res.allowed).toBe(false);
+   });
+ 
+-  it("исправный KV считает как считал", async () => {
+-    const env = envWith({ AZRAIL_KV: fakeKV() as unknown as KVNamespace, AZRAIL_HOURLY_LIMIT: "3" });
++  it("атомарный D1 учитывает полную стоимость", async () => {
++    const env = envWith({ AZRAIL_KV: fakeKV() as unknown as KVNamespace, AZRAIL_D1: sqliteD1().db, AZRAIL_HOURLY_LIMIT: "3" });
+     expect((await checkRateLimit(env, "u", 1)).allowed).toBe(true);
+     expect((await checkRateLimit(env, "u", 1)).allowed).toBe(true);
+     // Полная стоимость проверяется ДО списания: задача ценой 2 при одном
+--- /dev/null
++++ b/tests/mission-concurrency.test.ts
+@@ -0,0 +1,12 @@
++import { it, expect } from "vitest";
++import { sqliteD1 } from "./stubs/sqlite-d1";
++import { createMission } from "../src/lib/mission-concurrency";
++import type { Env } from "../src/types";
++it("parallel missions in one project have only one winner",async()=>{
++  const {db,sqlite}=sqliteD1();const env={AZRAIL_D1:db} as Env;
++  const results=await Promise.all(Array.from({length:10},(_,i)=>createMission(env,`m${i}`,"p","goal")));
++  expect(results.filter(Boolean)).toHaveLength(1);
++  expect(await createMission(env,"other","other-project","goal")).toBe(true);
++  sqlite.exec("UPDATE missions SET status='completed' WHERE project_id='p'");
++  expect(await createMission(env,"next","p","goal")).toBe(true);
++});
+--- a/tests/regressions.test.ts
++++ b/tests/regressions.test.ts
+@@ -681,21 +681,12 @@
+ });
+ 
+ describe("Регрессия: четвёртый аудит — тихий отказ лимита", () => {
+-  // checkRateLimit возвращает allowed:true при недоступном KV (осознанно,
+-  // fail-open — иначе инфраструктурный сбой блокировал бы всю работу).
+-  // Комментарий утверждал, что вызывающий код это залогирует. Неправда:
+-  // index.ts логирует только rl.allowed === false, а этот путь ВСЕГДА
+-  // allowed:true — вызывающий код эту ветку никогда не видит. Лимит долгое
+-  // время мог бы быть фактически отключён без единой строки в логах.
+-  const auth = src("src/lib/auth.ts");
+-
+-  it("checkRateLimit логирует недоступность KV сам, а не полагается на вызывающего", () => {
+-    expect(auth).toMatch(/import \{[^}]*\blog\b[^}]*\} from "\.\/resilience"/);
+-    expect(auth).toContain('log("error", "ratelimit.kv_unavailable"');
+-  });
+-
+-  it("сбой инкремента счётчика тоже не молчит", () => {
+-    expect(auth).toContain('log("warn", "ratelimit.kv_increment_failed"');
++  const quota = src("src/lib/quota.ts");
++  it("сбой атомарного резервирования логируется", () => {
++    expect(quota).toContain('log("error", "quota.unavailable"');
++  });
++  it("при сбое операция запрещается", () => {
++    expect(quota.slice(quota.indexOf("} catch (err)"))).toContain("allowed: false");
+   });
+ });
+ 
+@@ -794,16 +785,10 @@
+   // весь остальной набор: живой Durable Object здесь не поднять, поэтому
+   // проверяется код, а не рантайм-поведение сокета.
+ 
+-  it("checkAuth принимает токен из query-параметра, когда заголовка нет — для WS-хендшейка браузер не даёт выставить заголовок", () => {
++  it("постоянный токен не читается из URL", () => {
+     const authSrc = src("src/lib/auth.ts");
+-    expect(authSrc).toContain('url.searchParams.get("token")');
+-    // Запасной путь — только если заголовка НЕТ, а не всегда: иначе у
+-    // токена в URL появился бы приоритет над явным заголовком.
+-    const checkAuthBody = authSrc.slice(authSrc.indexOf("export function checkAuth"));
+-    const headerIdx = checkAuthBody.indexOf('header.startsWith("Bearer ")');
+-    const fallbackIdx = checkAuthBody.indexOf("if (!token)");
+-    expect(headerIdx).toBeGreaterThan(-1);
+-    expect(fallbackIdx).toBeGreaterThan(headerIdx);
++    expect(authSrc).not.toContain('searchParams.get("token")');
++    expect(authSrc).toContain('header.startsWith("Bearer ")');
+   });
+ 
+   it("сравнение токена (safeEqual) одно и то же для обоих каналов — не два независимых пути проверки", () => {
+@@ -854,7 +839,7 @@
+ 
+   it("чат сохраняет и user-, и assistant-сообщение — не только исходящий ответ", () => {
+     const orch = src("src/agents/orchestrator.ts");
+-    const onMessageBody = orch.slice(orch.indexOf("async onMessage("), orch.indexOf("connection.send("));
++    const onMessageBody = orch.slice(orch.indexOf("async onMessage("), orch.indexOf("async selfTest("));
+     expect(onMessageBody).toContain('addMessage(this.env, convId, "user"');
+     expect(onMessageBody).toContain('addMessage(this.env, convId, "assistant"');
+   });
+@@ -1544,7 +1529,7 @@
+ 
+   it("проверяется полная стоимость до списания", () => {
+     // used >= limit пропускал бы миссию ценой 8 при одном свободном месте.
+-    expect(auth).toContain("used + cost > limit");
++    expect(src("src/lib/quota.ts")).toContain("WHERE used + excluded.used <= ?");
+     expect(auth, "старая проверка вернулась").not.toMatch(/if \(used >= limit\)/);
+   });
+ 
+@@ -1969,14 +1954,13 @@
+   });
+ 
+   it("проверяется полная стоимость, а не наличие одного места", () => {
+-    expect(budget).toContain("used + cost > limit");
++    expect(src("src/lib/quota.ts")).toContain("WHERE used + excluded.used <= ?");
+   });
+ 
+   it("недоступность KV логируется как ошибка, а не проглатывается", () => {
+     // Молчаливое отключение защиты от расходов — худший из отказов.
+-    expect(budget).toContain("budget.kv_read_failed");
+-    const fn = budget.slice(budget.indexOf("export async function chargeWrites"));
+-    expect(fn).toContain('log("error"');
++    expect(budget).toContain("reserveQuota");
++    expect(src("src/lib/quota.ts")).toContain('log("error", "quota.unavailable"');
+   });
+ 
+   it("будильников в Durable Objects нет", () => {
+--- /dev/null
++++ b/tests/security-hardening.test.ts
+@@ -0,0 +1,114 @@
++import { describe, it, expect, vi, afterEach } from "vitest";
++import { checkAuth, checkRateLimit } from "../src/lib/auth";
++import { chargeWrites } from "../src/lib/write-budget";
++import { issueTicket, redeemTicket } from "../src/lib/ws-ticket";
++import { cleanupSecurityState } from "../src/lib/quota";
++import { readBoundedBody, validateJsonObject } from "../src/lib/request-body";
++import { listZip, readEntry } from "../src/lib/zip-reader";
++import { readSource, joinForPrompt } from "../src/lib/source-reader";
++import { getCors } from "../src/lib/cors";
++import { sqliteD1 } from "./stubs/sqlite-d1";
++import { makeZip } from "./stubs/make-zip";
++import type { Env } from "../src/types";
++
++const env = (extra = {}) => ({ AZRAIL_D1: sqliteD1().db, AZRAIL_TOKEN: "test-secret", ...extra }) as Env;
++afterEach(() => vi.restoreAllMocks());
++
++describe("atomic security state (real SQLite)", () => {
++  it("parallel reservations never exceed the limit", async () => {
++    const e = env({ AZRAIL_HOURLY_LIMIT: "5" });
++    const results = await Promise.all(Array.from({length: 20}, () => checkRateLimit(e, "shared")));
++    expect(results.filter(r => r.allowed)).toHaveLength(5);
++  });
++  it("an expensive request cannot enter an empty smaller budget", async () => {
++    expect((await checkRateLimit(env({ AZRAIL_HOURLY_LIMIT: "2" }), "shared", 3)).allowed).toBe(false);
++  });
++  it.each([0, -1, NaN, Infinity, 0.5])("rejects invalid cost %s", async cost => {
++    expect((await chargeWrites(env(), cost)).allowed).toBe(false);
++  });
++  it("database failure closes both budgets", async () => {
++    const e = env({ AZRAIL_D1: { prepare() { throw new Error("offline"); } } });
++    expect((await checkRateLimit(e, "shared")).allowed).toBe(false);
++    expect((await chargeWrites(e, 1)).allowed).toBe(false);
++  });
++  it("only one of parallel ticket consumers succeeds", async () => {
++    const e = env();
++    const { ticket } = await issueTicket(e, "shared");
++    const results = await Promise.all(Array.from({length: 10}, () => redeemTicket(e, ticket)));
++    expect(results.filter(Boolean)).toEqual(["shared"]);
++  });
++  it("expired ticket fails even before cron cleanup", async () => {
++    const e = env(); const now = Date.now();
++    vi.spyOn(Date, "now").mockReturnValue(now);
++    const { ticket } = await issueTicket(e, "shared");
++    vi.spyOn(Date, "now").mockReturnValue(now + 60_001);
++    expect(await redeemTicket(e, ticket)).toBeNull();
++    await cleanupSecurityState(e);
++    expect(await e.AZRAIL_D1.prepare("SELECT COUNT(*) AS n FROM websocket_tickets").first()).toEqual({ n: 0 });
++  });
++  it("window rollover gives a fresh budget", async () => {
++    const e = env({ AZRAIL_HOURLY_LIMIT: "1" });
++    vi.spyOn(Date, "now").mockReturnValue(3_600_000);
++    expect((await checkRateLimit(e, "shared")).allowed).toBe(true);
++    expect((await checkRateLimit(e, "shared")).allowed).toBe(false);
++    vi.spyOn(Date, "now").mockReturnValue(7_200_000);
++    expect((await checkRateLimit(e, "shared")).allowed).toBe(true);
++  });
++});
++
++describe("request boundaries", () => {
++  it("URL token is rejected; bearer is accepted", () => {
++    expect(checkAuth(new Request("https://x/api/task?token=test-secret"), env()).ok).toBe(false);
++    expect(checkAuth(new Request("https://x/api/task", {headers:{Authorization:"Bearer test-secret"}}), env()).ok).toBe(true);
++  });
++  it("counts streamed bytes with no declared length", async () => {
++    const req = new Request("https://x", { method: "POST", body: "123456" });
++    await expect(readBoundedBody(req, 5)).rejects.toThrow("лимит");
++  });
++  it("accepts exact byte limit", async () => {
++    expect(await readBoundedBody(new Request("https://x", {method:"POST", body:"12345"}), 5)).toHaveLength(5);
++  });
++  it.each([null, [], 1, "text", {goal: 1}, {attachments: [null]}, {only:[1]}, {confirm:"yes"}])("rejects malformed API value %#", value => {
++    expect(() => validateJsonObject(value)).toThrow();
++  });
++  it("allows delete and idempotency in CORS", () => {
++    const h = getCors(env());
++    expect(h.get("Access-Control-Allow-Methods")).toContain("DELETE");
++    expect(h.get("Access-Control-Allow-Headers")).toContain("Idempotency-Key");
++    expect(h.get("Cache-Control")).toBe("no-store");
++  });
++});
++
++describe("untrusted archives", () => {
++  it.each(["../a.ts", "/a.ts", "C:/a.ts", "a\\b.ts"])("skips unsafe path %s", path => {
++    expect(listZip(makeZip([{path, content:"x"}])).entries[0].skipped).toBeTruthy();
++  });
++  it("rejects expansion beyond forged declared size", async () => {
++    const zip = makeZip([{path:"a.ts", content:"x".repeat(100_000)}]);
++    const view = new DataView(zip); const central = view.getUint32(zip.byteLength - 6, true);
++    view.setUint32(central + 24, 1, true);
++    await expect(readEntry(zip, listZip(zip).entries[0])).rejects.toThrow("лимит");
++  });
++  it("detects corrupted stored bytes", async () => {
++    const zip = makeZip([{path:"a.ts", content:"test", method:0}]);
++    new Uint8Array(zip)[34] ^= 1;
++    await expect(readEntry(zip, listZip(zip).entries[0])).rejects.toThrow("CRC32");
++  });
++  it("rejects truncated directory fields", () => {
++    const zip = makeZip([{path:"a.ts", content:"x"}]);
++    const view = new DataView(zip); const central = view.getUint32(zip.byteLength - 6, true);
++    view.setUint16(central + 28, 65535, true);
++    expect(() => listZip(zip)).toThrow("обрезана");
++  });
++  it("enforces entry read limit", async () => {
++    const zip = makeZip([{path:"a.ts", content:"12345"}]);
++    await expect(readEntry(zip, listZip(zip).entries[0], 4)).rejects.toThrow("лимит");
++  });
++  it("source reader uses the same bounded archive path", async () => {
++    const zip = makeZip([{path:"a.ts", content:"123456789"}]);
++    const e = env({ AZRAIL_R2: {get: async () => ({size:zip.byteLength, arrayBuffer:async () => zip})} });
++    const files = await readSource(e, {inputType:"zip",r2Key:"x"}, 4);
++    expect(files[0].content).toBe("1234");
++    expect(joinForPrompt(files, 3)).toHaveLength(3);
++  });
++});
+--- /dev/null
++++ b/tests/snapshot-safety.test.ts
+@@ -0,0 +1,45 @@
++import { describe, it, expect, vi } from "vitest";
++import { rollbackWorkspace, snapshotWorkspace } from "../src/core/mission-guard";
++import type { Env } from "../src/types";
++const key = "projects/p/snapshots/s/";
++function setup(count = 1) {
++  const files = new Map<string,string>();
++  for(let i=0;i<count;i++) files.set(key+`f${i}.ts`, "old");
++  files.set("projects/p/workspace/new.ts","new");
++  const deleted:string[]=[]; const put=vi.fn(async(k:string,v:string)=>{files.set(k,v);});
++  const r2={
++    async list({prefix,cursor}:{prefix:string,cursor?:string}) {
++      const all=[...files].filter(([k])=>k.startsWith(prefix)).map(([key,v])=>({key,size:v.length}));
++      const start=Number(cursor||0), end=start+100;
++      return {objects:all.slice(start,end), truncated:end<all.length, cursor:String(end)};
++    },
++    async get(k:string) {return files.has(k)?{text:async()=>files.get(k)!}:null;},
++    put,
++    async delete(k:string){deleted.push(k);files.delete(k);},
++  };
++  return {env:{AZRAIL_R2:r2} as unknown as Env,files,deleted,r2,put};
++}
++describe("snapshot data safety",()=>{
++  it("restores all pages before removing newly created files",async()=>{
++    const t=setup(310);expect(await rollbackWorkspace(t.env,"p",key)).toEqual({restored:310,removed:1});
++    expect(t.files.get("projects/p/workspace/f309.ts")).toBe("old");
++  });
++  it("empty snapshot cannot delete workspace",async()=>{
++    const t=setup(0);expect(await rollbackWorkspace(t.env,"p",key)).toBeNull();expect(t.deleted).toEqual([]);
++  });
++  it("missing snapshot object cannot delete workspace",async()=>{
++    const t=setup();vi.spyOn(t.r2,"get").mockResolvedValue(null);
++    expect(await rollbackWorkspace(t.env,"p",key)).toBeNull();expect(t.deleted).toEqual([]);expect(t.put).not.toHaveBeenCalled();
++  });
++  it("failed restore does not delete current files",async()=>{
++    const t=setup();t.put.mockRejectedValue(new Error("storage down"));
++    expect(await rollbackWorkspace(t.env,"p",key)).toBeNull();expect(t.deleted).toEqual([]);
++  });
++  it("cross-project snapshot is refused",async()=>{
++    const t=setup();expect(await rollbackWorkspace(t.env,"other",key)).toBeNull();expect(t.deleted).toEqual([]);
++  });
++  it("incomplete snapshot is not registered as restorable",async()=>{
++    const t=setup();vi.spyOn(t.r2,"get").mockResolvedValue(null);
++    expect(await snapshotWorkspace(t.env,"p","test")).toBeNull();
++  });
++});
+--- /dev/null
++++ b/tests/stubs/sqlite-d1.ts
+@@ -0,0 +1,23 @@
++import { DatabaseSync } from "node:sqlite";
++import { readFileSync } from "node:fs";
++
++/** Real SQLite engine behind D1's small prepared-statement interface. */
++export function sqliteD1() {
++  const sqlite = new DatabaseSync(":memory:");
++  sqlite.exec("CREATE TABLE missions (id TEXT PRIMARY KEY, project_id TEXT, goal TEXT, status TEXT, created_at TEXT, updated_at TEXT)");
++  sqlite.exec(readFileSync(new URL("../../migrations/004-security-hardening.sql", import.meta.url), "utf8"));
++  const db = {
++    prepare(sql: string) {
++      let args: any[] = [];
++      const stmt = {
++        bind(...values: any[]) { args = values; return stmt; },
++        async first() { return sqlite.prepare(sql).get(...args) ?? null; },
++        async run() { const result = sqlite.prepare(sql).run(...args); return { success: true, meta: { changes: Number(result.changes) } }; },
++        async all() { return { results: sqlite.prepare(sql).all(...args), success: true }; },
++      };
++      return stmt;
++    },
++    async batch(stmts: Array<{run(): Promise<unknown>}>) { return Promise.all(stmts.map(s => s.run())); },
++  };
++  return { db: db as unknown as D1Database, sqlite };
++}

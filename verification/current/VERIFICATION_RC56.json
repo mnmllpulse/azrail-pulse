@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "version": "1.5.0-rc.56",
+  "scope": "local-only",
+  "remote_mutations": false,
+  "series_f_music": {
+    "f01_f16": "implemented-local",
+    "f17_f20": "next-batch",
+    "measured_audio_boundary": true,
+    "exact_chord_transcription_claimed": false,
+    "external_stem_engine_claimed": false
+  },
+  "domain_decision": {
+    "production_origin": "https://mnmllpulse.com",
+    "additional_domains": "deferred"
+  },
+  "checks": {
+    "series_f_music_runtime": "PASS",
+    "ui_typescript": "PASS",
+    "fallback_browser_bundle": "PASS_NOT_RELEASE_VERIFIED",
+    "node24_esbuild_build": "BLOCKED_HOST_NODE22_AND_NPM_REGISTRY",
+    "remote_deploy": "NOT_RUN"
+  }
+}

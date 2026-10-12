@@ -1,0 +1,100 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.50",
+  "status": "SOURCE_AUDIT_VERIFIED_RUNTIME_GATES_PENDING",
+  "scope": "deep-audited clean future GitHub repository source package",
+  "prepackaging_full_tree_audit": {
+    "included_history_and_legacy": true,
+    "inventory_files": 1036,
+    "text_lines_scanned": 187090,
+    "typescript_tsx_parsed": 543,
+    "active_relative_imports_resolved": 925,
+    "relative_markdown_links_checked": 31,
+    "failures": 0,
+    "warnings": 1,
+    "warning": "7 exact duplicate groups were classified; historical/reference duplicates are excluded from the clean GitHub package"
+  },
+  "clean_repository_audit": {
+    "inventory_files_including_source_manifest": 484,
+    "source_manifest_tracked_files": 483,
+    "text_lines_scanned": 77325,
+    "typescript_tsx_parsed": 259,
+    "active_relative_imports_resolved": 925,
+    "relative_markdown_links_checked": 7,
+    "deep_architecture_checks": 14,
+    "deep_architecture_failures": 0,
+    "implementation_stub_failures": 0,
+    "exact_duplicate_groups": 2,
+    "exact_duplicate_groups_note": "only toolchain/generated compatibility copies remain: .nvmrc/.node-version and source/generated UI HTML"
+  },
+  "critical_fixes": [
+    "DeployAgent ZIP readiness no longer fully decompresses untrusted archives; it uses bounded central-directory inspection and rejects unsafe/oversized archives",
+    "Git, QA and Deploy agents share one GitHub REST transport with timeout, redirect rejection and bounded error reads",
+    "npm freshness and OSV lookups use bounded JSON bodies and concurrency caps",
+    "Video Studio preview closes ImageBitmap resources on restart and unmount",
+    "Image, Music, Video and Data history loaders expose loading/error/retry states instead of swallowing failures",
+    "shared UI DOM/panel-state helpers remove repeated component logic",
+    "Web Workbench snapshot labels are fully HTML escaped",
+    "repo:deep regression gate is mandatory in static quality verification"
+  ],
+  "quality": {
+    "static_gates": {
+      "status": "VERIFIED_PREPACKAGING",
+      "passed": 47,
+      "failed": 0
+    },
+    "full_gate": {
+      "status": "BLOCKED",
+      "passed": 47,
+      "failed": 0,
+      "blocked": 5,
+      "blocked_gates": [
+        "typecheck",
+        "build-ui",
+        "tests",
+        "worker-dry-run",
+        "runtime-smoke"
+      ]
+    },
+    "ui_typescript": "PASS",
+    "node24_suite": {
+      "status": "BLOCKED",
+      "passed": 0,
+      "failed": 0,
+      "blocked": 1,
+      "reason": "audit host is Node v22.16.0; canonical runtime is Node 24.18.0"
+    },
+    "dependency_lock": "PASS: lockfileVersion 3, 365 locked entries, 0 warnings",
+    "current_dependency_cve_audit": "PENDING_GITHUB_CI_NETWORK",
+    "release_package": "BLOCKED_UNTIL_NODE24_AND_PRODUCTION_APPROVAL"
+  },
+  "github_cloudflare_delivery": {
+    "staging_auto_deploy_workflow": ".github/workflows/staging-auto-deploy.yml",
+    "trigger": "push to main",
+    "verify_before_deploy": true,
+    "target": "staging only",
+    "required_node": "24.18.0",
+    "required_github_environment_secrets": [
+      "CLOUDFLARE_ACCOUNT_ID",
+      "CLOUDFLARE_API_TOKEN",
+      "OIDC_CLIENT_SECRET"
+    ],
+    "production_auto_deploy": false,
+    "production_workflow_fail_closed": true
+  },
+  "live_readonly_reconciliation": {
+    "github_main_version": "1.4.0",
+    "staging_worker": "azrail-pulse-staging",
+    "staging_is_canonical_enough_for_predeploy_review": true,
+    "production_worker": "azrail-os",
+    "production_drift_status": "RECONCILIATION_REQUIRED",
+    "production_legacy_cors_wildcard_observed": true,
+    "production_mutated": false
+  },
+  "remote_mutations_performed": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "ads_manager": false
+  }
+}

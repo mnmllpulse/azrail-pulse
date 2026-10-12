@@ -1,0 +1,86 @@
+{
+  "release": "1.5.0-rc.28",
+  "stage": 14,
+  "stage_name": "Professional Web Studio",
+  "production_ready": false,
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false
+  },
+  "features": {
+    "workbench_tabs": [
+      "Files",
+      "Preview",
+      "Changes",
+      "Tests",
+      "Logs",
+      "Versions"
+    ],
+    "workspace_snapshots": true,
+    "immutable_revision_writes": true,
+    "stale_write_fencing": true,
+    "delete_requires_approval": true,
+    "restore_requires_approval": true,
+    "destructive_restore": false,
+    "preview_network_disabled_by_csp": true,
+    "responsive_preview": true,
+    "unified_event_logs": true,
+    "verification_events_only": true,
+    "max_workspace_files": 400,
+    "max_workspace_bytes": 16777216,
+    "max_text_file_bytes": 1048576
+  },
+  "release_blockers": [
+    "Node >=24 canonical environment not available in this execution runtime",
+    "Canonical esbuild UI build is not release-verified",
+    "Full Vitest/Wrangler dry-run suite remains a later Release gate",
+    "Authenticated runtime smoke not supplied",
+    "Production OIDC/drift reconciliation remains pending"
+  ],
+  "verification": {
+    "web_architecture": "PASS",
+    "negative_architecture_test": "PASS",
+    "migration_021_sqlite": "PASS",
+    "migration_021_idempotence": "PASS",
+    "ui_typecheck": "PASS",
+    "typescript_parse": {
+      "files": 235,
+      "diagnostics": 0
+    },
+    "static_quality": {
+      "status": "VERIFIED",
+      "passed": 16,
+      "failed": 0,
+      "blocked": 0
+    },
+    "full_quality": {
+      "status": "BLOCKED",
+      "passed": 16,
+      "failed": 0,
+      "blocked": 5
+    },
+    "staging_drift": {
+      "status": "WARNING",
+      "pass": 34,
+      "warning": 1,
+      "drift": 0,
+      "blocker": 0
+    },
+    "ui_build_provenance": {
+      "mode": "typescript-fallback",
+      "release_verified": false,
+      "node": "v22.16.0",
+      "note": "Preview only. Node 24 + esbuild build remains mandatory for release verification."
+    }
+  },
+  "environment": {
+    "node": "v22.16.0",
+    "required_node": ">=24.0.0"
+  },
+  "canva_reference": {
+    "mode": "read-only",
+    "design": "AZRAIL Unified Interface Website",
+    "design_id": "DAHWmofp_Os"
+  }
+}

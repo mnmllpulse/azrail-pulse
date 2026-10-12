@@ -1,0 +1,47 @@
+{
+  "schema_version": 1,
+  "version": "1.5.0-rc.57",
+  "scope": "local-only",
+  "remote_mutations": false,
+  "series_f_music": {
+    "f01_f16": "retained-verified-local",
+    "f17": "implemented-local-daw-import",
+    "f18": "implemented-local-truthful-plugin-compatibility",
+    "f19": "implemented-local-composition-plan",
+    "f20": "implemented-local-render-analyze-improve",
+    "measured_audio_boundary": true,
+    "plugin_local_installation_auto_detection_claimed": false,
+    "plugin_state_execution_claimed": false,
+    "exact_chord_transcription_claimed": false,
+    "external_stem_engine_claimed": false,
+    "large_daw_worker_buffering_claimed": false
+  },
+  "persistence": {
+    "latest_migration": "032-music-daw-import.sql",
+    "remote_migration_applied": false
+  },
+  "domain_decision": {
+    "production_origin": "https://mnmllpulse.com",
+    "additional_domains": "deferred"
+  },
+  "checks": {
+    "series_f_music_runtime": "PASS",
+    "migration_integrity": "PASS",
+    "staging_migration_preparation": "PASS_LOCAL_ONLY",
+    "ui_typescript": "PASS",
+    "new_source_syntax": "PASS",
+    "fallback_browser_bundle": "PASS_NOT_RELEASE_VERIFIED",
+    "static_quality": "53_PASS_0_FAIL_0_BLOCKED",
+    "full_quality": "53_PASS_0_FAIL_5_BLOCKED",
+    "node24_esbuild_build": "BLOCKED_HOST_NODE22_AND_DEPENDENCIES_ABSENT",
+    "remote_deploy": "NOT_RUN",
+    "full_quality_blockers": [
+      "typecheck: Node >=24 required",
+      "build-ui: Node >=24 required",
+      "tests: Node >=24 required",
+      "worker-dry-run: Node >=24 required",
+      "runtime-smoke: live URL + authenticated credential not provided"
+    ],
+    "production_drift": "RECONCILIATION_REQUIRED_17_BLOCKERS_READ_ONLY"
+  }
+}

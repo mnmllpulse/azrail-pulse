@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.63",
+  "master_item": 35,
+  "environment_scope": "production-compatible-disposable",
+  "snapshot": "verification/backup-restore-readonly-snapshot.json",
+  "production_drift_snapshot": "verification/production-drift-readonly-snapshot.json",
+  "requirements": {
+    "d1_pre_migration_export": true,
+    "private_r2_copy_before_schema_write": true,
+    "d1_time_travel_bookmark_inventory": true,
+    "project_backup_hash_manifest": true,
+    "project_restore_new_target_only": true,
+    "all_hashes_before_first_restore_write": true,
+    "restore_approval_gate": true,
+    "tamper_negative_test": true,
+    "post_restore_migration_invariants": true,
+    "secret_values_must_not_be_backed_up": true,
+    "disposable_cloud_restore_required_for_strict_verification": true
+  },
+  "policy": {
+    "production_restore_allowed": false,
+    "staging_restore_allowed_by_default": false,
+    "cloudflare_mutation_allowed": false,
+    "github_mutation_allowed": false,
+    "canva_mutation_allowed": false,
+    "secret_values_in_receipts_allowed": false
+  }
+}

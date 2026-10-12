@@ -1,0 +1,11 @@
+import {readFileSync,existsSync} from 'node:fs';
+let failed=false;const read=p=>readFileSync(p,'utf8');const ok=(name,cond)=>{if(cond)console.log('PASS',name);else{failed=true;console.error('FAIL',name);}};
+const coord=read('src/agents/mission-coordinator.ts'),orch=read('src/agents/orchestrator.ts'),index=read('src/index.ts'),types=read('src/core/execution-types.ts'),router=read('src/lib/model-router.ts'),retry=read('src/lib/resilience.ts'),mcp=read('src/unified/mcp-client.ts'),conn=read('src/unified/connectors.ts'),ui=read('ui/connectors.ts'),app=read('ui/app.ts');
+ok('E11 durable + live AbortSignal',coord.includes('abortController.signal')&&orch.includes('abortMission(missionId')&&index.includes('liveAbort')&&types.includes('signal?: AbortSignal')&&router.includes('signal?: AbortSignal')&&retry.includes('OperationAbortedError'));
+ok('E11 MCP cancellation reaches fetch',mcp.includes('AbortSignal.any([this.signal')&&conn.includes('executeConnectorCall(env:Env,account:string,id:string,confirmed=false,signal?:AbortSignal)'));
+ok('E12 uncertain effect reconciliation UI',conn.includes('reconcileConnectorCall')&&ui.includes('Reconcile')&&ui.includes('not_executed')&&ui.includes('/reconcile'));
+ok('E13 recovery boundary',existsSync('ui/components/error-recovery.ts')&&app.includes('renderRecoveryError')&&read('ui/components/error-recovery.ts').includes('Restore last stable state'));
+ok('E14 connection health vocabulary',conn.includes("'rate_limited'")&&conn.includes("'auth_expired'")&&conn.includes("'unavailable'")&&ui.includes('Authentication expired'));
+ok('E15 connector gateway contract',existsSync('src/unified/connector-adapter.ts')&&read('src/unified/connector-adapter.ts').includes('interface ConnectorAdapter')&&read('src/unified/connector-adapter.ts').includes('listCapabilities'));
+ok('E16 connections workbench preserved',ui.includes('Professional Connections')&&ui.includes('Verify connection')&&ui.includes('Credential lifecycle'));
+if(failed)process.exit(1);console.log('SERIES E RUNTIME PASS: E11–E16 cancellation, reconciliation, recovery, health, gateway contract and Connections UI are wired.');

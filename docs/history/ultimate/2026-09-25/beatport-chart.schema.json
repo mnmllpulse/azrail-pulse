@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "AZRAIL ChartSnapshot",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "genreId",
+    "chartType",
+    "collectedAt",
+    "sourceUrl",
+    "items"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "genreId": {
+      "const": 90
+    },
+    "chartType": {
+      "enum": [
+        "tracks",
+        "releases"
+      ]
+    },
+    "collectedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "sourceUrl": {
+      "type": "string",
+      "format": "uri"
+    },
+    "items": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": [
+          "rank",
+          "sourceId",
+          "title",
+          "url"
+        ],
+        "properties": {
+          "rank": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 10
+          },
+          "sourceId": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "url": {
+            "type": "string",
+            "format": "uri"
+          },
+          "bpm": {
+            "type": [
+              "number",
+              "null"
+            ]
+          },
+          "key": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        }
+      }
+    }
+  }
+}

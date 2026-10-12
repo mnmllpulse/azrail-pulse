@@ -1,0 +1,253 @@
+{
+  "project": "AZRAIL × MNMLL PULSE Unified",
+  "version": "1.3.1",
+  "checked_on": "2026-10-03",
+  "release_status": "tested audit and motion fixes; production and real-device visual acceptance pending",
+  "inputs": [
+    {
+      "source": "AZRAIL 0.8.1 Ultimate",
+      "file": "azrail-os-0.8.1-ultimate-fixed.zip",
+      "sha256": "f8820e554745b10aa9647e2d1a0c6d20a54da4ca01cdb47b1cd7348e06eeebdc",
+      "bytes": 1170139
+    },
+    {
+      "source": "Provided globe",
+      "file": "globe.html",
+      "sha256": "8c941798ababb38f94283c69075cb3eb6fdf1d7ed0b9b9d2a80a2a9d4e163ae6",
+      "bytes": 39857
+    },
+    {
+      "source": "PULSE Cloudflare port",
+      "file": "dark-mnmll-pulse-os-cloudflare-1.0.0.zip",
+      "sha256": "706fce51f8471eb09ac1ddd93a844701a0db4e28b04896f7471e7b85fc8d0d31",
+      "bytes": 2254346
+    }
+  ],
+  "checks": {
+    "build_ui": "passed",
+    "typescript_worker_and_ui": "passed",
+    "vitest": {
+      "suites_passed": 56,
+      "tests_passed": 1154,
+      "failed": 0,
+      "baseline_tests_passed": 1132
+    },
+    "npm_audit": {
+      "info": 0,
+      "low": 0,
+      "moderate": 0,
+      "high": 0,
+      "critical": 0,
+      "total": 0
+    },
+    "cloudflare_free_worker_dry_run": "passed",
+    "cloudflare_paid_worker_dry_run": "passed; container image not built or published",
+    "provisioning_plan": "passed in 1.1; no apply",
+    "standalone_html_dom": "passed: inline HTML, local notice, navigation/home, studio entry, rejected/uncertain mission submission",
+    "globe_lifecycle": "4 tests passed: real Three scene, mocked renderer; counter-rotation, ten-second angles, pause, visibility, disposal, reduced motion and context loss",
+    "connector_oauth": "9 tests passed; mock token endpoint, actual PKCE/encryption and SQLite state/replay checks",
+    "connector_gateway": "27 tests passed including endpoint and draft tests; remote JSON/SSE provider simulated",
+    "design_contract": "3 tests passed; ownership, contrast, revision and concurrent writers",
+    "audio_analysis": "7 tests passed using analytical PCM; includes bounded Nyquist ranges",
+    "image_request": "1 test passed; retained request identity after lost response",
+    "browser": "not run for 1.3.1; previous agent-browser daemon startup failed before page opening",
+    "audit_regressions": "17 tests passed in audit-131 plus deployment preflight and added UI reproductions",
+    "npm_audit_date": "2026-10-03"
+  },
+  "not_run": [
+    "Real browser render for 1.3.1; previous agent-browser startup failed before opening the page",
+    "WebGL, Web Audio, microphone, MediaRecorder on a real phone",
+    "Live OIDC provider and Cloudflare AI calls",
+    "Live Containers isolation, dependency installation and execution",
+    "Remote provisioning, D1 migration/restore and DNS",
+    "GitHub push/CI deployment and production E2E",
+    "Beatport ingestion, payment/Telegram/Canva/Figma live integrations",
+    "Live MCP OAuth, discovery, provider actions, token refresh/revocation and uncertain-effect reconciliation"
+  ],
+  "test_boundaries": [
+    "SQLite-backed D1 adapter is used in tests; it is not a live Cloudflare D1 instance.",
+    "Provider and sandbox responses are simulated in automated tests.",
+    "Happy DOM validates DOM/event logic and executes the final inline bundle; it does not render CSS or emulate GPU/media APIs.",
+    "A clean dependency audit only covers known package advisories at check time.",
+    "Globe animation and lifecycle tests use real Three scene objects with a mocked renderer; they do not demonstrate actual GPU output or CSS layout."
+  ],
+  "financial_boundary": "OFF denies external model routing. The unified ledger currently enforces provider request reservations; it is not reconciliation of the entire Cloudflare invoice or a zero-charge guarantee. MCP separately enforces request-count quotas, not provider dollar caps; AI routing OFF does not disable arbitrary external SaaS connectors.",
+  "delivery_boundary": "Nine studio directions are exposed; legacy PULSE source is preserved outside deployed assets. Not all former studios or 33 planned integrations are implemented.",
+  "runtime": {
+    "node": "v24.19.0",
+    "python": "3.12.14"
+  },
+  "artifacts": {
+    "index.html": {
+      "bytes": 1025455,
+      "gzip_bytes": 303794,
+      "sha256": "e01183be3a0415a03f7f68f325169f3683c02ffbf5b8d6ba1671ee3c934a9341"
+    },
+    "site/app.html": {
+      "bytes": 6874,
+      "gzip_bytes": 2700,
+      "sha256": "309112c191b2d8a360306545bcdc5d977ccdca8f3400422d292e8243a588714e"
+    },
+    "site/assets/app.css": {
+      "bytes": 12467,
+      "gzip_bytes": 3773,
+      "sha256": "515d68b969d45e4ec2258913bf41333563a955c5dc8a488acadb9e66e1ad2e24"
+    },
+    "site/assets/app.js": {
+      "bytes": 51689,
+      "gzip_bytes": 11601,
+      "sha256": "9bc6bd46098a010049860334428968c36b1bd7588a513557ae089a1a865757b9"
+    },
+    "site/assets/audio-analysis-YUYPYLFX.js": {
+      "bytes": 7161,
+      "gzip_bytes": 2762,
+      "sha256": "de0dc09a1eb5fe7a3c4debc934096008a49c0d0ab8eac46f3e0ef3e599ca3066"
+    },
+    "site/assets/connectors-D2TRFBIR.js": {
+      "bytes": 13293,
+      "gzip_bytes": 3491,
+      "sha256": "2cdec167b4d2e6dd0088b38c51efca9d7fd881b4ac03fca7e26b2fdee943846e"
+    },
+    "site/assets/data-X2MZVTVK.js": {
+      "bytes": 1052,
+      "gzip_bytes": 544,
+      "sha256": "c0a35349a7b181209dace9f03a62ec02b6314049b4514bf46ad7f4a00c62e249"
+    },
+    "site/assets/globe-UCMY3OCR.js": {
+      "bytes": 924366,
+      "gzip_bytes": 274900,
+      "sha256": "d2abbaa9f3406fb04e61a07057988f24cbfab8e439bc3a6c7a001c2e6ec8b700"
+    },
+    "site/assets/media-M72F2GWE.js": {
+      "bytes": 6220,
+      "gzip_bytes": 2830,
+      "sha256": "ad8629f83fd564a067c2a222fa3d88cdf4c24edc3b2d1b0ed2a780bbb0c0538c"
+    },
+    "site/index.html": {
+      "bytes": 6874,
+      "gzip_bytes": 2700,
+      "sha256": "309112c191b2d8a360306545bcdc5d977ccdca8f3400422d292e8243a588714e"
+    }
+  },
+  "evidence_directory": "docs/verification/v1.3.1",
+  "upstream_comparison": {
+    "repository": "mnmllpulse/azrail-os",
+    "commit": "a47b688939a55c567a32aba57a50c38e3f894021",
+    "remote_file_count": 225,
+    "new_since_input": [
+      "docs/STAGING_RU.md",
+      "docs/UNIFICATION_PLAN_RU.md",
+      "migrations/020-pulse-presence.sql",
+      "public/pulse-globe.html",
+      "public/pulse-studios.json",
+      "public/pulse.html",
+      "public/pulse.js",
+      "public/system.html",
+      "public/system.js",
+      "scripts/build-pulse.mjs",
+      "scripts/check-staging.mjs",
+      "src/lib/presence.ts",
+      "src/lib/project-workspace.ts",
+      "src/lib/projects-api.ts",
+      "src/lib/routing-mode.ts",
+      "src/lib/studio-router.ts",
+      "src/protocol/facade.ts",
+      "src/protocol/mission.ts",
+      "src/protocol/project.ts",
+      "src/ui/pulse-globe.mjs",
+      "tests/unification.test.ts",
+      "wrangler.staging.toml"
+    ],
+    "changed_since_input": [
+      ".github/workflows/check.yml",
+      "package-lock.json",
+      "package.json",
+      "schema.sql",
+      "scripts/migrate.mjs",
+      "scripts/smoke.mjs",
+      "src/agents/orchestrator.ts",
+      "src/core/execution-engine.ts",
+      "src/index.ts",
+      "src/lib/model-router.ts",
+      "src/types.ts",
+      "wrangler.toml"
+    ],
+    "merged_with_remote_main": false,
+    "remote_mutations": false
+  },
+  "canva_review_1_1": {
+    "design_id": "DAHWmofp_Os",
+    "page": 1,
+    "preview_reviewed": true,
+    "transaction_cancelled_without_changes": true,
+    "document": "docs/GITHUB_CANVA_REVIEW_RU.md"
+  },
+  "canva_review": {
+    "design_id": "DAHWm-OWsi0",
+    "url": "https://canva.link/6or8obom090rj5p",
+    "page": 1,
+    "preview_reviewed": true,
+    "accepted_as_final": false,
+    "findings": [
+      "Most Russian labels are not visible in exported PNG",
+      "Globe is cropped at the lower edge of preview"
+    ],
+    "transaction_cancelled_without_changes": true,
+    "preview": "docs/review/canva-orbit-1.2.png",
+    "document": "docs/UI_AUDIT_1.2_RU.md"
+  },
+  "ui_changes": {
+    "planet_period_seconds": 180,
+    "orbit_period_seconds": 120,
+    "rotation": "same Y axis, opposite signs",
+    "pause_control": true,
+    "reduced_motion": true,
+    "mobile_single_column_max_width_px": 650,
+    "font": "Arial, Helvetica, system sans; no external font requests",
+    "satellite_period_seconds": [
+      24,
+      31,
+      18,
+      36,
+      22,
+      28
+    ],
+    "mobile_globe_height_px": 184
+  },
+  "changes_1_3": {
+    "new_schema": "migrations/009-connectors-drafts.sql",
+    "scope_status": "docs/TASK_1.3_RU.md",
+    "connector_setup": "docs/CONNECTORS_RU.md",
+    "mcp_versions": [
+      "2025-11-25",
+      "2025-06-18"
+    ],
+    "new_features": [
+      "Mission progress and recovery UI",
+      "Studio revisions and undo/redo",
+      "MCP gateway and OAuth",
+      "Durable external-effect approvals",
+      "Persisted project design contract",
+      "Audio spectrum/reference comparison",
+      "Image request identity recovery"
+    ],
+    "external_deploy": false,
+    "remote_repository_modified": false
+  },
+  "assignment": {
+    "file": "Промпт .pdf",
+    "bytes": 154148,
+    "sha256": "f05be0fd3ccac2aa3efdc51791eed5c7e451e468d94c16db4e1c00acfe9379bf",
+    "pages": 8
+  },
+  "changes_1_3_1": {
+    "audit": "docs/AUDIT_RU.md",
+    "new_schema": false,
+    "fixed_groups": 15,
+    "external_deploy": false,
+    "remote_repository_modified": false,
+    "admission_retention": "No automatic expiry/reclaim. Reconciliation and bounded retention remain required; old deleted keys cannot be recovered.",
+    "zip_export": "Binary bytes, shared project lock, workspace head and ETag checks; no fencing-token guarantee",
+    "provider_outcomes": "Unknown outcomes retain identity and reservation; settlement outage does not discard valid provider response"
+  }
+}

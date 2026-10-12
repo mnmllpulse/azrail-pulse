@@ -1,0 +1,91 @@
+{
+  "release": "1.5.0-rc.15",
+  "status": "review_candidate",
+  "production_ready": false,
+  "cloud_mutations_performed": false,
+  "github_mutations_performed": false,
+  "checks": {
+    "release_preflight": "PASS",
+    "targeted_runtime_assertions": {
+      "status": "PASS",
+      "passed": 8,
+      "total": 8
+    },
+    "typescript_syntax_transpile": {
+      "status": "PASS",
+      "files": 190,
+      "errors": 0
+    },
+    "relative_imports": {
+      "status": "PASS",
+      "checked": 642,
+      "missing": 0
+    },
+    "strict_json": {
+      "status": "PASS",
+      "files": 51
+    },
+    "jsonc": {
+      "status": "PASS",
+      "files": 1
+    },
+    "yaml_workflows": {
+      "status": "PASS",
+      "files": 2
+    },
+    "mjs_syntax": {
+      "status": "PASS",
+      "files": 7
+    },
+    "shell_syntax": {
+      "status": "PASS",
+      "files": 1
+    },
+    "d1_schema_smoke": {
+      "status": "PASS",
+      "application_tables": 53
+    },
+    "migration_015_reapply": "PASS",
+    "secret_pattern_scan": {
+      "status": "PASS",
+      "files_scanned": 745,
+      "real_findings": 0
+    },
+    "dependency_free_semantic_probe": {
+      "status": "SUPPLEMENTAL",
+      "rc15_modified_file_findings": 0,
+      "note": "External Cloudflare/Agents/Sandbox types were stubbed; this is not a replacement for the dependency-backed typecheck."
+    },
+    "source_manifest": {
+      "status": "PASS",
+      "files": 745,
+      "missing": 0,
+      "extra": 0,
+      "sha_mismatch": 0
+    },
+    "zip_integrity": "PASS",
+    "worktree_vs_extracted_zip": "PASS"
+  },
+  "environment": {
+    "node": "v22.16.0",
+    "required_node": ">=24.0.0",
+    "npm_ci": {
+      "status": "NOT_COMPLETED",
+      "bounded_seconds": 30,
+      "exit_code": 124
+    }
+  },
+  "release_blockers": [
+    "Run npm ci successfully on Node 24+.",
+    "Run the full dependency-backed TypeScript typecheck.",
+    "Run the complete Vitest suite.",
+    "Run Wrangler staging and production dry-runs.",
+    "Apply migration 015 to disposable/staging D1 and run smoke checks before production.",
+    "Verify and pin the correct production OIDC client/issuer before production deployment."
+  ],
+  "notes": [
+    "R2 garbage collection and retention remain read-only previews; RC15 does not enable deletion.",
+    "Deployment scripts and remote mutation paths remain locked in this RC.",
+    "GitHub and Cloudflare connectors were used read-only for environment/repository confirmation only."
+  ]
+}

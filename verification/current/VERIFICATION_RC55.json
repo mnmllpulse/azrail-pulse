@@ -1,0 +1,101 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.55",
+  "generated_at": "2026-10-10T23:01:01.744567Z",
+  "scope": "local ZIP update verification only; no GitHub/Cloudflare/Canva mutation",
+  "static_quality": {
+    "status": "VERIFIED",
+    "passed": 52,
+    "failed": 0,
+    "blocked": 0
+  },
+  "full_quality": {
+    "status": "BLOCKED",
+    "passed": 52,
+    "failed": 0,
+    "blocked": 5,
+    "blocked_gates": [
+      {
+        "name": "typecheck",
+        "detail": "Node v22.16.0 detected; Node >=24 is required."
+      },
+      {
+        "name": "build-ui",
+        "detail": "Node v22.16.0 detected; Node >=24 is required."
+      },
+      {
+        "name": "tests",
+        "detail": "Node v22.16.0 detected; Node >=24 is required."
+      },
+      {
+        "name": "worker-dry-run",
+        "detail": "Node v22.16.0 detected; Node >=24 is required."
+      },
+      {
+        "name": "runtime-smoke",
+        "detail": "AZRAIL_URL and an authenticated smoke credential were not provided."
+      }
+    ]
+  },
+  "ui_typescript": {
+    "status": "PASS",
+    "command": "tsc -p tsconfig.ui.json --noEmit"
+  },
+  "dependency_install": {
+    "status": "BLOCKED",
+    "attempts": 2,
+    "reason": "npm ci did not complete against the registry and node_modules was not created on this host"
+  },
+  "runtime": {
+    "host_node": "22.16.0",
+    "canonical_node": "24.18.0"
+  },
+  "series_e": {
+    "foundation": {
+      "passed": 17,
+      "failed": 0
+    },
+    "runtime_e11_e16": {
+      "passed": 7,
+      "failed": 0
+    },
+    "web_e17_e21": {
+      "passed": 11,
+      "failed": 0
+    },
+    "completion_e22_e40": {
+      "passed": 19,
+      "failed": 0
+    }
+  },
+  "series_fg_foundation": {
+    "passed": 11,
+    "failed": 0
+  },
+  "repository": {
+    "deep_audit": {
+      "passed": 14,
+      "failed": 0
+    },
+    "hygiene": {
+      "passed": 12,
+      "warnings": 1,
+      "failed": 0
+    },
+    "exhaustive": {
+      "passed": 20,
+      "warnings": 1,
+      "failed": 0
+    }
+  },
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "production": false
+  },
+  "release_state": {
+    "production": "BLOCKED",
+    "reason": "production drift remains RECONCILIATION_REQUIRED and no release authorization/deployment was performed"
+  }
+}

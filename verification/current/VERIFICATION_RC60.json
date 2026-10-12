@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.60",
+  "generated_at": "2026-10-11T02:20:00Z",
+  "scope": "local-only Series F F61-F80 Metatron Lab 2.0 / Agent Operations Center",
+  "series_f_metatron": {
+    "f61_f80": "implemented-local",
+    "mission_graph": "derived-linear-from-persisted-steps; explicit planner DAG not claimed",
+    "agent_health": "real ping + storageReadable proof",
+    "automatic_replacement": "pre-dispatch health/bootstrap failure only",
+    "mission_replay": "read-only",
+    "step_retry": "proven failed checkpoint+receipt only",
+    "uncertain_effect": "automatic retry prohibited until reconciliation",
+    "reconciliation": "fail-closed connector/model evidence paths",
+    "fault_injection": "simulation-only; no destructive outage injection",
+    "memory_inspector": "exact bounded recall facts audited",
+    "decision_explanation": "model/tool/route/retry/recovery/replacement/control receipts"
+  },
+  "persistence": {
+    "latest_migration": "034-metatron-lab-2.sql",
+    "remote_migration_applied": false
+  },
+  "domain_decision": {
+    "production_origin": "https://mnmllpulse.com",
+    "additional_domains": "deferred"
+  },
+  "runtime": {
+    "host_node": "22.16.0",
+    "canonical_node": "24.18.0"
+  },
+  "checks": {
+    "series_f_metatron_runtime": "PASS_F61_F80_PLUS_DURABLE_SCHEMA_SAFETY_BOUNDARIES",
+    "ui_typescript": "PASS",
+    "fallback_browser_bundle": "PASS_NOT_RELEASE_VERIFIED",
+    "static_quality": "56_PASS_0_FAIL_0_BLOCKED",
+    "full_quality": "56_PASS_0_FAIL_5_BLOCKED",
+    "node24_dependency_backed_proof": "BLOCKED_HOST_NODE22_AND_DEPENDENCY_ENVIRONMENT",
+    "runtime_smoke": "BLOCKED_NO_LIVE_AUTHENTICATED_TARGET",
+    "production_drift": "RECONCILIATION_REQUIRED_17_BLOCKERS_READ_ONLY",
+    "remote_deploy": "NOT_RUN"
+  },
+  "full_quality_blockers": [
+    "typecheck: Node >=24 required / dependency-backed environment unavailable",
+    "build-ui: Node >=24 required",
+    "tests: Node >=24 required",
+    "worker-dry-run: Node >=24 required",
+    "runtime-smoke: live URL + authenticated credential not provided"
+  ],
+  "remote_mutations": {
+    "github": false,
+    "cloudflare": false,
+    "canva": false,
+    "production": false
+  }
+}

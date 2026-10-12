@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "target": "es2022",
+    "lib": ["es2022"],
+    "module": "es2022",
+    "moduleResolution": "bundler",
+    "types": ["@cloudflare/workers-types", "node"],
+    "strict": true,
+    // Ловит мёртвые импорты и переменные на этапе компиляции. Найдено
+    // ручной проверкой: два импорта висели неиспользованными, и tsc об
+    // этом молчал. Такое накапливается незаметно и путает при чтении —
+    // читатель ищет, где применяется то, что не применяется нигде.
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "skipLibCheck": true,
+    "noEmit": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*.ts"]
+}
