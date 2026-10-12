@@ -1,4 +1,6 @@
 import { readModelPolicy, setModelPolicy, modelBlockReason, FREE_MODEL_SLUGS, ModelPolicyError } from "./lib/model-policy";
+import { parseInput, queryObject, errorPayload } from "./lib/validation";
+import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, approvalListQuerySchema, approvalDecisionSchema, backupCreateSchema, backupQuerySchema, backupDeleteQuerySchema, backupRestoreSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
 import { readLiveCatalog } from "./lib/model-catalog";
 import { backupProject, deleteBackup, restoreBackup } from "./lib/backups";
 import { withProjectLock } from "./lib/project-control";
@@ -158,7 +160,7 @@ export default {
       return withTraceHeaders(await handleRequest(request, env, ingressTrace), ingressTrace);
     } catch (err) {
       if (err instanceof URIError) return json({error:"Некорректная кодировка пути."},env,400);
-      if (err instanceof AccessError) return json({error:err.message},env,err.status);
+      if (err instanceof AccessError) return json(errorPayload(err,"Ошибка доступа."),env,err.status);
       log("error", "fetch.uncaught", {
         path: new URL(request.url).pathname,
         method: request.method,
@@ -427,6 +429,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       return json({limits:limits.results,prices:prices.results,unresolved:unresolved.results,mode:env.AZRAIL_METERING??"off"},env);
     }
     if(url.pathname === "/api/admin/billing" && request.method === "POST") {
+      parseInput(billingUpdateSchema,parsedBody);
       if(parsedBody.reconcileCallId) {
         try {
           return json({reconciled:await reconcileModelCall(env,String(parsedBody.reconcileCallId),Number(parsedBody.actualMicroUsd),String(parsedBody.evidence??''))},env);
@@ -446,8 +449,8 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       return json({success:true,mode:env.AZRAIL_METERING??"off"},env);
     }
     if(url.pathname === "/api/admin/ownership" && request.method === "POST") {
-      const kind=String(parsedBody.kind),id=String(parsedBody.resourceId),account=String(parsedBody.accountId);
-      if(!["project","conversation","upload"].includes(kind)||!await activeAccount(env,account))return json({error:"Неверный владелец или тип ресурса."},env,400);
+      const {kind,resourceId:id,accountId:account}=parseInput(ownershipSchema,parsedBody);
+      if(!await activeAccount(env,account))return json({error:"Неверный владелец или тип ресурса."},env,400);
       await env.AZRAIL_D1.prepare("INSERT INTO resource_owners VALUES(?,?,?) ON CONFLICT(kind,resource_id) DO UPDATE SET account_id=excluded.account_id").bind(kind,id,account).run();
       return json({success:true},env);
     }
@@ -459,15 +462,13 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       return json({missions:missions.results,models:calls,metering:env.AZRAIL_METERING??"off"},env);
     }
     if(url.pathname === "/api/approvals" && request.method === "GET") {
-      const allowedStatuses = new Set<ApprovalStatus>(["pending","approved","rejected","cancelled","executing","executed","failed","uncertain","expired"]);
-      const requestedStatus = url.searchParams.get("status") as ApprovalStatus | null;
-      if(requestedStatus && !allowedStatuses.has(requestedStatus)) return json({error:"Некорректный approval status."},env,400);
+      const query = parseInput(approvalListQuerySchema, queryObject(url));
       const approvals = await listApprovals(env,{
         accountId: principal.role === "admin" ? undefined : principal.id,
-        projectId: url.searchParams.get("projectId") ?? undefined,
-        missionId: url.searchParams.get("missionId") ?? undefined,
-        status: requestedStatus ?? undefined,
-        limit: Number(url.searchParams.get("limit") ?? 100),
+        projectId: query.projectId,
+        missionId: query.missionId,
+        status: query.status as ApprovalStatus | undefined,
+        limit: query.limit,
       });
       return json({approvals},env);
     }
@@ -480,37 +481,35 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     }
     const approvalDecision = url.pathname.match(/^\/api\/approvals\/([^/]+)\/decision$/);
     if(approvalDecision && request.method === "POST") {
-      const decision = String(parsedBody.decision ?? "");
-      if(decision !== "approved" && decision !== "rejected") return json({error:"decision должен быть approved или rejected."},env,400);
+      const input = parseInput(approvalDecisionSchema, parsedBody);
       const approval = await decideApproval(env,{
         id:decodeURIComponent(approvalDecision[1]),
         actor:`account:${principal.id}`,
-        decision:decision as "approved"|"rejected",
-        reason:typeof parsedBody.reason === "string" ? parsedBody.reason : undefined,
-        expectedDigest:typeof parsedBody.payloadDigest === "string" ? parsedBody.payloadDigest : undefined,
+        decision:input.decision,
+        reason:input.reason,
+        expectedDigest:input.payloadDigest,
       });
       return json({approval},env);
     }
 
     if(url.pathname === "/api/backups" && request.method === "POST") {
-      const project=String(parsedBody.projectId??"");if(!project)return json({error:"projectId обязателен."},env,400);
+      const project=parseInput(backupCreateSchema,parsedBody).projectId;
       return json(await backupProject(env,project),env,201);
     }
     if(url.pathname === "/api/backups" && request.method === "GET") {
-      const project=url.searchParams.get("projectId");if(!project)return json({error:"projectId обязателен."},env,400);
+      const project=parseInput(backupQuerySchema,queryObject(url)).projectId;
       return json({backups:(await env.AZRAIL_D1.prepare("SELECT id,created_at,file_count FROM backup_manifests WHERE project_id=? ORDER BY created_at DESC LIMIT 50").bind(project).all()).results},env);
     }
     if(url.pathname === "/api/backups" && request.method === "DELETE") {
-      const project=url.searchParams.get("projectId")??"",backupId=url.searchParams.get("backupId")??"";
-      if(!project||!backupId)return json({error:"projectId и backupId обязательны."},env,400);
+      const {projectId:project,backupId}=parseInput(backupDeleteQuerySchema,queryObject(url));
       return json(await deleteBackup(env,project,backupId),env);
     }
     if(url.pathname === "/api/backups/restore" && request.method === "POST") {
-      const project=String(parsedBody.projectId??""),target=String(parsedBody.targetProjectId??""),backupId=String(parsedBody.backupId??"");
-      if(!project||!target||!backupId)return json({error:"projectId, targetProjectId и backupId обязательны."},env,400);
+      const restoreInput=parseInput(backupRestoreSchema,parsedBody);
+      const project=restoreInput.projectId,target=restoreInput.targetProjectId,backupId=restoreInput.backupId;
       const payloadDigest=await approvalDigest({projectId:project,targetProjectId:target,backupId});
       const scopeId=`${project}:${backupId}:${target}`;
-      const approvalId=typeof parsedBody.approvalId==="string"?parsedBody.approvalId:"";
+      const approvalId=restoreInput.approvalId??"";
       if(!approvalId){
         const approval=await requestApproval(env,{accountId:principal.id,projectId:project,actionType:"restore",risk:"critical",scopeType:"backup_restore",scopeId,payloadDigest,summary:`Восстановить backup ${backupId} проекта ${project} в новый проект ${target}`,requestedBy:`account:${principal.id}`,trace});
         return json({error:"Нужно отдельное подтверждение восстановления.",approvalRequired:true,approval},env,409);
@@ -531,20 +530,21 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     { const response=await webWorkbenchRoute(request,env,principal,trace); if(response) return new Response(response.body,{status:response.status,statusText:response.statusText,headers:getCors(env,response.headers)}); }
     { const response=await projectRoute(request,env,principal); if(response) return new Response(response.body,{status:response.status,statusText:response.statusText,headers:getCors(env,response.headers)}); }
     if(url.pathname === "/api/admin/accounts" && request.method === "POST") {
-      const account=await createAccount(env,String(parsedBody.name??""),String(parsedBody.role??"editor") as "editor",Number(parsedBody.days??30));
+      const accountInput=parseInput(accountCreateSchema,parsedBody);
+      const account=await createAccount(env,accountInput.name,accountInput.role,accountInput.days);
       return json({account},env,201);
     }
     if(url.pathname === "/api/admin/accounts" && request.method === "GET") {
       return json({accounts:(await env.AZRAIL_D1.prepare("SELECT id,name,role,expires_at,disabled FROM access_accounts").all()).results},env);
     }
     if(url.pathname === "/api/admin/accounts/revoke" && request.method === "POST") {
-      await env.AZRAIL_D1.prepare("UPDATE access_accounts SET disabled=1 WHERE id=?").bind(String(parsedBody.accountId??"")).run();
+      await env.AZRAIL_D1.prepare("UPDATE access_accounts SET disabled=1 WHERE id=?").bind(parseInput(accountRevokeSchema,parsedBody).accountId).run();
       return json({success:true},env);
     }
     if(url.pathname === "/api/admin/permissions" && request.method === "POST") {
-      const project=String(parsedBody.projectId??""),capability=String(parsedBody.capability??"");
-      if(!project || !["git","deploy","sandbox","qa"].includes(capability)) return json({error:"Неверное разрешение."},env,400);
-      const sql=parsedBody.enabled===true?"INSERT OR IGNORE INTO project_permissions(project_id,capability) VALUES(?,?)":"DELETE FROM project_permissions WHERE project_id=? AND capability=?";
+      const permission=parseInput(permissionSchema,parsedBody);
+      const project=permission.projectId,capability=permission.capability;
+      const sql=permission.enabled===true?"INSERT OR IGNORE INTO project_permissions(project_id,capability) VALUES(?,?)":"DELETE FROM project_permissions WHERE project_id=? AND capability=?";
       await env.AZRAIL_D1.prepare(sql).bind(project,capability).run();return json({success:true},env);
     }
 
@@ -553,7 +553,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
      * см. lib/ws-ticket.ts про то, почему постоянному токену не место
      * в строке запроса. */
     if (url.pathname === "/api/stream/ticket" && request.method === "POST") {
-      const project=String(parsedBody.projectId??"default");
+      const project=parseInput(streamTicketSchema,parsedBody).projectId;
       const issued = await issueTicket(env, JSON.stringify({account:principal.id,project}));
       return json({ success: true, ...issued }, env);
     }
@@ -610,15 +610,8 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     }
 
     if (url.pathname === "/api/chat" && request.method === "POST") {
-      const body = (await request.json()) as {
-        message?: string;
-        projectId?: string;
-        conversationId?: string;
-        parentMessageId?: string;
-        preferredModel?: string;
-      };
-      const message = body.message?.trim();
-      if (!message) return json({ error: "message обязателен." }, env, 400);
+      const body = parseInput(chatSchema, await request.json());
+      const message = body.message;
 
       const cid = body.conversationId ?? body.projectId ?? crypto.randomUUID();
       await ensureConversation(env, cid, body.projectId);
@@ -689,10 +682,8 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     }
 
     if(url.pathname === "/api/metatron/control" && request.method === "POST") {
-      const missionId=typeof parsedBody.missionId==="string"?parsedBody.missionId.trim():"";
-      const action=typeof parsedBody.action==="string"?parsedBody.action.trim():"";
-      if(!missionId||!["start","pause","resume","cancel","terminate","retry_step"].includes(action))
-        return json({error:"missionId и допустимый action обязательны."},env,400);
+      const control=parseInput(metatronControlSchema,parsedBody);
+      const {missionId,action}=control;
       const row=await env.AZRAIL_D1.prepare("SELECT project_id,status FROM missions WHERE id=?").bind(missionId).first<{project_id:string;status:string}>();
       if(!row)return json({error:"Миссия не найдена."},env,404);
       const agent=await getAgentByName(env.Orchestrator,row.project_id);
@@ -730,7 +721,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         const liveAbort=outcome.status==="terminating"?(await agent.abortMission(missionId)).aborted:false;
         return json({success:outcome.ok,missionId,status:outcome.status,reason:outcome.reason,liveAbort},env,outcome.ok?200:409);
       }
-      const step=Number(parsedBody.step);
+      const step=control.action==="retry_step"?control.step:-1;
       const retry=await retryFailedStep(env,missionId,step);
       await saveMissionControlIntent(env,missionId,"running",requestedBy,`Metatron Step Retry: ${step}.`);
       const resumed=await agent.recoverMission(missionId);
@@ -739,39 +730,30 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
 
     if(url.pathname === "/api/metatron/fault-injection" && request.method === "POST") {
       if(principal.role!=="admin"&&!principal.operator)return json({error:"Fault Injection Lab доступен только администратору/оператору."},env,403);
-      const missionId=typeof parsedBody.missionId==="string"?parsedBody.missionId.trim():"";
-      const scenario=String(parsedBody.scenario??"") as FaultScenario;
-      if(!missionId||!["timeout","provider_down","d1_failure","network_loss"].includes(scenario))return json({error:"missionId и scenario обязательны."},env,400);
+      const {missionId,scenario}=parseInput(faultInjectionSchema,parsedBody) as {missionId:string;scenario:FaultScenario};
       return json({success:true,run:await simulateMissionFault(env,missionId,scenario)},env);
     }
 
     if(url.pathname === "/api/mission/recover" && request.method === "POST") {
-      const row=await env.AZRAIL_D1.prepare("SELECT project_id,status FROM missions WHERE id=?").bind(String(parsedBody.missionId??"")).first<{project_id:string;status:string}>();
+      const recoverId=parseInput(missionRefSchema,parsedBody).missionId;
+      const row=await env.AZRAIL_D1.prepare("SELECT project_id,status FROM missions WHERE id=?").bind(recoverId).first<{project_id:string;status:string}>();
       if(!row) return json({error:"Миссия не найдена."},env,404);
       if(isTerminal(row.status)) return json({error:"Миссия уже завершена и имеет финальный статус."},env,409);
       const agent=await getAgentByName(env.Orchestrator,row.project_id);
-      return json(await agent.recoverMission(String(parsedBody.missionId)),env);
+      return json(await agent.recoverMission(recoverId),env);
     }
     if (url.pathname === "/api/mission" && request.method === "POST") {
       // Автономный режим: AZRAIL сам решает, какие инструменты звать.
       // Отличается от /api/task тем, что там один агент делает один проход,
       // а здесь цикл из нескольких шагов с обратной связью.
-      const body = (await request.json()) as {
-        message?: string;
-        projectId?: string;
-        maxIterations?: number;
-        preferredModel?: string;
-        attachments?: AttachmentRef[];
-      };
-      let goal = typeof body.message === 'string' ? body.message.trim() : '';
-      if (!goal) return json({ error: "message обязателен." }, env, 400);
-      if (!body.projectId) return json({ error: "projectId обязателен для миссии." }, env, 400);
+      const body = parseInput(missionStartSchema, await request.json());
+      let goal = body.message;
 
       // Миссия идёт другим путём, чем /api/task, и вложения ей нужны так
       // же. Починить только один путь значило бы оставить вторую половину
       // сломанной — ровно так этот класс ошибок и живёт долго.
-      if (Array.isArray(body.attachments) && body.attachments.length) {
-        goal += attachmentsToText(await loadAttachments(env, body.attachments));
+      if (body.attachments?.length) {
+        goal += attachmentsToText(await loadAttachments(env, body.attachments as AttachmentRef[]));
       }
 
       /* Бюджет записей — до начала работы, не после.
@@ -897,9 +879,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
      * середине записи файла значит оставить проект в состоянии, которого
      * не было ни до, ни после. */
     if (url.pathname === "/api/mission/cancel" && request.method === "POST") {
-      const cancelBody = (await request.json().catch(() => ({}))) as { missionId?: string };
-      const id = cancelBody.missionId?.trim();
-      if (!id) return json({ error: "missionId обязателен." }, env, 400);
+      const id = parseInput(missionRefSchema, await request.json().catch(() => ({}))).missionId;
 
       const missionOwner = await env.AZRAIL_D1.prepare("SELECT project_id FROM missions WHERE id=?").bind(id).first<{project_id:string}>();
       const outcome = await requestCancel(env, id);
@@ -938,9 +918,8 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
      * контекстом. Подсказка ложится в очередь; цикл забирает её перед
      * следующим шагом, на той же границе, где проверяет отмену. */
     if (url.pathname === "/api/mission/hint" && request.method === "POST") {
-      const hintBody = (await request.json().catch(() => ({}))) as { missionId?: string; text?: string };
-      const hintId = hintBody.missionId?.trim();
-      if (!hintId) return json({ error: "missionId обязателен." }, env, 400);
+      const hintBody = parseInput(missionHintSchema, await request.json().catch(() => ({})));
+      const hintId = hintBody.missionId;
 
       const outcome = await sendHint(env, hintId, hintBody.text ?? "");
       if (outcome.reason === "not_found") return json({ error: "Миссия не найдена." }, env, 404);
@@ -1055,11 +1034,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
      * моделей и записями. Поэтому явное подтверждение (confirm) и
      * последовательное исполнение, а не параллельное. */
     if (url.pathname === "/api/bench" && request.method === "POST") {
-      const benchBody = (await request.json().catch(() => ({}))) as {
-        confirm?: boolean;
-        only?: string[];
-        note?: string;
-      };
+      const benchBody = parseInput(benchSchema, await request.json().catch(() => ({})));
 
       if (!benchBody.confirm) {
         // Отказ с ЦЕНОЙ в тексте, а не просто «нужно подтверждение»:
@@ -1166,9 +1141,8 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       // Довести формулировку до рабочей. Отдельно от /api/chat намеренно:
       // черновик и его правка не должны попадать в историю диалога — иначе
       // переписка засорится тем, что пользователь даже не отправлял.
-      const body = (await request.json()) as { text?: string; preferredModel?: string };
-      const draft = body.text?.trim();
-      if (!draft) return json({ error: "text обязателен." }, env, 400);
+      const body = parseInput(polishSchema, await request.json());
+      const draft = body.text;
 
       const routed = await runModel<{ response?: string }>(
         env,

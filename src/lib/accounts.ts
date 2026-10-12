@@ -75,8 +75,9 @@ export async function authorizeRequest(env:Env,p:Principal,request:Request,body:
     if(!row) throw new AccessError("Миссия недоступна.",404);
     await requireResource(env,p,"project",row.project_id);
   }
-  const refs=Array.isArray(body.attachments)?body.attachments as Array<{r2Key:string}>:[];
-  for(const key of [...refs.map(r=>r.r2Key),...(typeof body.r2Key==="string"?[body.r2Key]:[])]) await requireResource(env,p,"upload",key);
+  const refs:unknown[]=Array.isArray(body.attachments)?body.attachments:[];
+  const keys=refs.map(r=>r&&typeof r==="object"?(r as {r2Key?:unknown}).r2Key:undefined).filter((k):k is string=>typeof k==="string"&&k.length>0);
+  for(const key of [...keys,...(typeof body.r2Key==="string"?[body.r2Key]:[])]) await requireResource(env,p,"upload",key);
   if(body.parentMessageId && p.role!=="admin") {
     const row=await env.AZRAIL_D1.prepare("SELECT conversation_id FROM messages WHERE id=?").bind(body.parentMessageId).first<{conversation_id:string}>();
     if(!row || row.conversation_id!==(conversation??project)) throw new AccessError("Сообщение недоступно.",404);

@@ -1,3 +1,5 @@
+import { parseInput } from '../lib/validation';
+import { studioDraftSchema } from '../shared/schemas';
 import type {Env} from '../types';
 import {AccessError} from '../lib/accounts';
 import {readJsonRecord} from './request-json';
@@ -10,8 +12,7 @@ export async function draftRoute(request:Request,env:Env,account:string):Promise
   return Response.json({revision:row?.revision??0,values:row?JSON.parse(row.values_json):{},updatedAt:row?.updated_at??null});
  }
  if(request.method!=='PUT')return Response.json({error:'Метод недоступен'},{status:405});
- const body=await readJsonRecord(request,20000) as {baseRevision:number;values:Record<string,unknown>};
- if(!Number.isSafeInteger(body.baseRevision)||body.baseRevision<0||!body.values||Array.isArray(body.values)||typeof body.values!=='object')throw new AccessError('Некорректный черновик.',400);
+ const body=parseInput(studioDraftSchema,await readJsonRecord(request,20000));
  for(const [key,value]of Object.entries(body.values))if(!Object.hasOwn(fields[id],key)||typeof value!=='string'||value.length>fields[id][key])throw new AccessError('Недопустимое поле черновика.',400);
  const json=JSON.stringify(body.values),now=Date.now();
  const row=body.baseRevision===0

@@ -1,3 +1,4 @@
+import type { StudioDraftBody } from '../src/shared/schemas';
 type Values=Record<string,string>;
 type API=(path:string,options?:RequestInit)=>Promise<any>;
 interface Options {scope?:string;writable?:boolean;preferCurrent?:boolean;}
@@ -52,7 +53,7 @@ export function mountStudioDraft(host:HTMLElement,id:string,api:API,cloud:boolea
  async function persist(){
   if(!writable||!loaded||saving||loading||disposed)return;saving=true;update();const values=read();
   try{
-   const r=await api(`/api/studio/drafts/${id}`,{method:'PUT',body:JSON.stringify({baseRevision:revision,values})});if(disposed)return;
+   const r=await api(`/api/studio/drafts/${id}`,{method:'PUT',body:JSON.stringify({baseRevision:revision,values} satisfies StudioDraftBody)});if(disposed)return;
    revision=r.revision;dirty=JSON.stringify(values)!==JSON.stringify(read());writeCache();status.textContent=dirty?'Сохранено; есть новые правки':'Сохранено на сервере';
   }catch(e){if(!disposed)status.textContent=e instanceof Error?e.message:'Не удалось сохранить';}
   finally{saving=false;if(!disposed)update();}

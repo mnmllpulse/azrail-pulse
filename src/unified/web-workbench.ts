@@ -1,6 +1,7 @@
+import { parseInput } from '../lib/validation';
+import { snapshotRefSchema } from '../shared/schemas';
 import type {Env} from "../types";
 import type {Principal} from "../lib/accounts";
-import {AccessError} from "../lib/accounts";
 import type {TraceContext} from "../lib/observability-context";
 import {
  compareWorkspaceSnapshot,createWorkspaceSnapshot,emitWorkbenchAction,mutateWorkbenchFile,readWorkbenchFile,recordBrowserQa,
@@ -26,16 +27,16 @@ export async function webWorkbenchRoute(request:Request,env:Env,principal:Princi
   const body=await readJsonRecord(request,4000),result=await createWorkspaceSnapshot(env,principal,projectId,body.label);await emitWorkbenchAction(env,projectId,"tool.web_snapshot.created",`account:${principal.id}`,{snapshotId:result.snapshot.id,label:result.snapshot.label},trace);return json(result,{status:201});
  }
  if(tail==="compare"&&request.method==="GET"){
-  const id=url.searchParams.get("snapshotId")??"";if(!id)throw new AccessError("snapshotId обязателен.",400);return json(await compareWorkspaceSnapshot(env,projectId,id,url.searchParams.get("path")??undefined));
+  const id=parseInput(snapshotRefSchema,{snapshotId:url.searchParams.get("snapshotId")??undefined}).snapshotId;return json(await compareWorkspaceSnapshot(env,projectId,id,url.searchParams.get("path")??undefined));
  }
  if(tail==="restore"&&request.method==="POST"){
-  const body=await readJsonRecord(request,6000),id=String(body.snapshotId??"");if(!id)throw new AccessError("snapshotId обязателен.",400);
+  const body=await readJsonRecord(request,6000),id=parseInput(snapshotRefSchema,{snapshotId:body.snapshotId}).snapshotId;
   const result=await restoreWorkspaceSnapshot(env,principal,projectId,id,typeof body.approvalId==="string"?body.approvalId:undefined,trace);
   if("approvalRequired" in result)return json(result,{status:409});
   await emitWorkbenchAction(env,projectId,"tool.web_snapshot.restored",`account:${principal.id}`,{snapshotId:id,prefix:result.prefix},trace);return json(result);
  }
  if(tail==="revert-file"&&request.method==="POST"){
-  const body=await readJsonRecord(request,6000),id=String(body.snapshotId??"");if(!id)throw new AccessError("snapshotId обязателен.",400);
+  const body=await readJsonRecord(request,6000),id=parseInput(snapshotRefSchema,{snapshotId:body.snapshotId}).snapshotId;
   const result=await revertWorkbenchFile(env,principal,projectId,id,body.path,trace);await emitWorkbenchAction(env,projectId,"tool.web_file.reverted",`account:${principal.id}`,{snapshotId:id,path:body.path},trace);return json(result);
  }
  return json({error:"Workbench route не найден."},{status:404});

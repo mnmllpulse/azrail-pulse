@@ -1,4 +1,5 @@
 import engine from '../index';
+import { errorPayload } from '../lib/validation';
 import type { Env } from '../types';
 import { authRoute } from './oidc';
 import { studioRoute } from './studios';
@@ -46,7 +47,7 @@ export default {
        catch(error){
         if(dispatched)throw new AccessError('Запрос отправлен провайдеру, но результат не подтверждён. Повтор с новым ключом может создать вторую операцию. Проверьте сохранённые файлы.',409);
         const status=error instanceof AccessError?error.status:error instanceof BodyLimitError?413:error instanceof BudgetError?429:503;
-        if(status>=400&&status<500)await finishAdmission(env,scope,claim.claim,Response.json({error:(error as Error).message},{status}));
+        if(status>=400&&status<500)await finishAdmission(env,scope,claim.claim,Response.json(errorPayload(error,'Ошибка запроса.'),{status}));
         throw error;
        }
       }
@@ -70,7 +71,7 @@ export default {
   } catch(error) {
    const known=error instanceof AccessError || error instanceof BodyLimitError || error instanceof BudgetError || (error instanceof Error&&'status' in error);
    const status=error instanceof BodyLimitError?413:error instanceof BudgetError?429:known?Number((error as {status:number}).status):503;
-   return secureResponse(Response.json({error:known?(error as Error).message:'Сервис недоступен. Проверьте настройки, лимит и журнал сервера.'},{status:status>=400&&status<=599?status:503}),request);
+   return secureResponse(Response.json(known?errorPayload(error,'Ошибка запроса.'):{error:'Сервис недоступен. Проверьте настройки, лимит и журнал сервера.'},{status:status>=400&&status<=599?status:503}),request);
   }
  },
  scheduled:engine.scheduled,
