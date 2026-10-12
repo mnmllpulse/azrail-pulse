@@ -88,7 +88,7 @@ function chatSuggestions(context:SuggestionContext):Suggestion[]{
  ];
 }
 
-export function getSuggestions(context:SuggestionContext):Suggestion[]{
+function getSuggestions(context:SuggestionContext):Suggestion[]{
  const base=context.surface==='chat'?chatSuggestions(context):[...suggestions[context.surface]];
  const merged=[...(context.remoteSuggestions??[]),...base],seen=new Set<string>();
  const unique=merged.filter(item=>!seen.has(item.id)&&seen.add(item.id));

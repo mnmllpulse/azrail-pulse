@@ -4,7 +4,7 @@ import {ALS_COMPRESSED_LIMIT,AbletonAnalysisError,parseALSBuffer,type AbletonRep
 
 const MiB=1024*1024;
 export const DAW_IMPORT_COMPRESSED_LIMIT=12*MiB;
-export const DAW_IMPORT_EXPANDED_LIMIT=64*MiB;
+const DAW_IMPORT_EXPANDED_LIMIT=64*MiB;
 const DAW_XML_LIMIT=8*MiB;
 const DAW_ENTRY_LIMIT=24*MiB;
 const DAW_ENTRY_COUNT_LIMIT=2000;

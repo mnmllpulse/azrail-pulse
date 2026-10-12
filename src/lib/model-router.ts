@@ -189,7 +189,7 @@ export function route(
   return { candidates, reasoning };
 }
 
-export class ModelValidationError extends Error {}
+class ModelValidationError extends Error {}
 
 export interface ModelRunResult<T> {
   output: T;

@@ -1,3 +1,4 @@
+import { sha256Hex } from './hash';
 import type { Env } from "../types";
 import { UnsafePathError } from "./safe-path";
 import { cleanupUnpublishedR2, deleteR2KeysBestEffort } from "./r2-consistency";
@@ -45,10 +46,6 @@ function bytesOf(content:string|Uint8Array):Uint8Array {
   return typeof content === "string" ? encoder.encode(content) : new Uint8Array(content);
 }
 
-async function sha256Hex(bytes:Uint8Array):Promise<string> {
-  const digest=await crypto.subtle.digest("SHA-256",bytes);
-  return [...new Uint8Array(digest)].map(byte=>byte.toString(16).padStart(2,"0")).join("");
-}
 
 async function workspaceManifest(files:Array<{path:string;bytes:Uint8Array}>):Promise<{hash:string;totalBytes:number}> {
   const entries:string[]=[];

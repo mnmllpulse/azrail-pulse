@@ -46,7 +46,7 @@ function delimiter(text:string):string {
  }
  return Object.entries(counts).sort((a,b)=>b[1]-a[1])[0][0];
 }
-export function detectDelimiter(text:string){return delimiter(text.replace(/^\uFEFF/,''));}
+function detectDelimiter(text:string){return delimiter(text.replace(/^\uFEFF/,''));}
 
 /** Bounded RFC-style parsing with common spreadsheet separators and BOM support. */
 export function parseCSV(source:string):string[][] {
@@ -93,7 +93,7 @@ function inferType(values:string[],separator:string):{type:DataType;mismatches:n
 function delimiterLabel(value:string){return value==='\t'?'TAB':value===';'?'Semicolon':value===','?'Comma':value;}
 function issue(code:string,message:string,count:number,severity:DataSeverity='warning'):DataIssue{return {code,message,count,severity};}
 
-export function analyzeRows(header:string[],rows:string[][],separator=','):DataAnalysis{
+function analyzeRows(header:string[],rows:string[][],separator=','):DataAnalysis{
  const width=header.length,raggedRows=rows.filter(r=>r.length!==width).length;
  const emptyRows=rows.filter(r=>r.every(v=>!v?.trim())).length;
  const seenRows=new Set<string>();let duplicateRows=0;for(const row of rows){const key=row.map(v=>v??'').join('\u001f');if(seenRows.has(key))duplicateRows++;else seenRows.add(key);}

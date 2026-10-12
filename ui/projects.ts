@@ -1,3 +1,4 @@
+import { escapeHtml as esc, formatBytes as bytes } from '../src/shared/format';
 import type {StudioId} from './studio-types';
 
 export type ProjectSummary={
@@ -37,8 +38,6 @@ function runtimeStatus(item:ProjectSummary){
  if(item.missionStatus==='completed')return {label:'Готов',kind:'ok'};return {label:'Активный',kind:'ok'};
 }
 function studioName(id:string|null){return id?studioNames[id]??id:'AZRAIL Core';}
-function bytes(value:number){if(value<1024)return `${value} B`;if(value<1024*1024)return `${(value/1024).toFixed(1)} KB`;return `${(value/1024/1024).toFixed(1)} MB`;}
-function esc(value:string){return value.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));}
 
 function queryString(){
  const q=new URLSearchParams();const search=$<HTMLInputElement>('project-search').value.trim(),sort=$<HTMLSelectElement>('project-sort').value,status=$<HTMLSelectElement>('project-status-filter').value,studio=$<HTMLSelectElement>('project-studio-filter').value;

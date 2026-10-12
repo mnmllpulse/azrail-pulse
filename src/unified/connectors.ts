@@ -79,7 +79,7 @@ async function rotateBearerCredential(env:Env,account:string,id:string,token:unk
   return {rotated:true,revision:changed.revision,requiresVerification:true};
  }catch(error){await completeApproval(env,{id:claimed.id,actor:`connector:${account}`,outcome:'failed',detail:{connectionId:id}}).catch(()=>{});throw error;}
 }
-export async function discoverConnection(env:Env,account:string,id:string,signal?:AbortSignal) {
+async function discoverConnection(env:Env,account:string,id:string,signal?:AbortSignal) {
  const started=Date.now(),c=await connection(env,account,id),p=findPolicy(env,c.endpoint_key),reservation=crypto.randomUUID();let rpc:MCPClient|undefined,reserved=false;
  try{
   rpc=await client(env,c,p,signal);await allowance(env,account,p,reservation);reserved=true;await rpc.initialize();const tools=await rpc.listTools(),digest=await hashToken(canonical(tools)),verifiedAt=Date.now();const row=await env.AZRAIL_D1.prepare('UPDATE connector_connections SET tools_json=?,tools_digest=?,verified_at=?,updated_at=? WHERE id=? AND account_id=? AND revision=? AND disabled=0 RETURNING id').bind(JSON.stringify(tools),digest,verifiedAt,verifiedAt,id,account,c.revision).first();if(!row)throw new AccessError('Подключение изменено во время проверки.',409);await settle(env,reservation,1,'MCP discovery completed');await recordHealthCheck(env,account,id,'healthy',Date.now()-started,tools.length,null);return {tools:tools.map(t=>({...t,risk:toolRisk(p,t.name)})),verifiedAt};

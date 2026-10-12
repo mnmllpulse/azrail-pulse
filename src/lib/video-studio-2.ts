@@ -1,3 +1,4 @@
+import { oneOf as guardOneOf } from './input-guards';
 import {AccessError} from './accounts';
 
 export const VIDEO2_CAMERA_MOVES=['static','pan','tilt','dolly-in','dolly-out','zoom-in','zoom-out','orbit'] as const;
@@ -41,7 +42,7 @@ export type Video2StoryboardInput={
 
 const str=(value:unknown,max:number,label:string)=>{const result=typeof value==='string'?value.trim():'';if(result.length>max)throw new AccessError(`${label} слишком длинный.`,400);return result;};
 const num=(value:unknown,min:number,max:number,label:string)=>{const result=Number(value);if(!Number.isFinite(result)||result<min||result>max)throw new AccessError(`Некорректное значение ${label}.`,400);return result;};
-function oneOf<T extends readonly string[]>(value:unknown,allowed:T,label:string):T[number]{const result=String(value??'').trim();if(!(allowed as readonly string[]).includes(result))throw new AccessError(`Некорректное значение ${label}.`,400);return result as T[number];}
+const oneOf=<T extends readonly string[]>(value:unknown,allowed:T,label:string):T[number]=>guardOneOf(value,allowed,`Некорректное значение ${label}.`,true);
 function keyframe(value:unknown):Video2Keyframe{const row=value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};return{zoom:num(row.zoom??1,.5,2,'zoom'),x:num(row.x??0,-1,1,'keyframe x'),y:num(row.y??0,-1,1,'keyframe y'),rotation:num(row.rotation??0,-45,45,'rotation')};}
 function continuity(value:unknown):Video2Continuity{const row=value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};return{character:str(row.character,300,'character'),clothing:str(row.clothing,300,'clothing'),lighting:str(row.lighting,300,'lighting'),location:str(row.location,300,'location'),camera:str(row.camera,300,'camera'),props:str(row.props,300,'props'),colorPalette:str(row.colorPalette,300,'color palette')};}
 function grading(value:unknown):Video2Grading{const row=value&&typeof value==='object'&&!Array.isArray(value)?value as Record<string,unknown>:{};return{brightness:num(row.brightness??100,50,150,'brightness'),contrast:num(row.contrast??100,50,150,'contrast'),saturation:num(row.saturation??100,0,200,'saturation'),hue:num(row.hue??0,-180,180,'hue')};}

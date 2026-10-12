@@ -1,8 +1,8 @@
+import { clamp } from '../src/shared/format';
 const ranges=[[20,60],[60,250],[250,2000],[2000,6000],[6000,20000]] as const;
 const rangeLabels=['SUB','LOW','LOW MID','HIGH MID','AIR'] as const;
 const db=(x:number)=>x>0?20*Math.log10(x):null;
 const lufs=(energy:number)=>energy>0?-0.691+10*Math.log10(energy):null;
-const clamp=(n:number,min:number,max:number)=>Math.max(min,Math.min(max,n));
 const percentile=(values:number[],p:number)=>{if(!values.length)return null;const sorted=[...values].sort((a,b)=>a-b),x=(sorted.length-1)*p,a=Math.floor(x),b=Math.ceil(x);return sorted[a]+(sorted[b]-sorted[a])*(x-a);};
 
 export interface AudioMeasurements {

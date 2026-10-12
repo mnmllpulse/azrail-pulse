@@ -10,19 +10,19 @@ import { z } from "zod";
 const trimmed = (max: number, label: string) =>
   z.string({ required_error: `${label} обязателен.`, invalid_type_error: `${label} должен быть строкой.` }).trim().min(1, `${label} обязателен.`).max(max, `${label}: не длиннее ${max} символов.`);
 
-export const idSchema = (label = "id") => trimmed(512, label);
-export const projectIdSchema = trimmed(512, "projectId");
-export const missionIdSchema = trimmed(512, "missionId");
-export const preferredModelSchema = z.string().trim().max(200).optional();
+const idSchema = (label = "id") => trimmed(512, label);
+const projectIdSchema = trimmed(512, "projectId");
+const missionIdSchema = trimmed(512, "missionId");
+const preferredModelSchema = z.string().trim().max(200).optional();
 
-export const attachmentRefSchema = z.object({
+const attachmentRefSchema = z.object({
   r2Key: z.string().min(1).max(1024).optional(),
   fileName: z.string().min(1).max(512),
   inputType: z.enum(["zip", "pdf", "docx", "github", "text", "json", "image", "audio", "video", "code", "unknown"]),
   size: z.number().int().nonnegative().optional(),
   mimeType: z.string().max(200).optional(),
 });
-export const attachmentsSchema = z.array(attachmentRefSchema).max(12, "Не больше 12 вложений.").optional();
+const attachmentsSchema = z.array(attachmentRefSchema).max(12, "Не больше 12 вложений.").optional();
 
 // ── Missions / chat ────────────────────────────────────────────────────────
 export const missionStartSchema = z.object({
@@ -55,7 +55,7 @@ export const benchSchema = z.object({
 });
 
 // ── Approvals ──────────────────────────────────────────────────────────────
-export const approvalStatusSchema = z.enum(["pending", "approved", "rejected", "cancelled", "executing", "executed", "failed", "uncertain", "expired"]);
+const approvalStatusSchema = z.enum(["pending", "approved", "rejected", "cancelled", "executing", "executed", "failed", "uncertain", "expired"]);
 export const approvalListQuerySchema = z.object({
   status: approvalStatusSchema.optional(),
   projectId: z.string().max(512).optional(),
@@ -106,7 +106,7 @@ export const billingUpdateSchema = z.union([
 
 // ── Streams / Metatron ─────────────────────────────────────────────────────
 export const streamTicketSchema = z.object({ projectId: z.string().trim().min(1).max(512).default("default") });
-export const metatronActionSchema = z.enum(["start", "pause", "resume", "cancel", "terminate", "retry_step"]);
+const metatronActionSchema = z.enum(["start", "pause", "resume", "cancel", "terminate", "retry_step"]);
 export const metatronControlSchema = z.discriminatedUnion("action", [
   z.object({ action: z.literal("retry_step"), missionId: missionIdSchema, step: z.number().int().nonnegative() }),
   z.object({ action: metatronActionSchema.exclude(["retry_step"]), missionId: missionIdSchema }),

@@ -1,3 +1,4 @@
+import { clamp } from '../src/shared/format';
 export function download(blob:Blob,name:string){const a=document.createElement('a'),url=URL.createObjectURL(blob);a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000);}
 function hash(s:string){let n=2166136261;for(const c of s)n=Math.imul(n^c.charCodeAt(0),16777619);return n>>>0;}
 const KEY_ROOTS=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'] as const;
@@ -13,7 +14,6 @@ export type MusicNote={pitch:number;start:number;length:number;velocity:number;p
 export type MusicInput={prompt:string;bpm:number|null;keyRoot:string;scale:MusicScale;bars:number;timeSignature:MusicTimeSignature;genre:MusicGenre;mood:MusicMood;pattern:MusicPattern;arrangement:MusicArrangement;synthPreset:MusicSynthPreset;seed?:number|null};
 export type ResolvedMusicSession=Omit<MusicInput,'bpm'|'keyRoot'|'seed'> & {bpm:number;keyRoot:string;seed:number;beatsPerBar:number;notes:MusicNote[]};
 
-function clamp(n:number,min:number,max:number){return Math.max(min,Math.min(max,n));}
 function beatsPerBar(signature:MusicTimeSignature){return signature==='4/4'?4:3;}
 function genreBpm(genre:MusicGenre,seed:number){const ranges:Record<MusicGenre,[number,number]>={
  'dark-minimal':[122,130],'melodic-techno':[120,128],ambient:[72,104],industrial:[126,138],cinematic:[84,118],

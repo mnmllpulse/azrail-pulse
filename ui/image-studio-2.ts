@@ -1,3 +1,4 @@
+import { escapeHtml as esc } from '../src/shared/format';
 import type {StudioModuleContext} from './studio-types';
 import type {ImageOperation} from './image-request';
 
@@ -10,7 +11,6 @@ type Hooks={
 };
 
 type Layer={id:string;kind:'image'|'text'|'mask'|'effect'|'background';name:string;visible:boolean;locked:boolean};
-const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 const q=<T extends HTMLElement>(root:HTMLElement,sel:string)=>root.querySelector<T>(sel)!;
 
 export function imageStudio2Markup(){return `<section class="image-intelligence-panel">

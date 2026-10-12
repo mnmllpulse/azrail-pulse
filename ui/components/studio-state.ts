@@ -14,7 +14,7 @@ export const studioStateLabel:Record<StudioRunState,string>={
  IDLE:'Idle',READY:'Ready',RUNNING:'Running',PAUSED:'Paused',CANCELLING:'Stopping',FAILED:'Failed',COMPLETED:'Completed',
 };
 
-export function canTransitionStudioState(from:StudioRunState,to:StudioRunState){return from===to||transitions[from].includes(to);}
+function canTransitionStudioState(from:StudioRunState,to:StudioRunState){return from===to||transitions[from].includes(to);}
 
 export type StudioStateController={
  get:()=>StudioRunState;

@@ -6,7 +6,7 @@ import {logicalWorkspacePath,publishWorkspace,workspacePrefix} from './workspace
 import {emitEvent} from './event-stream';
 import {log} from './resilience';
 
-export const PROJECT_STUDIO_IDS=['web','image','music','video','audio','als','data','ledger','lab'] as const;
+const PROJECT_STUDIO_IDS=['web','image','music','video','audio','als','data','ledger','lab'] as const;
 export type ProjectStudioId=typeof PROJECT_STUDIO_IDS[number];
 export type ProjectStatus='active'|'archived'|'deleted';
 

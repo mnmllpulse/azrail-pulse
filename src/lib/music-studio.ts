@@ -1,9 +1,10 @@
+import { oneOf as guardOneOf } from './input-guards';
 import {AccessError} from './accounts';
 
 export const MUSIC_GENRES=['dark-minimal','melodic-techno','ambient','industrial','cinematic'] as const;
 export const MUSIC_MOODS=['hypnotic','driving','dark','euphoric','atmospheric'] as const;
 export const MUSIC_SCALES=['minor','major','dorian','phrygian'] as const;
-export const MUSIC_KEYS=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'] as const;
+const MUSIC_KEYS=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'] as const;
 export const MUSIC_TIME_SIGNATURES=['4/4','3/4','6/8'] as const;
 export const MUSIC_PATTERNS=['pulse','arpeggio','bassline','chords','ambient'] as const;
 export const MUSIC_ARRANGEMENTS=['loop','intro-build-drop','minimal-evolution'] as const;
@@ -27,11 +28,7 @@ export type MusicSessionRequest={
  midiArtifactId:string|null;
 };
 
-function oneOf<T extends readonly string[]>(value:unknown,allowed:T,label:string):T[number]{
- const v=typeof value==='string'?value.trim():'';
- if(!(allowed as readonly string[]).includes(v))throw new AccessError(`Некорректный ${label}.`,400);
- return v as T[number];
-}
+const oneOf=<T extends readonly string[]>(value:unknown,allowed:T,label:string):T[number]=>guardOneOf(value,allowed,`Некорректный ${label}.`);
 function uuid(value:unknown,label:string){
  if(value===undefined||value===null||value==='')return null;
  const v=String(value).trim();

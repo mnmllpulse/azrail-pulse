@@ -75,7 +75,6 @@ export function registerUniversalModuleAction(action:ModuleActionPlugin){
  const id=action.id.trim();pluginActions.set(id,{...action,id});
  return()=>{pluginActions.delete(id);};
 }
-export function listUniversalModuleActions(){return [...pluginActions.values()].map(action=>({...action}));}
 
 function shortcutMatches(event:KeyboardEvent,keys:string){
  const parts=keys.toLowerCase().split('+').map(v=>v.trim()).filter(Boolean),key=parts.at(-1)??'';

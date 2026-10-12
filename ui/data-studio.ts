@@ -1,3 +1,4 @@
+import { formatBytes as bytes } from '../src/shared/format';
 import type {StudioModuleContext} from './studio-types';
 import {cleanupDataset,filterDataRows,parseDataNumber,parseDataset,serializeCSV,sortDataRows,type CleanupOptions,type DataAnalysis,type DataColumn,type DataSet} from './data';
 import {download} from './media';
@@ -11,7 +12,6 @@ export type DataHistoryItem={
 let original:DataSet|null=null,current:DataSet|null=null,sourceName='dataset.csv',viewRows:string[][]=[];
 const $=<T extends Element=HTMLElement>(host:ParentNode,selector:string)=>host.querySelector(selector) as T|null;
 const fmt=(value:number|null|undefined,digits=3)=>typeof value==='number'&&Number.isFinite(value)?new Intl.NumberFormat(undefined,{maximumFractionDigits:digits}).format(value):'—';
-const bytes=(value:number)=>value<1024?`${value} B`:value<1024*1024?`${(value/1024).toFixed(1)} KB`:`${(value/1024/1024).toFixed(1)} MB`;
 
 function table(headers:string[],rows:string[][],className=''){
  const wrap=make('div');wrap.className=`table-wrap ${className}`.trim();const table=make('table'),head=make('thead'),tr=make('tr');

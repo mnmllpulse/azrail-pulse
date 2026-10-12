@@ -1,3 +1,4 @@
+import { oneOf as guardOneOf } from './input-guards';
 import {AccessError} from './accounts';
 import {extractText} from './model-router';
 import type {Env} from '../types';
@@ -18,7 +19,7 @@ export type VideoScene={id:string;text:string;transition:VideoTransition;motion:
 export type VideoSessionInput={projectId:string;prompt:string;aspectRatio:VideoAspect;resolution:VideoResolution;durationSeconds:number;fps:number;transition:VideoTransition;motionPreset:VideoMotion;exportPreset:VideoExportPreset;scenes:VideoScene[];videoArtifactId:string;hasAudio:boolean;imageCount:number};
 
 const asString=(v:unknown)=>typeof v==='string'?v.trim():'';
-function oneOf<T extends readonly string[]>(value:unknown,allowed:T,label:string):T[number]{const v=asString(value);if(!(allowed as readonly string[]).includes(v))throw new AccessError(`Некорректное значение ${label}.`,400);return v as T[number];}
+const oneOf=<T extends readonly string[]>(value:unknown,allowed:T,label:string):T[number]=>guardOneOf(value,allowed,`Некорректное значение ${label}.`);
 function intOneOf(value:unknown,allowed:readonly number[],label:string){const n=Number(value);if(!Number.isInteger(n)||!allowed.includes(n))throw new AccessError(`Некорректное значение ${label}.`,400);return n;}
 function parseScenes(value:unknown,defaultTransition:VideoTransition,defaultMotion:VideoMotion):VideoScene[]{
  if(!Array.isArray(value)||value.length<1||value.length>8)throw new AccessError('Video timeline должен содержать 1–8 сцен.',400);

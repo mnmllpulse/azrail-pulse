@@ -1,3 +1,4 @@
+import { escapeHtml as esc } from '../src/shared/format';
 import type {StudioModuleContext} from './studio-types';
 import {analyzeMusicQueue,buildReferenceMatrix,compareMusicVersions,type MusicIntakeItem} from './music-intelligence-runtime';
 import {buildCompositionPlan,buildEnergyScore,camelotFor,camelotNeighbors,chordTendencies,productionBrief} from '../src/lib/music-intelligence';
@@ -5,7 +6,6 @@ import {buildCompositionPlan,buildEnergyScore,camelotFor,camelotNeighbors,chordT
 let controller:AbortController|null=null;
 let items:MusicIntakeItem[]=[];
 let urls:string[]=[];
-const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 const metric=(v:number|null|undefined,d=1,suffix='')=>Number.isFinite(v)?`${v!.toFixed(d)}${suffix}`:'—';
 function clearUrls(){for(const url of urls)URL.revokeObjectURL(url);urls=[];}
 function statusLabel(item:MusicIntakeItem){return item.status==='waiting'?'Waiting':item.status==='analyzing'?`Analyzing ${Math.round(item.progress*100)}%`:item.status==='done'?'Done':item.status==='cancelled'?'Cancelled':'Failed';}

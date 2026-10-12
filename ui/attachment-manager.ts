@@ -1,3 +1,4 @@
+import { formatBytes } from '../src/shared/format';
 export type AttachmentState='queued'|'uploading'|'ready'|'failed';
 type InputType='zip'|'pdf'|'docx'|'github'|'text'|'json'|'image'|'audio'|'video'|'code'|'unknown';
 export interface AttachmentRef{r2Key?:string;fileName:string;inputType:InputType;size?:number;mimeType?:string;}
@@ -19,7 +20,7 @@ const MAX_BYTES=50*1024*1024;
 const ACCEPTED=['zip','pdf','docx','js','ts','tsx','jsx','html','css','py','md','json','txt','png','jpg','jpeg','webp','svg','mp3','wav','m4a','mp4','mov','webm'];
 function id(){return crypto.randomUUID();}
 function ext(name:string){return name.split('.').pop()?.toLowerCase()??'';}
-function bytes(n:number){if(n<1024)return `${n} B`;if(n<1024*1024)return `${(n/1024).toFixed(n>99*1024?0:1)} KB`;return `${(n/1024/1024).toFixed(1)} MB`;}
+const bytes=(n:number)=>formatBytes(n,{compactKb:true});
 function kind(file:File){const e=ext(file.name);if(['png','jpg','jpeg','webp','svg'].includes(e))return 'IMAGE';if(['mp3','wav','m4a'].includes(e))return 'AUDIO';if(['mp4','mov','webm'].includes(e))return 'VIDEO';if(e==='zip')return 'ZIP';if(['pdf','docx'].includes(e))return 'DOC';if(['js','ts','tsx','jsx','html','css','py','md','json','txt'].includes(e))return 'TEXT';return e.toUpperCase()||'FILE';}
 
 export function createAttachmentManager(deps:Deps){

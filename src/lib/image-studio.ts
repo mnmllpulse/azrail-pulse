@@ -1,3 +1,4 @@
+import { oneOf as guardOneOf } from './input-guards';
 import type { Env } from '../types';
 import { AccessError } from './accounts';
 import {IMAGE_ADVANCED_OPERATIONS,advancedPromptDirectives,imageOperationProviderSupport,parseImageAdvancedControls,type ImageAdvancedOperation,type ImageAdvancedControls} from './image-intelligence';
@@ -38,11 +39,7 @@ const RATIO:Record<ImageAspect,[number,number]>={
  '1:1':[1,1], '16:9':[16,9], '9:16':[9,16], '4:3':[4,3], '3:4':[3,4], '3:2':[3,2], '2:3':[2,3],
 };
 
-function oneOf<T extends readonly string[]>(value:unknown,allowed:T,label:string):T[number]{
- const v=typeof value==='string'?value.trim():'';
- if(!(allowed as readonly string[]).includes(v))throw new AccessError(`Некорректный ${label}.`,400);
- return v as T[number];
-}
+const oneOf=<T extends readonly string[]>(value:unknown,allowed:T,label:string):T[number]=>guardOneOf(value,allowed,`Некорректный ${label}.`);
 
 export function imageDimensions(aspect:ImageAspect,resolution:ImageResolution){
  const [rw,rh]=RATIO[aspect],wide=rw>=rh;

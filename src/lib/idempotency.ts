@@ -13,7 +13,7 @@ import { log } from "./resilience";
 
 /** Сутки: дольше повтор того же запроса — уже осознанное намерение
  *  запустить заново, а не дрогнувшая связь. */
-export const IDEMPOTENCY_TTL_SECONDS = 86_400;
+const IDEMPOTENCY_TTL_SECONDS = 86_400;
 
 const keyFor = (scope: string, key: string) => `idem:${scope}:${key}`;
 

@@ -13,7 +13,7 @@ function cookie(name:string,value:string,seconds:number) {
  return `${name}=${value}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=${seconds}`;
 }
 function random() { return crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-',''); }
-export const validateOidcEndpoint=(value:string,label='OIDC endpoint')=>validateTrustedHttpsUrl(value,label,{allowSearch:true});
+const validateOidcEndpoint=(value:string,label='OIDC endpoint')=>validateTrustedHttpsUrl(value,label,{allowSearch:true});
 
 export function trustedOrigin(request:Request,env:Env) {
  const origin=new URL(request.url).origin;

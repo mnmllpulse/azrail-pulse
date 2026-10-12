@@ -1,3 +1,6 @@
+import { uploadStudioArtifact } from './studio-modules/shared';
+import { clamp } from '../src/shared/format';
+import { escapeHtml as esc } from '../src/shared/format';
 import type {StudioModuleContext} from './studio-types';
 import {errorMessage,renderPanelError,renderPanelLoading} from './components/panel-state';
 
@@ -31,12 +34,10 @@ let renderJobs:RenderJob[]=[];
 let queueRunning=false;
 let queueAbort:AbortController|null=null;
 
-const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]!));
 const q=<T extends Element>(root:ParentNode,selector:string)=>root.querySelector<T>(selector)!;
 const qa=<T extends Element>(root:ParentNode,selector:string)=>[...root.querySelectorAll<T>(selector)];
 const value=(root:ParentNode,id:string)=>q<HTMLInputElement|HTMLSelectElement|HTMLTextAreaElement>(root,`#${id}`).value;
 const num=(root:ParentNode,id:string)=>Number(value(root,id));
-const clamp=(n:number,min:number,max:number)=>Math.max(min,Math.min(max,n));
 const lerp=(a:number,b:number,t:number)=>a+(b-a)*t;
 function urlFor(blob:Blob){const u=URL.createObjectURL(blob);objectUrls.add(u);return u;}
 function revokeUrls(){for(const u of objectUrls)URL.revokeObjectURL(u);objectUrls.clear();}
@@ -126,7 +127,7 @@ async function runVideoQA(config:VideoConfig):Promise<QAIssue[]>{const issues:QA
  if(config.resolution==='2160p')issues.push({severity:'info',code:'4k-browser-load',message:'4K profile активен: локальный MediaRecorder может быть тяжёлым для устройства; сначала проверьте Proxy Preview.'});if(!issues.length)issues.push({severity:'info',code:'local-qa-clear',message:'Local deterministic QA не обнаружил критических рисков. Provider-grade frame analysis пока не подключён.'});return issues;}
 function renderQA(host:HTMLElement,issues:QAIssue[]){host.innerHTML=`<div class="video-qa-summary"><strong>Video QA Agent</strong><span>${issues.filter(i=>i.severity==='critical'||i.severity==='major').length} major/critical</span></div>${issues.map(i=>`<article data-severity="${i.severity}"><strong>${esc(i.code)}</strong><span>${esc(i.message)}</span></article>`).join('')}`;}
 
-async function uploadArtifact(context:StudioModuleContext,blob:Blob,name:string){return context.api('/api/studio/artifacts',{method:'POST',headers:{'Content-Type':blob.type||'video/webm','X-Filename':encodeURIComponent(name),'X-Project-Id':context.projectId??'','X-Studio-Id':'video'},body:blob}) as Promise<{id:string}>;}
+const uploadArtifact=(context:StudioModuleContext,blob:Blob,name:string)=>uploadStudioArtifact(context,blob,name,'video',{contentType:blob.type||'video/webm'});
 async function saveSession(context:StudioModuleContext,config:VideoConfig,blob:Blob){if(!context.account)throw Error('Войдите, чтобы сохранить Video session.');context.notice('Сохраняю WebM и timeline metadata…');const artifact=await uploadArtifact(context,blob,'azrail-video.webm');try{await context.api('/api/studio/video/sessions',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({projectId:context.projectId||'',prompt:config.prompt,aspectRatio:config.aspectRatio,resolution:config.resolution,durationSeconds:config.durationSeconds,fps:config.fps,transition:config.shots[0]?.transition??'cut',motionPreset:(config.shots[0]?.camera??'static').replace(/-(in|out)$/,'')||'static',exportPreset:config.legacyExport,scenes:config.shots.map(s=>({id:s.id,text:s.prompt,transition:s.transition,motion:s.camera.replace(/-(in|out)$/,'')})),hasAudio:!!(config.voiceFile||config.musicFile||config.sfxFile),imageCount:config.imageFiles.length,videoArtifactId:artifact.id})});}catch(error){context.api(`/api/studio/artifacts/${artifact.id}`,{method:'DELETE'}).catch(()=>{});throw error;}context.notice('Video session сохранена.');await refreshHistory(context);}
 async function saveStoryboard(context:StudioModuleContext){if(!context.account)throw Error('Войдите, чтобы сохранить storyboard.');if(!context.projectId)throw Error('Выберите Project.');const c=currentConfig(context),payload={projectId:context.projectId,title:c.title,prompt:c.prompt,aspectRatio:c.aspectRatio,resolution:c.resolution,exportProfile:c.exportProfile,shots:c.shots,continuity:c.continuity,referenceCount:c.referenceVideos.length,tracks:{voiceOver:!!c.voiceFile,music:!!c.musicFile,sfx:!!c.sfxFile},captions:{enabled:c.captionsEnabled,source:'scene-script'},grading:c.grading};await context.api('/api/studio/video/storyboards',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});context.notice('Storyboard сохранён в проекте.');await refreshStoryboards(context);}
 

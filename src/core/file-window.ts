@@ -24,7 +24,7 @@
 export const WINDOW_CHARS = 3200;
 
 /** Общий бюджет рабочего набора в запросе. */
-export const WORKING_SET_CHARS = 14000;
+const WORKING_SET_CHARS = 14000;
 
 export interface FileWindow {
   path: string;

@@ -60,16 +60,6 @@ export function rankSystemSuggestions(context:SystemSuggestionContext):SystemSug
 export const MEMORY_SCOPE_ORDER=['user','workspace','project','music','image','video','agent','session'] as const;
 export type GlobalMemoryScope=typeof MEMORY_SCOPE_ORDER[number];
 export type GlobalMemoryRecord={id:string;scope:GlobalMemoryScope;projectId?:string;studio?:string;key:string;value:unknown;source:string;whyStored:string;confidence:number;expiresAt?:number|null;createdAt:number;updatedAt:number};
-export function memoryPolicy(scope:GlobalMemoryScope){
- const policies:Record<GlobalMemoryScope,string>={
-  user:'Stable user preference explicitly supplied or confirmed by the user.',workspace:'Workspace-level operating convention shared across projects.',project:'Project fact/decision needed across studios.',music:'Music-specific measured or user-confirmed context.',image:'Image-specific creative/brand context.',video:'Video-specific continuity/production context.',agent:'Agent operational fact with bounded provenance.',session:'Temporary context; should expire.',
- };
- return policies[scope];
-}
-export function groupMemoryHierarchy(records:GlobalMemoryRecord[],now=Date.now()){
- const active=records.filter(row=>row.expiresAt===null||row.expiresAt===undefined||row.expiresAt>now);
- return MEMORY_SCOPE_ORDER.map(scope=>({scope,policy:memoryPolicy(scope),items:active.filter(row=>row.scope===scope).sort((a,b)=>b.confidence-a.confidence||b.updatedAt-a.updatedAt)}));
-}
 
 export type UnifiedHistoryEntry={id:string;source:'event'|'task';type:string;domain:string;createdAt:number|string;summary:string;undoable:boolean;undoHint?:string};
 export function undoContract(type:string):{undoable:boolean;hint?:string}{

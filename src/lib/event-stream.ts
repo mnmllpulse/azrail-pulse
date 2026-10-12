@@ -1,3 +1,4 @@
+import { sha256Hex } from './hash';
 import type { Env } from "../types";
 import { childTrace, linkTrace, type TraceContext } from "./observability-context";
 
@@ -105,10 +106,6 @@ function integrityMaterial(input: {
   ]);
 }
 
-async function sha256Hex(value:string):Promise<string>{
-  const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(value));
-  return [...new Uint8Array(digest)].map((byte)=>byte.toString(16).padStart(2,"0")).join("");
-}
 
 async function latestIntegrityHash(env:Env,scope:string):Promise<string>{
   const row=await env.AZRAIL_D1.prepare(

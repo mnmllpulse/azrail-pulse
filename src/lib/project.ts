@@ -1,9 +1,6 @@
 import type { Env } from "../types";
 import { log } from "./resilience";
 
-/** Compatibility hook; existence is now checked in the actual binding on every call. */
-export function forgetProject(_projectId: string): void {}
-
 export async function ensureProject(env: Env, projectId: string, name?: string): Promise<boolean> {
   if (!projectId) return false;
   try {

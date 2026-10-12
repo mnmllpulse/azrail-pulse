@@ -40,7 +40,7 @@ const v2Schema={type:'object',additionalProperties:false,required:Object.keys(DE
 function luminance(value:string){const rgb=[1,3,5].map(i=>parseInt(value.slice(i,i+2),16)/255).map(c=>c<=.04045?c/12.92:((c+.055)/1.055)**2.4);return .2126*rgb[0]+.7152*rgb[1]+.0722*rgb[2];}
 export function contrast(a:string,b:string){const x=luminance(a),y=luminance(b);return (Math.max(x,y)+.05)/(Math.min(x,y)+.05);}
 function upgradeLegacy(value:LegacyDesignContract):DesignContract{return {...DEFAULT_DESIGN,...value,version:2,typography:{...DEFAULT_DESIGN.typography},grid:{...DEFAULT_DESIGN.grid},breakpoints:{...DEFAULT_DESIGN.breakpoints},components:{...DEFAULT_DESIGN.components},interactionStates:[...DEFAULT_DESIGN.interactionStates],emptyStatePolicy:'guided',errorStatePolicy:'recoverable'};}
-export function validateDesign(value:unknown):DesignContract {
+function validateDesign(value:unknown):DesignContract {
  if(value&&typeof value==='object'&&(value as {version?:unknown}).version===1){const legacy=value as LegacyDesignContract;return validateDesign(upgradeLegacy(legacy));}
  validateArguments(v2Schema,value as Record<string,unknown>);const d=value as DesignContract;
  if(!(d.breakpoints.mobile<d.breakpoints.tablet&&d.breakpoints.tablet<d.breakpoints.desktop&&d.breakpoints.desktop<d.breakpoints.wide))throw new AccessError('Breakpoints должны идти по возрастанию.',400);

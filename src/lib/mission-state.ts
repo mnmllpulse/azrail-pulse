@@ -26,7 +26,6 @@ export type MissionRow = {
 
 /** Настоящие финальные статусы. waiting_approval — пауза, а не завершение. */
 export const TERMINAL_STATUSES = ["completed", "unverified", "failed", "cancelled", "terminated"] as const;
-export const SUSPENDED_STATUSES = ["waiting_approval", "paused"] as const;
 
 export function isTerminal(status: string | undefined | null): boolean {
   return !!status && (TERMINAL_STATUSES as readonly string[]).includes(status);

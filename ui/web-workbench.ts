@@ -1,3 +1,4 @@
+import { formatBytes as bytes } from '../src/shared/format';
 import type { SnapshotRefBody } from '../src/shared/schemas';
 import type {StudioModuleContext} from './studio-types';
 
@@ -18,7 +19,6 @@ const tabs=['files','preview','layers','changes','tests','logs','versions'] as c
 type Tab=typeof tabs[number];
 const labels:Record<Tab,string>={files:'Files',preview:'Preview',layers:'Layers',changes:'Changes',tests:'Tests',logs:'Logs',versions:'Versions'};
 const $q=<T extends Element=HTMLElement>(root:ParentNode,selector:string)=>root.querySelector(selector) as T;
-const bytes=(n:number)=>n<1024?`${n} B`:n<1024*1024?`${(n/1024).toFixed(1)} KB`:`${(n/1024/1024).toFixed(1)} MB`;
 const when=(n:number|string)=>{const t=typeof n==='string'?Date.parse(n):n;return Number.isFinite(t)?new Date(t).toLocaleString():'—';};
 const escapeHtml=(value:string)=>value.replace(/[&<>"']/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]!));
 

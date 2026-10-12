@@ -52,28 +52,3 @@ export function advancedPromptDirectives(input:ImageAdvancedControls){
  return out;
 }
 
-export type ImageQAFinding={severity:'critical'|'major'|'minor'|'improvement';code:string;message:string;safeAutoFix:boolean;target?:string};
-export function imageMetadataQA(input:{width:number;height:number;mime:string;brandConstraints:number;styleLock:boolean}){
- const findings:ImageQAFinding[]=[];
- const long=Math.max(input.width,input.height),short=Math.min(input.width,input.height);
- if(short<512)findings.push({severity:'major',code:'LOW_RESOLUTION',message:`Короткая сторона ${short}px — недостаточно для большинства production export профилей.`,safeAutoFix:true,target:'resolution'});
- else if(short<768)findings.push({severity:'minor',code:'LIMITED_RESOLUTION',message:`Короткая сторона ${short}px ограничивает крупный export.`,safeAutoFix:true,target:'resolution'});
- if(long/Math.max(1,short)>3)findings.push({severity:'minor',code:'EXTREME_ASPECT',message:'Очень вытянутый aspect ratio требует ручной проверки cropping и safe areas.',safeAutoFix:false,target:'crop'});
- if(!/^image\/(png|jpeg|webp)$/i.test(input.mime))findings.push({severity:'major',code:'FORMAT',message:`Формат ${input.mime} не входит в production image export baseline.`,safeAutoFix:true,target:'format'});
- if(input.brandConstraints>0&&!input.styleLock)findings.push({severity:'improvement',code:'BRAND_WITHOUT_STYLE_LOCK',message:'Brand constraints заданы, но Style Lock выключен; визуальная консистентность между версиями может снизиться.',safeAutoFix:true,target:'style-lock'});
- return findings;
-}
-
-export const IMAGE_EXPORT_PRESETS={
- original:null,
- 'social-square':{width:1080,height:1080},
- 'social-story':{width:1080,height:1920},
- 'web-hero':{width:1920,height:1080},
- 'product-square':{width:1600,height:1600},
-} as const;
-
-export function imageRegionSuggestions(hasMask:boolean){
- return hasMask
-  ? [{id:'inpaint',label:'Inpaint region'},{id:'remove',label:'Remove object'},{id:'replace',label:'Replace object'},{id:'edit',label:'Change color / details'}]
-  : [{id:'mask',label:'Create mask'},{id:'background-replace',label:'Replace background'},{id:'variation',label:'Create variants'},{id:'upscale',label:'Restore + upscale'}];
-}

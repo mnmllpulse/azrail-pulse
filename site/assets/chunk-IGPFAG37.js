@@ -1,0 +1,1 @@
+var n={"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"};function o(t){return t.replace(/[&<>"']/g,r=>n[r])}function u(t,r,e){return Math.max(r,Math.min(e,t))}function i(t,r={}){return t<1024?`${t} B`:t<1024*1024?`${(t/1024).toFixed(r.compactKb&&t>99*1024?0:1)} KB`:`${(t/1024/1024).toFixed(1)} MB`}export{o as a,u as b,i as c};

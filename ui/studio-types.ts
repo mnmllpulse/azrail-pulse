@@ -1,4 +1,4 @@
-export const STUDIO_IDS = ['web','image','music','video','audio','als','data','ledger','lab'] as const;
+const STUDIO_IDS = ['web','image','music','video','audio','als','data','ledger','lab'] as const;
 export type StudioId = typeof STUDIO_IDS[number];
 
 export type StudioCapability =
