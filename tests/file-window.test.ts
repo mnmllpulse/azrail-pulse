@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { sliceFile, WorkingSet, WINDOW_CHARS } from "../src/core/file-window";
 import { readFileSync } from "node:fs";
 
@@ -73,7 +74,7 @@ describe("WorkingSet — прочитанное не теряется", () => {
 });
 
 describe("движок: чтение идёт через окно и рабочий набор", () => {
-  const engine = readFileSync("src/core/execution-engine.ts", "utf8");
+  const engine = coreEngineSource();
   const tools = readFileSync("src/core/execution-tools.ts", "utf8");
   it("read_file отдаёт окно, а не целый файл", () => {
     expect(tools).toContain("return sliceFile(path, file.content");

@@ -1,4 +1,5 @@
 import { sqliteD1 } from "./stubs/sqlite-d1";
+import { coreEngineSource } from "./helpers/core-source";
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -46,7 +47,7 @@ function fakeD1(rows: Row[], opts: { failOnResultColumn?: boolean } = {}) {
   for(const row of rows)sqlite.prepare("INSERT INTO missions(id,goal,status,created_at,updated_at) VALUES(?,'test',?,?,?)")
     .run(row.id,row.status,row.created_at??new Date().toISOString(),row.updated_at??row.created_at??new Date().toISOString());
   if(opts.failOnResultColumn)sqlite.exec("ALTER TABLE missions DROP COLUMN result_json");
-  return {prepare:db.prepare.bind(db),get rows(){return sqlite.prepare("SELECT * FROM missions").all() as unknown as Row[];}};
+  return {prepare:db.prepare.bind(db),batch:db.batch.bind(db),get rows(){return sqlite.prepare("SELECT * FROM missions").all() as unknown as Row[];}};
 }
 
 function fakeKV(opts: { broken?: boolean } = {}) {
@@ -76,7 +77,7 @@ describe("Миссия исполняется в фоне, а не внутри 
   const idx = src("src/index.ts");
   const orch = src("src/agents/orchestrator.ts");
   const missions = src("src/agents/mission-coordinator.ts");
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
 
   it("роут НЕ ждёт выполнения миссии", () => {
     // Здесь была причина самого дорогого класса отказов: весь цикл из
@@ -200,7 +201,7 @@ describe("Остановка миссии", () => {
 
   it("цикл спрашивает про остановку ПЕРЕД вызовом модели", () => {
     // Иначе отмена оплачивала бы ещё один вызов ради права остановиться.
-    const engine = src("src/core/execution-engine.ts");
+    const engine = coreEngineSource();
     const loop = engine.slice(engine.indexOf("for (let i = checkpoints.length"));
     const abortAt = loop.indexOf("ctx.shouldAbort");
     const decideAt = loop.indexOf("this.decideNextStep(");

@@ -2921,7 +2921,8 @@ footer { padding: var(--s5) var(--s6); color: #5b626d; font-size: 11px; font-fam
                ev.event === 'memory.recalled' || ev.event === 'usage.summary' ||
                ev.event === 'tests.rolled_back' || ev.event === 'hint.received' ||
                ev.event === 'memory.saved' || ev.event === 'check.unverified' ||
-               ev.event === 'edit.syntax_warning') {
+               ev.event === 'edit.syntax_warning' || ev.event === 'plan.resumed' ||
+               ev.event === 'verification.failed' || ev.event === 'verification.unverified') {
       // Защитные события — отдельными строками. Особенно откат: без него
       // непонятно, в каком состоянии остался проект после провала.
       if (prev) prev.className = 'ok';
@@ -2930,7 +2931,8 @@ footer { padding: var(--s5) var(--s6); color: #5b626d; font-size: 11px; font-fam
       // Красить это красным значит говорить, что сделано плохо, хотя про
       // качество ничего не известно.
       var bad = ev.event === 'tests.regressed' || ev.event === 'loop.detected' ||
-                ev.event === 'tests.failed' || ev.event === 'edit.syntax_warning';
+                ev.event === 'tests.failed' || ev.event === 'edit.syntax_warning' ||
+                ev.event === 'verification.failed';
       g.className = bad ? 'bad' : 'ok';
       g.textContent = {
         'snapshot.taken': 'снимок сделан (' + (ev.files || 0) + ' файл.)',
@@ -2954,7 +2956,10 @@ footer { padding: var(--s5) var(--s6); color: #5b626d; font-size: 11px; font-fam
         'tests.rolled_back': 'правки откачены, пробую иначе',
         'hint.received': 'услышал подсказку',
         'memory.saved': 'запомнил на будущее',
-        'check.unverified': 'проверка не состоялась'
+        'check.unverified': 'проверка не состоялась',
+        'plan.resumed': 'план восстановлен после перезапуска',
+        'verification.failed': 'проверка исполнения не пройдена',
+        'verification.unverified': 'исполнение не подтверждено'
       }[ev.event] || ev.event;
       if (ev.reason) {
         var gr = document.createElement('span');

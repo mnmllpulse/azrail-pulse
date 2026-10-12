@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -133,19 +134,19 @@ describe("Учёт встроен в систему, а не лежит мёрт
   });
 
   it("копилка доходит до каждого вызова цикла", () => {
-    const engine = src("src/core/execution-engine.ts");
+    const engine = coreEngineSource();
     expect(engine.match(/ledger: ctx\.usage/g)?.length).toBeGreaterThanOrEqual(5);
   });
 
   it("проверка результата тоже учитывается", () => {
     // Проверка — такой же вызов модели, как остальные; не попав в учёт,
     // она делала бы отчёт неполным.
-    expect(src("src/core/checker.ts")).toContain("{ preferredModel, ledger }");
-    expect(src("src/core/execution-engine.ts")).toContain("renderChanges(changes), ctx.usage)");
+    expect(src("src/core/checker.ts")).toContain("{ preferredModel, ledger, trace, signal }");
+    expect(coreEngineSource()).toContain("renderChanges(changes), ctx.usage, ctx)");
   });
 
   it("расход попадает в результат миссии и в карту", () => {
-    const engine = src("src/core/execution-engine.ts");
+    const engine = coreEngineSource();
     expect(engine).toContain('"usage.summary"');
     expect(engine).toContain("usage,");
     expect(src("public/index.html")).toContain("'usage.summary'");

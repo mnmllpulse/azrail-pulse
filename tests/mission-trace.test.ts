@@ -113,7 +113,7 @@ describe("один шаг не рисуется дважды", () => {
 
 describe("порядок шагов", () => {
   it("новый поток использует монотонный seq, а legacy fallback сохраняет старый порядок", () => {
-    expect(stream).toContain("ORDER BY seq ASC");
+    expect(stream).toMatch(/ORDER BY (?:e\.)?seq ASC/);
     expect(store).toContain("ORDER BY created_at ASC, rowid ASC");
   });
 });

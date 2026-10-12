@@ -197,7 +197,7 @@ export class DeployAgent extends Agent<Env, DeployAgentState> {
     let dispatched = false;
     try {
       dispatched = true;
-      const res = await githubRequest(this.env.GITHUB_TOKEN!, `/repos/${repo}/dispatches`, {
+      const res = await githubRequest(this.env.GITHUB_TOKEN!, `/repos/${assertRepo(repo)}/dispatches`, {
         method: "POST",
         body: JSON.stringify({
           event_type: "azrail-deploy",

@@ -30,6 +30,12 @@ The current Unified UI exposes separate pages for Web, Image, Music, Video, Audi
 
 The event stream now has a SHA-256 tamper-evident integrity sidecar (`event_integrity`) for newly written events. Forks are rejected by a unique predecessor constraint and writers retry against the new durable head.
 
+## API surface and core modules
+
+Worker routes (`src/index.ts`): `/api/task`, `/api/upload`, `/api/agents`, `/api/selftest`, `/api/models`, `/api/tools`, `/api/chat`, `/api/mission`, `/api/conversations`, `/api/polish`, `/api/stream`, `/api/bench`, `/api/admin`, `/api/metrics`, `/api/approvals`, `/api/backups`, `/api/me`, `/api/metatron` (plus the unified/studio routes under `src/unified/`).
+
+Core modules: `src/core/execution-engine.ts` (execution-engine: mission loop), `src/lib/tool-registry.ts` (tool-registry), `src/lib/workspace.ts` / `workspace-head.ts` (workspace), `src/lib/chat-store.ts` (chat-store), `src/lib/event-store.ts` (event-store). Request input contracts live in `src/shared/schemas.ts` (Zod).
+
 ## Local verification
 
 **Canonical release runtime: Node.js 24.18.0.**

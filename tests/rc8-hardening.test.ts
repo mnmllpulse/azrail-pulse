@@ -1,3 +1,4 @@
+import { withProjectLock } from '../src/lib/project-control';
 import { describe, it, expect, vi } from 'vitest';
 import type { Env } from '../src/types';
 import { publishWorkspace, workspacePrefix } from '../src/lib/workspace-head';
@@ -33,13 +34,15 @@ describe('RC8 workspace publication CAS',()=>{
     const {db,sqlite}=sqliteD1();
     const {r2,objects}=memoryR2();
     sqlite.exec("INSERT INTO workspace_heads(project_id,prefix) VALUES('p','projects/p/workspace-versions/base/')");
+    // Every active head must carry immutable publication provenance (RC-later invariant).
+    sqlite.exec("INSERT INTO workspace_publications VALUES('projects/p/workspace-versions/base/','p','projects/p/workspace/','seed',0,0,'seed-lease',0,0);INSERT INTO workspace_publications VALUES('projects/p/workspace-versions/newer/','p','projects/p/workspace/','seed',0,0,'seed-lease',0,0)");
     let firstPut=true;
     const wrapped={...r2,async put(key:string,value:unknown){
       await r2.put(key,value);
       if(firstPut){firstPut=false;sqlite.prepare("UPDATE workspace_heads SET prefix='projects/p/workspace-versions/newer/' WHERE project_id='p'").run();}
     }};
     const env={AZRAIL_D1:db,AZRAIL_R2:wrapped} as unknown as Env;
-    await expect(publishWorkspace(env,'p',[{path:'a.txt',content:'stale'}])).rejects.toThrow(/изменилась/);
+    await expect(withProjectLock(env,'p','writer',lease=>publishWorkspace(env,'p',[{path:'a.txt',content:'stale'}],lease!))).rejects.toThrow(/изменилась/);
     expect(await workspacePrefix(env,'p')).toBe('projects/p/workspace-versions/newer/');
     expect([...objects.keys()].some(k=>k.includes('/workspace-versions/')&&k.endsWith('/a.txt'))).toBe(false);
   });

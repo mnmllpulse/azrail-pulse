@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -82,20 +83,20 @@ describe("Вспоминание фактов", () => {
 });
 
 describe("Память доходит до модели", () => {
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
 
   it("цикл её действительно читает", () => {
     // САМЫЙ ОБИДНЫЙ ПРОБЕЛ ВО ВСЕЙ СИСТЕМЕ: recallContext была написана с
     // комментарием «то, что реально спрашивается перед каждым решением» —
     // и не вызывалась НИКЕМ. Цикл импортировал только rememberFact. AZRAIL
     // копил знание о проекте и каждую миссию начинал с чистого листа.
-    expect(engine).toContain("recallContext(this.env, ctx.projectId)");
+    expect(engine).toContain("recallContext(this.env, ctx.projectId, 30");
     expect(engine).toContain("let memoryBlock");
   });
 
   it("память идёт до карты и разведки", () => {
     // Она дешевле обеих — одно чтение из D1 — и может сделать их лишними.
-    const mem = engine.indexOf("recallContext(this.env, ctx.projectId)");
+    const mem = engine.indexOf("recallContext(this.env, ctx.projectId, 30");
     const scouts = engine.indexOf('let scoutReport = ""');
     const plan = engine.indexOf("this.buildPlan(goal");
     expect(mem).toBeLessThan(scouts);

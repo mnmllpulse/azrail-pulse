@@ -14,8 +14,9 @@ it('standalone HTML opens locally and studio navigation works without fetching a
  (window.document.querySelector('[data-view="studios"]') as any).click();
  expect(window.document.getElementById('studios')?.hidden).toBe(false);
  expect(window.document.querySelectorAll('#studio-list .card')).toHaveLength(9);
- (window.document.querySelector('[data-studio="music"]') as any).click();
- expect(window.document.getElementById('studio-title')?.textContent).toBe('Музыка');
+ (window.document.querySelector('#studio-list [data-studio="music"]') as any).click();
+ await new Promise(r=>setTimeout(r,0));await new Promise(r=>setTimeout(r,0));
+ expect(window.document.getElementById('studio-title')?.textContent).toBe('Music Studio');
  expect(window.document.getElementById('bpm')).not.toBeNull();
  const localNotice=window.document.getElementById('local-notice')?.textContent;
  expect(localNotice).toContain('Локальный просмотр');

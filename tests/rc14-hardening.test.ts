@@ -105,10 +105,10 @@ describe("RC14 retention and Studio memory invariants",()=>{
     sqlite.prepare("INSERT INTO users(id,email,name) VALUES('u','rc14@example.invalid','RC14')").run();
     sqlite.prepare("INSERT INTO projects(id,user_id,name) VALUES('a','u','A')").run();
     sqlite.prepare("INSERT INTO projects(id,user_id,name) VALUES('b','u','B')").run();
-    sqlite.prepare("INSERT INTO project_versions(id,project_id,version_number,r2_object_key,created_at) VALUES('a1','a',1,'a1','2020-01-01 00:00:00')").run();
-    sqlite.prepare("INSERT INTO project_versions(id,project_id,version_number,r2_object_key,created_at) VALUES('a2','a',2,'a2','2021-01-01 00:00:00')").run();
-    sqlite.prepare("INSERT INTO project_versions(id,project_id,version_number,r2_object_key,created_at) VALUES('b1','b',1,'b1','2019-01-01 00:00:00')").run();
-    sqlite.prepare("INSERT INTO project_versions(id,project_id,version_number,r2_object_key,created_at) VALUES('b2','b',2,'b2','2021-01-01 00:00:00')").run();
+    sqlite.prepare("INSERT INTO project_versions(id,project_id,version_number,r2_object_key,created_at) VALUES('a1','a',1,'projects/a/a1','2020-01-01 00:00:00')").run();
+    sqlite.prepare("INSERT INTO project_versions(id,project_id,version_number,r2_object_key,created_at) VALUES('a2','a',2,'projects/a/a2','2021-01-01 00:00:00')").run();
+    sqlite.prepare("INSERT INTO project_versions(id,project_id,version_number,r2_object_key,created_at) VALUES('b1','b',1,'projects/b/b1','2019-01-01 00:00:00')").run();
+    sqlite.prepare("INSERT INTO project_versions(id,project_id,version_number,r2_object_key,created_at) VALUES('b2','b',2,'projects/b/b2','2021-01-01 00:00:00')").run();
     const env={AZRAIL_D1:db} as unknown as Env;
     const p=await previewRetention(env,{olderThanDays:30,keepNewest:1,now:Date.parse('2026-01-01T00:00:00Z')});
     expect(p.versionCandidates.map(v=>v.id).sort()).toEqual(['a1','b1']);
@@ -119,6 +119,9 @@ describe("RC14 retention and Studio memory invariants",()=>{
   it("does not expand voice bytes into a multi-million-element JavaScript array",()=>{
     const studios=readFileSync(new URL('../src/unified/studios.ts',import.meta.url),'utf8');
     expect(studios).not.toContain('audio:[...bytes]');
-    expect(studios).toContain("env.AI.run('@cf/openai/whisper',audio as never)");
+    // Transcription moved behind the SpeechToText adapter; bytes are still passed through without array expansion.
+    const voice=readFileSync(new URL('../src/unified/voice.ts',import.meta.url),'utf8');
+    expect(voice).not.toContain('[...');
+    expect(voice).toContain("provider.run(this.model,input.audio as never");
   });
 });

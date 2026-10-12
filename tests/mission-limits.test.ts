@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import {
   clampIterations, planStepCap, DEFAULT_MISSION_ITERATIONS, MAX_MISSION_ITERATIONS,
@@ -25,7 +26,7 @@ describe("лимиты шагов миссии", () => {
 
   it("литералов 8/20 для шагов в коде больше нет — одна формула везде", () => {
     const idx = readFileSync("src/index.ts", "utf8");
-    const eng = readFileSync("src/core/execution-engine.ts", "utf8");
+    const eng = coreEngineSource();
     expect(idx).not.toMatch(/maxIterations\)?\s*\|\|\s*8/);
     expect(eng).not.toMatch(/maxIterations\s*\|\|\s*8/);
     expect(eng).not.toContain("Math.min(maxIterations, 8)");
@@ -35,7 +36,7 @@ describe("лимиты шагов миссии", () => {
 
 describe("пересборка плана тоже оставляет запас", () => {
   it("replan режет по planStepCap, а не по всему остатку", () => {
-    const eng = readFileSync("src/core/execution-engine.ts", "utf8");
+    const eng = coreEngineSource();
     expect(eng).toContain("Math.min(planStepCap(remaining), 6)");
     expect(eng).not.toContain("Math.min(remaining, 6)");
   });
@@ -43,7 +44,7 @@ describe("пересборка плана тоже оставляет запас
 
 describe("лимит плана — в коде, а не только в промпте", () => {
   it("buildPlan и replanTitles обрезают ответ модели", () => {
-    const eng = readFileSync("src/core/execution-engine.ts", "utf8");
+    const eng = coreEngineSource();
     expect(eng).toContain(".slice(0, planStepCap(maxIterations))");
     expect(eng).toContain(".slice(0, Math.min(planStepCap(remaining), 6))");
   });

@@ -1,4 +1,5 @@
 import { sqliteD1 } from "./stubs/sqlite-d1";
+import { coreEngineSource } from "./helpers/core-source";
 import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
@@ -89,7 +90,7 @@ describe("Очередь подсказок", () => {
 });
 
 describe("Цикл слышит подсказки", () => {
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
 
   it("читает их на границе шага, как и отмену", () => {
     // Подсказку присылают отдельным запросом; значение, снятое на старте,

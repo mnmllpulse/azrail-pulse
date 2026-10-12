@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -40,7 +41,7 @@ describe("Собственная работа цикла названа свои
   });
 
   it("разведка ходит под своим интентом", () => {
-    const engine = src("src/core/execution-engine.ts");
+    const engine = coreEngineSource();
     const block = engine.slice(engine.indexOf('let scoutReport = ""'));
     expect(block.slice(0, 1500)).toContain('"scout"');
     expect(ROUTING_POLICY.scout.requires).toContain("reasoning");

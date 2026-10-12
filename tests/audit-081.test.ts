@@ -19,6 +19,19 @@ import * as sandbox from '../src/core/sandbox';
 import * as sync from '../src/core/workspace-sync';
 import * as exporting from '../src/core/sandbox-export';
 import {Orchestrator} from '../src/agents/orchestrator';
+import {withProjectLock} from '../src/lib/project-control';
+
+/** Fake Durable Object `this` for Orchestrator.prototype.* calls: mirrors the members missionHost() reads. */
+function orchestratorThis(env:Env,extra:Record<string,unknown>={}):any{
+  const storage=new Map<string,unknown>();
+  return {env,activeMissions:new Set<string>(),missionAbortControllers:new Map<string,AbortController>(),
+    createMissionAbortController:Orchestrator.prototype.createMissionAbortController,
+    releaseMissionAbortController:Orchestrator.prototype.releaseMissionAbortController,
+    ctx:{storage:{get:async(k:string)=>storage.get(k),put:async(k:string,v:unknown)=>{storage.set(k,v);},delete:async(k:string)=>storage.delete(k)}},
+    schedule:async()=>({}),broadcastMissionEvent:async()=>{},...extra};
+}
+/** Scheduled delivery is generation-fenced: seed the delivery row the scheduler expects. */
+const deliver=(sqlite:any,id='m',generation=1)=>sqlite.prepare('INSERT INTO mission_delivery_state(mission_id,generation,updated_at) VALUES(?,?,?)').run(id,generation,Date.now());
 
 function fixture(){
   const {db,sqlite}=sqliteD1(),files=new Map<string,Uint8Array>();
@@ -51,7 +64,7 @@ describe('0.8.1 runtime regressions',()=>{
   it('benchmark reports cancellation when cancel wins a late-success race',async()=>{
     const t=fixture();t.mission();
     vi.spyOn(ExecutionEngine.prototype,'runMission').mockImplementation(async()=>{await requestCancel(t.env,'m');return {status:'done',agent:'bench',summary:'late success'};});
-    const stop=vi.fn();const host:any={env:t.env,keepAlive:async()=>stop};
+    const stop=vi.fn();const host=orchestratorThis(t.env,{keepAlive:async()=>stop});
     const result=await Orchestrator.prototype.runBenchMission.call(host,{missionId:'m',projectId:'p',goal:'test',maxIterations:2});
     expect(result.error).toBe('cancelled');expect(t.sqlite.prepare("SELECT status FROM missions WHERE id='m'").get()?.status).toBe('cancelled');expect(stop).toHaveBeenCalledOnce();
   });
@@ -60,22 +73,22 @@ describe('0.8.1 runtime regressions',()=>{
     expect(accepted.filter(r=>r.ok)).toHaveLength(5);const hints=await drainHints(t.env,'m');expect(new Set(hints).size).toBe(5);expect(await drainHints(t.env,'m')).toEqual([]);
   });
   it('the production scheduled mission receives hints and cleans its heartbeat state',async()=>{
-    const t=fixture();t.mission();await sendHint(t.env,'m','keep violet');let received:string[]=[];
+    const t=fixture();t.mission();deliver(t.sqlite);await sendHint(t.env,'m','keep violet');let received:string[]=[];
     vi.spyOn(ExecutionEngine.prototype,'runMission').mockImplementation(async(_request,ctx)=>{received=await ctx.takeHints!();return {status:'done',agent:'test',summary:'ok'};});
-    const stop=vi.fn();const host:any={env:t.env,activeMissions:new Set(),keepAlive:async()=>stop,broadcastMissionEvent:async()=>{}};
-    await Orchestrator.prototype.runMissionTask.call(host,{missionId:'m',projectId:'p',goal:'test',maxIterations:8});
+    const stop=vi.fn();const host=orchestratorThis(t.env,{keepAlive:async()=>stop});
+    await Orchestrator.prototype.runMissionTask.call(host,{missionId:'m',projectId:'p',goal:'test',maxIterations:8,deliveryGeneration:1});
     expect(received).toEqual(['keep violet']);expect(stop).toHaveBeenCalledOnce();expect(host.activeMissions.size).toBe(0);
   });
   it('heartbeat failure cannot strand an in-memory active mission',async()=>{
-    const t=fixture();t.mission();const host:any={env:t.env,activeMissions:new Set(),keepAlive:async()=>{throw Error('heartbeat down');},broadcastMissionEvent:async()=>{}};
-    await Orchestrator.prototype.runMissionTask.call(host,{missionId:'m',projectId:'p',goal:'test',maxIterations:8});expect(host.activeMissions.size).toBe(0);expect(t.sqlite.prepare('SELECT status FROM missions').get()?.status).toBe('failed');
+    const t=fixture();t.mission();deliver(t.sqlite);const host=orchestratorThis(t.env,{keepAlive:async()=>{throw Error('heartbeat down');}});
+    await Orchestrator.prototype.runMissionTask.call(host,{missionId:'m',projectId:'p',goal:'test',maxIterations:8,deliveryGeneration:1});expect(host.activeMissions.size).toBe(0);expect(t.sqlite.prepare('SELECT status FROM missions').get()?.status).toBe('failed');
   });
   it('configured sandbox reaches the execution adapter',async()=>{
     vi.spyOn(sync,'syncWorkspaceToSandbox').mockResolvedValue({files:1,bytes:10,skipped:[]});
     vi.spyOn(exporting,'syncWorkspaceFromSandbox').mockResolvedValue({files:1});
     const t=fixture();t.env.AZRAIL_SANDBOX={} as never;t.sqlite.exec("INSERT INTO project_permissions(project_id,capability) VALUES('p','sandbox')");
     const exec=vi.spyOn(sandbox,'runInContainer').mockResolvedValue({exitCode:0,output:'ok',timedOut:false} as never);
-    await new ExecutionEngine(t.env).executeTool('sandbox_exec',{command:'pwd'},{projectId:'p',missionId:'m',requestId:'request-test-0001',traceId:'0123456789abcdef0123456789abcdef',iteration:0,maxIterations:2});expect(exec).toHaveBeenCalledOnce();
+    await withProjectLock(t.env,'p','m',lease=>new ExecutionEngine(t.env).executeTool('sandbox_exec',{command:'pwd'},{projectId:'p',missionId:'m',requestId:'request-test-0001',traceId:'0123456789abcdef0123456789abcdef',iteration:0,maxIterations:2},lease));expect(exec).toHaveBeenCalledOnce();
   });
   it('file names round-trip across list, publish, backup and restore',async()=>{
     const t=fixture();const paths=['src/Привет мир.ts','100%20 real.txt','a b.md'];
@@ -84,15 +97,15 @@ describe('0.8.1 runtime regressions',()=>{
     for(const path of paths)expect((await readFile(t.env,'p',path))?.content).toBe('content '+path);
     const copy=await backupProject(t.env,'p');await restoreBackup(t.env,'p',copy.id,'restored');
     for(const path of paths)expect((await readFile(t.env,'restored',path))?.content).toBe('content '+path);
-    await publishWorkspace(t.env,'p',paths.map(path=>({path,content:'published'})));
+    await withProjectLock(t.env,'p','publisher',lease=>publishWorkspace(t.env,'p',paths.map(path=>({path,content:'published'})),lease!));
     for(const path of paths)expect((await readFile(t.env,'p',path))?.content).toBe('published');
   });
   it('snapshot and rollback preserve binary bytes and unicode paths',async()=>{
     const t=fixture();await ensureProject(t.env,'p');const bytes=new Uint8Array([0,255,128,42]);
-    await publishWorkspace(t.env,'p',[{path:'обложка 100%.bin',content:bytes}]);
+    await withProjectLock(t.env,'p','publisher',lease=>publishWorkspace(t.env,'p',[{path:'обложка 100%.bin',content:bytes}],lease!));
     const snapshot=await snapshotWorkspace(t.env,'p','before');expect(snapshot).not.toBeNull();
     const row=t.sqlite.prepare('SELECT r2_object_key FROM project_versions WHERE id=?').get(snapshot!.versionId)!;
-    await writeFile(t.env,'p','extra.ts','new');expect(await rollbackWorkspace(t.env,'p',String(row.r2_object_key))).toEqual({restored:1,removed:1});
+    await writeFile(t.env,'p','extra.ts','new');expect(await withProjectLock(t.env,'p','rollback',lease=>rollbackWorkspace(t.env,'p',String(row.r2_object_key),lease!))).toEqual({restored:1,removed:1});
     const prefix=String(t.sqlite.prepare('SELECT prefix FROM workspace_heads WHERE project_id=?').get('p')?.prefix);
     expect(t.files.get(prefix+'обложка 100%.bin')).toEqual(bytes);
   });

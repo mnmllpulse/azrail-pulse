@@ -24,7 +24,7 @@ async function fixture(){
 }
 describe('Unified OIDC and tenant isolation',()=>{
  it('completes signed PKCE/OIDC login once, without issuing browser API keys',async()=>{
-  const f=await fixture(),issuer='https://issuer.test/'+crypto.randomUUID();f.env.OIDC_ISSUER=issuer;f.env.OIDC_CLIENT_ID='client';
+  const f=await fixture(),issuer='https://issuer.example.com/'+crypto.randomUUID();f.env.OIDC_ISSUER=issuer;f.env.OIDC_CLIENT_ID='client';
   const keys=await generateKeyPair('ES256'),jwk=await exportJWK(keys.publicKey);jwk.kid='signer';jwk.alg='ES256';
   vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL,init?:RequestInit)=>{
    const url=String(input);

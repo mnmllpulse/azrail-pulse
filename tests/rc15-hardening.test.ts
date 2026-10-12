@@ -31,9 +31,11 @@ describe("RC15 1/8 delivery lease",()=>{
 describe("RC15 2/8 concurrent dispatcher recovery",()=>{
   it("reclaims an expired lease but rejects acknowledgement from the stale lease",async()=>{
     const {env,sqlite}=missionEnv();
-    const stale=await claimMissionDelivery(env,'m',1,'a',1000);
+    // markMissionDeliveryScheduled validates lease expiry against the real clock.
+    const now=Date.now();
+    const stale=await claimMissionDelivery(env,'m',1,'a',now-60_000);
     expect(stale).not.toBeNull();
-    const current=await claimMissionDelivery(env,'m',1,'b',1000+45_001);
+    const current=await claimMissionDelivery(env,'m',1,'b',now);
     expect(current).not.toBeNull();
     expect(await markMissionDeliveryScheduled(env,'m',1,stale!.leaseId)).toBe(false);
     expect(await markMissionDeliveryScheduled(env,'m',1,current!.leaseId)).toBe(true);

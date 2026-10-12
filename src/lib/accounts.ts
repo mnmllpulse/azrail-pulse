@@ -57,7 +57,7 @@ export async function authorizeRequest(env:Env,p:Principal,request:Request,body:
   const u=new URL(request.url), path=u.pathname;
   if(p.role==="viewer" && !["GET","OPTIONS"].includes(request.method) && !(path==="/api/stream/ticket" && request.method==="POST")) throw new AccessError("Роль разрешает только чтение.");
   if((path.startsWith("/api/admin/") || ["/api/bench","/api/selftest"].includes(path)) && p.role!=="admin" && !(p.operator && ["/api/admin/routing-settings","/api/admin/billing","/api/admin/permissions"].includes(path))) throw new AccessError("Нужны права администратора.");
-  if(path.startsWith("/api/approvals") && request.method!=="GET" && p.role!=="admin") throw new AccessError("Подтверждать опасные операции может только администратор.");
+  if(path.startsWith("/api/approvals") && request.method!=="GET" && p.role!=="admin" && !/^\/api\/approvals\/[^/]+\/decision$/.test(path)) throw new AccessError("Подтверждать опасные операции может только администратор.");
   const projectMatch=path.match(/^\/api\/projects\/([^/]+)/);
   const project=projectMatch?decodeURIComponent(projectMatch[1]):typeof body.projectId==="string"?body.projectId:u.searchParams.get("projectId");
   if(project) {

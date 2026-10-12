@@ -1,3 +1,4 @@
+import { withProjectLock } from "../src/lib/project-control";
 import { sqliteD1 } from "./stubs/sqlite-d1";
 import { readFile } from "../src/lib/workspace";
 import { describe, it, expect, vi } from "vitest";
@@ -23,7 +24,7 @@ function setup(count = 1) {
 }
 describe("snapshot data safety",()=>{
   it("restores all pages before removing newly created files",async()=>{
-    const t=setup(310);expect(await rollbackWorkspace(t.env,"p",key)).toEqual({restored:310,removed:1});
+    const t=setup(310);expect(await withProjectLock(t.env,"p","rollback",lease=>rollbackWorkspace(t.env,"p",key,lease!))).toEqual({restored:310,removed:1});
     expect((await readFile(t.env,"p","f309.ts"))?.content).toBe("old");
     expect(await readFile(t.env,"p","new.ts")).toBeNull();
   });

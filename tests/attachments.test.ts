@@ -5,8 +5,13 @@ import { loadAttachments, attachmentsToText } from "../src/lib/attachments";
 function r2(files: Record<string, string>) {
   return {
     AZRAIL_R2: {
-      get: async (key: string) =>
-        key in files ? { text: async () => files[key] } : null,
+      // Как настоящий R2: size в метаданных и ranged read через options.range.
+      get: async (key: string, options?: { range?: { offset?: number; length?: number } }) => {
+        if (!(key in files)) return null;
+        const offset = options?.range?.offset ?? 0;
+        const body = options?.range?.length !== undefined ? files[key].slice(offset, offset + options.range.length) : files[key].slice(offset);
+        return { size: files[key].length, text: async () => body };
+      },
     },
   } as never;
 }

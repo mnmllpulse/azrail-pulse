@@ -31,7 +31,7 @@ describe('Audit 1.4 studio protections',()=>{
   expect(r.status).toBe(400);expect((await r.json() as any).error).toContain('имени файла');expect(f.objects.size).toBe(0);
  });
  it('server rejects an oversized video draft even when the client is bypassed',async()=>{
-  const f=await fixture();const r=await f.call('/api/studio/drafts/video',{baseRevision:0,values:{'studio-text':'a'.repeat(91)}},'PUT');
+  const f=await fixture();const r=await f.call('/api/studio/drafts/video',{baseRevision:0,values:{'studio-text':'a'.repeat(2001)}},'PUT');
   expect(r.status).toBe(400);expect(f.sqlite.prepare('SELECT COUNT(*) n FROM studio_drafts').get()?.n).toBe(0);
  });
  it('deep studio page URLs pass through the secured worker asset handler',async()=>{

@@ -17,6 +17,10 @@ Migration planning is inspection-only by default. Remote apply requires both `--
 
 No command in this document authorizes an automatic production deployment.
 
+## Database schema
+
+`schema.sql` is the canonical current schema. On a clean D1 database `scripts/migrate.mjs` bootstraps it with `wrangler d1 execute AZRAIL_D1 --file schema.sql`; existing databases are upgraded through `migrations/*.sql` via the `db:migrate:*` plan/apply commands. Never run d1 execute against staging/production without the explicit approval flow below.
+
 ## RC39 staging migration preparation
 
 Local/read-only only:

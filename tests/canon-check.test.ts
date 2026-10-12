@@ -35,7 +35,7 @@ describe("Canon Validator судит по фактам, а не по впеча�
 
   it("«готово» без единой проверки — нарушение", () => {
     // Сердце принципа: качество раньше скорости.
-    const r = validateAgainstCanon({ ...empty, status: "done" });
+    const r = validateAgainstCanon({ ...empty, status: "completed" });
     expect(r.find((x) => x.n === 7)!.verdict).toBe("broken");
   });
 

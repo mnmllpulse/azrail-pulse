@@ -14,11 +14,12 @@ describe('RC6 R2/D1 consistency',()=>{
     const objects=new Map<string,Uint8Array>();
     const put=vi.fn(async(key:string,value:unknown)=>{objects.set(key,typeof value==='string'?bytes(value):value as Uint8Array);});
     const del=vi.fn(async(key:string)=>{objects.delete(key);});
-    const env={
-      AZRAIL_R2:{put,delete:del},
-      AZRAIL_D1:{prepare:(sql:string)=>({bind(){return this;},async first(){return sql.startsWith('SELECT prefix')?null:null;},async run(){throw Error('D1 unavailable');}})},
-    } as unknown as Env;
-    await expect(publishWorkspace(env,'p',[{path:'a.txt',content:'a'},{path:'b.txt',content:'b'}])).rejects.toThrow('D1 unavailable');
+    const {db}=sqliteD1();
+    // Real SQLite for lease/head reads; the atomic head-flip batch fails before commit.
+    let failBatch=false;
+    const failingDb={prepare:db.prepare.bind(db),batch:async(stmts:any[])=>{if(failBatch){failBatch=false;throw Error('D1 unavailable');}return db.batch(stmts);}};
+    const env={AZRAIL_R2:{put,delete:del},AZRAIL_D1:failingDb} as unknown as Env;
+    await expect(withProjectLock(env,'p','writer',lease=>{failBatch=true;return publishWorkspace(env,'p',[{path:'a.txt',content:'a'},{path:'b.txt',content:'b'}],lease!);})).rejects.toThrow('D1 unavailable');
     expect(objects.size).toBe(0);
     expect(del).toHaveBeenCalledTimes(2);
   });
@@ -70,7 +71,9 @@ describe('RC6 bounded attachment reads',()=>{
 describe('RC6 upload ownership atomicity',()=>{
   it('deletes the R2 object when ownership persistence fails',async()=>{
     const deleted:string[]=[];
-    const d1={prepare:(sql:string)=>({bind(){return this;},async first(){return null;},async run(){if(sql.includes("INSERT INTO resource_owners(kind,resource_id,account_id) VALUES('upload'"))throw Error('D1 down');return {meta:{changes:1}};}})};
+    // Real SQLite for the project-ownership check; only the upload ownership write fails.
+    const {db}=sqliteD1();
+    const d1={prepare:(sql:string)=>{const stmt=db.prepare(sql) as any;if(sql.includes("INSERT INTO resource_owners(kind,resource_id,account_id) VALUES('upload'"))stmt.run=async()=>{throw Error('D1 down');};return stmt;}};
     const env={AZRAIL_D1:d1,AZRAIL_R2:{list:async()=>({objects:[]}),put:async()=>{},delete:async(key:string)=>{deleted.push(key);}}} as unknown as Env;
     const form=new FormData();form.set('projectId','p1');form.set('file',new File([bytes('hello')],'a.txt',{type:'text/plain'}));
     await expect(handleUpload(new Request('https://app.test/api/upload',{method:'POST',body:form}),env,{id:'a',role:'editor',name:'A'})).rejects.toThrow('D1 down');

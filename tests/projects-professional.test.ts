@@ -8,7 +8,7 @@ const root=(file:string)=>readFileSync(resolve(__dirname,'..',file),'utf8');
 describe('Professional Projects architecture',()=>{
   it('keeps migration 020 idempotent with metadata and artifact ownership sidecars',()=>{
     const {sqlite}=sqliteD1();
-    sqlite.exec(`CREATE TABLE projects(id TEXT PRIMARY KEY); CREATE TABLE studio_artifacts(id TEXT PRIMARY KEY);`);
+    sqlite.exec(`CREATE TABLE IF NOT EXISTS projects(id TEXT PRIMARY KEY); CREATE TABLE IF NOT EXISTS studio_artifacts(id TEXT PRIMARY KEY);`);
     const migration=root('migrations/020-professional-projects.sql');
     sqlite.exec(migration); sqlite.exec(migration);
     const profileColumns=sqlite.prepare("PRAGMA table_info('project_profiles')").all().map((row:any)=>row.name);

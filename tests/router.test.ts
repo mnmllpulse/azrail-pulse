@@ -244,7 +244,7 @@ describe("Регрессия: третий аудит", () => {
     // модель с задержкой — то есть слой ретраев отменял защиту от квоты,
     // построенную уровнем выше.
     const router = src("src/lib/model-router.ts");
-    expect(router).toContain("retryable: (err) => !(err instanceof ModelPolicyError) && !isQuotaError(err)");
+    expect(router).toContain("retryable: (err) => !(err instanceof ModelPolicyError) && !(err instanceof TimeoutError) && !(err instanceof ProviderOutcomeUncertainError) && !isQuotaError(err)");
   });
 
   it("простой проверяется только у прошедших отбор, а не у всего реестра", () => {
@@ -255,7 +255,7 @@ describe("Регрессия: третий аудит", () => {
     // отодвинуло цикл дальше от начала функции — сам цикл не менялся.
     const router = src("src/lib/model-router.ts");
     const runStart = router.indexOf("export async function runModel");
-    const block = router.slice(runStart, runStart + 3000);
+    const block = router.slice(runStart, router.indexOf("for (const m of preliminary.candidates)") + 60);
     expect(block).toContain("for (const m of preliminary.candidates)");
     expect(block, "обход всего реестра вернулся").not.toContain("for (const m of MODEL_REGISTRY)");
   });

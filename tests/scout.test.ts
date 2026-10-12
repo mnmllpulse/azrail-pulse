@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -220,7 +221,7 @@ describe("Вопросы для разведки", () => {
 });
 
 describe("Разведка встроена в миссию", () => {
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
 
   it("идёт после карты и до плана", () => {
     // Карта нужна разведчикам как исходный ориентир, а план должен

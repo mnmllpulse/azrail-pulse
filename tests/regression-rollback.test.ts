@@ -1,9 +1,10 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
 const src = (p: string) => readFileSync(resolve(__dirname, "..", p), "utf-8");
-const engine = src("src/core/execution-engine.ts");
+const engine = coreEngineSource();
 
 /** Блок обработки регрессии тестов целиком. */
 const block = (() => {
@@ -16,7 +17,7 @@ describe("Регрессия тестов откатывается, а не вы
     // Раньше миссия замирала с вопросом «откатить или продолжить?». Для
     // работы с телефона это худший исход: агент трудился десять минут,
     // сломал тесты и встал ждать, пока ты дойдёшь до экрана.
-    expect(block).toContain("rollbackWorkspace(this.env, ctx.projectId, snapshotKey)");
+    expect(block).toContain("rollbackWorkspace(this.env, ctx.projectId, snapshotKey, lease!, ctx)");
     expect(block).toContain('"tests.rolled_back"');
   });
 

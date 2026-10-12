@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { checkEdit, measure, langOf } from "../src/core/syntax-guard";
 import { readFileSync } from "node:fs";
 
@@ -51,7 +52,7 @@ describe("syntax-guard — ловит потерянную скобку посл
 });
 
 describe("движок: проверка после правки встроена", () => {
-  const engine = readFileSync("src/core/execution-engine.ts", "utf8");
+  const engine = coreEngineSource();
   it("текст читается ДО исполнения инструмента", () => {
     const beforeIdx = engine.indexOf("const before = mutating");
     const execIdx = engine.indexOf("await checkpointTool(this.env");

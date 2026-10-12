@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -118,7 +119,7 @@ describe("Карта текстом", () => {
 });
 
 describe("Карта доходит до модели", () => {
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
 
   it("строится один раз за миссию, а не на каждом шаге", () => {
     // Пересборка на каждом шаге стоила бы полного чтения рабочей области

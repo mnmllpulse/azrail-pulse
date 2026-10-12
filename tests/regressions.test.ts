@@ -1,4 +1,5 @@
 // AZRAIL — регрессионные тесты на ОШИБКИ, реально найденные при аудите.
+import { coreEngineSource } from "./helpers/core-source";
 //
 // Каждый тест здесь существует потому, что соответствующий баг был в коде,
 // а не потому что "хорошо бы проверить". Если такой тест упадёт — значит
@@ -712,7 +713,7 @@ describe("Регрессия: пятый аудит — общая сетка н
   it("fetch() — тонкая обёртка с try/catch вокруг всей маршрутизации", () => {
     const fetchBlock = index.slice(index.indexOf("async fetch("), index.indexOf("async function handleRequest"));
     expect(fetchBlock).toContain("try {");
-    expect(fetchBlock).toContain("await handleRequest(request, env)");
+    expect(fetchBlock).toContain("await handleRequest(request, env, ingressTrace)");
     expect(fetchBlock).toContain('log("error", "fetch.uncaught"');
     // Ответ из catch — JSON через тот же helper, что и весь остальной код,
     // а не голый new Response без CORS-заголовков.
@@ -757,7 +758,7 @@ describe("Новое: Code Agent — генерация, а не только р
 
   it("версия generate-режима — префикс (как у ui-agent), не единственный ключ (как у review)", () => {
     const block = codeAgent.slice(codeAgent.indexOf("private async saveGeneratedVersion"));
-    expect(block).toContain("`projects/${projectId}/code/${Date.now()}/`");
+    expect(block).toContain("`projects/${projectId}/code/${Date.now()}-${crypto.randomUUID()}/`");
     expect(block, "сбой сохранения версии должен логироваться, не молчать").toContain('log("error", "version.save_failed"');
   });
 
@@ -971,7 +972,7 @@ describe("Реестр инструментов не врёт о доступн�
   // Расхождение здесь не косметическое: на этот флаг опирается решение,
   // звать инструмент или нет. Поэтому сверка автоматическая и в обе стороны.
   const registrySrc = src("src/lib/tool-registry.ts");
-  const engineSrc = src("src/core/execution-tools.ts");
+  const engineSrc = coreEngineSource();
 
   const declared = [...registrySrc.matchAll(/name:\s*"([a-z_]+)".*?available:\s*(true|false)/g)].map((m) => ({
     name: m[1],
@@ -1114,12 +1115,12 @@ describe("Ключи загрузок не сталкиваются", () => {
 
 describe("Карта миссии и кнопки ввода", () => {
   const html = src("public/index.html");
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
 
   it("живая трансляция не заменяет запись в D1, а дополняет её", () => {
     // Сокет показывает «сейчас», D1 хранит «что было». Если бы показ
     // заменил запись, история миссии исчезала бы при закрытии вкладки.
-    const note = engine.slice(engine.indexOf("private async note("));
+    const note = engine.slice(engine.indexOf("async note("));
     expect(note).toContain("await emitMissionEvent(");
     expect(note).toContain("ctx.onEvent(");
   });
@@ -1132,7 +1133,8 @@ describe("Карта миссии и кнопки ввода", () => {
     //
     // Теперь защищены оба: журнал и показ. Оба вторичны по отношению к
     // делу, которое описывают.
-    const note = engine.slice(engine.indexOf("private async note("), engine.indexOf("private requireProject"));
+    const journalSrc = src("src/core/execution-journal.ts");
+    const note = journalSrc.slice(journalSrc.indexOf("async note("), journalSrc.indexOf("\n  }\n", journalSrc.indexOf("async note(")));
     expect(note).toContain("execution.event_write_failed");
     expect(note).toContain("execution.live_event_failed");
     // Ни одного незащищённого await в этом методе.
@@ -1268,7 +1270,7 @@ describe("Цикл дотягивается до агентов", () => {
   // Замыкание круга: раньше цикл умел только писать код. Теперь он может
   // сравнить версии и прогнать тесты — но не своей копией работы с GitHub,
   // а через тех же агентов, что обслуживают обычные задачи.
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
   const orch = src("src/agents/orchestrator.ts");
   const idx = src("src/index.ts");
 
@@ -1292,7 +1294,7 @@ describe("Цикл дотягивается до агентов", () => {
     // (с его "Cannot perform I/O on behalf of a different Durable
     // Object") здесь больше не возникает в принципе. Проверка осталась
     // той же по сути: движок зовёт агентов не сам, а через мост.
-    expect(orch).toContain("invokeCapability: (capability, request) => this.runCapability");
+    expect(orch).toContain("invokeCapability: (capability, request) => orchestrator.runCapability");
   });
 
   it("без моста инструмент отказывает явно, а не падает невнятно", () => {
@@ -1568,7 +1570,7 @@ describe("Перенос из макета: только на живых дан�
   // из массива, прогресс стоял на 8%. Здесь то же самое, но от реальных
   // источников — иначе смысла переносить не было.
   const html = src("public/index.html");
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
 
   it("прогресс считается от настоящего номера шага, а не от таймера", () => {
     // Полоса, ползущая сама, врёт ровно тогда, когда на неё смотрят.
@@ -1648,7 +1650,7 @@ describe("Сбои журнала не отменяют сделанную ра�
   // Класс ошибки, уже встречавшийся в rememberFact: неудача вспомогательной
   // записи подменяла результат основной работы. Здесь он нашёлся ещё в трёх
   // местах вокруг миссий.
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
   const idx = src("src/index.ts");
 
   it("создание миссии падает честно — до траты моделей", () => {
@@ -1680,7 +1682,7 @@ describe("Сбои журнала не отменяют сделанную ра�
   });
 
   it("запись события журнала защищена", () => {
-    const note = engine.slice(engine.indexOf("private async note("));
+    const note = engine.slice(engine.indexOf("async note("));
     const emitIdx = note.indexOf("emitMissionEvent(");
     const before = note.slice(0, emitIdx);
     expect(before, "emitMissionEvent должен быть внутри try").toContain("try {");
@@ -1799,7 +1801,7 @@ describe("Проверка перед «готово» и план миссии"
   // что закончила». Исследование DeepMind (Huang et al., ICLR 2024)
   // показало, что модель не способна судить о правильности собственных
   // рассуждений, а самокоррекция без внешнего сигнала УХУДШАЕТ результат.
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
   const checker = src("src/core/checker.ts");
   const planner = src("src/core/planner.ts");
 
@@ -1872,9 +1874,9 @@ describe("Проверка перед «готово» и план миссии"
     // Без отказов в данных нельзя отличить «задачи простые» от
     // «проверяющий пропускает всё» — а второе значит, что проверка
     // декоративная.
-    const rec = engine.slice(engine.indexOf("private async recordCheck"));
+    const rec = engine.slice(engine.indexOf("async recordCheck(ctx"));
     expect(rec.slice(0, 900)).toContain("INSERT INTO mission_checks");
-    expect(engine).toContain("this.recordCheck(ctx.missionId, rejections + 1, verdict.passed");
+    expect(engine).toContain("this.recordCheck(ctx, rejections + 1, verdict.passed");
   });
 
   it("план дописывается в КОНЕЦ запроса, а не в начало", () => {
@@ -2196,7 +2198,7 @@ describe("Монитор бюджета показывается, когда э�
 });
 
 describe("Защита миссии: снимок, откат, зацикливание", () => {
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
   const guard = src("src/core/mission-guard.ts");
 
   it("зацикливание проверяется ДО исполнения инструмента", () => {
@@ -2229,8 +2231,9 @@ describe("Защита миссии: снимок, откат, зациклив�
     // Новый проект без файлов — обычный случай, требовать там снимок
     // было бы абсурдом.
     const fn = guard.slice(guard.indexOf("export async function snapshotWorkspace"));
-    expect(fn.slice(0, 2000)).toContain("snapshot.failed");
-    expect(fn.slice(0, 2000)).toContain("return null");
+    const body = fn.slice(0, fn.indexOf("\n}\n"));
+    expect(body).toContain("snapshot.failed");
+    expect(body).toContain("return null");
   });
 
   it("снимок копирует содержимое, а не ссылку", () => {
@@ -2280,7 +2283,7 @@ describe("Защита миссии: снимок, откат, зациклив�
 });
 
 describe("Опыт переживает миссию, реестр не дублирует", () => {
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
   const registry = src("src/lib/tool-registry.ts");
   const evolution = src("src/agents/evolution-agent.ts");
 
@@ -2351,7 +2354,7 @@ describe("Опыт переживает миссию, реестр не дубл
   it("сбой записи одобрения не мешает миссии", () => {
     const journal = src("src/core/execution-journal.ts");
     const fn = journal.slice(journal.indexOf("async recordApprovalRequest"));
-    expect(fn.slice(0, 900)).toContain("approval.record_failed");
+    expect(fn.slice(0, fn.indexOf("\n  }\n"))).toContain("approval.record_failed");
   });
 });
 
@@ -2364,7 +2367,7 @@ describe("Данные не копятся впустую", () => {
   // инструментов, вердикты проверок и заблокированные запросы. Это ровно
   // те данные, которых не хватало для трассировки прогона — и они уже
   // собирались.
-  const files = ["src/index.ts", "src/agents/orchestrator.ts", "src/core/execution-engine.ts", "src/lib/billing.ts", "src/lib/event-store.ts", "src/lib/chat-store.ts", "src/lib/memory-agent.ts", "src/lib/versions.ts"];
+  const files = ["src/index.ts", "src/agents/orchestrator.ts", "src/core/execution-engine.ts", "src/lib/billing.ts", "src/lib/event-store.ts", "src/lib/chat-store.ts", "src/lib/memory-agent.ts", "src/lib/versions.ts", "src/lib/ledger-studio.ts"];
   const all = files.map((f) => src(f)).join("\n");
 
   it("у каждой таблицы, в которую пишут, есть чтение", () => {
@@ -2372,7 +2375,7 @@ describe("Данные не копятся впустую", () => {
     expect(written.length).toBeGreaterThan(4);
 
     const unread = written.filter(
-      (t) => t !== "local_tasks" && !new RegExp(`FROM\\s+${t}\\b`, "i").test(all),
+      (t) => t !== "local_tasks" && !new RegExp(`(?:FROM|JOIN)\\s+${t}\\b`, "i").test(all),
     );
     expect(unread, `пишутся и не читаются: ${unread.join(", ")}`).toEqual([]);
   });
@@ -2405,7 +2408,7 @@ describe("Ни одно событие не уходит в пустоту", () 
   // впустую: сервер тратит запись и рассылку, а человек ничего не видит.
   // Так было с approval.requested — единственным местом, где видно,
   // ЧЕГО системе не хватило.
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
   const html = src("public/index.html");
 
   it("каждое отправляемое событие показывается в карте миссии", () => {
@@ -2422,7 +2425,7 @@ describe("Нет эндпоинтов без пути к ним", () => {
   // покрытые тестами и не вызываемые ни одной страницей.
   const idx = src("src/index.ts");
   const html = src("public/index.html");
-  const classic = src("public/classic.html") + src("public/control.js");
+  const classic = src("public/classic.html") + src("public/control.js") + fs.readdirSync(path.resolve(import.meta.dirname, "..", "ui")).filter((f) => f.endsWith(".ts")).map((f) => src(`ui/${f}`)).join("\n");
 
   it("каждый API-маршрут вызывается хотя бы одной страницей", () => {
     const routes = [...new Set([...idx.matchAll(/pathname === "(\/api\/[a-z]+)(?:\/[^"]*)?"/g)].map((m) => m[1]))];
@@ -2466,7 +2469,7 @@ describe("Нет эндпоинтов без пути к ним", () => {
 });
 
 describe("Контейнер: код готов, деплой не сломан", () => {
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
   const sandbox = src("src/core/sandbox.ts");
   const wrangler = JSON.parse(src("wrangler.production.json"));
 
@@ -2556,7 +2559,7 @@ describe("Чат и история: параметры совпадают с с�
   // внутри URL.
   const idx = src("src/index.ts");
   const html = src("public/index.html");
-  const classic = src("public/classic.html") + src("public/control.js");
+  const classic = src("public/classic.html") + src("public/control.js") + fs.readdirSync(path.resolve(import.meta.dirname, "..", "ui")).filter((f) => f.endsWith(".ts")).map((f) => src(`ui/${f}`)).join("\n");
   const auth = src("src/lib/auth.ts");
   const orch = src("src/agents/orchestrator.ts");
   const store = src("src/lib/chat-store.ts");

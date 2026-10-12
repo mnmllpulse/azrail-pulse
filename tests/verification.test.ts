@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -172,7 +173,7 @@ describe("Разбор вывода node --test", () => {
 });
 
 describe("Цикл проверяет фактом, а не на слово", () => {
-  const engine = code(src("src/core/execution-engine.ts"));
+  const engine = code(coreEngineSource());
 
   it("тесты гоняет сам цикл, а не только по желанию модели", () => {
     // Раньше прогон был добровольным: агент, ни разу не запустивший

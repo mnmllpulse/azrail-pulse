@@ -1,3 +1,4 @@
+import { withProjectLock } from '../src/lib/project-control';
 import { describe, it, expect, vi } from 'vitest';
 import type { Env } from '../src/types';
 import { publishWorkspace } from '../src/lib/workspace-head';
@@ -12,21 +13,15 @@ const bytes=(s:string)=>new TextEncoder().encode(s);
 describe('RC7 publish uncertainty',()=>{
   it('preserves a workspace tree when the D1 head committed but its response was lost',async()=>{
     const objects=new Map<string,Uint8Array>();
-    let head='';
-    const d1={prepare:(sql:string)=>({
-      args:[] as unknown[],
-      bind(...args:unknown[]){this.args=args;return this;},
-      async run(){
-        if(sql.startsWith('INSERT INTO workspace_heads')){head=String(this.args[1]);throw Error('response lost');}
-        return {meta:{changes:1}};
-      },
-      async first(){return sql.startsWith('SELECT prefix')&&head?{prefix:head}:null;},
-    })};
+    const {db,sqlite}=sqliteD1();
+    // The head-flip batch COMMITS in SQLite, then the response is lost.
+    const d1={prepare:db.prepare.bind(db),batch:async(stmts:any[])=>{await db.batch(stmts);throw Error('response lost');}};
     const env={AZRAIL_D1:d1,AZRAIL_R2:{
       put:async(key:string,value:unknown)=>{objects.set(key,typeof value==='string'?bytes(value):value as Uint8Array);},
       delete:async(key:string)=>{objects.delete(key);},
     }} as unknown as Env;
-    const prefix=await publishWorkspace(env,'p1',[{path:'a.txt',content:'a'}]);
+    const prefix=await withProjectLock(env,'p1','writer',lease=>publishWorkspace(env,'p1',[{path:'a.txt',content:'a'}],lease!));
+    const head=String((sqlite.prepare("SELECT prefix FROM workspace_heads WHERE project_id='p1'").get() as {prefix:string}).prefix);
     expect(prefix).toBe(head);
     expect(objects.has(`${prefix}a.txt`)).toBe(true);
   });
@@ -71,8 +66,10 @@ describe('RC7 model timeout semantics',()=>{
         AZRAIL_D1:{prepare:()=>({first:async()=>{throw Error('no policy db');}})},
       } as unknown as Env;
       const pending=runModel(env,'answer',{prompt:'hello'},{preferredModel:'@cf/meta/llama-3.2-3b-instruct'});
+      // Attach the rejection handler before advancing fake timers, otherwise the rejection is reported as unhandled.
+      const settled=expect(pending).rejects.toBeInstanceOf(ModelOutcomeUncertainError);
       await vi.advanceTimersByTimeAsync(60_001);
-      await expect(pending).rejects.toBeInstanceOf(ModelOutcomeUncertainError);
+      await settled;
       expect(run).toHaveBeenCalledTimes(1);
     } finally {vi.useRealTimers();}
   });
@@ -84,8 +81,9 @@ describe('RC7 model timeout semantics',()=>{
       sqlite.exec("INSERT INTO model_prices(model,input_micro_usd_per_million,output_micro_usd_per_million,updated_at) VALUES('m',0,0,1)");
       const env={AZRAIL_D1:db,AZRAIL_METERING:'observe'} as Env;
       const pending=meteredCall(env,'m',{prompt:'x'},'scope',()=>new Promise<never>(()=>{}),'scope',{invokeTimeoutMs:10});
+      const settled=expect(pending).rejects.toThrow(/timeout/i);
       await vi.advanceTimersByTimeAsync(11);
-      await expect(pending).rejects.toThrow(/timeout/i);
+      await settled;
       expect(sqlite.prepare("SELECT status FROM model_calls").get()?.status).toBe('uncertain');
     } finally {vi.useRealTimers();}
   });

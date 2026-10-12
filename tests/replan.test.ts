@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -152,7 +153,7 @@ describe("Сигнал replan от модели", () => {
 });
 
 describe("Цикл умеет пересобирать план", () => {
-  const engine = code(src("src/core/execution-engine.ts"));
+  const engine = code(coreEngineSource());
 
   it("два повода: просьба модели и исчерпанный план", () => {
     expect(engine).toContain("decision.replan || exhausted");

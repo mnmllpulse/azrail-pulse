@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { coreEngineSource } from "./helpers/core-source";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
@@ -99,7 +100,7 @@ describe("Что достойно памяти", () => {
 });
 
 describe("Рефлексия встроена в цикл", () => {
-  const engine = src("src/core/execution-engine.ts");
+  const engine = coreEngineSource();
 
   it("правила вынесены и вызываются", () => {
     // Решение «что достойно памяти» важнее механики записи и не должно

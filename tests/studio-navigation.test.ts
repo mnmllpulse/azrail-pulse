@@ -31,32 +31,32 @@ it('standalone links, browser Back/Forward and reload retain a studio address',a
  (w.document.querySelector('#studio-list [data-studio="music"]')as any).click();
  expect(w.location.hash).toBe('#/studios/music');expect(w.document.getElementById('studios')?.hidden).toBe(true);
  w.history.back();await settle();expect(w.document.getElementById('studios')?.hidden).toBe(false);
- w.history.forward();await settle();expect(w.document.getElementById('studio-title')?.textContent).toBe('Музыка');
- const reloaded=open(w.location.href);expect(reloaded.document.getElementById('studio-title')?.textContent).toBe('Музыка');
+ w.history.forward();await settle();expect(w.document.getElementById('studio-title')?.textContent).toBe('Music Studio');
+ const reloaded=open(w.location.href);expect(reloaded.document.getElementById('studio-title')?.textContent).toBe('Music Studio');
 });
-it('web studio owns the mission form and restores the same form on the home page',()=>{
- const w=open('file:///preview/index.html#/studios/web');const composer=w.document.getElementById('composer')!;
+it('web studio owns the mission form and restores the same form on the home page',async()=>{
+ const w=open('file:///preview/index.html#/studios/web');await settle();const composer=w.document.getElementById('composer')!;
  expect(w.document.getElementById('studio-controls')?.contains(composer)).toBe(true);
  expect(w.document.getElementById('studio-controls')?.contains(w.document.getElementById('mission-panel'))).toBe(true);
  const prompt=w.document.getElementById('prompt')as any;prompt.value='Мой музыкальный лейбл';prompt.dispatchEvent(new w.Event('input'));
  (w.document.querySelector('[data-home]')as any).click();
  expect(w.document.getElementById('create')?.contains(composer)).toBe(true);expect(prompt.value).toBe('Мой музыкальный лейбл');
 });
-it('module edits survive leaving and reopening without leaking into another module',()=>{
- const w=open('file:///preview/index.html#/studios/music');const input=w.document.getElementById('studio-text')as any;
+it('module edits survive leaving and reopening without leaking into another module',async()=>{
+ const w=open('file:///preview/index.html#/studios/music');await settle();const input=w.document.getElementById('studio-text')as any;
  input.value='Dark melodic house';input.dispatchEvent(new w.Event('input'));
- (w.document.querySelector('#studio-list [data-studio="video"]')as any).click();
- expect((w.document.getElementById('studio-text')as any).value).toBe('One idea. A whole world.');
- (w.document.querySelector('#studio-list [data-studio="music"]')as any).click();
+ (w.document.querySelector('#studio-list [data-studio="video"]')as any).click();await settle();
+ expect((w.document.getElementById('studio-text')as any).value).toBe('Dark minimal pulse moving through an abstract city at night.');
+ (w.document.querySelector('#studio-list [data-studio="music"]')as any).click();await settle();
  expect((w.document.getElementById('studio-text')as any).value).toBe('Dark melodic house');
 });
 it('an async report cannot overwrite the result area of a different page',async()=>{
- const w=open('file:///preview/index.html#/studios/data');let finish!:(text:string)=>void;
+ const w=open('file:///preview/index.html#/studios/data');await settle();let finish!:(text:string)=>void;
  Object.defineProperty(w.document.getElementById('studio-file'),'files',{value:[{size:10,text:()=>new Promise<string>(r=>{finish=r;})}]});
  (w.document.getElementById('studio-run')as any).click();await settle();expect(finish).toBeTypeOf('function');
  (w.document.querySelector('#studio-list [data-studio="audio"]')as any).click();finish('x,y\n1,2');await settle();
- expect(w.document.getElementById('studio-title')?.textContent).toBe('Аудиоанализ');
- expect(w.document.getElementById('studio-result')?.textContent).toBe('');
+ expect(w.document.getElementById('studio-title')?.textContent).toBe('Audio Lab');
+ expect(w.document.getElementById('studio-result')?.textContent).toContain('Audio Lab:');expect(w.document.getElementById('studio-result')?.textContent).not.toMatch(/Data Studio|строк/i);
  expect(w.document.getElementById('studio-result')?.hasAttribute('aria-busy')).toBe(false);
 });
 it('unknown module URLs show an explicit not-found page',()=>{
@@ -72,7 +72,7 @@ it('the active standalone build has no globe, WebGL renderer or remote asset dep
  const meta=JSON.parse(readFileSync('.work/ui-metafile.json','utf8'));expect(Object.keys(meta.inputs).some(name=>/node_modules\/three\//.test(name))).toBe(false);
 });
 it('an automatic server draft reload does not silently overwrite another-tab revision',async()=>{
- const w=new Window({url:'https://app.example.com'});windows.push(w);vi.stubGlobal('document',w.document);
+ const w=new Window({url:'https://app.example.com'});windows.push(w);vi.stubGlobal('document',w.document);vi.stubGlobal('CustomEvent',w.CustomEvent);
  const host=w.document.createElement('div');host.innerHTML='<input id="studio-text" value="Initial">';w.document.body.append(host);
  const api=vi.fn().mockResolvedValueOnce({revision:1,values:{'studio-text':'Saved'}}).mockResolvedValue({revision:2,values:{'studio-text':'Other tab'}});
  let clean=mountStudioDraft(host as any,'music',api,true,{scope:'account-a'});await settle();
@@ -83,7 +83,7 @@ it('an automatic server draft reload does not silently overwrite another-tab rev
  expect(api.mock.calls.every(call=>call.length===1)).toBe(true);clean();
 });
 it('per-account local draft keys do not expose a previous account prompt',()=>{
- const w=new Window({url:'https://app.example.com'});windows.push(w);vi.stubGlobal('document',w.document);
+ const w=new Window({url:'https://app.example.com'});windows.push(w);vi.stubGlobal('document',w.document);vi.stubGlobal('CustomEvent',w.CustomEvent);
  const host=w.document.createElement('div');host.innerHTML='<input id="studio-text" value="Default">';w.document.body.append(host);
  const api=vi.fn();let clean=mountStudioDraft(host as any,'music',api,false,{scope:'account-a'});
  const field=host.querySelector('input')!;field.value='Private title';field.dispatchEvent(new w.Event('input'));clean();field.value='Default';
