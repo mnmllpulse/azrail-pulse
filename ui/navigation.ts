@@ -1,5 +1,5 @@
 import {studioById,type StudioId} from './studios';
-export type Route = {page:'create'|'projects'|'studios'|'metatron'|'connections'|'not-found'} | {page:'studio';studio:StudioId};
+export type Route = {page:'create'|'mission'|'projects'|'studios'|'metatron'|'connections'|'not-found'} | {page:'studio';studio:StudioId};
 export function routePath(route:Route):string {
  return route.page==='studio'?`/studios/${route.studio}`:route.page==='create'?'/':route.page==='connections'?'/settings/connections':route.page==='not-found'?'/404':`/${route.page}`;
 }
@@ -10,6 +10,7 @@ export function readRoute(url:URL):Route {
  if(legacy){const studio=studioById(legacy[1]);return studio?{page:'studio',studio:studio.id}:{page:'not-found'};}
  path=path.replace(/\/+$/,'')||'/';
  if(['/', '/create','create','/index.html','/app.html','/ultimate.html'].includes(path))return {page:'create'};
+ if(['/mission','mission'].includes(path))return {page:'mission'};
  if(['/projects','projects'].includes(path))return {page:'projects'};
  if(['/studios','studios'].includes(path))return {page:'studios'};
  if(['/metatron','metatron'].includes(path))return {page:'metatron'};

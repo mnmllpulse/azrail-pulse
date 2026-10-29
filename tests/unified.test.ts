@@ -46,6 +46,7 @@ describe('Unified OIDC and tenant isolation',()=>{
  it('accepts only a live session on its exact host',async()=>{const f=await fixture();const headers={Cookie:`__Host-pulse-session=${f.token}`};expect((await sessionPrincipal(new Request('https://app.test/',{headers}),f.env))?.id).toBe(f.alice.id);expect(await sessionPrincipal(new Request('https://other.test/',{headers}),f.env)).toBeNull();});
  it('never accepts bootstrap owner token in OIDC mode',async()=>{const f=await fixture();f.env.AZRAIL_TOKEN='owner';expect((await authenticate(new Request('https://app.test/',{headers:{Authorization:'Bearer owner'}}),f.env)).ok).toBe(false);});
  it('revoked account immediately loses its cookie session',async()=>{const f=await fixture();f.sqlite.prepare('UPDATE access_accounts SET disabled=1 WHERE id=?').run(f.alice.id);expect((await f.call('/api/me')).status).toBe(401);});
+ it('does not serve the app shell for a direct agent address',async()=>{const f=await fixture();const response=await worker.fetch(new Request('https://app.test/agents/orchestrator/default'),f.env,{waitUntil:vi.fn()} as unknown as ExecutionContext);expect(response.status).toBe(404);expect(await response.json()).toEqual({error:'Прямой доступ к агентам отключён.'});});
  it('blocks CSRF even with valid cookies and Origin on another domain',async()=>{const f=await fixture();expect((await f.call('/api/admin/routing-settings',{},'a',{Origin:'https://attacker.test'})).status).toBe(403);});
  it('operator setting does not grant access to other users projects',async()=>{const f=await fixture();f.env.OPERATOR_ACCOUNT_IDS=f.alice.id;await requireResource(f.env,f.bob,'project','secret',true);expect((await f.call('/api/backups?projectId=secret')).status).toBe(404);expect((await f.call('/api/admin/accounts')).status).toBe(403);});
  it('callback without browser-bound state fails without creating an account',async()=>{const f=await fixture();expect((await authRoute(new Request('https://wrong.test/auth/callback?code=x&state=x'),f.env))?.status).toBe(403);});
@@ -64,7 +65,31 @@ describe('Studio request safety',()=>{
  it('replays image result after reconnect without a second model call',async()=>{const f=await fixture();const headers={'Idempotency-Key':'image-request-12345'};const first=await f.call('/api/studio/image',{prompt:'night'},'a',headers);expect(first.status).toBe(201);const a=await first.json();const second=await f.call('/api/studio/image',{prompt:'night'},'a',headers);expect(await second.json()).toEqual(a);expect(f.env.AI.run).toHaveBeenCalledTimes(1);});
  it('another account cannot fetch generated image',async()=>{const f=await fixture();const created=await f.call('/api/studio/image',{prompt:'night'},'a',{'Idempotency-Key':'image-request-12345'});const art=await created.json() as any;expect((await f.call(art.url,undefined,'b')).status).toBe(404);expect((await f.call(art.url)).status).toBe(200);});
  it('content-length body cap stops media before provider execution',async()=>{const f=await fixture();const r=await f.call('/api/studio/image',{prompt:'x'},'a',{'Idempotency-Key':'image-request-12345','Content-Length':'999999999'});expect(r.status).toBe(413);expect(f.env.AI.run).not.toHaveBeenCalled();});
- it('legacy HTML URL resolves to new self-contained app asset',async()=>{const f=await fixture();await f.call('/ultimate.html');const request=vi.mocked(f.env.ASSETS!.fetch).mock.calls[0][0] as Request;expect(new URL(request.url).pathname).toBe('/app.html');});
+ it('legacy HTML URL resolves to new self-contained app asset',async()=>{const f=await fixture();await f.call('/ultimate.html');const request=vi.mocked(f.env.ASSETS!.fetch).mock.calls[0][0] as Request;expect(new URL(request.url).pathname).toBe('/index.html');});
+ it('serves / and /app from the SPA entry without leaking a redirect',async()=>{
+  const f=await fixture();
+  for(const path of ['/','/app','/studios']){
+   vi.mocked(f.env.ASSETS!.fetch).mockClear();
+   const r=await f.call(path);
+   expect(r.status).toBe(200);
+   expect(r.headers.get('Location')).toBeNull();
+   const request=vi.mocked(f.env.ASSETS!.fetch).mock.calls[0][0] as Request;
+   expect(new URL(request.url).pathname).toBe('/index.html');
+  }
+ });
+ it('follows Cloudflare pretty-URL redirects internally instead of looping',async()=>{
+  const f=await fixture();
+  f.env.ASSETS={fetch:vi.fn(async(req:Request)=>{
+   const path=new URL(req.url).pathname;
+   if(path==='/'||path==='/index.html'||path==='/app.html')return new Response(null,{status:307,headers:{Location:'/app'}});
+   if(path==='/app')return new Response('<!doctype html><title>app</title>',{headers:{'Content-Type':'text/html'}});
+   return new Response('missing',{status:404});
+  })} as unknown as Env['ASSETS'];
+  const r=await f.call('/');
+  expect(r.status).toBe(200);
+  expect(await r.text()).toContain('<title>app</title>');
+  expect(r.headers.get('Location')).toBeNull();
+ });
 });
 describe('Local studio output',()=>{
  it('CSV handles quoted commas, multiline cells and escaped quotes',()=>{expect(parseCSV('name,value\n"a,b",2\n"a\n""b""",3')).toEqual([['name','value'],['a,b','2'],['a\n"b"','3']]);});

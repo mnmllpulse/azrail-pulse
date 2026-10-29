@@ -1,4 +1,5 @@
 import type { Env } from "../types";
+import { ToolRejectedError } from "./tool-errors";
 
 export class UncertainToolError extends Error {
   constructor(cause: unknown) { super("Результат шага неопределён; повтор остановлен: " + (cause instanceof Error ? cause.message : String(cause))); }
@@ -232,7 +233,8 @@ export async function checkpointTool<T>(
   try {
     value = await work();
   } catch (error) {
-    const status = mayHaveEffects ? "uncertain" as const : "failed" as const;
+    const rejected = error instanceof ToolRejectedError;
+    const status = !rejected && mayHaveEffects ? "uncertain" as const : "failed" as const;
     const errorJson = JSON.stringify({ error: error instanceof Error ? error.message : String(error) });
     try {
       await setPairStatus(env, mission, step, status, errorJson);
@@ -248,7 +250,7 @@ export async function checkpointTool<T>(
       if (mayHaveEffects) throw new UncertainToolError(persistError);
       throw persistError;
     }
-    if (mayHaveEffects) throw new UncertainToolError(error);
+    if (!rejected && mayHaveEffects) throw new UncertainToolError(error);
     throw error;
   }
 

@@ -71,9 +71,20 @@ copyFileSync(sqlBackupPath,tamperedBackupPath);writeFileSync(tamperedBackupPath,
 let tamperRejected=false;try{const bad=restoreSql(tamperedBackupPath,join(root,'tampered.sqlite'),backupSha);bad.close();}catch{tamperRejected=true;}
 if(!tamperRejected)throw new Error('tampered D1 backup was not rejected before restore');
 
+function execMigration(db,sql){
+  const statements=sql.split(';').map((part)=>part.replace(/--.*$/gm,'').trim()).filter(Boolean);
+  const alterOnly=statements.length>0 && statements.every((part)=>/^ALTER\s+TABLE\s+[A-Za-z0-9_]+\s+ADD\s+COLUMN\s+[A-Za-z0-9_]+/i.test(part));
+  if(!alterOnly){db.exec(sql);return;}
+  const pending=statements.filter((part)=>{
+    const match=part.match(/^ALTER\s+TABLE\s+([A-Za-z0-9_]+)\s+ADD\s+COLUMN\s+([A-Za-z0-9_]+)/i);
+    const columns=new Set(db.prepare(`PRAGMA table_info('${match[1]}')`).all().map((row)=>row.name));
+    return !columns.has(match[2]);
+  });
+  if(pending.length)db.exec(`${pending.join(';\n')};\n`);
+}
 const migrations=readdirSync('migrations').filter((x)=>/^\d{3}-.+\.sql$/.test(x)).sort((a,b)=>Number(a.slice(0,3))-Number(b.slice(0,3)));
-for(const file of migrations)restored.exec(readFileSync(join('migrations',file),'utf8'));
-for(const file of migrations){if(!file.startsWith('002-'))restored.exec(readFileSync(join('migrations',file),'utf8'));}
+for(const file of migrations)execMigration(restored,readFileSync(join('migrations',file),'utf8'));
+for(const file of migrations){if(!file.startsWith('002-'))execMigration(restored,readFileSync(join('migrations',file),'utf8'));}
 const currentTables=new Set(restored.prepare("SELECT name FROM sqlite_master WHERE type='table'").all().map((x)=>x.name));
 for(const name of ['schema_migrations','resource_owners','event_stream','trace_links','model_call_dimensions','release_evidence','connector_health_checks','event_integrity'])if(!currentTables.has(name))throw new Error(`restored+migrated D1 missing ${name}`);
 if(Number(restored.prepare("SELECT COUNT(*) AS n FROM projects WHERE id='p1'").get()?.n)!==1)throw new Error('restored project missing after migrations');

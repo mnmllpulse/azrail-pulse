@@ -4,7 +4,7 @@ import {studios,loadStudioModule} from '../ui/studio-registry';
 
 describe('Studio Module Registry',()=>{
  it('keeps the catalog canonical and unique',()=>{
-  expect(studios).toHaveLength(9);
+  expect(studios).toHaveLength(10);
   expect(new Set(studios.map(studio=>studio.id)).size).toBe(studios.length);
   for(const studio of studios){expect(studio.capabilities.length).toBeGreaterThan(0);expect(studio.icon).toBeTruthy();}
  });

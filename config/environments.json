@@ -9,7 +9,8 @@
     "assets": {
       "directory": "./site",
       "binding": "ASSETS",
-      "run_worker_first": true
+      "run_worker_first": true,
+      "html_handling": "none"
     },
     "ai": {
       "binding": "AI"
@@ -25,6 +26,45 @@
     "ai_gateway_id": "default"
   },
   "environments": {
+    "pulse": {
+      "config_file": "wrangler.jsonc",
+      "name": "azrail-pulse",
+      "preview_urls": true,
+      "main": "src/unified.free.ts",
+      "plan": "free",
+      "sandbox": false,
+      "d1": {
+        "binding": "AZRAIL_D1",
+        "database_name": "azrail-pulse-db",
+        "database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f"
+      },
+      "kv": {
+        "binding": "AZRAIL_KV",
+        "id": "90738a2617074fa3825bf5d45e6cf50d",
+        "namespace_name": "AZRAIL_PULSE_KV"
+      },
+      "r2": {
+        "binding": "AZRAIL_R2",
+        "bucket_name": "azrail-pulse-artifacts"
+      },
+      "vars": {
+        "AUTH_MODE": "oidc",
+        "PUBLIC_ORIGINS": "https://azrail-pulse.mnmllpulse.workers.dev",
+        "OIDC_ISSUER": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/2f6b60f04afb1141453899b193e2620b3d65b8a7904e81e1450bc97e705c1912",
+        "OIDC_CLIENT_ID": "2f6b60f04afb1141453899b193e2620b3d65b8a7904e81e1450bc97e705c1912",
+        "OIDC_GROUPS_CLAIM": "groups",
+        "OIDC_ADMIN_EMAILS": "mnmllpulse@gmail.com",
+        "AZRAIL_WORKERS_PLAN": "free",
+        "AZRAIL_FORCE_FREE": "true",
+        "AZRAIL_METERING": "enforce",
+        "UNIFIED_LEDGER": "true",
+        "DAILY_PROVIDER_CALLS": "500",
+        "CHAT_DAILY_LIMIT": "200",
+        "AZRAIL_MISSION_BUDGET_USD": "0.10",
+        "AZRAIL_WRITE_BUDGET": "1000",
+        "AI_GATEWAY_ID": "default"
+      }
+    },
     "staging": {
       "config_file": "wrangler.staging.json",
       "name": "azrail-pulse-staging",
@@ -52,13 +92,15 @@
         "AZRAIL_FORCE_FREE": "true",
         "AZRAIL_METERING": "enforce",
         "UNIFIED_LEDGER": "true",
-        "DAILY_PROVIDER_CALLS": "20",
+        "DAILY_PROVIDER_CALLS": "500",
+        "CHAT_DAILY_LIMIT": "200",
         "AZRAIL_MISSION_BUDGET_USD": "0.10",
         "AZRAIL_WRITE_BUDGET": "1000",
         "AI_GATEWAY_ID": "default",
         "OIDC_CLIENT_ID": "5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a",
         "OIDC_ISSUER": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a",
         "OIDC_ADMIN_GROUPS": "pulse-admins",
+        "OIDC_ADMIN_EMAILS": "mnmllpulse@gmail.com",
         "OIDC_GROUPS_CLAIM": "groups"
       }
     },

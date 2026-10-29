@@ -23,7 +23,7 @@ type Deps={
  dialog:(title:string,html:string)=>HTMLElement;closeDialog:()=>void;
 };
 
-const studioNames:Record<string,string>={web:'Web Studio',image:'Image Studio',music:'Music Studio',video:'Video Studio',audio:'Audio Lab',als:'Ableton Lab',data:'Data Studio',ledger:'Ledger',lab:'Pulse Lab'};
+const studioNames:Record<string,string>={web:'Web Studio',image:'Image Studio',music:'Music Studio',video:'Video Studio',audio:'Audio Lab',als:'Ableton Lab',data:'Data Studio',ledger:'Ledger',lab:'Pulse Lab',prose:'Prose Studio'};
 let searchTimer=0;
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 

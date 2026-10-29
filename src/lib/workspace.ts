@@ -1,6 +1,7 @@
 import { workspacePrefix, storedWorkspacePath, logicalWorkspacePath } from "./workspace-head";
 import type { Env } from "../types";
 import { applyHunks, type Hunk } from "./patch";
+import { ToolRejectedError } from "./tool-errors";
 
 
 
@@ -96,10 +97,10 @@ export async function listFiles(env: Env, projectId: string, limit = 500) {
 
 export async function editFile(env: Env, projectId: string, path: string, search: string, replacement: string) {
   const current = await readFile(env, projectId, path);
-  if (!current) throw new Error(`Файл не найден: ${path}`);
-  if (!search) throw new Error("search обязателен.");
+  if (!current) throw new ToolRejectedError(`Файл не найден: ${path}`);
+  if (!search) throw new ToolRejectedError("search обязателен.");
   const index = current.content.indexOf(search);
-  if (index === -1) throw new Error(`Фрагмент не найден в ${path}.`);
+  if (index === -1) throw new ToolRejectedError(`Фрагмент не найден в ${path}.`);
 
   // Неоднозначная замена — ОТКАЗ, а не «возьмём первое».
   //
@@ -114,7 +115,7 @@ export async function editFile(env: Env, projectId: string, path: string, search
   const second = current.content.indexOf(search, index + search.length);
   if (second !== -1) {
     const total = current.content.split(search).length - 1;
-    throw new Error(
+    throw new ToolRejectedError(
       `Фрагмент встречается в ${path} ${total} раз(а) — непонятно, какой править. ` +
         `Добавь окружающий текст, чтобы совпадение стало единственным.`,
     );

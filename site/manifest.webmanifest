@@ -1,0 +1,19 @@
+{
+  "name": "AZRAIL × MNMLL PULSE",
+  "short_name": "AZRAIL",
+  "description": "AZRAIL chat and Mission Control workspace",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#101015",
+  "theme_color": "#09090f",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/icons/openai.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

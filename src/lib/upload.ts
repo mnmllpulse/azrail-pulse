@@ -34,13 +34,21 @@ const EXT_TO_TYPE: Record<string, InputType> = {
   // Двоичные вложения читать текстом нельзя — source-reader вернёт для них
   // отметку о вложении, а не содержимое.
   png: "image", jpg: "image", jpeg: "image", webp: "image", svg: "image",
+  gif: "image", bmp: "image", tif: "image", tiff: "image", heic: "image", avif: "image",
   mp3: "audio", wav: "audio", m4a: "audio",
-  mp4: "video", mov: "video", webm: "video",
+  flac: "audio", aiff: "audio", aif: "audio", ogg: "audio", opus: "audio", aac: "audio",
+  mp4: "video", mov: "video", webm: "video", mkv: "video", avi: "video", m4v: "video",
+  csv: "text", xml: "text", yaml: "text", yml: "text", log: "text",
 };
 
+const BLOCKED_EXT = new Set(["exe", "bat", "cmd", "msi", "dll"]);
+
 export function inferInputType(filename: string): InputType | null {
-  const ext = filename.split(".").pop()?.toLowerCase();
-  return ext && ext in EXT_TO_TYPE ? EXT_TO_TYPE[ext] : null;
+  const base = filename.split(/[/\\]/).pop() ?? filename;
+  const dot = base.lastIndexOf(".");
+  const ext = dot >= 0 ? base.slice(dot + 1).toLowerCase() : "";
+  if (BLOCKED_EXT.has(ext)) return null;
+  return ext && ext in EXT_TO_TYPE ? EXT_TO_TYPE[ext] : "unknown";
 }
 
 export function sanitizeFilename(name: string): string {
@@ -83,7 +91,7 @@ export async function handleUpload(request: Request, env: Env, principal?: Princ
   const inputType = inferInputType(uploaded.name);
   if (!inputType) {
     return {
-      error: `Неподдерживаемый тип файла. Разрешены: ${Object.keys(EXT_TO_TYPE).join(", ")}.`,
+      error: "Программы (.exe, .bat, .cmd, .msi, .dll) прикрепить нельзя.",
       status: 400,
     };
   }

@@ -1,5 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, readdirSync } from 'node:fs';
+import { execIdempotent } from './lib/additive-sql.mjs';
 
 const db = new DatabaseSync(':memory:');
 db.exec('PRAGMA foreign_keys = ON;');
@@ -12,6 +13,7 @@ CREATE TABLE users(id TEXT PRIMARY KEY,email TEXT UNIQUE,name TEXT,created_at TE
 CREATE TABLE projects(id TEXT PRIMARY KEY,user_id TEXT NOT NULL,name TEXT NOT NULL,description TEXT,stack TEXT,status TEXT NOT NULL DEFAULT 'active',r2_prefix TEXT,created_at TEXT NOT NULL DEFAULT (datetime('now')),updated_at TEXT NOT NULL DEFAULT (datetime('now')),FOREIGN KEY(user_id) REFERENCES users(id));
 CREATE TABLE missions(id TEXT PRIMARY KEY,project_id TEXT,conversation_id TEXT,goal TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'queued',current_step TEXT,progress INTEGER NOT NULL DEFAULT 0,created_at TEXT NOT NULL DEFAULT (datetime('now')),updated_at TEXT NOT NULL DEFAULT (datetime('now')),finished_at TEXT,result_json TEXT);
 CREATE TABLE mission_events(id TEXT PRIMARY KEY,mission_id TEXT NOT NULL,type TEXT NOT NULL,data TEXT,created_at TEXT NOT NULL DEFAULT (datetime('now')),FOREIGN KEY(mission_id) REFERENCES missions(id));
+CREATE TABLE conversations(id TEXT PRIMARY KEY, project_id TEXT, title TEXT NOT NULL DEFAULT 'AZRAIL Chat', created_at TEXT NOT NULL DEFAULT (datetime('now')), updated_at TEXT NOT NULL DEFAULT (datetime('now')));
 `);
 
 for (const filename of readdirSync('migrations').filter((name) => /^00[3-9]-.+\.sql$/.test(name)).sort()) {
@@ -41,7 +43,7 @@ for (const filename of files) {
 // Reapply the additive set to prove idempotency of the migration SQL itself.
 for (const filename of files) {
   if (filename.startsWith('002-')) continue;
-  db.exec(readFileSync(`migrations/${filename}`, 'utf8'));
+  execIdempotent(db, readFileSync(`migrations/${filename}`, 'utf8'));
 }
 
 const table = (name) => Boolean(db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(name));

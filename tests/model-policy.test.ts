@@ -76,9 +76,12 @@ describe("server model policy", () => {
     await expect(runModel(env,"chat",{}, {validate:()=>{throw Error("validator bug");}})).rejects.toThrow("Проверка ответа");
     expect(run).toHaveBeenCalledTimes(1);
   });
-  it("live catalog reports returned counts without granting new models", async()=>{
+  it("live catalog merges the static registry without granting paid inference", async()=>{
     const {env}=fixture();env.AI.models=vi.fn(async()=>[{name:"external/new",task:{name:"Text Generation"}}]) as never;
-    const c=await readLiveCatalog(env);expect(c.returnedCount).toBe(1);
-    expect(c.models[0].reviewed).toBe(false);expect(c.models[0].freeAllowlisted).toBe(false);
+    const c=await readLiveCatalog(env);
+    expect(c.returnedCount).toBeGreaterThanOrEqual(252);
+    const live=c.models.find(m=>m.slug==="external/new");
+    expect(live?.reviewed).toBe(false);
+    expect(live?.freeAllowlisted).toBe(false);
   });
 });

@@ -1,4 +1,4 @@
-export type SystemSurface='chat'|'web'|'image'|'music'|'video'|'audio'|'als'|'data'|'ledger'|'lab';
+export type SystemSurface='chat'|'web'|'image'|'music'|'video'|'audio'|'als'|'data'|'ledger'|'lab'|'prose';
 export type SystemSuggestion={id:string;label:string;prompt:string;reason:string;score:number;kind?:'primary'|'secondary'};
 export type SystemSuggestionContext={
  surface:SystemSurface;lastUserMessage?:string;hasResult?:boolean;errors?:string[];budgetState?:'ok'|'warning'|'blocked';
@@ -31,6 +31,7 @@ const BASE:Record<SystemSurface,SystemSuggestion[]>={
  als:[{id:'als-plugins',label:'Проверить plugins',prompt:'Проверь plugin compatibility по данным проекта без выдумывания локальной установки.',reason:'Fail-closed compatibility workflow.',score:55,kind:'primary'}],
  data:[{id:'data-quality',label:'Проверить данные',prompt:'Проведи schema/validation/nulls/outliers/duplicates/type conflicts.',reason:'Базовый data quality gate.',score:55,kind:'primary'}],
  ledger:[{id:'ledger-cost',label:'Найти перерасход',prompt:'Проверь spend, reservations, retries, uncertain outcomes и budget headroom.',reason:'Resource Ledger safety.',score:55,kind:'primary'}],
+ prose:[{id:'prose-draft',label:'Собрать три варианта',prompt:'Собери три оригинальных варианта текущего запроса в выбранном режиме Prose Studio.',reason:'Короткий текст перед сохранением.',score:55,kind:'primary'}],
  lab:[
   {id:'lab-failed',label:'Разобрать failed step',prompt:'Найди последний failed/blocking signal и безопасный следующий шаг.',reason:'Mission recovery.',score:55,kind:'primary'},
   {id:'lab-trace',label:'Открыть trace',prompt:'Покажи trace mission → agent → tool → provider → response.',reason:'Observability before retry.',score:50},

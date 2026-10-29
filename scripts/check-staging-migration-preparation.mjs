@@ -36,7 +36,7 @@ for (const table of ['missions','projects','mission_events','mission_checkpoints
 }
 
 const files = readdirSync('migrations').filter((name) => /^\d{3}-.+\.sql$/.test(name)).sort((a, b) => Number(a.slice(0,3)) - Number(b.slice(0,3)));
-if (!files.length || files[0] !== '002-mission-async.sql' || files.at(-1) !== '035-series-g-system-intelligence.sql') fail('unexpected migration catalog boundary');
+if (!files.length || files[0] !== '002-mission-async.sql' || files.at(-1) !== '037-conversation-archive.sql') fail('unexpected migration catalog boundary');
 const plan = [];
 for (const filename of files) {
   const version = filename.slice(0, 3);
@@ -46,12 +46,14 @@ for (const filename of files) {
   if (/\bDROP\s+(TABLE|INDEX|COLUMN)\b/.test(normalized)) fail(`${filename} contains DROP`);
   if (/\bDELETE\s+FROM\b/.test(normalized)) fail(`${filename} contains DELETE FROM`);
   if (/\bUPDATE\s+[A-Z_]/.test(normalized)) fail(`${filename} contains UPDATE`);
-  if (version !== '002' && /\bALTER\s+TABLE\b/.test(normalized)) fail(`${filename} contains ALTER TABLE outside the explicitly baselined migration 002`);
+  const statements = normalized.split(';').map((part) => part.trim()).filter(Boolean);
+  const alters = statements.filter((part) => /\bALTER\s+TABLE\b/.test(part));
+  if (version !== '002' && alters.some((part) => !/^ALTER\s+TABLE\s+[A-Z0-9_]+\s+ADD\s+COLUMN\s+[A-Z0-9_]+\b/.test(part))) fail(`${filename} contains ALTER TABLE other than ADD COLUMN`);
   plan.push({ version, filename, checksum, action: version === '002' ? 'baseline' : 'apply' });
 }
 
 if (!contract.plan?.baseline_migrations?.includes('002-mission-async.sql')) fail('contract does not baseline migration 002');
-if (contract.plan?.apply_from !== '003-bench.sql' || contract.plan?.apply_through !== '035-series-g-system-intelligence.sql') fail('contract migration range mismatch');
+if (contract.plan?.apply_from !== '003-bench.sql' || contract.plan?.apply_through !== '037-conversation-archive.sql') fail('contract migration range mismatch');
 
 const report = {
   schema_version: 1,

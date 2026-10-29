@@ -67,6 +67,13 @@ export const studioModule:StudioModule={
   compare?.destroy();compare=mountCompareMode(context.controls);workbench?.destroy();workbench=null;try{workbench=mountImageStudio2(context,{setOperation:next=>setMode(context,next,referenceId),useReference:(item,next)=>prepareReference(context,item,next)});}catch(error){context.notice(`Mask Editor недоступен: ${errorMessage(error)} Генерация работает без него.`);}
   context.controls.querySelector<HTMLButtonElement>('#image-clear-reference')!.onclick=()=>setMode(context,'generate',null);
   context.controls.querySelector<HTMLButtonElement>('#image-refresh-history')!.onclick=()=>void refreshHistory(context);
+  const wrap=document.createElement('div');wrap.id='image-advanced-wrap';
+  const advanced=document.createElement('div');advanced.id='image-advanced';advanced.hidden=true;
+  const toggle=document.createElement('button');toggle.id='image-advanced-toggle';toggle.type='button';toggle.textContent='Сложные настройки';toggle.setAttribute('aria-expanded','false');
+  toggle.onclick=()=>{advanced.hidden=!advanced.hidden;toggle.setAttribute('aria-expanded',String(!advanced.hidden));};
+  context.controls.querySelector('.image-form .toolbar')?.prepend(toggle);
+  for(const node of ['.image-options','#image-reference','.image-model-note','.image-history','.image-intelligence-panel','.compare-mode']){const item=context.controls.querySelector(node);if(item)advanced.append(item);}
+  wrap.append(advanced);context.controls.querySelector('.image-studio-shell')?.after(wrap);
   if(context.account){const restore=document.createElement('button');restore.textContent='Вернуть предыдущий запрос';restore.onclick=()=>{const pending=readPendingImage(context.account!.id);if(!pending){context.notice('Незавершённых запросов изображения в этой вкладке нет.');return;}try{const parsed=JSON.parse(pending.body);const input=context.controls.querySelector<HTMLTextAreaElement>('#studio-text')!;input.value=parsed.prompt;operation=parsed.operation??'generate';referenceId=parsed.referenceArtifactId??null;context.notice('Предыдущий запрос восстановлен. Повтор пойдёт с тем же Idempotency-Key.');}catch(error){context.failure(error);}};context.controls.querySelector('.toolbar')?.append(restore);}
   context.mountDraft(!!context.account,{scope:context.account?.id??'local',writable:context.account?.role!=='viewer'});
   await refreshHistory(context);

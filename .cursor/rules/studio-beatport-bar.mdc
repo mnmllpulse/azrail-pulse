@@ -1,0 +1,30 @@
+---
+description: Locked bar for a finished melodic techno record. File quality is not enough. The record has to survive a DJ listen.
+globs: ui/audio-codecs.ts,ui/media.ts,ui/music-direction.ts,ui/music-pro.ts,ui/studio-modules/music.ts,ui/dry-speech.ts,ui/studio-master.ts
+alwaysApply: false
+---
+
+# Beatport bar
+
+The owner locked this on 22 Oct 2026. A 24-bit file, MP3 320, and a 10:00 timeline are the floor from `studio-master-quality.mdc`. They are not a finished melodic techno record. Do not call the studio number one, and do not label a render as a Beatport release.
+
+The listener test: a DJ can mix the intro, the kick and bass do not fight, the hook is absent until the second drop, and every 16 bars adds one new figure. Build these in order. No new knob, compressor, swing percent, EQ, or sample browser on the first screen.
+
+1. Layered kick, fundamental near the track root, short tail around 400 ms, click kept out of the sub. A synthesized layer is not a recorded sample. Do not label it as one.
+2. Rolling bass in eighths or sixteenths, with its own filter and saturation, ducked under that kick. Do not copy a reference melody.
+3. The hook stays out of the intro and arrives in `drop-2`. One new figure every 16 bars. Two 8-note motifs across 10:00 fail this test.
+4. Keep the 10:00 length and the six sections. Inside them, use DJ roles and land section edges on 16 or 32 bars: intro drums, then bass; a break with almost no kick; a second drop that adds the missing figure; outro back to drums. `tenMinuteStory` weights `[1,1,2,1,2,1]` only fill time. They do not yet do this.
+5. Several tops, hat shuffle, and quiet notes between the main hits. Section swing stays authored. Do not write that groove was measured from the reference.
+6. The drop stays dry. The break is the long room. Delay throws only on the last note of a phrase.
+7. The user's phrase, chopped onto the grid. A second phrase only when their text has one. The label stays «сухое произнесение» until a recorded voice is in the file.
+8. An Ableton project of our own track, plus stems that sum to the same master. The ALS reader does not write our session. A foreign mix is never split into the original synths.
+
+Measured loudness stays on the card. Softer sketches near −10 LUFS and an energetic sketch near −8.3 are real readings, not a miss to hide. Do not invent −8. Do not add a neural music model, a fake singer, or a claim that the render copied a chart record.
+
+```typescript
+// Fails the bar: the same 8-note hook from bar 0 through the intro.
+if (section.id === 'intro') scheduleLead(hook)
+
+// Passes: intro has drums and a late bass hint. The hook starts at drop-2.
+if (section.id === 'drop-2') scheduleLead(hook)
+```

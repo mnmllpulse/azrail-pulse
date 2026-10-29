@@ -107,8 +107,23 @@ describe('RC6 OIDC network boundary',()=>{
     const location=new URL(login!.headers.get('Location')!);const state=location.searchParams.get('state')!;
     const callback=await authRoute(new Request(`https://app.example.com/auth/callback?code=abc&state=${state}`,{headers:{Cookie:`__Host-pulse-state=${state}`}}),env);
     expect(callback?.status).toBe(401);
-    expect(calls.filter(c=>c.url.includes('.well-known')).every(c=>c.init?.redirect==='error')).toBe(true);
-    expect(calls.find(c=>c.url.endsWith('/token'))?.init?.redirect).toBe('error');
+    expect(calls.filter(c=>c.url.includes('.well-known')).every(c=>c.init?.redirect==='manual')).toBe(true);
+    expect(calls.find(c=>c.url.endsWith('/token'))?.init?.redirect).toBe('manual');
+    vi.unstubAllGlobals();
+  });
+
+  it('does not follow a discovery redirect',async()=>{
+    const {db}=sqliteD1();
+    const env={AZRAIL_D1:db,PUBLIC_ORIGINS:'https://app.example.com',OIDC_ISSUER:'https://login.example.com',OIDC_CLIENT_ID:'client'} as Env;
+    const urls:string[]=[];
+    vi.stubGlobal('fetch',vi.fn(async(input:RequestInfo|URL)=>{
+      urls.push(String(input));
+      return new Response(null,{status:302,headers:{Location:'https://evil.example/collect'}});
+    }));
+    const login=await authRoute(new Request('https://app.example.com/auth/login'),env);
+    expect(login?.status).toBe(503);
+    expect(await login?.json()).toEqual({error:'OIDC endpoint отклонил перенаправление.'});
+    expect(urls).toEqual(['https://login.example.com/.well-known/openid-configuration']);
     vi.unstubAllGlobals();
   });
 });

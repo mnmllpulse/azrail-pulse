@@ -1,11 +1,13 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { cveReceiptProves } from './dependency-cve-audit.mjs';
 const pkg=JSON.parse(readFileSync('package.json','utf8'));
 const contract=JSON.parse(readFileSync('verification/security-verification-contract.json','utf8'));
 const r=contract.required_receipts;const read=(p,l)=>{if(!existsSync(p))throw new Error(`Security verification blocked: ${l} receipt missing.`);return JSON.parse(readFileSync(p,'utf8'));};
 const node=read(r.node24,'Node24'),mig=read(r.migration_applied,'migration'),dep=read(r.deploy_applied,'deploy'),smoke=read(r.staging_smoke,'staging smoke'),prep=read(r.preparation,'security preparation');
 for(const [label,obj,status] of [['Node24',node,'VERIFIED'],['migration',mig,'APPLIED'],['deploy',dep,'DEPLOY_COMMAND_SUCCEEDED'],['staging smoke',smoke,'VERIFIED'],['security preparation',prep,'PREPARED']])if(obj.status!==status||obj.release!==pkg.version)throw new Error(`Security verification blocked: ${label} must be ${status} for ${pkg.version}.`);
 if(prep.known_release_gaps?.audit_event_crypto_chain)throw new Error('Security verification blocked: tamper-evident audit-event integrity gap remains open.');
-if(prep.known_release_gaps?.live_dependency_cve_audit)throw new Error('Security verification blocked: current dependency CVE audit receipt is not proven.');
+const cve=existsSync('.work/dependency-cve-audit.json')?JSON.parse(readFileSync('.work/dependency-cve-audit.json','utf8')):null;
+if(prep.known_release_gaps?.live_dependency_cve_audit||!cveReceiptProves(cve,pkg.version))throw new Error('Security verification blocked: current dependency CVE audit receipt is not proven.');
 const nodeMajor=Number(process.versions.node.split('.')[0]);if(nodeMajor<Number(contract.required_runtime.node_major_min))throw new Error(`Security verification blocked: Node ${process.version}; Node >=${contract.required_runtime.node_major_min} required.`);
 const credential=process.env.AZRAIL_SESSION_COOKIE?{Cookie:process.env.AZRAIL_SESSION_COOKIE}:process.env.AZRAIL_TOKEN?{Authorization:`Bearer ${process.env.AZRAIL_TOKEN}`} : null;if(!credential)throw new Error('Security verification blocked: authenticated staging credential required.');
 const base=new URL(contract.target_url);const checks=[];let failed=false;const add=(name,ok,detail)=>{checks.push({name,status:ok?'PASSED':'FAILED',detail});if(!ok)failed=true;};
@@ -17,5 +19,5 @@ x=await req('/api/admin/accounts');add('admin-boundary',x.res.status===401,`/api
 x=await req('/api/me',{auth:true});add('authenticated-boundary',x.res.status===200,`/api/me auth -> ${x.res.status}`);
 const secretRx=/(authorization|cookie|secret_cipher|access_token|refresh_token|client_secret)/i;add('secret-leakage',!secretRx.test(x.text),'authenticated identity response contains no secret-key labels');
 x=await req('/');const csp=x.res.headers.get('content-security-policy')??'';add('security-headers',x.res.status===200&&csp.includes("script-src 'self'")&&csp.includes("frame-ancestors 'none'"),`status=${x.res.status}; csp=${csp.slice(0,220)}`);
-x=await req('/health');let health={};try{health=JSON.parse(x.text)}catch{}add('exact-release',x.res.status===200&&health.version===pkg.version,`health.version=${health.version??'missing'}`);
+x=await req('/health',{auth:true});let health={};try{health=JSON.parse(x.text)}catch{}add('exact-release',x.res.status===200&&health.version===pkg.version,`health.version=${health.version??'missing'}`);
 const receipt={schema_version:1,release:pkg.version,environment:'staging',status:failed?'FAILED':'VERIFIED',generated_at:new Date().toISOString(),target:contract.target_url,mutation_free:true,http_methods:['GET','OPTIONS'],model_calls:false,checks};mkdirSync('.work',{recursive:true});writeFileSync(r.runtime_security,JSON.stringify(receipt,null,2)+'\n');console.log(`STAGING SECURITY VERIFICATION ${receipt.status}: ${checks.filter(c=>c.status==='PASSED').length} passed, ${checks.filter(c=>c.status==='FAILED').length} failed.`);if(failed)process.exit(1);

@@ -10,6 +10,7 @@ const actions:Record<StudioId,readonly string[]>={
  data:['Загрузить CSV/JSON','Проверить schema','Найти anomalies','Построить chart'],
  ledger:['Показать spend','Проверить budget','Найти retries','Проверить uncertain calls'],
  lab:['Проверить runtime','Открыть health','Проверить release evidence','Разобрать blockers'],
+ prose:['Короткая цитата','Текст для трека','Описание картинки','Ролик 5–10 секунд'],
 };
 
 export function renderSmartEmptyState(host:HTMLElement,meta:StudioMeta){

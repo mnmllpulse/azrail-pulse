@@ -6,7 +6,7 @@ const root=process.cwd();
 const version=JSON.parse(readFileSync('package.json','utf8')).version;
 if(!existsSync('SOURCE_MANIFEST.json')) throw new Error('SOURCE_MANIFEST.json is missing. Run npm run source:manifest.');
 const actual=JSON.parse(readFileSync('SOURCE_MANIFEST.json','utf8'));
-const excludedTop=new Set(['node_modules','.work','backups','.git']);
+const excludedTop=new Set(['node_modules','.work','.wrangler','backups','.git']);
 const files=[];
 function walk(dir){
   for(const name of readdirSync(dir).sort()){

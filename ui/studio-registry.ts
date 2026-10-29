@@ -11,6 +11,7 @@ const loaders:Record<StudioId,()=>Promise<{studioModule:StudioModule}>>={
  data:()=>import('./studio-modules/data'),
  ledger:()=>import('./studio-modules/ledger'),
  lab:()=>import('./studio-modules/lab'),
+ prose:()=>import('./studio-modules/prose'),
 };
 
 export const studios=studioManifest;

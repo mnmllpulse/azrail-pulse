@@ -37,7 +37,10 @@ describe("shared zod validation", () => {
     expect(() => parseInput(studioDraftSchema, { baseRevision: -1, values: {} })).toThrow(ValidationError);
     expect(() => parseInput(studioDraftSchema, { baseRevision: 0, values: [] })).toThrow(ValidationError);
   });
-  it("plain errors keep {error}", () => {
-    expect(errorPayload(new AccessError("nope", 403), "x")).toEqual({ error: "nope" });
+  it("plain errors keep error and add the envelope", () => {
+    const body = errorPayload(new AccessError("nope", 403), "x");
+    expect(body.error).toBe("nope");
+    expect(body.code).toBe("forbidden");
+    expect(body.error_id).toMatch(/^[0-9a-f-]{36}$/);
   });
 });

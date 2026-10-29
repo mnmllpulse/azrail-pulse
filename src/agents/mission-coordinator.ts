@@ -10,6 +10,7 @@ import {
 import { loadMissionSnapshotKey } from "../lib/mission-snapshot";
 import { clampIterations } from "../lib/mission-limits";
 import { drainHints, finalizeControlInterruption, finishMission, isCancelRequested, markRunning, statusForResult } from "../lib/mission-state";
+import { missionFailureLine } from "../lib/mission-copy";
 import { log } from "../lib/resilience";
 import { UsageLedger } from "../lib/usage";
 import { ExecutionEngine } from "../core/execution-engine";
@@ -381,7 +382,7 @@ export async function runScheduledMission(host: MissionCoordinatorHost, params: 
     await finishMission(host.env, missionId, "failed", {
       status: "failed",
       agent: "orchestrator",
-      summary: "Миссия прервалась из-за внутренней ошибки.",
+      summary: missionFailureLine(message),
       error: message,
     });
     await persistAndBroadcastMissionEvent(host, missionId, projectId, "mission.failed", { reason: message }, trace);

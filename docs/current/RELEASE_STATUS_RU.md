@@ -14,29 +14,21 @@ Master-сценарий дошёл до последнего пункта #38: *
 
 RC54 сохраняет clean layout для active runtime, но возвращает **весь history/legacy контур в Full Archive ZIP**. `repo:exhaustive` проверяет current/history/legacy файлы и все декодируемые строки. GitHub `main` → Cloudflare остаётся **staging-only** auto-deploy после полного Node24 Verify. Production workflow disabled, Stage D порядок не меняется.
 
-## Свежий read-only baseline
+## Состояние на 29 октября 2026
 
-- GitHub `mnmllpulse/azrail-os` main SHA: `a8adecfb79c8b8b1350af1b72c9204ef8044d4a1`;
-- exact RC50 PR ещё не опубликован и не merged;
-- production Worker: `azrail-os`;
-- production deployment: `473850a1-df43-47fb-b05e-0211ef9f7bae`;
-- production version: `476a3e6d-c066-484c-a0f8-d986bc630119`;
-- fresh read-only D1 bookmark: `00000e1f-00000000-00005100-9c9850f11ed7d9569fb8f9c8c00edf1b`;
-- staging deployment остаётся `914363dc-2157-48a4-a28f-ac12fae38ef1` / version `159daae0-edaf-4b7a-be85-3760974a5aa9`;
-- Canva reference `AZRAIL Unified Interface Website` использован read-only.
+Статус выпуска: **CONDITIONAL**. Карточка: `docs/current/PRODUCTION_READINESS.md`. Выпуск привязан к рабочему сайту `azrail-pulse`. Оба сайта входят только почтой. Новый репозиторий с этого компьютера не создан. Полная отметка READY не ставится: квитанция законченного выпуска не записана.
 
-## Текущее состояние
+- Рабочий сайт — воркер `azrail-pulse`. Deployment `1603300f-0a39-44c8-b79a-39580de6a7d4`, версия `b6be5826-d2a0-4530-b9ba-a5c7de625826`. Вход только почтой. Ключ снят. Почта `mnmllpulse@gmail.com` остаётся хозяином.
+- Учебная копия — `azrail-pulse-staging`. Deployment `63b9d403-2c6d-4993-842a-f24d9d2b7efc`, версия `37a405cf-96f2-4636-a90f-c3d026d83f0a`. Дневной потолок провайдера 500, чат 200. Вход только почтой. Хозяин — та же почта `mnmllpulse@gmail.com`. Проверка 11 из 11 для `1.5.0-rc.63` снята с этой выкладки, роль хозяина.
+- Старый воркер `azrail-os` удалён. Публичный адрес репозитория `mnmllpulse/azrail-os` отвечает «нет такого». Выпуск смотрит на рабочий сайт `azrail-pulse`. Команда выпуска отказывается от `wrangler.production.json`. Новый репозиторий с этого компьютера не создан.
+- #29 Node 24: локальный корпус VERIFIED для `1.5.0-rc.63`.
+- #30–#31 учебная миграция и выклад: применены до smoke.
+- #32 staging smoke: **VERIFIED**, 11 из 11, deployment `63b9d403-2c6d-4993-842a-f24d9d2b7efc`, роль хозяина.
+- #33 проверка безопасности учебной копии: **VERIFIED**, 7 из 7.
+- #36 одобрение выпуска: локальная квитанция есть, но она писалась при выключенных черновых адресах. Адреса снова включены, запись с сайтом не совпадает и выкладку не разрешает.
+- #38 выпуск: **CONDITIONAL**. Квитанция `VERIFIED_RELEASED` не записана.
 
-- #29 Node24: **BLOCKED**;
-- #30 staging migration: **PREPARED**;
-- #31 staging deploy: **PREPARED**;
-- #32 staging smoke: **PREPARED**;
-- #33 security verification: **PREPARED**;
-- #34 production drift: **EVIDENCE COMPLETE / RECONCILIATION_REQUIRED**;
-- #35 backup/restore: **LOCAL VERIFIED / CLOUD DRILL PENDING**;
-- #36 production approval: **GATE PREPARED / APPROVAL BLOCKED**;
-- #37 GitHub PR: **PREPARED / PUBLICATION BLOCKED**;
-- #38 production release: **PREPARED / RELEASE BLOCKED**.
+Ниже заметки прошлых RC. Имя `azrail-os` в них — удалённый воркер, не текущий сайт.
 
 ## Безопасные команды
 

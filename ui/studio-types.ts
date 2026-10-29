@@ -1,4 +1,4 @@
-const STUDIO_IDS = ['web','image','music','video','audio','als','data','ledger','lab'] as const;
+const STUDIO_IDS = ['web','image','music','video','audio','als','data','ledger','lab','prose'] as const;
 export type StudioId = typeof STUDIO_IDS[number];
 
 export type StudioCapability =
@@ -11,7 +11,8 @@ export type StudioCapability =
  | 'ableton-analysis'
  | 'data-analysis'
  | 'ledger-read'
- | 'system-diagnostics';
+ | 'system-diagnostics'
+ | 'prose-writing';
 
 export type StudioMeta = {
  id:StudioId;

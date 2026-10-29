@@ -4,8 +4,8 @@
   "master_item": 38,
   "name": "production-release",
   "readonly_snapshot": "verification/production-release-readonly-snapshot.json",
-  "production_config": "wrangler.production.json",
-  "worker_name": "azrail-os",
+  "production_config": "wrangler.jsonc",
+  "worker_name": "azrail-pulse",
   "required_runtime": {
     "node_major_min": 24,
     "reference_node": "24.18.0"
@@ -16,7 +16,7 @@
     "staging_migration": ".work/staging-migration-applied.json",
     "staging_deploy": ".work/staging-deploy-applied.json",
     "staging_smoke": ".work/staging-smoke-verified.json",
-    "security": ".work/security-verification.json",
+    "security": ".work/staging-security-verified.json",
     "backup_local": ".work/backup-restore-simulation.json",
     "backup_cloud": ".work/backup-restore-cloud-drill.json",
     "production_approval": ".work/production-approval.json",
@@ -81,12 +81,12 @@
       "node_modules/wrangler/bin/wrangler.js",
       "deploy",
       "--config",
-      "wrangler.production.json",
-      "--strict"
+      "wrangler.jsonc",
+      "--containers-rollout=none"
     ],
     "oidc_vars_injected_at_runtime": true,
     "keep_vars_forbidden": true,
-    "reason": "Do not preserve legacy CORS_ORIGIN=*; explicit OIDC vars are injected with Wrangler --var while canonical vars come from wrangler.production.json."
+    "reason": "The working site is azrail-pulse via wrangler.jsonc. wrangler.production.json names the deleted worker azrail-os and must not be deployed."
   },
   "finalization": {
     "requires_new_deployment_id": true,
@@ -99,7 +99,7 @@
   },
   "rollback": {
     "automatic_restore_forbidden": true,
-    "worker_previous_deployment_lease": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+    "worker_previous_deployment_lease": "1603300f-0a39-44c8-b79a-39580de6a7d4",
     "d1_restore_source": "fresh pre-mutation time-travel bookmark captured in live_lease",
     "rule": "Any rollback that mutates production requires a separate incident decision; never auto-restore D1 on a generic deploy failure."
   },

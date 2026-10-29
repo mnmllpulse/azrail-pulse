@@ -20,4 +20,23 @@ describe('Professional Ableton Lab parser',()=>{
  it('reports explicit missing assets and bounded heuristics without pretending to inspect the local machine',()=>{const r=parseAbletonXML(fixture);expect(r.checks.missingPlugins.some(x=>x.device==='Serum')).toBe(true);expect(r.checks.missingSamples).toHaveLength(1);expect(r.checks.duplicatedProcessing.some(x=>x.track==='Kick')).toBe(true);expect(r.checks.routingLoops).toHaveLength(1);expect(r.checks.sidechainTopology.some(x=>x.track==='Kick')).toBe(true);expect(r.checks.gainStagingWarnings.some(x=>x.track==='Kick')).toBe(true);expect(r.checks.cpuHeavyDevices.some(x=>x.device==='Spectral Max')).toBe(true);expect(r.checks.frozenTracks.some(x=>x.track==='Bass')).toBe(true);expect(r.checks.inactiveDevices.some(x=>x.device==='Auto Filter')).toBe(true);expect(r.analysisBoundary.join(' ')).toContain('local filesystem/plugin installation is not probed');});
  it('rejects entity expansion and non-Ableton XML',()=>{expect(()=>parseAbletonXML('<!DOCTYPE x [<!ENTITY x "boom">]><Ableton><LiveSet/></Ableton>')).toThrow();expect(()=>parseAbletonXML('<root/>')).toThrow();});
  it('enforces a decompressed XML size budget',()=>{const huge='<Ableton><LiveSet>'+(' '.repeat(ALS_XML_LIMIT+1))+'</LiveSet></Ableton>';expect(()=>parseAbletonXML(huge)).toThrow();});
+ it('reads nested time signature, packed Live signature, key, locators and music roles',()=>{
+  const nested=`<?xml version="1.0" encoding="UTF-8"?><Ableton Creator="Ableton Live 12"><LiveSet><ScaleInformation><RootNote Value="9"/><Name Value="Minor"/></ScaleInformation><TimeSignature><TimeSignatures><RemoteableTimeSignature><Numerator Value="3"/><Denominator Value="4"/></RemoteableTimeSignature></TimeSignatures></TimeSignature><Locators><Locator Id="1"><Name Value="Drop"/><Time Value="64"/></Locator><Locator Id="0"><Name Value="Intro"/><Time Value="0"/></Locator></Locators><Tracks><MidiTrack Id="1"><Name><EffectiveName Value="Pluck"/></Name><ColorIndex Value="5"/><DeviceChain><MainSequencer><ClipTimeable><ArrangerAutomation><Events><MidiClip Id="2" Time="4"><CurrentStart Value="4"/><CurrentEnd Value="12"/><Name Value="Theme"/></MidiClip></Events></ArrangerAutomation></ClipTimeable></MainSequencer></DeviceChain></MidiTrack><AudioTrack Id="2"><Name><EffectiveName Value="Kick"/></Name></AudioTrack></Tracks></LiveSet></Ableton>`;
+  const packed=`<?xml version="1.0" encoding="UTF-8"?><Ableton><LiveSet><MasterTrack><DeviceChain><MainSequencer><Tempo><Manual Value="126"/></Tempo></MainSequencer></DeviceChain></MasterTrack><KeyScale><RootNote Value="0"/><Scale Value="7"/></KeyScale><TimeSignature><TimeSignatures><AutomationEvent Value="201326592"/></TimeSignatures></TimeSignature><Tracks></Tracks></LiveSet></Ableton>`;
+  const threeFour=(3<<16)|2;
+  const encoded=`<?xml version="1.0" encoding="UTF-8"?><Ableton><LiveSet><TimeSignature><TimeSignatures><AutomationEvent Value="${threeFour}"/></TimeSignatures></TimeSignature><Tracks></Tracks></LiveSet></Ableton>`;
+  const r=parseAbletonXML(nested);
+  expect(r.timeSignature).toBe('3/4');expect(r.keyRoot).toBe('A');expect(r.keyScale).toBe('Minor');
+  expect(r.locators).toEqual([{name:'Intro',timeBeats:0},{name:'Drop',timeBeats:64}]);
+  expect(r.tracks.find(t=>t.name==='Pluck')).toMatchObject({role:'melodic/pluck',colorGroup:'yellow'});
+  expect(r.tracks.find(t=>t.name==='Kick')?.role).toBe('rhythm/kick');
+  expect(r.tracks.find(t=>t.name==='Pluck')?.clips[0]).toMatchObject({name:'Theme',startBeats:4,lengthBeats:8});
+  expect(r.roleSummary.melodic).toBe(1);expect(r.roleSummary.rhythm).toBe(1);
+  const packedReport=parseAbletonXML(packed);
+  expect(packedReport.timeSignature).toBe('4/4');
+  expect(packedReport.bpm).toBe(126);
+  expect(packedReport.keyRoot).toBe('C');
+  expect(packedReport.keyScale).toBe('Whole Tone');
+  expect(parseAbletonXML(encoded).timeSignature).toBe('3/4');
+ });
 });

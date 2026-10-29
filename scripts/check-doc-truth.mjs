@@ -6,6 +6,7 @@ const required=[
   ['DEPLOY_RU.md',version],
   ['DEPLOY.md',version],
   ['docs/current/RELEASE_STATUS_RU.md',version],
+  ['docs/current/PRODUCTION_READINESS.md','Status: CONDITIONAL'],
   ['docs/runbooks/MIGRATIONS_RU.md','schema_migrations'],
   ['docs/current/CONFIGURATION_TRUTH_RU.md','config/environments.json'],
   ['docs/runbooks/RELEASE_PACKAGE_RU.md','release-manifest.json'],

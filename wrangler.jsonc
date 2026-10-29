@@ -1,0 +1,78 @@
+{
+  "name": "azrail-pulse",
+  "main": "src/unified.free.ts",
+  "compatibility_date": "2026-09-29",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
+  "assets": {
+    "directory": "./site",
+    "binding": "ASSETS",
+    "run_worker_first": true,
+    "html_handling": "none"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "Orchestrator",
+        "class_name": "Orchestrator"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "Orchestrator"
+      ]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "AZRAIL_D1",
+      "database_name": "azrail-pulse-db",
+      "database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "AZRAIL_KV",
+      "id": "90738a2617074fa3825bf5d45e6cf50d"
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "AZRAIL_R2",
+      "bucket_name": "azrail-pulse-artifacts"
+    }
+  ],
+  "ai": {
+    "binding": "AI"
+  },
+  "triggers": {
+    "crons": [
+      "*/10 * * * *"
+    ]
+  },
+  "vars": {
+    "AUTH_MODE": "oidc",
+    "PUBLIC_ORIGINS": "https://azrail-pulse.mnmllpulse.workers.dev",
+    "OIDC_ISSUER": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/2f6b60f04afb1141453899b193e2620b3d65b8a7904e81e1450bc97e705c1912",
+    "OIDC_CLIENT_ID": "2f6b60f04afb1141453899b193e2620b3d65b8a7904e81e1450bc97e705c1912",
+    "OIDC_GROUPS_CLAIM": "groups",
+    "OIDC_ADMIN_EMAILS": "mnmllpulse@gmail.com",
+    "AZRAIL_WORKERS_PLAN": "free",
+    "AZRAIL_FORCE_FREE": "true",
+    "AZRAIL_METERING": "enforce",
+    "UNIFIED_LEDGER": "true",
+    "DAILY_PROVIDER_CALLS": "500",
+    "CHAT_DAILY_LIMIT": "200",
+    "AZRAIL_MISSION_BUDGET_USD": "0.10",
+    "AZRAIL_WRITE_BUDGET": "1000",
+    "AI_GATEWAY_ID": "default"
+  },
+  "observability": {
+    "enabled": true
+  },
+  "preview_urls": true
+}

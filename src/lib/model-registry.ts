@@ -74,6 +74,12 @@ export const PROVIDER_ICONS: Record<string, string> = {
   Mistral: "/icons/mistral.svg",
   OpenAI: "/icons/openai.svg",
   Anthropic: "/icons/anthropic.svg",
+  Alibaba: "/icons/alibaba.svg",
+  xAI: "/icons/xai.svg",
+  Cloudflare: "/icons/cloudflare.svg",
+  Moondream: "/icons/moondream.svg",
+  IBM: "/icons/ibm.svg",
+  "Swiss AI": "/icons/swiss.svg",
 };
 
 export function providerIcon(provider: string): string | undefined {

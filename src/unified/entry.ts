@@ -8,19 +8,49 @@ import { claimMission, finishAdmission } from '../lib/mission-admission';
 import { readBoundedBody, BodyLimitError } from '../lib/request-body';
 import { BudgetError } from './ledger';
 import {connectorRoute} from './connectors';
+import {publishedSiteResponse} from '../lib/web-sites';
+import {unversionApiPath} from '../lib/api-contract';
+
+const SPA_PAGES=new Set(['/index.html','/app.html','/ultimate.html']);
+function isStaticAsset(pathname:string) {
+ return /\.[a-z0-9]+$/i.test(pathname) && !SPA_PAGES.has(pathname);
+}
+/**
+ * Cloudflare Assets pretty-URLs turn /app.html into 307 /app.
+ * If the worker then maps /app back to /app.html, the browser loops and Chrome
+ * shows the empty "try deleting cookies" page. Fetch the real /index.html file
+ * (html_handling=none) and never leak those redirects to the client.
+ */
+async function serveAppAsset(request:Request,env:Env,url:URL):Promise<Response> {
+ const target=new URL(request.url);
+ if(!isStaticAsset(url.pathname))target.pathname='/index.html';
+ const first=await env.ASSETS!.fetch(new Request(target,request));
+ if(first.status<300||first.status>=400)return first;
+ const location=first.headers.get('Location');
+ if(!location)return first;
+ const next=new URL(location,target);
+ if(next.origin!==target.origin)return first;
+ return env.ASSETS!.fetch(new Request(next,request));
+}
 
 export function secureResponse(response:Response,request:Request) {
  const h=new Headers(response.headers);
  h.delete('Access-Control-Allow-Origin');h.delete('Access-Control-Allow-Credentials');
  h.set('X-Content-Type-Options','nosniff');h.set('Referrer-Policy','same-origin');
  h.set('Permissions-Policy','camera=(), microphone=(self), geolocation=()');
- h.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; font-src 'self'; frame-src blob:; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'");
  if(new URL(request.url).protocol==='https:')h.set('Strict-Transport-Security','max-age=31536000');
+ if(!new URL(request.url).pathname.startsWith('/s/'))h.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' data:; style-src-attr 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; font-src 'self'; frame-src blob: about:; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'");
  if(new URL(request.url).pathname.startsWith('/api/')||new URL(request.url).pathname.startsWith('/auth/'))h.set('Cache-Control','no-store');
  return new Response(response.body,{status:response.status,statusText:response.statusText,headers:h});
 }
 export default {
  async fetch(request:Request,env:Env,ctx:ExecutionContext):Promise<Response> {
+  const incoming=new URL(request.url);
+  const canonicalPath=unversionApiPath(incoming.pathname);
+  if(canonicalPath!==incoming.pathname){
+   incoming.pathname=canonicalPath;
+   request=new Request(incoming,request);
+  }
   const url=new URL(request.url);
   try {
    let response:Response|null=null;
@@ -56,15 +86,11 @@ export default {
    }
    if(!response)response=await connectorRoute(request,env);
    if(!response)response=await studioRoute(request,env);
-   if(!response&&(url.pathname.startsWith('/api/')||url.pathname==='/health'))response=await engine.fetch(request,env,ctx);
+   if(!response&&(url.pathname.startsWith('/api/')||url.pathname==='/health'||url.pathname==='/agents'||url.pathname.startsWith('/agents/')))response=await engine.fetch(request,env,ctx);
+   if(!response&&url.pathname.startsWith('/s/'))response=await publishedSiteResponse(env,request);
    if(!response) {
     if(!['GET','HEAD'].includes(request.method))response=new Response('Method not allowed',{status:405});
-    else {
-     const assetURL=new URL(request.url);
-     // Never publish the old monolithic console under the strict app policy.
-     if(!/\.[a-z0-9]+$/i.test(url.pathname)||['/index.html','/ultimate.html'].includes(url.pathname))assetURL.pathname='/app.html';
-     response=await env.ASSETS!.fetch(new Request(assetURL,request));
-    }
+    else response=await serveAppAsset(request,env,url);
    }
    if(!response)throw new Error('No response generated');
    return secureResponse(response,request);

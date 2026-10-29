@@ -1,20 +1,196 @@
 <!doctype html>
-<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#09090f"><meta name="description" content="AZRAIL × MNMLL PULSE — пространство для идей, кода и музыки."><title>AZRAIL × MNMLL PULSE</title><link rel="stylesheet" href="/assets/app.css"></head>
-<body><a class="skip" href="#main">К содержимому</a>
-<header class="header"><a class="brand" href="/" data-home aria-label="AZRAIL — на главную"><svg class="mark" viewBox="0 0 40 44" fill="none" aria-hidden="true"><path d="M31.3 8.7A16 16 0 1 0 31.3 31.3M20 17V42" stroke="currentColor" stroke-width="2.1"/></svg><span>AZRAIL<span class="brand-sub">MNMLL PULSE OS</span></span></a><nav aria-label="Главная навигация"><a href="/" data-view="create" class="nav active" aria-current="page">Создать</a><a href="/projects" data-view="projects" class="nav">Проекты</a><a href="/studios" data-view="studios" class="nav">Студии</a><a href="/metatron" data-view="metatron" class="nav">Metatron</a></nav><button id="account" class="account">Войти <span>↗</span></button></header>
-<main id="main" tabindex="-1"><section id="create" class="view"><div class="eyebrow"><span class="dot"></span> ПРОСТРАНСТВО ДЛЯ ВАШИХ ИДЕЙ <span class="edition">UNIFIED / 1.5.0-rc.63</span></div>
-<div class="hero"><div class="hero-copy"><p class="kicker">СОЗДАВАЙТЕ ТО, ЧТО ИМЕЕТ ЗНАЧЕНИЕ.</p><h1 tabindex="-1"><span>Одна идея.</span> <span class="title-accent">Целый мир.</span></h1><p class="intro">Сайт, приложение, музыка или дизайн.<br>Опишите результат — AZRAIL начнёт работу.</p></div></div>
-<form id="composer" class="composer"><label for="prompt">Что создадим сегодня?</label><textarea id="prompt" rows="2" maxlength="20000" placeholder="Например, создай сайт моего музыкального лейбла…" required></textarea><div id="attachment-names" class="muted"></div><div id="attachment-manager" class="attachment-manager" aria-live="polite" hidden></div><div class="composer-bottom"><div><button type="button" id="attach" class="icon-button" aria-label="Прикрепить файлы">+</button><button type="button" id="voice" class="icon-button" aria-label="Записать голосовой запрос">◉</button><span class="composer-hint">Словами или голосом</span></div><button id="submit" class="primary" type="submit">Создать <span>↗</span></button></div><input type="file" id="attachments" accept=".zip,.pdf,.docx,.txt,.md,.json,.html,.css,.js,.ts,.tsx,.jsx,.py,.png,.jpg,.jpeg,.webp,.svg,.mp3,.wav,.m4a,.mp4,.mov,.webm" multiple hidden></form><div id="chat-suggestions"></div>
-<div class="quick"><button data-prompt="Создай адаптивный сайт музыкального лейбла: каталог релизов, артисты и контакты.">↗ Сайт</button><button data-prompt="Спроектируй и создай SaaS для управления проектами с авторизацией и тестами.">▣ Приложение</button><button data-studio="image">◇ Изображение</button><button data-studio="music">≋ Музыка</button></div>
-<p id="local-notice" class="context-note" role="status" hidden></p>
-<div class="mission" id="mission-panel" hidden><div class="section-heading"><h2>Работа AZRAIL</h2><button id="cancel" class="text-button">Остановить</button></div><p id="mission-status" role="status"></p><p id="mission-summary"></p><p id="mission-connection" role="status" class="muted"></p><progress id="mission-progress" aria-label="Шаги миссии" hidden></progress><p id="mission-progress-label" class="muted"></p><ol id="mission-plan" class="mission-plan"></ol><p id="mission-checks" class="muted"></p><details><summary>Ход работы и технические детали</summary><div id="mission-activity"></div><pre id="mission-output"></pre></details><div class="toolbar"><button id="resume">Обновить статус</button><button id="recover">Продолжить миссию</button><button id="permit-sandbox">Разрешить Sandbox</button><button id="project-design">Стиль проекта</button><button id="project-history">История версий</button><button id="project-backups">Резервные копии</button><button id="export-project">Скачать проект</button></div></div>
-<div class="bottom-note"><span id="mode"><span class="dot"></span> Сторонние модели выключены</span><a id="connections" class="text-button" href="/settings/connections">Подключения ↗</a><button id="settings" class="text-button">Режим и лимиты ↗</button></div></section>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="theme-color" content="#09090f">
+<meta name="description" content="AZRAIL × MNMLL PULSE — рабочее пространство для идей, кода и музыки.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="AZRAIL">
+<title>AZRAIL × MNMLL PULSE</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+<a class="skip" href="#main">К содержимому</a>
+<div id="workspace" class="app-shell" data-sidebar-open="true" data-context-open="false" data-preview-open="false">
+  <aside id="workspace-sidebar" class="workspace-sidebar" aria-label="Навигация и диалоги">
+    <div class="sidebar-brand">
+      <a class="brand" href="/" data-home aria-label="AZRAIL — на главную">
+        <svg class="mark" viewBox="0 0 40 44" fill="none" aria-hidden="true"><path d="M31.3 8.7A16 16 0 1 0 31.3 31.3M20 17V42" stroke="currentColor" stroke-width="2.1"/></svg>
+        <span>AZRAIL<span class="brand-sub">MNMLL PULSE OS</span></span>
+      </a>
+      <button id="sidebar-close" type="button" class="shell-icon" aria-label="Скрыть навигацию" title="Скрыть навигацию">‹</button>
+    </div>
+    <button id="new-chat" type="button" class="new-chat"><span aria-hidden="true">＋</span> Новый чат <kbd>↵</kbd></button>
+    <nav class="workspace-nav" aria-label="Главная навигация">
+      <a href="/" data-view="create" class="nav active" aria-current="page"><span aria-hidden="true">◇</span> Chat</a>
+      <a href="/mission" data-view="mission" class="nav"><span aria-hidden="true">◈</span> Mission Control</a>
+      <a href="/projects" data-view="projects" class="nav"><span aria-hidden="true">▱</span> Проекты</a>
+      <a href="/studios" data-view="studios" class="nav"><span aria-hidden="true">⊞</span> Студии <span class="nav-count">8</span></a>
+      <a href="/metatron" data-view="metatron" class="nav"><span aria-hidden="true">⌘</span> Metatron</a>
+    </nav>
+    <div class="history-heading"><h2>Ваши чаты</h2><span id="chat-count">0</span></div>
+    <label class="sr-only" for="chat-search">Поиск чатов</label>
+    <input id="chat-search" class="chat-search" type="search" placeholder="Поиск чатов…" autocomplete="off" maxlength="120">
+    <label class="chat-archive-toggle"><input id="chat-show-archived" type="checkbox"> Архив</label>
+    <div class="history-scroll"><ul id="chat-list" class="chat-list" aria-label="История чатов"></ul><p id="chat-history-empty" class="history-empty">Здесь появятся ваши чаты.</p></div>
+    <p class="history-scope">Чаты синхронизируются между устройствами</p>
+    <div class="sidebar-footer">
+      <a id="connections-link" class="nav" href="/settings/connections" data-view="connections"><span aria-hidden="true">⊙</span> Подключения</a>
+      <div class="sidebar-account"><span class="account-avatar" aria-hidden="true">A</span><button id="account" class="account" type="button">Войти <span>↗</span></button></div>
+    </div>
+  </aside>
+  <button id="sidebar-backdrop" class="sidebar-backdrop" type="button" aria-label="Закрыть навигацию" hidden></button>
+  <div class="workspace-center">
+    <header class="workspace-topbar">
+      <button id="sidebar-toggle" class="shell-icon" type="button" aria-label="Показать навигацию" aria-controls="workspace-sidebar" aria-expanded="true" title="Навигация"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M9 4v16" stroke="currentColor" stroke-width="1.5"/></svg></button>
+      <div class="workspace-title"><span class="workspace-product">PULSE <span>WORKSPACE</span></span><span id="workspace-page-title">Новый чат</span></div>
+      <button id="commands" class="shell-icon" type="button" aria-label="Поиск команд" title="Поиск команд · Ctrl / ⌘ K">⌕</button>
+      <button id="preview-toggle" class="context-toggle" type="button" aria-controls="preview-panel" aria-expanded="false" aria-label="Код" title="Код и живой экран"><span aria-hidden="true">◇</span> <span class="nav-label">Код</span></button>
+      <button id="context-toggle" class="context-toggle" type="button" aria-controls="context-panel" aria-expanded="false" aria-label="Контекст"><span aria-hidden="true">◫</span> <span class="nav-label">Контекст</span></button>
+    </header>
+    <main id="main" class="workspace-main" tabindex="-1">
+      <section id="create" class="view chat-view" aria-label="Chat · AZRAIL">
+        <div id="chat-scroll" class="chat-scroll" tabindex="0" aria-label="Лента чата">
+          <div class="chat-content">
+            <div id="chat-welcome" class="chat-welcome chat-hero">
+              <div class="welcome-emblem" aria-hidden="true"><svg viewBox="0 0 40 44" fill="none"><path d="M31.3 8.7A16 16 0 1 0 31.3 31.3M20 17V42" stroke="currentColor" stroke-width="1.5"/></svg></div>
+              <p class="kicker">CHAT</p>
+              <h1 tabindex="-1">AZRAIL</h1>
+              <p class="intro">Спроси что угодно. Задачи с планом и шагами — в Mission Control.</p>
+            </div>
+            <div id="chat-messages" class="chat-messages" role="log" aria-label="Сообщения" aria-live="polite" aria-relevant="additions text"></div>
+            <p id="local-notice" class="context-note" role="status" hidden></p>
+          </div>
+        </div>
+        <button id="jump-latest" class="jump-latest" type="button" aria-label="К последнему сообщению" hidden>↓ К последнему сообщению</button>
+      </section>
+<section id="mission" class="view mission-control" hidden aria-label="AZRAIL Mission Control">
+        <div class="page-title mission-control-hero">
+          <p class="kicker">MISSION CONTROL</p>
+          <h1 tabindex="-1">AZRAIL</h1>
+          <p class="intro">Напиши цель внизу и нажми Старт. Система сама составит план и выполнит шаги.</p>
+        </div>
+        <div id="mission-history" class="mission-history" aria-label="Недавние миссии"></div>
+        <article class="mission" id="mission-panel" hidden aria-label="Текущая задача AZRAIL">
+          <div class="section-heading"><h2><span class="assistant-mark" aria-hidden="true">A</span> Ход задачи</h2><button id="cancel" class="danger" type="button">Стоп</button></div>
+          <p id="mission-status" role="status"></p><p id="mission-summary"></p>
+          <div id="mission-done" class="mission-done" hidden>
+            <strong>Готово</strong>
+            <button id="mission-download" class="primary" type="button">Скачать проект ↗</button>
+          </div>
+          <p id="mission-connection" role="status" class="muted"></p>
+          <progress id="mission-progress" aria-label="Шаги миссии" hidden></progress>
+          <p id="mission-progress-label" class="muted"></p><ol id="mission-plan" class="mission-plan"></ol>
+          <p id="mission-checks" class="muted"></p>
+          <p id="context-status" class="muted" hidden></p>
+          <p id="context-project" class="muted" hidden></p>
+          <div class="mission-actions">
+            <button id="resume" type="button">Обновить статус</button>
+            <button id="recover" type="button" hidden>Продолжить</button>
+            <button id="permit-sandbox" type="button" hidden>Разрешить Sandbox</button>
+            <button id="export-project" type="button">Скачать проект ↗</button>
+            <button id="project-history" type="button">История версий</button>
+            <button id="project-backups" type="button">Резервные копии</button>
+            <button id="project-design" type="button">Стиль проекта</button>
+            <button id="context-refresh" class="text-button" type="button">Обновить файлы</button>
+          </div>
+          <div id="context-files" class="context-files" aria-live="polite"></div>
+          <details><summary>Ход работы и технические детали</summary><div id="mission-activity"></div><pre id="mission-output"></pre></details>
+        </article>
+      </section>
 <section id="projects" class="view" hidden><div class="page-title"><p class="kicker">ВАША РАБОТА СОХРАНЯЕТСЯ</p><h1 tabindex="-1">Проекты <span class="title-accent">в одном месте.</span></h1><p class="intro">Поиск, статус, версии и последние результаты — без перегруженной панели управления.</p></div><div class="project-toolbar" aria-label="Фильтры проектов"><label class="project-search"><span>Поиск</span><input id="project-search" type="search" maxlength="120" placeholder="Название, описание или тег"></label><label><span>Статус</span><select id="project-status-filter"><option value="active">Активные</option><option value="archived">Архив</option><option value="deleted">Удалённые</option><option value="all">Все</option></select></label><label><span>Студия</span><select id="project-studio-filter"><option value="">Все студии</option><option value="web">Web Studio</option><option value="image">Image Studio</option><option value="music">Music Studio</option><option value="video">Video Studio</option><option value="audio">Audio Lab</option><option value="als">Ableton Lab</option><option value="data">Data Studio</option><option value="ledger">Ledger</option><option value="lab">Pulse Lab</option></select></label><label><span>Сортировка</span><select id="project-sort"><option value="updated_desc">Последняя активность</option><option value="name_asc">Название A–Я</option><option value="name_desc">Название Я–A</option><option value="created_desc">Сначала новые</option><option value="created_asc">Сначала старые</option><option value="updated_asc">Давно без активности</option></select></label><div class="project-toolbar-actions"><button id="refresh-projects" type="button">Обновить</button><button id="new-project" class="primary" type="button">Новый проект</button></div></div><p id="project-summary" class="muted" role="status"></p><div id="project-list" class="project-grid"></div><div class="section-heading project-files-heading"><h2>Последние файлы студий</h2><span class="muted">Сохранённые результаты</span></div><div id="artifact-list" class="artifact-list"></div></section>
 <section id="studios" class="view" hidden><div class="page-title"><p class="kicker">ОДНО ПРОСТРАНСТВО. РАЗНЫЕ ИНСТРУМЕНТЫ.</p><h1 tabindex="-1">Выберите <span class="title-accent">студию.</span></h1><p class="intro">Каждый инструмент открывается на своей странице.</p></div><div id="studio-list" class="cards"></div></section>
 <section id="metatron" class="view" hidden><div class="page-title"><p class="kicker">AGENT OPERATIONS CENTER</p><h1 tabindex="-1">Metatron <span class="title-accent">Lab 2.0.</span></h1><p class="intro">Граф миссии, агенты, checkpoints, traces, стоимость, approvals и recovery — единый control plane AZRAIL.</p></div><div id="metatron-page" class="work"></div></section>
 <section id="connections" class="view" hidden><div class="page-title"><a class="back-link" href="/" data-view="create">← AZRAIL</a><p class="kicker">SETTINGS / CONNECTIONS</p><h1 tabindex="-1">Подключения <span class="title-accent">под контролем.</span></h1><p class="intro">Статус, scopes, инструменты, история вызовов и credential lifecycle на отдельной странице.</p></div><div id="connections-page" class="work"></div></section>
 <section id="studio-page" class="view" hidden><div class="page-title"><a id="close-studio" class="back-link" href="/studios">← Все студии</a><p class="kicker" id="studio-type"></p><h1 id="studio-title" tabindex="-1"></h1><p id="studio-description" class="intro"></p></div><article id="studio-work" class="work" hidden><div id="studio-toolbar"></div><div id="studio-suggestions"></div><div id="studio-controls"></div><div id="studio-result" aria-live="polite"></div></article></section>
 <section id="not-found" class="view" hidden><div class="page-title"><p class="kicker">404</p><h1 tabindex="-1">Страница не найдена.</h1><p class="intro">Проверьте адрес или выберите инструмент в студиях.</p><a href="/studios" class="back-link" data-view="studios">Открыть студии ↗</a></div></section>
-</main><footer><span>AZRAIL × MNMLL PULSE</span><span>Всё начинается с вашей идеи.</span><button id="shortcuts" class="text-button" aria-label="Горячие клавиши">Клавиши ?</button><button id="about" class="text-button">О системе ↗</button></footer>
+    </main>
+    <div class="composer-dock">
+      <div id="studio-chat" class="studio-chat" hidden>
+        <div class="studio-talk-bar"><p>Разговор</p><button id="studio-talk-close" type="button">К треку</button></div>
+        <div id="studio-chat-log" class="studio-chat-log" role="log" aria-live="polite" aria-label="Чат этой студии"></div>
+      </div>
+      <form id="composer" class="composer">
+        <label for="prompt" class="sr-only">Сообщение AZRAIL</label>
+        <textarea id="prompt" rows="1" maxlength="20000" placeholder="Напиши сообщение…" required aria-describedby="composer-keyboard"></textarea>
+        <div id="attachment-names" class="muted"></div><div id="attachment-manager" class="attachment-manager" aria-live="polite" hidden></div>
+        <div class="composer-bottom">
+          <div class="composer-tools">
+            <button type="button" id="attach" class="icon-button" aria-label="Прикрепить файл" title="Любой файл до 50 МБ, кроме программ">＋</button>
+            <button type="button" id="voice" class="icon-button" aria-label="Записать голосовой запрос" title="Голосовой ввод"><svg width="18" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+            <button type="button" id="settings" class="icon-button" aria-label="Настройки" title="Настройки">⚙</button>
+            <div class="composer-models" id="composer-models" hidden>
+              <button type="button" id="composer-models-open" class="composer-models-btn" title="Models">
+                <img id="composer-models-icon" class="composer-models-icon" alt="" width="16" height="16" hidden>
+                <span id="composer-models-label" class="composer-models-label">Models</span>
+                <span id="composer-models-current" class="composer-models-current">Auto · AZRAIL</span>
+              </button>
+              <label for="composer-model" class="sr-only">Models</label>
+              <select id="composer-model" class="composer-model sr-only" title="Models" tabindex="-1" aria-hidden="true"><option value="">Auto · AZRAIL</option></select>
+            </div>
+          </div>
+          <button id="submit" class="primary send-button" type="submit" aria-label="Отправить сообщение" title="Отправить · Enter"><span aria-hidden="true">↑</span></button>
+        </div>
+        <input type="file" id="attachments" multiple hidden>
+      </form>
+      <div class="composer-footnote"><span id="mode"><span class="dot"></span> Сторонние модели выключены</span><button id="studio-talk-open" class="text-button" type="button" hidden>Разговор</button><button id="composer-open-chat" class="text-button" type="button" hidden>Открыть диалог</button><span id="composer-keyboard">Enter — отправить · Shift + Enter — новая строка</span></div>
+    </div>
+    <footer class="workspace-footer"><span>AZRAIL × MNMLL PULSE · UNIFIED / 1.5.0-rc.63</span><button id="about" class="text-button" type="button">О системе ↗</button></footer>
+  </div>
+  <aside id="preview-panel" class="preview-panel" aria-labelledby="preview-heading" hidden>
+    <div class="preview-heading">
+      <div><p class="kicker">КОД И ЖИВОЙ ЭКРАН</p><h2 id="preview-heading">Редактор</h2></div>
+      <button id="preview-close" class="shell-icon" type="button" aria-label="Закрыть код и экран">×</button>
+    </div>
+    <section id="home-canvas" class="home-canvas" aria-label="Код и живой экран">
+      <div class="home-canvas-bar">
+        <div class="segmented" role="tablist" aria-label="Режим">
+          <button id="home-mode-code" type="button" role="tab" aria-selected="true">Код</button>
+          <button id="home-mode-screen" type="button" role="tab" aria-selected="false">Экран</button>
+        </div>
+        <span id="home-canvas-kind" class="muted">HTML</span>
+      </div>
+      <textarea id="home-code" spellcheck="false" aria-label="Код страницы"></textarea>
+      <iframe id="home-screen" title="Живой экран" sandbox="allow-same-origin" hidden></iframe>
+    </section>
+  </aside>
+  <aside id="context-panel" class="context-panel" aria-labelledby="context-heading" hidden>
+    <div class="context-heading">
+      <div><p class="kicker">РАБОЧИЙ КОНТЕКСТ</p><h2 id="context-heading">Контекст</h2></div>
+      <button id="context-close" class="shell-icon" type="button" aria-label="Закрыть контекст">×</button>
+    </div>
+    <div class="context-scroll">
+      <section class="context-section">
+        <h3>Сессия</h3>
+        <p id="context-session" class="muted">Локальный просмотр</p>
+        <p id="context-page-label" class="muted">Страница · Чат</p>
+        <p id="context-model-label" class="muted">Модель · автовыбор</p>
+        <p id="context-voice-label" class="muted">Голос · Люмен</p>
+      </section>
+      <section class="context-section">
+        <h3>Проект</h3>
+        <p id="context-panel-project" class="muted">Проект не выбран</p>
+        <div class="context-project-actions">
+          <button id="context-goto-projects" type="button">Открыть проекты</button>
+          <button id="context-goto-mission" type="button">Mission Control</button>
+          <button id="context-goto-connections" type="button">Подключения</button>
+          <button id="context-panel-refresh" type="button">Обновить файлы проекта</button>
+        </div>
+        <div id="context-panel-files" class="context-files" aria-live="polite"></div>
+      </section>
+      <section class="context-section">
+        <h3>Студии</h3>
+        <div id="context-studios" class="context-studios"></div>
+      </section>
+      <section class="context-section">
+        <h3>Вложения</h3>
+        <p id="context-attachment-label" class="muted">Нет прикреплённых файлов</p>
+      </section>
+    </div>
+  </aside>
+</div>
 <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><button id="notice-close" type="button" aria-label="Закрыть уведомление">×</button></div><dialog id="dialog"><div class="section-heading"><h2 id="dialog-title"></h2><button id="close-dialog" aria-label="Закрыть">×</button></div><div id="dialog-content"></div></dialog><noscript><p class="context-note">Интерфейс виден, но для работы кнопок нужен JavaScript.</p></noscript>
 <script type="module" src="/assets/app.js"></script></body></html>

@@ -1,5 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { cveReceiptProves } from './dependency-cve-audit.mjs';
 
 const pkg=JSON.parse(readFileSync('package.json','utf8'));
 const contract=JSON.parse(readFileSync('verification/security-verification-contract.json','utf8'));
@@ -19,7 +20,7 @@ if(contract.environment==='staging'&&contract.worker_name==='azrail-pulse-stagin
 if(contract.policy?.cloudflare_mutation_allowed===false&&contract.policy?.github_mutation_allowed===false&&contract.policy?.canva_mutation_allowed===false)pass('mutation-policy','verification is read-only');else fail('mutation-policy','remote mutations must be forbidden');
 if(cors.includes('corsOrigin')&&cors.includes('PUBLIC_ORIGINS')&&cors.includes('return "null"')&&!/CORS_ORIGIN\s*\|\|\s*["']\*["']/.test(cors))pass('strict-cors','wildcard fallback removed; invalid/missing origin fails closed');else fail('strict-cors','CORS helper still permits wildcard or lacks fail-closed origin selection');
 if(entry.includes("Content-Security-Policy")&&entry.includes("script-src 'self'")&&entry.includes("frame-ancestors 'none'")&&entry.includes("object-src 'none'"))pass('security-headers','main shell CSP includes script/frame/object restrictions');else fail('security-headers','main shell CSP baseline missing');
-if(entry.includes("style-src 'self'; style-src-attr 'unsafe-inline'"))pass('csp-style-scope','stylesheet elements are self-only; dynamic style attributes are isolated to style-src-attr');else fail('csp-style-scope','CSP must separate style elements from inline style attributes');
+if(entry.includes("style-src 'self' data:; style-src-attr 'unsafe-inline'"))pass('csp-style-scope','stylesheet elements are self or an embedded preview sheet; dynamic style attributes are isolated to style-src-attr');else fail('csp-style-scope','CSP must separate style elements from inline style attributes');
 for(const marker of ['code_challenge_method:\'S256\'','nonce','state_hash','SameSite=Lax','HttpOnly','Secure']){if(oidc.includes(marker))pass(`oidc-${marker.replace(/[^a-z0-9]+/gi,'-')}`,marker);else fail('oidc-hardening',`missing ${marker}`)}
 if(oidc.includes('DELETE FROM web_sessions WHERE token_hash=?')&&oidc.includes('a.disabled=0'))pass('session-revocation-semantics','logout deletes server session and disabled accounts invalidate sessions');else fail('session-revocation-semantics','server-side revocation semantics missing');
 if(quota.includes('ON CONFLICT(scope, bucket) DO UPDATE')&&quota.includes('return { allowed: false'))pass('rate-limit-semantics','atomic fixed-window quota fails closed');else fail('rate-limit-semantics','atomic fail-closed quota missing');
@@ -36,11 +37,18 @@ if(existsSync('verification/sbom.spdx.json'))pass('sbom-present','verification/s
 const eventStream=readFileSync('src/lib/event-stream.ts','utf8');
 const eventIntegrityMigration=readFileSync('migrations/030-event-integrity-chain.sql','utf8');
 if(eventStream.includes('verifyEventIntegrityScope')&&eventStream.includes('sha256Hex')&&eventStream.includes('event_integrity')&&eventIntegrityMigration.includes('idx_event_integrity_scope_prev'))pass('audit-integrity','new unified events are atomically linked to a SHA-256 tamper-evident chain with fork prevention');else fail('audit-integrity','cryptographic event integrity chain is incomplete');
-warn('dependency-cve-audit','offline lock integrity is verified; a current registry vulnerability audit still requires Node24/npm/network in the release environment');
-warn('remote-security-smoke','real post-deploy security verification is intentionally blocked until staging migration/deploy/smoke receipts exist');
+const cvePath='.work/dependency-cve-audit.json';
+const cve=existsSync(cvePath)?JSON.parse(readFileSync(cvePath,'utf8')):null;
+if(cveReceiptProves(cve,pkg.version))pass('dependency-cve-audit',`registry audit ${cve.generated_at}; high=0 critical=0; moderate=${cve.vulnerabilities?.moderate??0} low=${cve.vulnerabilities?.low??0}`);
+else if(cve)fail('dependency-cve-audit','dependency CVE receipt is present but is not a Node 24 VERIFIED high/critical-clean registry audit for this release');
+else warn('dependency-cve-audit','offline lock integrity is verified; a current registry vulnerability audit still requires Node24/npm/network in the release environment');
+const securitySmokePath=contract.required_receipts.runtime_security;
+let securitySmokeProven=false;
+if(existsSync(securitySmokePath)){try{const smoke=JSON.parse(readFileSync(securitySmokePath,'utf8'));securitySmokeProven=smoke.status==='VERIFIED'&&smoke.release===pkg.version;}catch{securitySmokeProven=false;}}
+if(!securitySmokeProven)warn('remote-security-smoke','real post-deploy security verification has not produced a VERIFIED receipt for this release');
 
 const status=failures.length?'BLOCKED':'PREPARED';
-const report={schema_version:1,release:pkg.version,environment:'staging',status,generated_at:new Date().toISOString(),checks,warnings,failures,known_release_gaps:{audit_event_crypto_chain:!checks.some(x=>x.name==='audit-integrity'&&x.status==='PASSED'),live_dependency_cve_audit:true,post_deploy_security_smoke:true},mutation_policy:{github_write_performed:false,cloudflare_write_performed:false,canva_write_performed:false,model_calls_performed:false}};
+const report={schema_version:1,release:pkg.version,environment:'staging',status,generated_at:new Date().toISOString(),checks,warnings,failures,known_release_gaps:{audit_event_crypto_chain:!checks.some(x=>x.name==='audit-integrity'&&x.status==='PASSED'),live_dependency_cve_audit:!cveReceiptProves(cve,pkg.version),post_deploy_security_smoke:!securitySmokeProven},mutation_policy:{github_write_performed:false,cloudflare_write_performed:false,canva_write_performed:false,model_calls_performed:false}};
 mkdirSync('.work',{recursive:true});writeFileSync('.work/security-verification-preparation.json',JSON.stringify(report,null,2)+'\n');
 for(const c of checks)console.log(`${c.status.padEnd(7)} ${c.name} — ${c.detail}`);
 console.log(`SECURITY VERIFICATION PREPARATION ${status}: ${checks.filter(x=>x.status==='PASSED').length} passed, ${warnings.length} warning, ${failures.length} failed.`);

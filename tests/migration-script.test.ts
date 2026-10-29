@@ -2,6 +2,7 @@ import {describe,it,expect} from 'vitest';
 import {createHash} from 'node:crypto';
 import {readFileSync,readdirSync} from 'node:fs';
 import {resolve} from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {runInNewContext} from 'node:vm';
 import {sqliteD1} from './stubs/sqlite-d1';
 const source=readFileSync('scripts/migrate.mjs','utf8').replace(/^import .*;\n/gm,'').replace('import.meta.url',JSON.stringify(new URL('../scripts/migrate.mjs',import.meta.url).href));
@@ -29,7 +30,7 @@ function execute(apply:boolean){
   const exitSignal={};
   try{runInNewContext(source,{
     execFileSync,createHash,readFileSync,readdirSync,writeFileSync:(p:string,s:string)=>written.set(p,s),mkdirSync(){},resolve,
-    fileURLToPath:(u:URL)=>u.pathname,URL,Date,Set,Map,JSON,Number,String,Object,Math,Error,process:{argv:['node','script','--local','--config','wrangler.staging.json',...(apply?['--apply']:[])],execPath:process.execPath,env:{},exit:(code=0)=>{if(code!==0)throw Error(`migrate.mjs exited with ${code}`);throw exitSignal;}},console:{log(){}}
+    fileURLToPath,URL,Date,Set,Map,JSON,Number,String,Object,Math,Error,process:{argv:['node','script','--local','--config','wrangler.staging.json',...(apply?['--apply']:[])],execPath:process.execPath,env:{},exit:(code=0)=>{if(code!==0)throw Error(`migrate.mjs exited with ${code}`);throw exitSignal;}},console:{log(){}}
   });}catch(error){if(error!==exitSignal)throw error;}
   return {sqlite,calls,written};
 }

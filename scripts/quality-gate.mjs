@@ -1,4 +1,4 @@
-import { spawnSync } from 'node:child_process';
+import { spawnCommand } from './lib/run-command.mjs';
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 
 const full=process.argv.includes('--full');
@@ -9,12 +9,13 @@ const report={schema_version:1,mode:full?'full':'static',started_at:startedAt,fi
 function major(v){return Number(String(v).replace(/^v/,'').split('.')[0]);}
 function gate(name,command,{required=true,blockedReason=''}={}){
   if(blockedReason){ report.gates.push({name,status:'BLOCKED',required,detail:blockedReason}); return false; }
-  const r=spawnSync(command[0],command.slice(1),{stdio:'pipe',encoding:'utf8',env:{...process.env,AZRAIL_QUALITY_GATE:'1'}});
-  const detail=[r.stdout,r.stderr].filter(Boolean).join('\n').trim().slice(-6000);
+  const r=spawnCommand(command,{stdio:'pipe',encoding:'utf8',env:{...process.env,AZRAIL_QUALITY_GATE:'1'}});
+  const detail=[r.stdout,r.stderr,r.error?.message].filter(Boolean).join('\n').trim().slice(-6000);
   const status=r.status===0?'PASSED':'FAILED';
   report.gates.push({name,status,required,command:command.join(' '),exit_code:r.status,detail});
   if(r.stdout) process.stdout.write(r.stdout);
   if(r.stderr) process.stderr.write(r.stderr);
+  if(r.error) console.error(r.error.message);
   return status==='PASSED';
 }
 

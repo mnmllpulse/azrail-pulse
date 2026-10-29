@@ -1,4 +1,7 @@
 import {renderMission} from './mission-view';
+import {mountWorkspaceShell} from './components/workspace-shell';
+import {createChatHistory,renderChatMessages} from './chat-history';
+import {createStudioRooms} from './studio-chat';
 import {mountStudioDraft} from './studio-draft';
 import {createNavigation,type Route} from './navigation';
 import {studios,studioById,loadStudioModule} from './studio-registry';
@@ -7,15 +10,20 @@ import {createProjectEventClient,type StreamEvent} from './event-stream';
 import {renderProjectCenter,type ProjectSummary} from './projects';
 import {createAttachmentManager} from './attachment-manager';
 import {mountSuggestionBar,type Suggestion,type SuggestionContext} from './components/suggestions';
+import {mountHomeCanvas} from './home-canvas';
 import {mountStudioToolbar} from './components/studio-toolbar';
 import {createStudioStateController} from './components/studio-state';
 import {renderSmartEmptyState} from './components/smart-empty';
 import {mountModuleFrameActions} from './components/module-frame';
 import {renderRecoveryError} from './components/error-recovery';
 import {mountVoiceInput} from './components/voice-input';
+import {PROVIDER_TOKENS, clearProviderToken, hasProviderToken, saveProviderToken} from './provider-tokens';
 import {mountCommandPalette} from './components/command-palette';
 import {mountMetatronLab} from './metatron-lab';
 import {openUniversalCompareCenter} from './components/universal-compare';
+import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
+import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
+import {fillMarkdownContent} from './chat-markdown';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
 function reportGlobalError(source:string,reason:unknown){
@@ -36,6 +44,13 @@ type Account={id:string;name:string;operator?:boolean;role?:'viewer'|'editor'|'a
 let account:Account|null=null,project='',mission='',pollTimer=0,epoch=0,studioEpoch=0,mediaCleanup=()=>{},lastBlob:Blob|null=null;
 let draftCleanup=()=>{},studioChromeCleanup=()=>{},pollFailures=0,missionSubmitting=false,studioRun=0;
 let preferredModel='';
+type ChatVoice='lumen'|'shade'|'aria';
+const VOICES:Record<ChatVoice,{name:string;line:string}>={
+ lumen:{name:'Люмен',line:'Мужской · добрый, ясный, живой'},
+ shade:{name:'Серый',line:'Мужской · серьёзный, короткий, собранный'},
+ aria:{name:'Ария',line:'Женский · мягкий, добрый, ясный'},
+};
+let chatVoice:ChatVoice='lumen';
 let stopEventStream=()=>{},streamProject='';
 let activeStudioModule:StudioModule|null=null,activeStudioContext:StudioModuleContext|null=null;
 let metatronCleanup=()=>{};
@@ -45,18 +60,401 @@ let metatronCleanup=()=>{};
 // администратором персональный ключ az_... (lib/accounts.ts) — выбор формата
 // токена не касается интерфейса. Хранится только в sessionStorage текущей
 // вкладки: closeTab = выход, как и у остальных локальных черновиков здесь.
-let authToken='',oidcConfigured=true;
+let authToken='',oidcConfigured=true,keyLogin=true;
 const prompt=$<HTMLTextAreaElement>('prompt');
 const composer=$('composer'),missionPanel=$('mission-panel');
 const composerHome=document.createComment('composer-home'),missionHome=document.createComment('mission-home');
 composer.before(composerHome);missionPanel.before(missionHome);
 const navigation=createNavigation(renderRoute);
 let attachmentRefs:any[]=[],pending:{key:string;body:string}|null=null;
-const attachmentManager=createAttachmentManager({root:$('attachment-manager'),input:$<HTMLInputElement>('attachments'),getProjectId:()=>project,api,failure,onChange:refs=>{attachmentRefs=refs;$('attachment-names').textContent=refs.length?`${refs.length} файл(ов) готово`:'';}});
+const attachmentManager=createAttachmentManager({root:$('attachment-manager'),input:$<HTMLInputElement>('attachments'),getProjectId:()=>project,api,failure,onChange:refs=>{attachmentRefs=refs;$('attachment-names').textContent=refs.length?`${refs.length} файл(ов) готово`:'';syncContextPanel();}});
 function clearAttachments(){attachmentRefs=[];attachmentManager.clear();$('attachment-names').textContent='';}
-try{pending=JSON.parse(sessionStorage.getItem('pulse.pending')??'null');project=sessionStorage.getItem('pulse.project')??'';mission=sessionStorage.getItem('pulse.mission')??'';authToken=sessionStorage.getItem('pulse.token')??'';preferredModel=sessionStorage.getItem('pulse.preferredModel')??'';}catch{}
-function remember(){try{if(pending)sessionStorage.setItem('pulse.pending',JSON.stringify(pending));else sessionStorage.removeItem('pulse.pending');sessionStorage.setItem('pulse.project',project);sessionStorage.setItem('pulse.mission',mission);}catch{}}
-function setPreferredModel(model:string){preferredModel=model;try{if(model)sessionStorage.setItem('pulse.preferredModel',model);else sessionStorage.removeItem('pulse.preferredModel');}catch{}}
+function deviceValue(key:string){try{return localStorage.getItem(key)??sessionStorage.getItem(key);}catch{try{return sessionStorage.getItem(key);}catch{return null;}}}
+function deviceWrite(key:string,value:string|null){for(const store of [localStorage,sessionStorage])try{if(value===null)store.removeItem(key);else store.setItem(key,value);}catch{/* private mode */}}
+try{pending=JSON.parse(deviceValue('pulse.pending')??'null');project=deviceValue('pulse.project')??'';mission=deviceValue('pulse.mission')??'';authToken=sessionStorage.getItem('pulse.token')??'';preferredModel=sessionStorage.getItem('pulse.preferredModel')??'';const savedVoice=sessionStorage.getItem('pulse.voice');if(savedVoice==='lumen'||savedVoice==='shade'||savedVoice==='aria')chatVoice=savedVoice;}catch{}
+function remember(){deviceWrite('pulse.pending',pending?JSON.stringify(pending):null);deviceWrite('pulse.project',project);deviceWrite('pulse.mission',mission);}
+function setPreferredModel(model:string){preferredModel=model;try{if(model)sessionStorage.setItem('pulse.preferredModel',model);else sessionStorage.removeItem('pulse.preferredModel');}catch{}const select=$<HTMLSelectElement>('composer-model');if(model&&!Array.from(select.options).some(o=>o.value===model)){const option=document.createElement('option');option.value=model;option.textContent=modelDisplayName(model);option.title=model;select.append(option);}select.value=model;if(typeof syncModelsButton==='function')syncModelsButton();syncContextPanel();}
+function setChatVoice(voice:ChatVoice){chatVoice=voice;try{sessionStorage.setItem('pulse.voice',voice);}catch{}syncChatUI();notice(`Голос: ${VOICES[voice].name}. Следующий ответ будет в этом тоне.`);}
+
+let chatStorage:Storage|undefined;
+try{chatStorage={getItem:key=>deviceValue(key),setItem:(key,value)=>{deviceWrite(key,value);},removeItem:key=>deviceWrite(key,null),key:()=>null,length:0,clear(){}} as Storage;}catch{}
+const chatHistory=createChatHistory(chatStorage,()=>notice('История доступна в памяти, но хранилище устройства заполнено или недоступно.',true));
+const studioRooms=createStudioRooms(chatStorage);
+chatHistory.setScope(local?'local':'guest');
+let openContextPanel=()=>{};
+const workspace=mountWorkspaceShell(()=>openContextPanel());
+let contextGeneration=0;
+let currentRoute:Route={page:'create'};
+async function persistChatMeta(id:string,patch:{title?:string;pinned?:boolean;archived?:boolean;projectId?:string|null}){
+ if(!account||local)return;
+ try{await api('/api/conversations',{method:'PATCH',body:JSON.stringify({id,...patch})});}catch{/* Local rename/pin still kept. */}
+}
+function renameChat(id:string){
+ const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
+ const next=window.prompt('Название чата',thread.title);
+ if(next===null)return;
+ const title=next.replace(/\s+/g,' ').trim().slice(0,90);if(!title){notice('Название не может быть пустым.',true);return;}
+ chatHistory.rename(id,title);syncChatUI(false);void persistChatMeta(id,{title});
+}
+function togglePinChat(id:string){
+ const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
+ const pinned=!thread.pinned;chatHistory.setPinned(id,pinned);syncChatUI(false);void persistChatMeta(id,{pinned});
+}
+function toggleArchiveChat(id:string){
+ const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
+ const archived=!thread.archived;chatHistory.setArchived(id,archived);syncChatUI(false);void persistChatMeta(id,{archived});
+ notice(archived?'Чат в архиве.':'Чат возвращён из архива.');
+}
+async function deleteChat(id:string){
+ const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
+ if(!window.confirm(`Удалить чат «${thread.title}»?`))return;
+ chatHistory.remove(id);
+ if(account&&!local){try{await api(`/api/chat?conversationId=${encodeURIComponent(id)}`,{method:'DELETE'});}catch{/* Local removal still applies. */}}
+ if(chatHistory.current())openChat(chatHistory.current()!.id);else newChat();
+ notice('Чат удалён.');
+}
+async function shareChat(id:string){
+ const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
+ const lines=thread.turns.flatMap(t=>[`Вы: ${t.user}`,t.reply?`AZRAIL: ${t.reply}`:null]).filter(Boolean) as string[];
+ const text=`${thread.title}\n\n${lines.join('\n\n')}\n\n${location.origin}/?chat=${encodeURIComponent(id)}`;
+ const ok=await shareText(text,thread.title);
+ notice(ok?'Чат готов к отправке / скопирован.':'Не удалось поделиться чатом.',!ok);
+}
+function addChatToProject(id:string){
+ const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
+ const next=window.prompt('ID проекта (оставьте пустым, чтобы отвязать)',thread.projectId||project||'');
+ if(next===null)return;
+ const projectId=next.trim()||null;
+ chatHistory.setProject(id,projectId??'');
+ if(thread.id===chatHistory.current()?.id){project=projectId??'';remember();}
+ syncChatUI(false);void persistChatMeta(id,{projectId});
+ notice(projectId?'Чат добавлен в проект.':'Чат отвязан от проекта.');
+}
+let deferredInstallPrompt:any=null;
+window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredInstallPrompt=e;});
+async function addChatToHomeScreen(){
+ if(deferredInstallPrompt){
+  deferredInstallPrompt.prompt();
+  try{await deferredInstallPrompt.userChoice;}catch{/* cancelled */}
+  deferredInstallPrompt=null;
+  notice('Ярлык AZRAIL можно добавить на главный экран.');
+  return;
+ }
+ const isIos=/iphone|ipad|ipod/i.test(navigator.userAgent);
+ notice(isIos
+  ?'На iPhone: «Поделиться» → «На экран Домой».'
+  :'В меню браузера выберите «Установить приложение» / «Добавить на главный экран».',true);
+}
+function closeChatMenus(){document.querySelectorAll('.chat-menu').forEach(el=>el.remove());}
+function placeFloatingMenu(menu:HTMLElement,anchor:HTMLElement){
+ document.body.append(menu);
+ const rect=anchor.getBoundingClientRect();
+ const width=Math.min(280,window.innerWidth-24);
+ menu.style.position='fixed';
+ menu.style.width=`${width}px`;
+ menu.style.maxHeight='min(46dvh,280px)';
+ menu.style.overflow='auto';
+ menu.style.zIndex='80';
+ menu.style.left=`${Math.max(12,Math.min(rect.left,window.innerWidth-width-12))}px`;
+ if(rect.bottom+200>window.innerHeight-12){menu.style.top='auto';menu.style.bottom=`${Math.max(12,window.innerHeight-rect.top+6)}px`;}
+ else{menu.style.top=`${rect.bottom+6}px`;menu.style.bottom='auto';}
+}
+function openChatMenu(id:string,anchor:HTMLElement){
+ closeChatMenus();
+ const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
+ const menu=document.createElement('div');menu.className='chat-menu';menu.setAttribute('role','menu');
+ const item=(label:string,action:()=>void,danger=false)=>{
+  const btn=document.createElement('button');btn.type='button';btn.className=danger?'chat-menu-item danger':'chat-menu-item';btn.setAttribute('role','menuitem');btn.textContent=label;
+  btn.onclick=(e)=>{e.stopPropagation();closeChatMenus();action();};
+  menu.append(btn);
+ };
+ item('Переименовать чат',()=>renameChat(id));
+ item('Удалить чат',()=>{void deleteChat(id);},true);
+ item(thread.archived?'Разархивировать чат':'Архивировать чат',()=>toggleArchiveChat(id));
+ item('Поделиться чатом',()=>{void shareChat(id);});
+ item(thread.pinned?'Открепить чат':'Закрепить чат',()=>togglePinChat(id));
+ item('Добавить в проект',()=>addChatToProject(id));
+ item('Добавить на главный экран',()=>{void addChatToHomeScreen();});
+ const row=anchor.closest('.chat-row')||anchor.parentElement;if(row)row.append(menu);
+ const onDoc=(e:MouseEvent)=>{if(!menu.contains(e.target as Node)&&e.target!==anchor){closeChatMenus();document.removeEventListener('click',onDoc,true);}};
+ window.setTimeout(()=>document.addEventListener('click',onDoc,true),0);
+}
+function syncChatUI(messages=true){
+ closeChatMenus();
+ const active=chatHistory.current(),query=$<HTMLInputElement>('chat-search').value.trim().toLocaleLowerCase();
+ const list=$('chat-list');list.replaceChildren();
+ const showArchived=$<HTMLInputElement>('chat-show-archived')?.checked??false;
+ const threads=chatHistory.list().filter(t=>showArchived?t.archived:!t.archived);
+ $('chat-count').textContent=String(threads.length);
+ for(const thread of threads.filter(t=>!query||t.title.toLocaleLowerCase().includes(query))){
+  const li=document.createElement('li'),row=document.createElement('div');row.className='chat-row';row.dataset.active=String(thread.id===active?.id);if(thread.pinned)row.dataset.pinned='true';if(thread.archived)row.dataset.archived='true';
+  const open=document.createElement('button');open.type='button';open.className='chat-open';open.dataset.chatId=thread.id;
+  open.setAttribute('aria-current',String(thread.id===active?.id));
+  const title=document.createElement('strong');title.textContent=thread.title;
+  const date=document.createElement('small');date.textContent=new Date(thread.updatedAt||Date.now()).toLocaleDateString('ru',{day:'numeric',month:'short'});
+  open.append(title,date);open.onclick=()=>openChat(thread.id);
+  const actions=document.createElement('div');actions.className='chat-row-actions';
+  const more=document.createElement('button');more.type='button';more.className='chat-more';more.title='Действия с чатом';more.setAttribute('aria-label','Действия с чатом');more.setAttribute('aria-haspopup','menu');
+  more.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><circle cx="12" cy="5" r="1.7"/><circle cx="12" cy="12" r="1.7"/><circle cx="12" cy="19" r="1.7"/></svg>';
+  more.onclick=(e)=>{e.stopPropagation();openChatMenu(thread.id,more);};
+  actions.append(more);row.append(open,actions);li.append(row);list.append(li);
+ }
+ $('chat-history-empty').hidden=!!list.childElementCount;$('chat-history-empty').textContent=query?'Чаты не найдены.':(showArchived?'Архив пуст.':'Здесь появятся ваши чаты.');
+ if(messages)renderChatMessages($('chat-messages'),active,mission,{
+  assistantLabel:`AZRAIL · ${VOICES[chatVoice].name}`,
+  onCopy:()=>notice('Ответ скопирован.'),
+  onShare:()=>notice('Ответ готов к отправке.'),
+  onSpeak:()=>{},
+  onMore:(text,anchor)=>{
+   closeChatMenus();
+   const menu=document.createElement('div');menu.className='chat-menu message-more-menu';menu.setAttribute('role','menu');
+   const mk=(label:string,fn:()=>void)=>{const b=document.createElement('button');b.type='button';b.className='chat-menu-item';b.textContent=label;b.onclick=()=>{closeChatMenus();fn();};menu.append(b);};
+   mk('Копировать',()=>{void copyText(text).then(ok=>notice(ok?'Скопировано.':'Не удалось скопировать.'));});
+   mk('Озвучить',()=>speakText(text));
+   mk('Поделиться',()=>{void shareText(text);});
+   mk('Выделить всё',()=>{void copyText(text);});
+   placeFloatingMenu(menu,anchor);
+   const onDoc=(e:MouseEvent)=>{if(!menu.contains(e.target as Node)&&e.target!==anchor){closeChatMenus();document.removeEventListener('click',onDoc,true);}};
+   window.setTimeout(()=>document.addEventListener('click',onDoc,true),0);
+  },
+ });
+ $('chat-welcome').hidden=!!(active?.turns.length||mission);
+ $('create').dataset.chat=(active?.turns.length||mission)?'open':'empty';
+ if(!$('create').hidden)$('workspace-page-title').textContent=active?.title??'Новый чат';
+ $('context-project').textContent=project?`Проект · ${project}`:'Выберите проект или начните диалог.';
+ syncContextPanel();
+ for(const id of ['export-project','project-history','project-backups','project-design','context-refresh'])$<HTMLButtonElement>(id).disabled=!account||!project;
+ $<HTMLButtonElement>('resume').disabled=!account||!mission;
+ workspace.contentChanged();
+}
+function resetMissionView(){
+ ++epoch;clearTimeout(pollTimer);pollFailures=0;contextGeneration++;
+ missionPanel.hidden=true;$('mission-done').hidden=true;$('cancel').hidden=true;
+ for(const id of ['mission-status','mission-summary','mission-output','mission-activity','mission-plan','mission-connection','mission-checks','mission-progress-label'])$(id).textContent='';
+ $('mission-progress').hidden=true;$('recover').hidden=true;$('permit-sandbox').hidden=true;
+ $('context-status').textContent='Активной задачи пока нет.';
+ $('context-files').replaceChildren();
+ $('context-panel-files')?.replaceChildren();
+}
+function canSwitchChat(){if(pending||missionSubmitting){notice('Дождитесь ответа на отправку или повторите запрос с неопределённым статусом перед сменой диалога.',true);return false;}return true;}
+let skipComposerSave=false;
+async function hydrateChat(id:string){
+ if(!account||local||!id)return;
+ try{
+  const r=await api(`/api/chat?conversationId=${encodeURIComponent(id)}`);
+  const messages=Array.isArray(r.messages)?r.messages:[];
+  chatHistory.hydrate(id,messages);
+  syncChatUI();workspace.toLatest();
+ }catch{/* Offline or missing conversation — keep local cache. */}
+}
+async function syncServerChats(){
+ if(!account||local)return;
+ const identity=account.id;
+ try{
+  const r=await api('/api/conversations');
+  if(account?.id!==identity)return;
+  const rows=Array.isArray(r.conversations)?r.conversations:[];
+  chatHistory.mergeRemote(rows);
+  syncChatUI();
+  // Pull messages for the open thread so phone ↔ desktop share the same dialogue.
+  const active=chatHistory.current();
+  if(active&&!active.missionId)await hydrateChat(active.id);
+ }catch{/* List sync is best-effort; sending chat still works. */}
+}
+function openChat(id:string){
+ if(!canSwitchChat())return;
+ saveComposerDraft();skipComposerSave=true;
+ const thread=chatHistory.select(id);if(!thread)return;
+ resetMissionView();clearAttachments();project=thread.projectId;mission=thread.missionId;prompt.value=thread.draft;remember();ensureEventStream();
+ navigation.navigate({page:mission?'mission':'create'});workspace.setContext(false);syncChatUI();workspace.toLatest();prompt.focus();
+ if(mission&&account){missionPanel.hidden=false;void poll(epoch);}else missionPanel.hidden=true;
+ // Always refresh from server so a chat started on phone appears here with full history.
+ if(account&&!mission)void hydrateChat(id);
+}
+function newChat(){
+ if(!canSwitchChat())return;
+ saveComposerDraft();skipComposerSave=true;chatHistory.create();resetMissionView();clearAttachments();
+ project='';mission='';prompt.value='';remember();ensureEventStream();navigation.navigate({page:'create'});workspace.setContext(false);syncChatUI();workspace.toLatest();prompt.focus();
+}
+function syncChatAccount(){
+ const scope=account?.id??(local?'local':'guest');
+ try{const previous=sessionStorage.getItem('pulse.identity');if(previous&&previous!==scope){project='';mission='';pending=null;resetMissionView();clearAttachments();remember();}sessionStorage.setItem('pulse.identity',scope);}catch{}
+ chatHistory.setScope(scope);studioRooms.setScope(scope);const active=chatHistory.current();
+ if(active){project=active.projectId;mission=active.missionId;if(composerRoom==='home')prompt.value=active.draft;remember();}
+ else if(project||mission)chatHistory.attach(project,mission);
+ syncChatUI();workspace.resizePrompt();
+ if(account&&!local)void syncServerChats();
+}
+type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;reviewed?:boolean;task?:string;capabilities?:string[];availability?:string;provider?:string;icon?:string|null;description?:string};
+let catalogModels:CatalogModel[]=[];
+/** Full registry for the Models picker (exactly the server catalog, no truncation). */
+function pickerModels(){return catalogModels.filter(m=>m.availability!=='unavailable'&&typeof m.slug==='string');}
+function modelLabel(m:CatalogModel){return m.displayName||modelDisplayName(m.slug);}
+function syncModelsButton(){
+ const current=$('composer-models-current'),icon=$<HTMLImageElement>('composer-models-icon');
+ const hit=preferredModel?catalogModels.find(m=>m.slug===preferredModel):undefined;
+ current.textContent=hit?modelLabel(hit):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL');
+ const src=hit?resolveModelIcon(hit):(preferredModel?providerIconPath(providerFromSlug(preferredModel)):undefined);
+ if(src){icon.src=src;icon.hidden=false;}else{icon.removeAttribute('src');icon.hidden=true;}
+ $<HTMLSelectElement>('composer-model').value=preferredModel;
+}
+function modelPickerMark(provider:string,icon?:string){
+ const mark=document.createElement('span');mark.className='model-picker-mark';mark.setAttribute('aria-hidden','true');
+ if(icon){const img=document.createElement('img');img.alt='';img.width=18;img.height=18;img.src=icon;img.onerror=()=>{img.remove();mark.dataset.fallback='';mark.textContent=providerInitial(provider);};mark.append(img);}
+ else{mark.dataset.fallback='';mark.textContent=providerInitial(provider);}
+ return mark;
+}
+function fillComposerModels(){
+ const select=$<HTMLSelectElement>('composer-model');select.replaceChildren();
+ const auto=document.createElement('option');auto.value='';auto.textContent='Auto · AZRAIL';select.append(auto);
+ for(const model of pickerModels()){
+  if(typeof model.slug!=='string'||Array.from(select.options).some(o=>o.value===model.slug))continue;
+  const option=document.createElement('option');
+  option.value=model.slug; // full slug in code/value
+  option.textContent=`${isNeuronPaidModel(model.slug)?'Нейроны':model.freeAllowlisted?'Free':'Paid'} · ${modelLabel(model)}`;
+  option.title=model.slug;
+  select.append(option);
+ }
+ if(preferredModel&&!Array.from(select.options).some(o=>o.value===preferredModel)){
+  const option=document.createElement('option');option.value=preferredModel;option.textContent=modelDisplayName(preferredModel);option.title=preferredModel;select.append(option);
+ }
+ select.value=preferredModel;syncModelsButton();
+}
+function openModelPicker(){
+ const models=pickerModels();
+ dialog('Models',`<div class="model-picker"><div class="model-picker-toolbar"><input id="model-picker-search" class="model-picker-search" type="search" placeholder="Поиск модели…" maxlength="120"><span id="model-picker-count" class="model-picker-count">${models.length} моделей</span></div><div id="model-picker-list" class="model-picker-list"></div></div>`);
+ const list=$('model-picker-list'),search=$<HTMLInputElement>('model-picker-search'),count=$('model-picker-count');
+ const paint=()=>{
+  const q=search.value.trim().toLocaleLowerCase();
+  list.replaceChildren();
+  const auto=document.createElement('button');auto.type='button';auto.className='model-picker-item';if(!preferredModel)auto.setAttribute('aria-current','true');
+  const autoBody=document.createElement('span');autoBody.className='model-picker-body';
+  autoBody.innerHTML='<strong>Auto · AZRAIL</strong><small>Подберём сами</small>';
+  const autoBadge=document.createElement('span');autoBadge.className='model-picker-badge free';autoBadge.textContent='Auto';
+  auto.append(modelPickerMark('AZRAIL'),autoBody,autoBadge);
+  auto.onclick=()=>{setPreferredModel('');$<HTMLDialogElement>('dialog').close();syncModelsButton();};
+  list.append(auto);
+  let shown=0;
+  for(const group of groupModelsByProvider(models)){
+   const visible=group.models.filter(model=>{
+    const label=modelLabel(model),provider=model.provider||providerFromSlug(model.slug);
+    return !q||`${label} ${provider} ${model.slug} ${model.task||''}`.toLocaleLowerCase().includes(q);
+   });
+   if(!visible.length)continue;
+   const section=document.createElement('div');section.className='model-picker-group';
+   const heading=document.createElement('div');heading.className='model-picker-group-title';heading.textContent=`${group.provider} · ${visible.length}`;
+   section.append(heading);
+   for(const model of visible){
+    const label=modelLabel(model),provider=model.provider||providerFromSlug(model.slug);
+    const chatOk=isChatCapableModel(model);
+    const row=document.createElement('button');row.type='button';row.className='model-picker-item';
+    if(preferredModel===model.slug)row.setAttribute('aria-current','true');
+    row.title=model.slug;
+    const body=document.createElement('span');body.className='model-picker-body';
+    const title=document.createElement('strong');title.textContent=label;
+    const neuron=isNeuronPaidModel(model.slug);
+    const meta=document.createElement('small');meta.textContent=`${provider}${model.task?` · ${model.task}`:''}${neuron?' · 7 Paid · лимит 10 000 нейронов':''}${chatOk?'':' · не для чата'}`;
+    body.append(title,meta);
+    const badge=document.createElement('span');badge.className=`model-picker-badge ${neuron?'neuron':model.freeAllowlisted?'free':'paid'}`;badge.textContent=neuron?'Нейроны':model.freeAllowlisted?'Free':'Paid';
+    row.append(modelPickerMark(provider,resolveModelIcon(model)),body,badge);
+    row.onclick=()=>{
+     setPreferredModel(model.slug);
+     $<HTMLDialogElement>('dialog').close();
+     syncModelsButton();
+     if(neuron)notice('Это одна из 7 моделей Workers Paid. AZRAIL её не вызывает: после 10 000 нейронов в сутки идёт доплата.',true);
+     else if(!chatOk)notice('Модель выбрана. Для чата AZRAIL подставит текстовую модель автоматически.',true);
+    };
+    section.append(row);shown++;
+   }
+   list.append(section);
+  }
+  count.textContent=q?`${shown} из ${models.length}`:`${models.length} моделей`;
+  if(!shown){const empty=document.createElement('p');empty.className='muted';empty.textContent='Ничего не найдено.';list.append(empty);}
+ };
+ search.oninput=paint;paint();search.focus();
+}
+async function refreshComposerModels(){
+ if(!account||local){catalogModels=[];fillComposerModels();$('composer-models-open').title='Автовыбор. Каталог моделей доступен после входа.';return;}
+ const identity=account.id;
+ try{
+  const catalog=await api('/api/model-catalog');if(account?.id!==identity)return;
+  catalogModels=Array.isArray(catalog.models)?catalog.models:[];
+  fillComposerModels();
+  $('composer-models-open').title=`Models · ${pickerModels().length}`;
+ }catch{$('composer-models-open').title='Каталог недоступен. Вы можете выбрать Auto.';fillComposerModels();}
+}
+bind('composer-models-open',()=>openModelPicker());
+function contextFileHosts(){return ['context-files','context-panel-files'].map(id=>document.getElementById(id)).filter((el):el is HTMLElement=>!!el);}
+function fillContextFileHost(host:HTMLElement,artifacts:Array<{id:string;name:string;bytes?:number;mime?:string}>){
+ host.replaceChildren();
+ if(!artifacts.length){host.textContent='Сохранённых файлов проекта пока нет.';return;}
+ for(const item of artifacts.slice(0,40)){
+  const button=document.createElement('button'),name=document.createElement('span'),meta=document.createElement('small');
+  button.type='button';name.textContent=String(item.name);meta.textContent=`${Math.ceil(Number(item.bytes||0)/1024)} КБ · ${item.mime??'файл'}`;button.append(name,meta);
+  button.onclick=()=>{button.disabled=true;void blobAPI(`/api/studio/artifacts/${encodeURIComponent(item.id)}`).then(async blob=>(await import('./media')).download(blob,item.name)).catch(failure).finally(()=>{button.disabled=false;});};
+  host.append(button);
+ }
+}
+async function refreshContextFiles(){
+ const generation=++contextGeneration,id=project,hosts=contextFileHosts();
+ const note=(text:string)=>{for(const host of hosts)host.textContent=text;};
+ if(!account||!id||local){note('Сохранённые результаты появятся после входа и выбора проекта.');return;}
+ note('Загрузка файлов…');
+ try{
+  const result=await api(`/api/projects/${encodeURIComponent(id)}`);
+  if(generation!==contextGeneration||id!==project)return;
+  const artifacts=Array.isArray(result.artifacts)?result.artifacts:[];
+  const named=result?.project&&typeof result.project.name==='string'?result.project.name:'';
+  if(named)rememberProjectTitle(id,named);
+  for(const host of hosts)fillContextFileHost(host,artifacts);
+  syncContextPanel();
+ }catch(error){if(generation===contextGeneration&&id===project)note(error instanceof Error?error.message:'Не удалось загрузить файлы. Нажмите «Обновить».');}
+}
+function pageLabel(route:Route){
+ if(route.page==='studio')return studioById(route.studio)?.title??'Студия';
+ if(route.page==='create')return 'Чат';
+ if(route.page==='mission')return 'Mission Control';
+ if(route.page==='projects')return 'Проекты';
+ if(route.page==='studios')return 'Студии';
+ if(route.page==='metatron')return 'Metatron Lab';
+ if(route.page==='connections')return 'Подключения';
+ return 'Страница не найдена';
+}
+let contextProjectSeen='',contextNamedProject='',contextProjectTitle='';
+function rememberProjectTitle(id:string,name:string){const title=name.replace(/\s+/g,' ').trim();if(!id||!title)return;contextNamedProject=id;contextProjectTitle=title;}
+function markContextStudio(){
+ document.querySelectorAll<HTMLAnchorElement>('#context-studios a').forEach(link=>{
+  const on=currentRoute.page==='studio'&&link.dataset.studio===currentRoute.studio;
+  link.classList.toggle('active',on);
+  if(on)link.setAttribute('aria-current','page');else link.removeAttribute('aria-current');
+ });
+}
+function syncContextPanel(){
+ const session=$('context-session');if(!session)return;
+ if(project!==contextProjectSeen){
+  contextProjectSeen=project;
+  if(contextNamedProject!==project){contextNamedProject='';contextProjectTitle='';}
+  if(account&&project&&!local)void refreshContextFiles().catch(()=>{});
+ }
+ session.textContent=local?'Локальный просмотр. AI и проекты открываются после входа в развёрнутое приложение.':account?`Аккаунт · ${account.name}${account.role?` · ${account.role}`:''}`:'Вход не выполнен';
+ $('context-page-label').textContent=`Страница · ${pageLabel(currentRoute)}`;
+ $('context-model-label').textContent=`Модель · ${preferredModel?modelDisplayName(preferredModel):'автовыбор'}`;
+ $('context-voice-label').textContent=`Голос · ${VOICES[chatVoice].name}`;
+ $('context-panel-project').textContent=project?(contextProjectTitle?`Проект · ${contextProjectTitle}`:'Проект · без названия'):'Проект не выбран. Откройте проекты или начните задачу.';
+ const names=attachmentRefs.map(ref=>ref.fileName).filter(Boolean);
+ $('context-attachment-label').textContent=names.length?names.join(', '):'Нет прикреплённых файлов';
+ const refresh=$<HTMLButtonElement>('context-panel-refresh');if(refresh)refresh.disabled=!account||!project||local;
+ markContextStudio();
+}
+openContextPanel=()=>{syncContextPanel();if(account&&project&&!local)void refreshContextFiles().catch(failure);};
+bind('new-chat',newChat);bind('context-refresh',refreshContextFiles);bind('context-panel-refresh',refreshContextFiles);
+bind('context-goto-projects',()=>navigation.navigate({page:'projects'}));
+bind('context-goto-mission',()=>navigation.navigate({page:'mission'}));
+bind('context-goto-connections',()=>navigation.navigate({page:'connections'}));
+$<HTMLInputElement>('chat-search').oninput=()=>syncChatUI(false);
+const archiveToggle=$<HTMLInputElement>('chat-show-archived');if(archiveToggle)archiveToggle.onchange=()=>syncChatUI(false);
+$<HTMLSelectElement>('composer-model').onchange=()=>setPreferredModel($<HTMLSelectElement>('composer-model').value);
+prompt.addEventListener('input',()=>{saveComposerDraft();syncChatUI(false);});
 
 let noticeTimer=0;
 function notice(message:string,persist=false){clearTimeout(noticeTimer);$('notice-text').textContent=message;$('notice').hidden=false;if(!persist)noticeTimer=window.setTimeout(()=>{$('notice').hidden=true;},6500);}
@@ -78,7 +476,7 @@ async function api(path:string,options:RequestInit={}) {
 }
 async function blobAPI(path:string){const headers=new Headers();if(authToken)headers.set('Authorization','Bearer '+authToken);const r=await fetch(path,{credentials:'same-origin',headers,signal:AbortSignal.timeout(90000)});if(!r.ok){const j=await r.json().catch(()=>({}));throw new APIError(j.error??'Не удалось скачать файл.',r.status);}return r.blob();}
 function bind(id:string,fn:()=>unknown){$(id).onclick=()=>Promise.resolve().then(fn).catch(failure);}
-function dialog(title:string,html:string){$('dialog-title').textContent=title;const content=$('dialog-content');content.innerHTML=html;$<HTMLDialogElement>('dialog').showModal();return content;}
+function dialog(title:string,html:string){$('dialog-title').textContent=title;const content=$('dialog-content');content.innerHTML=html;const dlg=$<HTMLDialogElement>('dialog');if(!dlg.open)dlg.showModal();return content;}
 async function openAssetIntelligence(){
  if(!account)throw Error('Войдите, чтобы открыть Asset Intelligence Library.');
  const root=dialog('Asset Intelligence Library','<p class="muted">Загрузка…</p>');
@@ -134,7 +532,88 @@ async function openReviewHistory(){
 bind('close-dialog',()=>$<HTMLDialogElement>('dialog').close());
 function cleanupMedia(){const cleanup=mediaCleanup;mediaCleanup=()=>{};cleanup();}
 function leaveStudio(){studioEpoch++;studioRun++;if(activeStudioModule&&activeStudioContext)activeStudioModule.cleanup?.(activeStudioContext);activeStudioModule=null;activeStudioContext=null;draftCleanup();draftCleanup=()=>{};studioChromeCleanup();studioChromeCleanup=()=>{};cleanupMedia();lastBlob=null;composerHome.after(composer);missionHome.after(missionPanel);$('studio-work').hidden=true;$('studio-toolbar').replaceChildren();$('studio-suggestions').replaceChildren();$('studio-controls').replaceChildren();$('studio-result').replaceChildren();$('studio-result').removeAttribute('aria-busy');}
+let composerPage:Route['page']='create';
+let composerRoom:'home'|StudioId|'metatron'='home';
+let composerReady=false;
+let studioTalkOpen=false;
+const roomPlaceholder:Record<string,string>={
+ web:'Опиши сайт. Сборка файлов — в Chat или Mission Control…',
+ image:'Опиши картинку обычными словами…',
+ music:'Опиши трек обычными словами…',
+ video:'Опиши видео обычными словами…',
+ audio:'Напиши, что проверить, и прикрепи аудио…',
+ als:'Напиши, что разобрать, и прикрепи проект Ableton…',
+ data:'Напиши, что посчитать, и прикрепи таблицу…',
+ ledger:'Спроси про расходы этого проекта…',
+ lab:'Спроси про состояние системы…',
+ prose:'Вставь готовый текст или одну фразу…',
+ metatron:'Спроси про миссию и агентов…',
+};
+function saveComposerDraft(){if(composerRoom==='home')chatHistory.setDraft(prompt.value);else studioRooms.setDraft(composerRoom,prompt.value);}
+function setStudioTalk(open:boolean,focus=false){
+ const talk=composerRoom!=='home'&&(composerPage==='studio'||composerPage==='metatron');
+ studioTalkOpen=open&&talk;
+ document.querySelector('.composer-dock')?.classList.toggle('studio-talk',studioTalkOpen);
+ const opener=$<HTMLButtonElement>('studio-talk-open');if(opener)opener.hidden=!talk;
+ const host=$('studio-chat');host.hidden=!studioTalkOpen;
+ if(studioTalkOpen&&focus)prompt.focus();
+}
+function replyInKind(source:string,line:string){
+ const casual=/(\bбро\b|ахах|погнали|короче)/i.test(source);
+ const brief=source.trim().length<=90;
+ if(casual&&brief)return `Готово, бро. ${line}`;
+ if(casual)return `Собрал. ${line}`;
+ if(brief)return `Готово. ${line}`;
+ return line;
+}
+function giveFile(id:string,file:File){
+ const input=document.querySelector<HTMLInputElement>(id);
+ if(!input||typeof DataTransfer==='undefined')return false;
+ const bag=new DataTransfer();bag.items.add(file);input.files=bag.files;input.dispatchEvent(new Event('change',{bubbles:true}));return true;
+}
+function renderStudioChat(){
+ const host=$('studio-chat'),log=$('studio-chat-log');
+ const active=composerRoom!=='home';host.hidden=!active||!studioTalkOpen;if(!active){document.querySelector('.composer-dock')?.classList.remove('studio-talk');return;}
+ log.replaceChildren();
+ const turns=studioRooms.turns(composerRoom);
+ if(!turns.length){const empty=document.createElement('p');empty.className='muted';const caps=studioById(composerRoom)?.capabilities??[];empty.textContent=caps.includes('prose-writing')?'Это чат Prose Studio. Готовый текст останется текстом. Студия пишет слова и не поёт.':caps.includes('mission')?'Сборка сайта и правки файлов запускаются в Chat или Mission Control.':caps.includes('ledger-read')||caps.includes('system-diagnostics')?'Спроси про отчёт. Этот чат обновит студию и не запустит миссию по коду.':'Это отдельный чат студии. Напиши задачу здесь. Настройки выше можно не трогать.';log.append(empty);return;}
+ const title=composerRoom==='metatron'?'Metatron':studioById(composerRoom)?.title??'Студия';
+ for(const turn of turns){
+  const item=document.createElement('article');item.className='chat-message';item.dataset.role=turn.role==='user'?'user':'assistant';
+  const heading=document.createElement('h3');heading.className='message-heading';heading.textContent=turn.role==='user'?'Вы':title;
+  item.append(heading);
+  if(turn.role==='studio'&&turn.text){
+   const body=document.createElement('div');fillMarkdownContent(body,turn.text);item.append(body);
+   appendAssistantActions(item,turn.text);
+  }else{
+   const text=document.createElement('p');text.className='message-content';text.textContent=turn.text;item.append(text);
+  }
+  log.append(item);
+ }
+ log.scrollTop=log.scrollHeight;
+}
+function syncComposer(route:Route){
+ const next:typeof composerRoom=route.page==='studio'?route.studio:route.page==='metatron'?'metatron':'home';
+ const changed=next!==composerRoom;
+ if(composerReady&&changed&&!skipComposerSave)saveComposerDraft();
+ skipComposerSave=false;
+ composerRoom=next;composerReady=true;composerPage=route.page;
+ const dock=document.querySelector<HTMLElement>('.composer-dock')!;
+ dock.hidden=route.page!=='create'&&route.page!=='mission'&&route.page!=='studio'&&route.page!=='metatron';
+ if(changed)prompt.value=composerRoom==='home'?chatHistory.current()?.draft??'':studioRooms.draft(composerRoom);
+ prompt.placeholder=route.page==='mission'?'Что сделать…':route.page==='create'?'Напиши сообщение…':composerRoom==='home'?'Напиши сообщение…':roomPlaceholder[composerRoom]??'Напиши задачу для этой студии…';
+ $<HTMLButtonElement>('attach').hidden=route.page==='mission';
+ $('composer-models').hidden=true;
+ $<HTMLButtonElement>('submit').title=route.page==='mission'?'Старт · Enter':'Отправить · Enter';
+ $<HTMLButtonElement>('submit').setAttribute('aria-label',route.page==='mission'?'Старт':'Отправить сообщение');
+ if(changed)studioTalkOpen=false;
+ if(composerRoom==='home'){studioTalkOpen=false;$('studio-chat').hidden=true;document.querySelector('.composer-dock')?.classList.remove('studio-talk');}else renderStudioChat();
+ setStudioTalk(studioTalkOpen);
+ $<HTMLButtonElement>('composer-open-chat').hidden=true;
+ workspace.resizePrompt();
+}
 function renderRoute(route:Route,initial:boolean){
+ currentRoute=route;
  leaveStudio();metatronCleanup();metatronCleanup=()=>{};const id=route.page==='studio'?'studio-page':route.page;
  document.querySelectorAll<HTMLElement>('.view').forEach(el=>el.hidden=el.id!==id);
  const nav=route.page==='studio'?'studios':route.page;
@@ -142,41 +621,49 @@ function renderRoute(route:Route,initial:boolean){
  if(route.page==='studio')void renderStudio(route.studio).catch(failure);
  if(route.page==='projects')loadProjects().catch(failure);
  if(route.page==='connections')loadConnections().catch(failure);
+ if(route.page==='mission'){if(mission&&account){missionPanel.hidden=false;void poll(epoch).catch(failure);}void refreshMissionHistory().catch(failure);}
  if(route.page==='metatron')metatronCleanup=mountMetatronLab({root:$('metatron-page'),api,local,account,getProjectId:()=>project,getMissionId:()=>mission,setMissionId:id=>{mission=id;remember();},notice,failure});
- const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='create'?'Создать':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Metatron Lab':route.page==='connections'?'Connections':'Страница не найдена';
+ syncComposer(route);
+ const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='create'?'Chat':route.page==='mission'?'Mission Control':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Metatron Lab':route.page==='connections'?'Connections':'Страница не найдена';
  document.title=`${title} · AZRAIL MNMLL PULSE OS`;
- if(!initial){document.querySelector<HTMLElement>(`#${id} h1`)?.focus({preventScroll:true});window.scrollTo({top:0,behavior:'instant'});}
+ $('workspace-page-title').textContent=route.page==='create'?(chatHistory.current()?.title??'Новый чат'):title;
+ workspace.routeChanged();syncChatUI();
+ if(!initial){document.querySelector<HTMLElement>(`#${id} h1`)?.focus({preventScroll:true});$(id).scrollTop=0;}
 }
 function view(id:'create'|'projects'|'studios'){navigation.navigate({page:id});}
 navigation.link(document.querySelector<HTMLAnchorElement>('[data-home]')!,{page:'create'});
-document.querySelectorAll<HTMLAnchorElement>('[data-view]').forEach(el=>navigation.link(el,{page:el.dataset.view as 'create'|'projects'|'studios'|'metatron'|'connections'}));
+document.querySelectorAll<HTMLAnchorElement>('[data-view]').forEach(el=>navigation.link(el,{page:el.dataset.view as 'create'|'mission'|'projects'|'studios'|'metatron'|'connections'}));
 navigation.link($<HTMLAnchorElement>('close-studio'),{page:'studios'});
-navigation.link($<HTMLAnchorElement>('connections'),{page:'connections'});
-document.querySelectorAll<HTMLElement>('[data-prompt]').forEach(el=>el.onclick=()=>{prompt.value=el.dataset.prompt!;prompt.focus();});
+for(const meta of studios){const link=document.createElement('a');link.textContent=meta.title;link.dataset.studio=meta.id;navigation.link(link,{page:'studio',studio:meta.id});$('context-studios').append(link);}
 document.addEventListener('azrail:open-studio',(event:Event)=>{const id=(event as CustomEvent<{studio?:string}>).detail?.studio;if(id&&studioById(id))navigation.navigate({page:'studio',studio:id as StudioId});});
-const chatSuggestionBar=mountSuggestionBar($('chat-suggestions'),{surface:'chat',projectId:project||undefined,lastUserMessage:prompt.value},item=>{prompt.value=item.prompt;prompt.dispatchEvent(new Event('input',{bubbles:true}));prompt.focus();});
-prompt.addEventListener('input',()=>chatSuggestionBar.update({surface:'chat',projectId:project||undefined,lastUserMessage:prompt.value}));
+mountHomeCanvas();
 bind('attach',()=>{if(!project){project=crypto.randomUUID();remember();}$<HTMLInputElement>('attachments').click();});
-bind('account',async()=>{
- if(!account){
-  if(local)throw Error('Вход доступен после развёртывания приложения.');
-  if(oidcConfigured){location.assign('/auth/login');return;}
-  // Без OIDC — единственный путь входа, уже реализованный на сервере
-  // (lib/auth.ts, timing-safe сравнение, fail-closed без секрета):
-  // общий AZRAIL_TOKEN или персональный ключ az_..., выданный
-  // администратором через /api/admin/accounts.
-  dialog('Вход по токену','<p>OIDC не настроен на этом развёртывании — регистрация внешнего OAuth-приложения не требуется. Введите токен доступа.</p><label for="login-token">Токен</label><input id="login-token" type="password" autocomplete="off" spellcheck="false"><button id="login-save" class="primary">Войти</button>');
-  $('login-token').focus();
-  bind('login-save',async()=>{
+const openTokenLogin=()=>{
+ dialog('Вход по ключу','<label for="login-token">Ключ</label><input id="login-token" type="password" autocomplete="off" spellcheck="false"><button id="login-save" class="primary">Войти</button>');
+ $('login-token').focus();
+ bind('login-save',async()=>{
    const value=$<HTMLInputElement>('login-token').value.trim();
    if(!value)throw Error('Введите токен.');
    authToken=value;try{sessionStorage.setItem('pulse.token',authToken);}catch{}
    try{const me=await api('/api/me');account=me.account;}
    catch(e){authToken='';try{sessionStorage.removeItem('pulse.token');}catch{};throw e;}
-   $<HTMLDialogElement>('dialog').close();$('account').textContent=account!.name;await refreshMode();
-   if(mission){$('mission-panel').hidden=false;await poll(++epoch);}
+   $<HTMLDialogElement>('dialog').close();$('account').textContent=account!.name;syncChatAccount();void refreshComposerModels();await refreshMode();
+   await syncServerChats();
+   if(mission){navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}
    notice('Вход выполнен.');
   });
+};
+bind('account',async()=>{
+ if(!account){
+  if(local)throw Error('Вход доступен после развёртывания приложения.');
+  if(oidcConfigured){
+   if(!keyLogin){location.assign('/auth/login');return;}
+   dialog('Вход','<p>Код придёт на почту.</p><button id="login-mail" class="primary">Войти по почте</button><button id="login-key">Войти ключом</button>');
+   bind('login-mail',()=>{location.assign('/auth/login');});
+   bind('login-key',openTokenLogin);
+   return;
+  }
+  openTokenLogin();
   return;
  }
  dialog('Ваш аккаунт','<p id="account-name"></p><p id="account-id"></p><button id="logout">Выйти</button>');
@@ -185,28 +672,79 @@ bind('account',async()=>{
   const wasToken=!!authToken;
   if(wasToken){authToken='';try{sessionStorage.removeItem('pulse.token');}catch{}}
   else await api('/auth/logout',{method:'POST'});
-  for(const key of ['pulse.pending','pulse.project','pulse.mission','pulse.image.pending'])sessionStorage.removeItem(key);
+  chatHistory.clearScope();
+  for(const key of ['pulse.pending','pulse.project','pulse.mission','pulse.image.pending','pulse.identity'])deviceWrite(key,null);
   location.reload();
  });
 });
 async function refreshAccount(){
- if(local){$('local-notice').textContent='Локальный просмотр · WAV/MIDI, аудиоанализ и CSV доступны на устройстве. Для AI и проектов нужен вход в развёрнутое приложение.';$('local-notice').hidden=false;$('mode').textContent='AI подключается после развёртывания';return;}
- const a=await api('/auth/status');account=a.account;oidcConfigured=!!a.configured;
+ if(local){syncChatAccount();$('local-notice').textContent='Локальный просмотр · WAV/MIDI, аудиоанализ и CSV доступны на устройстве. Для AI и проектов нужен вход в развёрнутое приложение.';$('local-notice').hidden=false;$('mode').textContent='AI подключается после развёртывания';return;}
+ const a=await api('/auth/status');account=a.account;oidcConfigured=!!a.configured;if(typeof a.key==='boolean')keyLogin=a.key;
  if(!account&&authToken){try{const me=await api('/api/me');account=me.account;}catch{authToken='';try{sessionStorage.removeItem('pulse.token');}catch{}}}
- if(account){$('account').textContent=account.name;await refreshMode();ensureEventStream();if(mission){$('mission-panel').hidden=false;await poll(++epoch);}}
+ syncChatAccount();void refreshComposerModels();
+ if(account){$('account').textContent=account.name;await refreshMode();ensureEventStream();if(mission){if(composerPage==='create')navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}}
  else if(!oidcConfigured)notice('OIDC не настроен. Войдите по токену через кнопку «Аккаунт» — регистрация внешнего приложения не нужна.');
 }
 async function refreshMode(){const r=await api('/api/routing-settings');$('mode').textContent=r.policy.allowThirdPartyModels?'Сторонние модели включены':'Сторонние модели выключены';return r;}
-bind('settings',async()=>{
- if(!account)throw Error('Войдите, чтобы посмотреть режим и лимиты.');
- const r=await refreshMode();dialog('Режим и лимиты','<label><input type="checkbox" id="third-party"> Сторонние AI-модели</label><label for="budget">Месячный лимит платных моделей, USD</label><input id="budget" type="number" min="0" step="1"><p id="budget-info"></p><p>OFF блокирует сторонние модели. На Workers Paid даже собственные модели могут расходовать деньги сверх квоты. R2 и Sandbox учитываются отдельно.</p><button id="save-mode" class="primary">Сохранить</button><button id="catalog">Каталог моделей</button><button id="open-connections">Connections ↗</button>');
- $<HTMLInputElement>('third-party').checked=r.policy.allowThirdPartyModels;$<HTMLInputElement>('budget').value=String(r.policy.monthlyBudgetUsd);$('budget-info').textContent=`Учтено и зарезервировано: $${r.committedUsd.toFixed(4)}. План: ${r.workersPlan}.`;
- $<HTMLButtonElement>('save-mode').disabled=!account.operator;
- if(!account.operator)$('budget-info').textContent+=' Изменения доступны оператору платформы.';
- bind('save-mode',async()=>{await api('/api/admin/routing-settings',{method:'POST',body:JSON.stringify({allowThirdPartyModels:$<HTMLInputElement>('third-party').checked,monthlyBudgetUsd:Number($<HTMLInputElement>('budget').value)})});await refreshMode();notice('Настройки сохранены на сервере.');});
- bind('catalog',async()=>{const cat=await api('/api/model-catalog');const pre=document.createElement('pre');pre.textContent=JSON.stringify(cat,null,2);$('dialog-content').append(pre);});
- bind('open-connections',()=>{$<HTMLDialogElement>('dialog').close();navigation.navigate({page:'connections'});});
-});
+function currentModelLabel(){
+ const hit=preferredModel?catalogModels.find(m=>m.slug===preferredModel):undefined;
+ return hit?modelLabel(hit):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL');
+}
+function openSettings(){
+ const root=dialog('Настройки','');
+ root.replaceChildren();
+ root.className='settings-sheet';
+ const block=(title:string)=>{const section=document.createElement('section');section.className='settings-block';const h=document.createElement('h3');h.textContent=title;section.append(h);root.append(section);return section;};
+ const voiceBox=block('Голос');
+ const voiceNote=document.createElement('p');voiceNote.className='muted';voiceNote.textContent='Один голос на следующий ответ. Прошлый тон чата он не копирует.';voiceBox.append(voiceNote);
+ (Object.keys(VOICES) as ChatVoice[]).forEach(id=>{
+  const button=document.createElement('button');button.type='button';button.className='settings-choice';
+  button.textContent=`${chatVoice===id?'✓ ':''}${VOICES[id].name} · ${VOICES[id].line}`;
+  if(chatVoice===id)button.setAttribute('aria-current','true');
+  button.onclick=()=>{setChatVoice(id);openSettings();};
+  voiceBox.append(button);
+ });
+ const modelBox=block('Модель');
+ const modelButton=document.createElement('button');modelButton.type='button';modelButton.className='settings-choice';
+ modelButton.textContent=`Выбрать модель · ${currentModelLabel()}`;
+ modelButton.onclick=()=>{if(!account){notice('Войдите, чтобы открыть каталог моделей.',true);return;}openModelPicker();};
+ modelBox.append(modelButton);
+ const keys=block('Клавиши');
+ for(const line of ['Ctrl / ⌘ + K — поиск команд.','Enter или Ctrl / ⌘ + Enter — отправить. Shift + Enter — новая строка.','Alt + 1 — диалог. Alt + 2 — проекты. Alt + 3 — студии.','Escape — закрыть окно или боковую панель.']){const p=document.createElement('p');p.textContent=line;keys.append(p);}
+ const tokens=block('Токены сторонних моделей');
+ const tokenNote=document.createElement('p');tokenNote.className='muted';tokenNote.textContent='Ключ остаётся только в этой вкладке и не уходит в чат. Вызовы этих провайдеров сейчас выключены, чтобы не списать деньги. OpenRouter одним ключом открывает длинный список чужих моделей.';tokens.append(tokenNote);
+ for(const provider of PROVIDER_TOKENS){
+  const row=document.createElement('div');row.className='provider-token';
+  const title=document.createElement('strong');title.textContent=provider.name;
+  const status=document.createElement('small');status.textContent=hasProviderToken(provider.id)?'Ключ сохранён в этой вкладке':'Ключ не задан';
+  row.append(title,status);
+  if(provider.note){const note=document.createElement('p');note.className='muted';note.textContent=provider.note;row.append(note);}
+  const input=document.createElement('input');input.type='password';input.autocomplete='off';input.maxLength=400;input.placeholder=hasProviderToken(provider.id)?'Новый ключ заменит сохранённый':'Вставьте ключ';input.setAttribute('aria-label',`Ключ ${provider.name}`);
+  const actions=document.createElement('div');actions.className='toolbar';
+  const save=document.createElement('button');save.type='button';save.textContent='Сохранить ключ';
+  save.onclick=()=>{const value=input.value.trim();if(!value){notice('Вставьте ключ в поле.',true);return;}saveProviderToken(provider.id,value);input.value='';notice(`Ключ ${provider.name} сохранён в этой вкладке. Вызовы провайдера остаются выключены.`);openSettings();};
+  const clear=document.createElement('button');clear.type='button';clear.textContent='Удалить';clear.disabled=!hasProviderToken(provider.id);
+  clear.onclick=()=>{clearProviderToken(provider.id);notice(`Ключ ${provider.name} удалён из этой вкладки.`);openSettings();};
+  actions.append(save,clear);row.append(input,actions);tokens.append(row);
+ }
+ if(!account)return;
+ const limits=block('Лимиты');
+ limits.append(document.createTextNode('Загрузка…'));
+ void refreshMode().then(r=>{
+  limits.replaceChildren();
+  const h=document.createElement('h3');h.textContent='Лимиты';limits.append(h);
+  const label=document.createElement('label');const box=document.createElement('input');box.type='checkbox';box.id='third-party';box.checked=!!r.policy.allowThirdPartyModels;label.append(box,document.createTextNode(' Сторонние AI-модели'));
+  const budgetLabel=document.createElement('label');budgetLabel.htmlFor='budget';budgetLabel.textContent='Месячный лимит платных моделей, USD';
+  const budget=document.createElement('input');budget.id='budget';budget.type='number';budget.min='0';budget.step='1';budget.value=String(r.policy.monthlyBudgetUsd);
+  const info=document.createElement('p');info.id='budget-info';info.textContent=`Учтено и зарезервировано: $${r.committedUsd.toFixed(4)}. План: ${r.workersPlan}.`;
+  const warn=document.createElement('p');warn.className='muted';warn.textContent='OFF блокирует сторонние модели. Семь моделей Workers Paid AZRAIL не вызывает.';
+  const save=document.createElement('button');save.type='button';save.className='primary';save.id='save-mode';save.textContent='Сохранить лимиты';save.disabled=!account?.operator;
+  if(!account?.operator)info.textContent+=' Изменения доступны оператору платформы.';
+  save.onclick=()=>{void api('/api/admin/routing-settings',{method:'POST',body:JSON.stringify({allowThirdPartyModels:box.checked,monthlyBudgetUsd:Number(budget.value)})}).then(()=>refreshMode()).then(()=>notice('Настройки сохранены на сервере.')).catch(failure);};
+  limits.append(label,budgetLabel,budget,info,warn,save);
+ }).catch(()=>{limits.replaceChildren();const h=document.createElement('h3');h.textContent='Лимиты';const p=document.createElement('p');p.className='muted';p.textContent='Лимиты сейчас не прочитались.';limits.append(h,p);});
+}
+bind('settings',()=>openSettings());
 function ensureEventStream(){
  if(local||!account||!project){stopEventStream();stopEventStream=()=>{};streamProject='';return;}
  if(streamProject===project)return;
@@ -216,15 +754,45 @@ function ensureEventStream(){
  }});
 }
 bind('about',()=>dialog('AZRAIL × MNMLL PULSE','<p>Мультиагентное ядро AZRAIL и творческие инструменты PULSE в одном приложении. У каждого модуля студий своя страница.</p><p>Текст и голос → миссия → файлы проекта → проверка. Результат не получает статус готовности к публикации без успешной проверки кода.</p><p>Музыка здесь — локальный procedural synthesis. Video Studio использует AI только для Scene Builder, а preview/WebM рендерит локально через Canvas + MediaRecorder. Cloudflare Stream/Veo не выдаются за подключённые, пока binding не настроен и не проверен.</p>'));
-async function runMission(){
+async function refreshMissionHistory(){
+ const host=$('mission-history');
+ if(!account||!project||local){host.replaceChildren();const note=document.createElement('p');note.className='muted';note.textContent=account?'Недавние миссии появятся после выбора проекта.':'Войдите, чтобы видеть недавние миссии.';host.append(note);return;}
+ try{
+  const r=await api(`/api/metatron/missions?projectId=${encodeURIComponent(project)}`) as {items?:Array<{id:string;goal:string;status:string;updated_at:string}>};
+  const items=(r.items??[]).slice(0,8);host.replaceChildren();
+  if(!items.length){const note=document.createElement('p');note.className='muted';note.textContent='Пока нет миссий в этом проекте.';host.append(note);return;}
+  for(const item of items){
+   const button=document.createElement('button');button.type='button';button.className='mission-history-item';
+   if(item.id===mission)button.setAttribute('aria-current','true');
+   const title=document.createElement('strong');title.textContent=item.goal.slice(0,120)||'Без названия';
+   const meta=document.createElement('small');meta.className='muted';meta.textContent=`${item.status} · ${new Date(item.updated_at).toLocaleString('ru')}`;
+   button.append(title,meta);
+   button.onclick=()=>{mission=item.id;remember();missionPanel.hidden=false;syncChatUI();void poll(++epoch).catch(failure);void refreshMissionHistory().catch(failure);};
+   host.append(button);
+  }
+ }catch{host.replaceChildren();const note=document.createElement('p');note.className='muted';note.textContent='Не удалось загрузить список миссий.';host.append(note);}
+}
+async function runMission(goal?:string){
  if(missionSubmitting)return;
  if(!account)throw Error('Войдите в аккаунт, чтобы запустить AZRAIL.');
  if(account.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
- const message=prompt.value.trim();if(!message)return;
- if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');if(!pending){project=project||crypto.randomUUID();pending={key:crypto.randomUUID(),body:JSON.stringify({message,projectId:project,maxIterations:8,attachments:attachmentRefs,...(preferredModel?{preferredModel}:{})})};}
+ const message=(goal??prompt.value).trim();if(!message)return;
+ if(composerPage!=='mission'){
+  skipComposerSave=true;chatHistory.setDraft(message);navigation.navigate({page:'mission'});prompt.value=message;
+ }
+ // First Mission Control version: text goal only. Attachments stay available later.
+ if(!pending){project=project||crypto.randomUUID();pending={key:crypto.randomUUID(),body:JSON.stringify({message,projectId:project,maxIterations:8,attachments:[],...(preferredModel?{preferredModel}:{})})};}
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
- try{const r=await api('/api/mission',{method:'POST',headers:{'Idempotency-Key':pending.key},body:pending.body});mission=r.missionId;pending=null;remember();$('mission-panel').hidden=false;ensureEventStream();await poll(++epoch);}
+ const submitted={...pending};
+ try{
+  const r=await api('/api/mission',{method:'POST',headers:{'Idempotency-Key':submitted.key},body:submitted.body});
+  const sent=JSON.parse(submitted.body);mission=r.missionId;pending=null;remember();
+  chatHistory.accepted(submitted.key,sent.message,project,mission);
+  if(prompt.value.trim()===sent.message)prompt.value='';chatHistory.setDraft(prompt.value);clearAttachments();workspace.resizePrompt();
+  $('mission-panel').hidden=false;$('mission-summary').textContent='Задача принята. Получаю состояние…';$('mission-status').textContent='Задача принята';
+  syncChatUI();workspace.toLatest();ensureEventStream();await poll(++epoch);void refreshMissionHistory().catch(failure);
+ }
  catch(e){
   // A definite admission rejection is editable. Network errors, 5xx and an
   // in-flight 409 retain the exact request/key: its delivery is uncertain.
@@ -233,27 +801,197 @@ async function runMission(){
  }
  finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
 }
-$('composer').onsubmit=e=>{e.preventDefault();runMission().catch(failure);};
+async function runChat(){
+ if(missionSubmitting)return;
+ if(!account)throw Error('Войдите в аккаунт, чтобы писать в Chat.');
+ if(account.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
+ if(account.role!=='admin'&&!account.operator)throw Error('Chat пока открыт только владельцу.');
+ const message=prompt.value.trim();if(!message)return;
+ if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
+ if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
+ const thread=chatHistory.current()??chatHistory.create();
+ // Keep the thread's project so attach() does not jump to another chat.
+ project=thread.projectId||project||crypto.randomUUID();
+ // One Chat thread = one server conversation (stable memory across turns).
+ const conversationId=thread.id;
+ const requestKey=crypto.randomUUID();
+ remember();
+ missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
+ chatHistory.accepted(requestKey,message,project,conversationId);
+ chatHistory.report(requestKey,'','queued');
+ if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft(prompt.value);workspace.resizePrompt();
+ syncChatUI();workspace.toLatest();
+ try{
+  const body=JSON.stringify({message,projectId:project,conversationId,voice:chatVoice,attachments:attachmentRefs,...(preferredModel?{preferredModel}:{})});
+  const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':requestKey},body});
+  const reply=String(r.result?.summary||r.result?.error||r.error||'Пустой ответ.');
+  const status=r.result?.status==='failed'||r.success===false?'failed':'completed';
+  chatHistory.report(requestKey,reply,status);
+  clearAttachments();syncChatUI();workspace.toLatest();
+  void syncServerChats();
+ }
+ catch(e){
+  const daily=e instanceof APIError&&(e.code==='chat_daily_limit'||e.code==='provider_daily_limit'||/лимит/i.test(e.message));
+  const text=daily?(e instanceof Error&&e.message?e.message:'Лимит моделей на сегодня. Попробуйте позже.'):e instanceof Error?e.message:'Не удалось получить ответ.';
+  chatHistory.report(requestKey,text,'failed');
+  syncChatUI();workspace.toLatest();
+  if(daily)notice(text,true);
+  else throw e;
+ }
+ finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
+}
+$('composer').onsubmit=e=>{
+ e.preventDefault();
+ if(composerPage==='create'){runChat().catch(failure);return;}
+ if(composerPage==='mission'){runMission().catch(failure);return;}
+ runStudioRoom().catch(failure);
+};
+const promptStudios=new Set(['image','music','video']);
+const fileStudios=new Set(['audio','als','data']);
+function writeStudioPrompt(text:string){
+ const field=document.querySelector<HTMLTextAreaElement>('#studio-text');if(!field)return false;
+ field.value=text.slice(0,field.maxLength>0?field.maxLength:text.length);field.dispatchEvent(new Event('input',{bubbles:true}));return true;
+}
+async function clickControl(id:string){
+ const button=document.getElementById(id) as HTMLButtonElement|null;
+ if(!button||button.disabled)return false;
+ await Promise.resolve(button.onclick?.call(button,new Event('click') as unknown as PointerEvent));
+ return true;
+}
+function handStudioFile(){
+ const input=document.querySelector<HTMLInputElement>('#studio-file');
+ if(!input||input.files?.[0]||typeof DataTransfer==='undefined')return !!input?.files?.[0];
+ const file=attachmentManager.files()[0];if(!file)return false;
+ const bag=new DataTransfer();bag.items.add(file);input.files=bag.files;input.dispatchEvent(new Event('change',{bubbles:true})); return true;
+}
+async function runStudioRoom(){
+ if(missionSubmitting)return;
+ const room=composerRoom;if(room==='home')return;
+ const message=prompt.value.trim();if(!message)return;
+ if(composerPage==='studio'||composerPage==='metatron')setStudioTalk(true);
+ if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
+ if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
+ const title=room==='metatron'?'Metatron':studioById(room)?.title??'Студия';
+ prompt.value='';studioRooms.setDraft(room,'');workspace.resizePrompt();
+ studioRooms.push(room,'user',message);
+ const reply=studioRooms.push(room,'studio','Принимаю задачу…');
+ renderStudioChat();
+ missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
+ try{
+  const caps=new Set(studioById(room)?.capabilities??[]);
+  if(caps.has('prose-writing')){
+   const field=document.querySelector<HTMLTextAreaElement>('#prose-prompt');
+   if(!field){studioRooms.replace(room,reply.id,'Поле текста ещё открывается. Отправь сообщение ещё раз.');return;}
+   const finished=/\[[^\]]{2,80}\]/.test(message)||message.length>700;
+   const choice=[...document.querySelectorAll<HTMLButtonElement>('#prose-modes button')].find(button=>button.textContent===(finished?'Оставить как есть':'Три направления'));
+   choice?.click();
+   field.value=message.slice(0,field.maxLength>0?field.maxLength:message.length);
+   field.dispatchEvent(new Event('input',{bubbles:true}));
+   const started=await clickControl('prose-run');
+   const status=document.querySelector('#prose-status')?.textContent?.trim()||'Текст на экране студии.';
+   const preview=document.querySelector('#prose-results pre')?.textContent?.trim().slice(0,1200)??'';
+   studioRooms.replace(room,reply.id,started?[status,preview].filter(Boolean).join('\n\n'):'Не удалось собрать текст. Поле уже заполнено, нажми «Собрать» выше.');
+   return;
+  }
+  if(caps.has('ledger-read')||caps.has('system-diagnostics')){
+   if(!account&&caps.has('ledger-read')){studioRooms.replace(room,reply.id,'Отчёт по расходам откроется после входа. Миссию по коду отсюда не запускаю.');return;}
+   const started=await clickControl('studio-run');
+   const report=($('studio-result').textContent??'').replace(/\s+/g,' ').trim().slice(0,500);
+   studioRooms.replace(room,reply.id,started&&report?`Отчёт «${title}» обновлён.\n\n${report}`:`Отчёт «${title}» сейчас не собрался. Миссию по коду отсюда не запускаю.`);
+   return;
+  }
+  if(room==='music'){
+   const {setDirectionFlags}=await import('./music-direction');
+   setDirectionFlags({wish:message});
+   const wishField=document.querySelector<HTMLTextAreaElement>('#music-shelf-wish');if(wishField)wishField.value=message;
+   const file=attachmentManager.files()[0];
+   let heard='';
+   try{
+    if(file&&/\.(als|xml)$/i.test(file.name)){
+     const input=document.querySelector<HTMLInputElement>('#music-als-file') as HTMLInputElement & {pending?:Promise<void>};
+     if(giveFile('music-als-file',file)){await input?.pending?.catch(()=>undefined);heard='Проект принял как карту.';}
+    }else if(file){
+     const input=document.querySelector<HTMLInputElement>('#music-direction-file') as HTMLInputElement & {pending?:Promise<void>};
+     if(giveFile('music-direction-file',file)){await input?.pending?.catch(()=>undefined);heard='Трек принял как ориентир.';}
+    }
+    const started=await clickControl('music-listen-build');
+    const statusText=document.querySelector('#music-direction-status')?.textContent??'';
+    const line=statusText.includes('Готово')?`${heard} Файл генератора в плеере. Длина как вышла.`.trim():statusText.includes('Ключ')?'Бриф на месте. Ключ генератора ещё не в воркере, в чат его не клади.':started&&statusText?statusText:'Экран трека ещё не принял задачу. Напиши ещё раз, когда студия откроется.';
+    studioRooms.replace(room,reply.id,replyInKind(message,line));
+   }catch{studioRooms.replace(room,reply.id,replyInKind(message,'Сборка не дошла до конца. Экран трека не менялся.'));}
+   return;
+  }
+  if(promptStudios.has(room)){
+   writeStudioPrompt(message);
+   const run=document.getElementById('studio-run') as HTMLButtonElement|null;
+   if(!account){studioRooms.replace(room,reply.id,'Текст уже в поле студии. Войди в аккаунт и отправь ещё раз, чтобы студия собрала результат.');return;}
+   if(run?.disabled){studioRooms.replace(room,reply.id,'Сейчас у этого аккаунта нет права запустить студию. Текст сохранён в её поле.');return;}
+   if(room==='video'){
+    await clickControl('video-build-scenes');
+    const shots=[...document.querySelectorAll<HTMLTextAreaElement>('.video-shot-prompt')].map(item=>item.value.trim()).filter(Boolean).slice(0,8);
+    studioRooms.replace(room,reply.id,shots.length?`Серии готовы в Video Studio:\n${shots.map((shot,index)=>`${index+1}. ${shot}`).join('\n')}\nЗапускаю рендер. Длину ролика берёт настройка Duration выше.`:'Запускаю рендер в Video Studio.');
+    renderStudioChat();void clickControl('studio-run');return;
+   }
+   void clickControl('studio-run');
+   studioRooms.replace(room,reply.id,room==='image'?'Собираю изображение в Image Studio. Размер, стиль и модель берутся из настроек выше, результат появится там же.':'Собираю трек в Music Studio. Темп и тональность берутся из настроек выше, WAV и MIDI появятся в результате.');
+   return;
+  }
+  if(fileStudios.has(room)){
+   const ready=handStudioFile();
+   if(!ready){studioRooms.replace(room,reply.id,'Прикрепи файл кнопкой + или выбери его в поле выше, потом отправь сообщение ещё раз.');return;}
+   if(room==='als'&&!account){studioRooms.replace(room,reply.id,'Файл на месте. Чтобы разобрать Ableton-проект, войди в аккаунт и отправь ещё раз.');return;}
+   const started=await clickControl('studio-run');
+   studioRooms.replace(room,reply.id,started?'Файл принят. Отчёт появится в студии выше.':'Студия не смогла начать разбор. Проверь файл и право доступа.');
+   return;
+  }
+  studioRooms.replace(room,reply.id,caps.has('mission')?'Сборка сайта и правки файлов запускаются в Chat или Mission Control. Этот чат файлы проекта не пишет.':'Этот чат не запускает миссию по коду. Задачу для проекта отправь в Chat или Mission Control.');
+ }finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;if(composerRoom===room)renderStudioChat();}
+}
+bind('composer-open-chat',()=>navigation.navigate({page:'create'}));
+bind('studio-talk-open',()=>setStudioTalk(true,true));
+bind('studio-talk-close',()=>setStudioTalk(false));
+prompt.addEventListener('focus',()=>{if(composerRoom!=='home'&&(composerPage==='studio'||composerPage==='metatron'))setStudioTalk(true);});
 async function poll(version=epoch){
  clearTimeout(pollTimer);if(!mission||document.hidden)return;
- try {const r=await api(`/api/mission?missionId=${encodeURIComponent(mission)}`);if(version!==epoch)return;pollFailures=0;const state=renderMission(document,r,!!account?.operator);if(state.active)pollTimer=window.setTimeout(()=>void poll(version),3000);}
+ const observedMission=mission;
+ try {
+  const r=await api(`/api/mission?missionId=${encodeURIComponent(observedMission)}`);if(version!==epoch||observedMission!==mission)return;pollFailures=0;
+  const state=renderMission(document,r,!!account?.operator);
+  const previous=chatHistory.current()?.turns.find(t=>t.missionId===observedMission)?.status;
+  chatHistory.report(observedMission,$('mission-summary').textContent??'',state.status);
+  $('context-status').textContent=$('mission-status').textContent;syncChatUI();
+  if(previous!==state.status&&!state.active&&!$('mission-panel').hidden)void refreshContextFiles();
+  if(state.active)pollTimer=window.setTimeout(()=>void poll(version),3000);
+ }
  catch(e){if(version!==epoch)return;pollFailures++;$('mission-connection').textContent=e instanceof APIError&&e.status===401?'Сессия завершена. Войдите снова, чтобы продолжить просмотр.':'Связь прервана. Задача может продолжать работу на сервере. Повторная отправка не выполняется.';if(!(e instanceof APIError&&[401,403,404].includes(e.status))&&pollFailures<6)pollTimer=window.setTimeout(()=>void poll(version),Math.min(30000,3000*2**pollFailures));}
 }
-document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll().catch(failure);else clearTimeout(pollTimer);});
+document.addEventListener('visibilitychange',()=>{
+ if(document.hidden){clearTimeout(pollTimer);return;}
+ poll().catch(failure);
+ if(account&&!local)void syncServerChats();
+});
 bind('resume',()=>poll(++epoch));
 bind('cancel',async()=>{if(mission){await api('/api/mission/cancel',{method:'POST',body:JSON.stringify({missionId:mission,projectId:project})});await poll(++epoch);}});
 bind('export-project',async()=>{if(!project)throw Error('Выберите проект.');const {download}=await import('./media');download(await blobAPI(`/api/studio/project-zip?projectId=${encodeURIComponent(project)}`),'azrail-project.zip');});
+bind('mission-download',()=>$('export-project').click());
 bind('recover',async()=>{if(!mission)throw Error('Выберите миссию.');const r=await api('/api/mission/recover',{method:'POST',body:JSON.stringify({projectId:project,missionId:mission})});notice(r.resumed?'Миссия возобновлена.':r.reason);await poll(++epoch);});
 bind('permit-sandbox',async()=>{if(!account?.operator)throw Error('Разрешение Sandbox выдаёт оператор платформы.');const c=await api('/api/studio/capabilities');if(!c.sandbox)throw Error('Sandbox отсутствует в этом профиле. Нужен Paid-профиль Cloudflare.');await api('/api/admin/permissions',{method:'POST',body:JSON.stringify({projectId:project,capability:'sandbox',enabled:true})});notice('Sandbox разрешён для этого проекта. Его использование тарифицируется отдельно.');});
 
 function openProjectFromCenter(item:ProjectSummary){
- if(pending&&project!==item.id){notice('Предыдущая отправка требует проверки. Повторите её перед сменой проекта.',true);return;}
- if(project!==item.id)clearAttachments();project=item.id;mission=item.missionId??'';remember();ensureEventStream();const studio=item.studioId&&studioById(item.studioId as StudioId)?item.studioId as StudioId:null;if(studio)navigation.navigate({page:'studio',studio});else view('create');$('mission-panel').hidden=!mission;if(mission)poll(++epoch).catch(failure);prompt.focus();
+ if((pending||missionSubmitting)&&project!==item.id){notice('Предыдущая отправка требует проверки. Повторите её перед сменой проекта.',true);return;}
+ chatHistory.setDraft(prompt.value);resetMissionView();if(project!==item.id)clearAttachments();rememberProjectTitle(item.id,item.name);project=item.id;mission=item.missionId??'';
+ const thread=chatHistory.attach(project,mission);if(!thread.turns.length)thread.title=item.name;prompt.value=thread.draft;
+ remember();ensureEventStream();
+ const studio=item.studioId&&studioById(item.studioId as StudioId)?item.studioId as StudioId:null;
+ if(mission)navigation.navigate({page:'mission'});
+ else if(studio)navigation.navigate({page:'studio',studio});
+ else view('create');
+ $('mission-panel').hidden=!mission;syncChatUI();if(mission)poll(epoch).catch(failure);prompt.focus();
 }
 async function loadProjects(){
  await renderProjectCenter({account,local,selectedProjectId:project,api,blobAPI,onOpen:openProjectFromCenter,notice,failure,dialog,closeDialog:()=>$<HTMLDialogElement>('dialog').close()});
 }
-for(const studio of studios){
+for(const studio of studios.filter(item=>item.id!=='audio'&&item.id!=='als')){
  const el=document.createElement('a');el.className='card';el.dataset.studio=studio.id;el.dataset.icon=studio.icon;
  const small=document.createElement('small'),h=document.createElement('h3'),p=document.createElement('p'),action=document.createElement('span');
  small.textContent=studio.type;h.textContent=studio.title;p.textContent=studio.description;action.className='card-action';action.textContent=studio.action+' ↗';
@@ -262,7 +1000,7 @@ for(const studio of studios){
 function studioContext(meta:ReturnType<typeof studioById>,token:number,runToken:number,signal?:AbortSignal):StudioModuleContext{
  if(!meta)throw Error('Студия не найдена.');
  return {
-  meta,controls:$('studio-controls'),result:$('studio-result'),account,projectId:project,composer,missionPanel,api,blobAPI,notice,failure,signal,currentProjectId:()=>project,startMission:async message=>{prompt.value=message;await runMission();},dialog,closeDialog:()=>$<HTMLDialogElement>('dialog').close(),
+  meta,controls:$('studio-controls'),result:$('studio-result'),account,projectId:project,composer,missionPanel,api,blobAPI,notice,failure,signal,currentProjectId:()=>project,startMission:async message=>{await runMission(message);},dialog,closeDialog:()=>$<HTMLDialogElement>('dialog').close(),
   current:()=>token===studioEpoch&&runToken===studioRun,
   mountDraft:(server,options)=>{draftCleanup();draftCleanup=mountStudioDraft($('studio-controls'),meta.id,api,server,options);},
   setMediaCleanup:(cleanup)=>{mediaCleanup=cleanup;},setLastBlob:(blob)=>{lastBlob=blob;},
@@ -294,11 +1032,14 @@ async function renderStudio(id:StudioId){
  });
  const suggestionContext:SuggestionContext={surface:id,projectId:project||undefined,activeModel:preferredModel||'AUTO',capabilities:meta.capabilities,hasResult:false};
  const suggestion=mountSuggestionBar($('studio-suggestions'),suggestionContext,(item:Suggestion)=>{
-  const field=controls.querySelector<HTMLTextAreaElement|HTMLInputElement>('#studio-text');if(field){field.value=item.prompt;field.dispatchEvent(new Event('input',{bubbles:true}));field.focus();notice(`Подсказка добавлена: ${item.label}`);return;}
-  if(mountContext.startMission)void mountContext.startMission(item.prompt).catch(failure);
+  const field=controls.querySelector<HTMLTextAreaElement|HTMLInputElement>('#studio-text, #prose-prompt');
+  if(field){field.value=item.prompt;field.dispatchEvent(new Event('input',{bubbles:true}));field.focus();notice(`Подсказка добавлена: ${item.label}`);return;}
+  prompt.value=item.prompt;
+  if(meta.capabilities.includes('ledger-read')||meta.capabilities.includes('system-diagnostics')){if(run&&!run.disabled)run.click();notice('Обновляю отчёт этой студии.');return;}
+  notice('Текст в нижней строке. Сборка файлов запускается из Chat или Mission Control.');
  });
  void loadSystemSuggestions(suggestionContext).then(items=>{if(token===studioEpoch&&items.length)suggestion.update({...suggestionContext,remoteSuggestions:items});});
- const toolbar=mountStudioToolbar({host:$('studio-toolbar'),meta,state,run,stop:()=>{if(['RUNNING','PAUSED'].includes(state.get())){state.set('CANCELLING');cleanupMedia();state.set('READY');notice('Операция остановлена.');}},openHistory:()=>{const button=$<HTMLButtonElement>('project-history');if(project&&account)button.click();else notice('История проекта появится после выбора сохранённого проекта.');},openCompare:()=>{void openCompareCenter().catch(failure);},openReview:()=>{void openReviewHistory().catch(failure);},openHelp:()=>$<HTMLButtonElement>('shortcuts').click(),loadModels:account&&meta.capabilities.includes('mission')?async()=>{const catalog=await api('/api/model-catalog') as {models?:Array<{slug:string;task?:string;freeAllowlisted?:boolean;reviewed?:boolean;provider?:string;capabilities?:string[];contextWindow?:number|null;speedProfile?:'fast'|'balanced'|'quality'|'unknown';costProfile?:'free-allowlisted'|'policy-gated'|'unknown';availability?:'available'|'unavailable'}>};return catalog.models??[];}:undefined,getPreferredModel:()=>preferredModel,setPreferredModel:model=>{setPreferredModel(model);suggestion.update({surface:id,projectId:project||undefined,activeModel:model||'AUTO',capabilities:meta.capabilities,hasResult:!!result.textContent?.trim()});notice(model?`Модель закреплена: ${model}`:'AUTO router включён.');}});
+ const toolbar=mountStudioToolbar({host:$('studio-toolbar'),meta,state,run,stop:()=>{if(['RUNNING','PAUSED'].includes(state.get())){state.set('CANCELLING');cleanupMedia();state.set('READY');notice('Операция остановлена.');}},openHistory:()=>{const button=$<HTMLButtonElement>('project-history');if(project&&account)button.click();else notice('История проекта появится после выбора сохранённого проекта.');},openCompare:()=>{void openCompareCenter().catch(failure);},openReview:()=>{void openReviewHistory().catch(failure);},openHelp:()=>openSettings(),loadModels:account&&meta.capabilities.includes('mission')?async()=>{const catalog=await api('/api/model-catalog') as {models?:Array<{slug:string;task?:string;freeAllowlisted?:boolean;reviewed?:boolean;provider?:string;capabilities?:string[];contextWindow?:number|null;speedProfile?:'fast'|'balanced'|'quality'|'unknown';costProfile?:'free-allowlisted'|'policy-gated'|'unknown';availability?:'available'|'unavailable'}>};return catalog.models??[];}:undefined,getPreferredModel:()=>preferredModel,setPreferredModel:model=>{setPreferredModel(model);suggestion.update({surface:id,projectId:project||undefined,activeModel:model||'AUTO',capabilities:meta.capabilities,hasResult:!!result.textContent?.trim()});notice(model?`Модель закреплена: ${model}`:'AUTO router включён.');}});
  studioChromeCleanup=()=>{toolbar.destroy();suggestion.destroy();moduleFrame.destroy();};
  renderSmartEmptyState(result,meta);
  if(!module.run||!run)return;
@@ -309,18 +1050,20 @@ async function renderStudio(id:StudioId){
   result.textContent=module.pendingLabel??'Выполняю…';result.setAttribute('aria-busy','true');moduleFrame.setStatus('running');
   const runContext=studioContext(meta,token,runToken,abort.signal) as StudioModuleContext & {signal:AbortSignal};activeStudioContext=runContext;
   try{await module.run!(runContext);if(current()){state.set('COMPLETED');moduleFrame.setStatus('success');moduleFrame.recordHistory('Run completed');}}
-  catch(error){if(current()){if(abort.signal.aborted){if(state.get()!=='READY')state.set('READY');moduleFrame.setStatus('idle');moduleFrame.recordHistory('Run cancelled');result.textContent='Операция остановлена. Параметры сохранены.';return;}state.set('FAILED');moduleFrame.setError(error,()=>run.click());renderRecoveryError(result,error,{retry:()=>run.click(),restore:()=>{draftCleanup();void renderStudio(id);},openLogs:()=>{if(project&&mission){missionPanel.hidden=false;return poll(++epoch);}notice('Логи миссии появятся после запуска задачи.');},report:()=>{prompt.value=`Проверь ошибку в ${meta.title}: ${error instanceof Error?error.message:String(error)}`;navigation.navigate({page:'create'});prompt.focus();}});throw error;}}
+  catch(error){if(current()){if(abort.signal.aborted){if(state.get()!=='READY')state.set('READY');moduleFrame.setStatus('idle');moduleFrame.recordHistory('Run cancelled');result.textContent='Операция остановлена. Параметры сохранены.';return;}state.set('FAILED');moduleFrame.setError(error,()=>run.click());renderRecoveryError(result,error,{retry:()=>run.click(),restore:()=>{draftCleanup();void renderStudio(id);},openLogs:()=>{if(project&&mission){navigation.navigate({page:'mission'});missionPanel.hidden=false;return poll(++epoch);}notice('Логи миссии появятся после запуска задачи.');},report:()=>{prompt.value=`Проверь ошибку в ${meta.title}: ${error instanceof Error?error.message:String(error)}`;navigation.navigate({page:'mission'});prompt.focus();}});throw error;}}
   finally{lastModuleRunMs=Math.max(0,Math.round(performance.now()-moduleStarted));moduleFrame.setResourceUsage({runs:moduleRuns,last_ms:lastModuleRunMs});run.disabled=false;toolbar.setRunEnabled(true);if(current())result.setAttribute('aria-busy','false');suggestion.update({surface:id,projectId:project||undefined,activeModel:preferredModel||'AUTO',capabilities:meta.capabilities,hasResult:true});}
  }).catch(failure);
 }
 const voiceInput=mountVoiceInput({button:$<HTMLButtonElement>('voice'),prompt,api,canUse:()=>!!account,notice,failure});
 const commandPalette=mountCommandPalette(()=>[
- {id:'open-create',label:'Open Chat / Создать',keywords:['chat','create'],run:()=>navigation.navigate({page:'create'})},
+ {id:'new-chat',label:'Новый чат',keywords:['new','chat'],run:newChat},
+ {id:'open-create',label:'Open Chat',keywords:['chat','create','dialog'],run:()=>navigation.navigate({page:'create'})},
+ {id:'open-mission',label:'Open Mission Control',keywords:['mission','azrail','control','goal'],run:()=>navigation.navigate({page:'mission'})},
  {id:'open-projects',label:'Open Projects',keywords:['projects','project'],run:()=>navigation.navigate({page:'projects'})},
  {id:'open-metatron',label:'Open Metatron Lab',keywords:['metatron','agents','mission graph','operations'],run:()=>navigation.navigate({page:'metatron'})},
  {id:'open-connections',label:'Open Connections',keywords:['connectors','integrations'],run:()=>navigation.navigate({page:'connections'})},
- ...studios.map(meta=>({id:`studio-${meta.id}`,label:`Open ${meta.title}`,keywords:[meta.description,meta.id],run:()=>navigation.navigate({page:'studio',studio:meta.id})})),
- {id:'run-mission',label:'Run mission / Отправить запрос',keywords:['run','mission'],disabled:()=>!prompt.value.trim(),run:()=>composer.dispatchEvent(new Event('submit',{cancelable:true}))},
+ ...studios.filter(meta=>meta.id!=='audio'&&meta.id!=='als').map(meta=>({id:`studio-${meta.id}`,label:`Open ${meta.title}`,keywords:[meta.description,meta.id],run:()=>navigation.navigate({page:'studio',studio:meta.id})})),
+ {id:'run-mission',label:'Start Mission Control',keywords:['run','mission','start'],disabled:()=>!prompt.value.trim(),run:()=>{if(composerPage!=='mission')navigation.navigate({page:'mission'});composer.dispatchEvent(new Event('submit',{cancelable:true}));}},
  {id:'stop-mission',label:'Stop mission',keywords:['cancel','abort'],disabled:()=>!mission,run:()=>$( 'cancel' ).click()},
  {id:'history',label:'Open project history',keywords:['history','versions'],disabled:()=>!project||!account,run:()=>$( 'project-history' ).click()},
  {id:'asset-library',label:'Open Asset Intelligence Library',keywords:['assets','library','images','audio','documents'],disabled:()=>!account,run:()=>openAssetIntelligence().catch(failure)},
@@ -329,16 +1072,16 @@ const commandPalette=mountCommandPalette(()=>[
  {id:'series-g-readiness',label:'Open Browser QA / Real E2E readiness',keywords:['browser','qa','e2e','series g'],disabled:()=>!account,run:()=>openSystemReadiness().catch(failure)},
  {id:'compare-mode',label:'Open Compare Mode · A | B',keywords:['compare','a b','versions','before after'],disabled:()=>!account,run:()=>openCompareCenter().catch(failure)},
  {id:'professional-review',label:'Open Professional Review',keywords:['review','quality','critical','major','minor','safe fix'],disabled:()=>!account,run:()=>openReviewHistory().catch(failure)},
- {id:'shortcuts',label:'Open shortcuts',keywords:['help','keyboard'],run:()=>$( 'shortcuts' ).click()},
+ {id:'shortcuts',label:'Open shortcuts',keywords:['help','keyboard','settings'],run:()=>openSettings()},
 ]);
+bind('commands',()=>commandPalette.open());
 navigation.render(true);
 refreshAccount().then(()=>{if(!local&&account)navigation.render(true);}).catch(failure);
 // Avoid keeping a previous large export reachable after leaving its studio.
-window.addEventListener('pagehide',()=>{stopEventStream();draftCleanup();cleanupMedia();voiceInput.destroy();commandPalette.destroy();lastBlob=null;});
+window.addEventListener('pagehide',()=>{stopEventStream();saveComposerDraft();workspace.destroy();draftCleanup();cleanupMedia();voiceInput.destroy();commandPalette.destroy();lastBlob=null;});
 void lastBlob;
 
-bind('shortcuts',()=>dialog('Горячие клавиши','<p>Ctrl / ⌘ + K — Command Palette.</p><p>Ctrl / ⌘ + Enter — отправить запрос.</p><p>Alt + 1 — создать; Alt + 2 — проекты; Alt + 3 — студии.</p><p>В Studio: ↶ / ↷ управляет историей черновика; Stop отменяет текущую локальную/сетевую операцию через AbortController.</p><p>Escape — закрыть окно.</p>'));
-document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.isComposing)return;if((e.ctrlKey||e.metaKey)&&e.key==='Enter'&&document.activeElement===prompt){e.preventDefault();$('composer').dispatchEvent(new Event('submit',{cancelable:true}));}if(e.altKey&&['1','2','3'].includes(e.key)){e.preventDefault();view((['create','projects','studios'] as const)[Number(e.key)-1]);}});
+document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.isComposing||e.keyCode===229)return;if(e.key==='Enter'&&!e.shiftKey&&!e.altKey&&document.activeElement===prompt){e.preventDefault();$<HTMLFormElement>('composer').requestSubmit();}if(e.altKey&&['1','2','3'].includes(e.key)){e.preventDefault();view((['create','projects','studios'] as const)[Number(e.key)-1]);}});
 
 
 async function loadConnections(){
@@ -427,7 +1170,7 @@ bind('project-backups',async()=>{
       .then(()=>{
        $<HTMLDialogElement>('dialog').close();
        notice(`Копия восстановлена в новый проект. Открываю его.`);
-       project=target;mission='';remember();ensureEventStream();view('create');
+       resetMissionView();clearAttachments();project=target;mission='';const thread=chatHistory.attach(project,mission);prompt.value=thread.draft;remember();ensureEventStream();view('create');syncChatUI();
       })
       .catch(failure).finally(()=>{btn.disabled=false;});
     };

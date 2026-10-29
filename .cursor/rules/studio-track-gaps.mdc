@@ -1,0 +1,56 @@
+---
+description: Locked gaps before Music Studio can hand a finished record to a listener, and which of them stay hidden.
+globs: ui/audio-codecs.ts,ui/media.ts,ui/music-direction.ts,ui/music-pro.ts,ui/studio-modules/music.ts,ui/dry-speech.ts,ui/studio-master.ts
+alwaysApply: false
+---
+
+# Finished track, hidden from the user
+
+The owner locked this list. A beginner gets a finished track in a few taps. The studio does the craft. Do not add a compressor, LUFS target, swing percent, EQ, or sample browser to the first screen.
+
+The user sees only: direction and mood, one short phrase or their own dry recording, the shelf wish, section up/down/mute, and download. The card shows measured LUFS, true peak, and low/mid/air. An unmeasured number stays «—».
+
+Do not ship a formant voice as a singer. Do not claim a mix was split into the original synths. Do not copy a reference melody. Do not invent loudness or 128 BPM.
+
+The engine does this work. It is not the Beatport bar in `studio-beatport-bar.mdc`. There is still no knob for it. Three limits stay honest: swing is chosen by the section, because the file analysis has no measured swing; the card prints the real LUFS, peak, and air, even when loudness is quieter than −9…−7 or the top band is absent; a dry phrase is still «сухое произнесение», not a singer. Stem files, when the browser can render them together, sum to the file on the card. An Ableton export of our own track and a 48 kHz video file stay later work.
+
+Hidden work, in this order:
+
+1. Club drum one-shots, not a sine plus noise.
+2. A house kit plays unless the user brought their own sound.
+3. Bass and hook presets with unison and envelopes, no preset menu.
+4. A second musical idea inside 10:00, not one 8-note loop.
+5. A bass phrase, not only the root.
+6. Chord changes, not one held note.
+7. Section groove, not one fixed swing, and not a measured copy of the reference.
+8. Shaker, ride, crash, and toms placed by the section.
+9. Reverse cymbal, impact, and downlifter at the joints.
+10. One room and one delay, chosen by section, with no send knobs.
+11. Real top-end energy so the card can show air when it is actually there.
+12. A performance of the user's phrase. Their words stay the only vocal input.
+13. A second phrase only when their text has one. No invented verse.
+14. Double, harmony, and breath done inside the mix.
+15. The lyric sheet stays text. One short phrase can enter the track.
+16. A foreign vocal is never pulled out of a finished record.
+17. Drop question and answer, a one-beat kick gap, no extra screens.
+18. Two themes across 10:00.
+19. Section moves stay the timeline. No bar editor on the first screen.
+20. Notes stay internal. The piano roll stays a picture.
+21. Their file lands only through the shelf or the dry-phrase drop.
+22. A longer drop writes new bars. It does not only steal bars from a neighbor.
+23. Master stays one chain: EQ, clip, and the −1.0 dBTP ceiling. No mix console.
+24. Density high enough that measured loudness can reach about −9…−7 LUFS without passing the peak ceiling.
+25. Sidechain amount follows the section.
+26. Low end under 100 Hz stays mono. No correlation meter on the card.
+27. Drum notes stay out of the user MIDI until a real kit exists.
+28. Stem download, when added, must sum to the same master.
+29. The card meter stays an estimate. Do not call it a certified plant meter.
+30. Kick, hat, bass, space, and swing have no knobs.
+31. Shelf character changes the next track. It does not become a synth extractor.
+32. A finished mix is never described as separated stems.
+33. «Мелодичнее» and «Профессиональнее» change the next render. The drop loop is the audition.
+34. Reference match only turns the louder file down.
+35. A 10:00 24-bit WAV stays a disk download when it is over 50 MB. Say that in one sentence.
+36. An Ableton project of our track is a later export, not a first-screen tool.
+37. Render stays in the browser. A phone that cannot hold 10:00 is told before the render starts.
+38. Music delivery stays 44.1 kHz. A 48 kHz video file is a separate later delivery.

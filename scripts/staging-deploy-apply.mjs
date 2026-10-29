@@ -1,4 +1,5 @@
 import { spawnSync } from 'node:child_process';
+import { spawnCommand } from './lib/run-command.mjs';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const pkg=JSON.parse(readFileSync('package.json','utf8'));
@@ -18,7 +19,7 @@ if(process.env[contract.expected_previous_deployment_env]!==prep.expected_previo
 const nodeMajor=Number(process.versions.node.split('.')[0]);
 if(!Number.isFinite(nodeMajor)||nodeMajor<Number(contract.required_runtime.node_major_min))throw new Error(`Staging deploy blocked: runtime ${process.version}; Node >=${contract.required_runtime.node_major_min} required.`);
 
-const dry=spawnSync('npm',['run','build:check:staging'],{stdio:'inherit',env:{...process.env,AZRAIL_STAGING_DEPLOY_GATE:'1'}});
+const dry=spawnCommand(['npm','run','build:check:staging'],{stdio:'inherit',env:{...process.env,AZRAIL_STAGING_DEPLOY_GATE:'1'}});
 if(dry.status!==0)throw new Error('Staging deploy blocked: canonical Wrangler staging dry-run failed immediately before deploy.');
 const [bin,...args]=contract.deployment_command;
 const startedAt=new Date().toISOString();

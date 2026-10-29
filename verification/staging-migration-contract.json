@@ -13,7 +13,7 @@
       "002-mission-async.sql"
     ],
     "apply_from": "003-bench.sql",
-    "apply_through": "035-series-g-system-intelligence.sql"
+    "apply_through": "037-conversation-archive.sql"
   },
   "required_preconditions": [
     "staging canonical bindings match the read-only snapshot",

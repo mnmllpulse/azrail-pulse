@@ -7,6 +7,7 @@ for(const marker of ['MAX_FILES = 12','MAX_TEXT_BYTES','R2 ranged reads','attach
 for(const marker of ["/api/upload","FormData","projectId","state='failed'","Повторить","MAX_FILES=12","MAX_BYTES=50*1024*1024"])if(!manager.includes(marker))fail(`manager missing ${marker}`);
 if(app.includes('attachmentsText'))fail('legacy inline attachment text path is forbidden');
 for(const marker of ['attachmentManager.hasPending()','attachmentManager.hasFailed()','attachments:attachmentRefs'])if(!app.includes(marker))fail(`composer missing ${marker}`);
-if(!html.includes('id="attachment-manager"')||!html.includes('.zip,.pdf,.docx'))fail('attachment UI surface or accepted types missing');
+if(!html.includes('id="attachment-manager"')||html.includes('accept='))fail('attachment picker must stay open to every non-program file');
+if(!manager.includes("'exe'")||!upload.includes('BLOCKED_EXT'))fail('program extensions must stay blocked');
 if(!types.includes('attachments?: AttachmentRef[]'))fail('TaskRequest must carry AttachmentRef[]');
 if(failed)process.exit(1);console.log('ATTACHMENT ARCHITECTURE PASS: uploads are project-bound, R2-backed, bounded, retryable and submitted as references.');

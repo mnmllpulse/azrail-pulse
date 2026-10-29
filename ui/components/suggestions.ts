@@ -64,6 +64,11 @@ const suggestions:Record<StudioId,readonly Suggestion[]>={
   {id:'ledger-cost',label:'Найти перерасход',prompt:'Проверь spend, reserved cost, retries и uncertain calls на аномалии.',kind:'primary'},
   {id:'ledger-latency',label:'Проверить latency',prompt:'Найди модели/агентов с повышенной latency и ошибками.'},
  ],
+ prose:[
+  {id:'prose-short',label:'Собрать короткую фразу',prompt:'Собери три коротких варианта из текущего запроса: цитата, прямая фраза и название.',kind:'primary'},
+  {id:'prose-track',label:'Текст для трека',prompt:'Разложи текущий запрос на вступление, куплет, брейк, дроп и завершение. Дроп оставь одной короткой фразой.'},
+  {id:'prose-picture',label:'Описание картинки',prompt:'Собери три описания кадра из текущего запроса: предмет, свет и то, чего на картинке нет.'},
+ ],
  lab:[
   {id:'lab-failed',label:'Разобрать failed step',prompt:'Найди последний failed/blocking signal и объясни безопасный следующий шаг.',kind:'primary'},
   {id:'lab-trace',label:'Открыть trace',prompt:'Покажи trace цепочку mission → agent → tool → provider → result для последней проблемы.'},

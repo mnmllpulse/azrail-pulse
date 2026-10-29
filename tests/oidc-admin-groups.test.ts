@@ -2,7 +2,7 @@ import {afterEach,describe,expect,it,vi} from 'vitest';
 vi.mock('../src/core/azrail-sandbox',()=>({Sandbox:class{}}));
 import worker from '../src/unified/entry';
 import {sqliteD1} from './stubs/sqlite-d1';
-import {oidcRoleFromClaims,oidcAdminGroups} from '../src/unified/oidc';
+import {oidcRoleFromClaims,oidcAdminGroups,oidcAdminEmails} from '../src/unified/oidc';
 import {idpFetch,oidcLogin,OIDC_ISSUER,OIDC_CLIENT_ID} from './helpers/oidc-login';
 import type {Env} from '../src/types';
 afterEach(()=>{vi.unstubAllGlobals();});
@@ -38,6 +38,12 @@ describe('OIDC admin groups',()=>{
   (f.env as any).OIDC_ADMIN_GROUPS='';
   expect(await f.role({sub:'h',groups:['ops']})).toBe('editor');
  });
+ it('grants admin to a configured owner email and editor to any other address',async()=>{
+  const f=fixture({OIDC_ADMIN_EMAILS:'Owner@Example.com'});
+  expect(await f.role({sub:'mail-owner',email:'owner@example.com'})).toBe('admin');
+  expect(await f.role({sub:'mail-other',email:'other@example.com'})).toBe('editor');
+  expect(await f.role({sub:'mail-blank',email:'  '})).toBe('editor');
+ });
  it('keeps a manual viewer downgrade across logins',async()=>{
   const f=fixture();
   expect(await f.role({sub:'v',groups:['pulse-admins']})).toBe('admin');
@@ -55,6 +61,11 @@ describe('oidcRoleFromClaims',()=>{
  it('honours a custom claim name',()=>{
   expect(oidcRoleFromClaims({teams:['pulse-admins']},env({OIDC_GROUPS_CLAIM:'teams'}))).toBe('admin');
   expect(oidcRoleFromClaims({groups:['pulse-admins']},env({OIDC_GROUPS_CLAIM:'teams'}))).toBe('editor');
+ });
+ it('grants admin from the owner email list without a group',()=>{
+  expect(oidcAdminEmails(env({OIDC_ADMIN_EMAILS:' A@B.com , no-at '}))).toEqual(['a@b.com']);
+  expect(oidcRoleFromClaims({email:'a@b.com'},env({OIDC_ADMIN_EMAILS:'a@b.com',OIDC_ADMIN_GROUPS:''}))).toBe('admin');
+  expect(oidcRoleFromClaims({email:'c@d.com'},env({OIDC_ADMIN_EMAILS:'a@b.com'}))).toBe('editor');
  });
  it('never grants admin when the group list is empty',()=>{
   for(const v of ['',' , ',','])expect(oidcRoleFromClaims({groups:['pulse-admins','']},env({OIDC_ADMIN_GROUPS:v}))).toBe('editor');

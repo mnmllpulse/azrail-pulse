@@ -1,0 +1,26 @@
+---
+description: Locked studio master standard for Music Studio delivery. MP3 floor is 320 kbps CBR. WAV and AIFF are 24-bit 44.1 kHz.
+globs: ui/audio-codecs.ts,ui/media.ts,ui/music-direction.ts,ui/studio-modules/music.ts,ui/studio-modules/audio.ts,src/lib/music-studio.ts,src/unified/studios.ts
+alwaysApply: false
+---
+
+# Studio master quality
+
+This is the priority standard for every file Music Studio gives the user. The owner agreed it. Do not lower the export. Do not describe a 16-bit file or an MP3 below 320 as the finished master.
+
+- WAV and AIFF: 24-bit, 44.1 kHz, stereo, the same samples.
+- FLAC: lossless copy of that PCM. A 16-bit FLAC is not the master.
+- The lowest finished-track quality is MP3 at 320 kbps constant bitrate, stereo, encoded from the 24-bit PCM only. WAV, AIFF, and FLAC are required higher deliveries of that same master, not optional extras. The product does not offer 128 or 192. A lower MP3 re-encoded at 320 is not 320.
+- True peak at or below −1.0 dBTP.
+- Integrated loudness for this melodic house / techno direction: about −9 to −7 LUFS. Do not substitute a streaming target near −14.
+- After render, show measured LUFS, true peak, and whether low, mid, and air energy are present. If a number was not measured, show «—».
+- Full arrangement target is 10:00 across the six existing sections. Bar count comes from the session BPM. Do not hardcode 128 BPM. Do not invent a BPM, key, or loudness.
+- A vocal, once agreed, is inside this same master. Do not ship it as a separate lower-quality file. Do not ship an oscillator or formant preset as a singer.
+
+```typescript
+// Below the standard. Do not treat as the finished master.
+new Encoder(pcm.channels, pcm.sampleRate, 192)
+
+// The MP3 floor, encoded from the 24-bit PCM master.
+new Encoder(pcm.channels, pcm.sampleRate, 320)
+```

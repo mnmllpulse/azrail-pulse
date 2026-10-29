@@ -119,9 +119,11 @@ describe("RC14 retention and Studio memory invariants",()=>{
   it("does not expand voice bytes into a multi-million-element JavaScript array",()=>{
     const studios=readFileSync(new URL('../src/unified/studios.ts',import.meta.url),'utf8');
     expect(studios).not.toContain('audio:[...bytes]');
-    // Transcription moved behind the SpeechToText adapter; bytes are still passed through without array expansion.
+    // Whisper gets base64 (chunked), never a giant spread into number[].
     const voice=readFileSync(new URL('../src/unified/voice.ts',import.meta.url),'utf8');
-    expect(voice).not.toContain('[...');
-    expect(voice).toContain("provider.run(this.model,input.audio as never");
+    expect(voice).not.toContain('[...new Uint8Array');
+    expect(voice).not.toContain('audio:[...');
+    expect(voice).toContain('audioToBase64');
+    expect(voice).toContain('audio:audioToBase64(input.audio)');
   });
 });

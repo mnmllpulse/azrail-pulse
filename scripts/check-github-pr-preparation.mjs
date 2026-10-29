@@ -12,7 +12,7 @@ const sha40=(v)=>/^[0-9a-f]{40}$/i.test(String(v??''));
 add('master-item',c.master_item===37,'Contract is pinned to Stage D item #37.');
 add('release-truth',c.release===pkg.version&&s.release===c.readonly_evidence_source_release,'Contract matches package target release and immutable read-only evidence matches its declared source release.');
 add('snapshot-read-only',s.mutation_free===true&&s.github?.remote_write_performed===false&&s.cloudflare?.remote_write_performed===false&&s.canva?.remote_write_performed===false,'All connected-service evidence is mutation-free.');
-add('repo-truth',c.repository==='mnmllpulse/azrail-os'&&s.github?.repository===c.repository&&c.base_branch==='main','Repository and base branch are explicit.');
+add('repo-truth',c.repository!=='mnmllpulse/azrail-os'&&s.github?.repository===c.repository&&c.base_branch==='main','Release repository is explicit and is not the deleted mnmllpulse/azrail-os.');
 add('base-sha-lease',sha40(c.base_sha)&&c.base_sha===s.github?.head_sha,'PR contract is leased to the reviewed main SHA.');
 add('branch-unique',c.branch_name===`release/azrail-pulse-${pkg.version}`,'Release branch name is deterministic and version-scoped.');
 add('draft-first',c.pull_request?.initial_draft===true,'Release PR opens as draft before fresh CI/review.');

@@ -1,23 +1,22 @@
 {
   "schema_version": 1,
   "release": "1.5.0-rc.54",
-  "generated_at": "2026-10-10T08:45:49Z",
-  "source": "Cloudflare API read-only inspection via ChatGPT connector for RC46; no Cloudflare write",
+  "generated_at": "2026-10-29T03:52:20.901Z",
+  "source": "Cloudflare API read-only GET. No Cloudflare write.",
   "mutation_free": true,
-  "post_deploy": false,
-  "purpose": "Pre-deploy baseline. Refresh read-only after the approved staging deploy before authenticated smoke.",
+  "post_deploy": true,
+  "purpose": "Post-deploy identity after the school copy received the same owner email as the working site.",
   "worker": {
     "name": "azrail-pulse-staging",
     "workers_dev_enabled": true,
-    "previews_enabled": false,
+    "previews_enabled": true,
     "compatibility_date": "2026-09-29",
     "compatibility_flags": [
       "nodejs_compat"
     ],
-    "current_deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
-    "current_version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
-    "current_version_number": 3,
-    "current_version_created_on": "2026-10-09T11:40:53.308736Z",
+    "current_deployment_id": "63b9d403-2c6d-4993-842a-f24d9d2b7efc",
+    "current_version_id": "37a405cf-96f2-4636-a90f-c3d026d83f0a",
+    "current_version_created_on": "2026-10-29T03:52:00.226731Z",
     "handlers": [
       "fetch",
       "scheduled"

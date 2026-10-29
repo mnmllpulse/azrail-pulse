@@ -1,6 +1,6 @@
 import {existsSync,readFileSync,readdirSync} from 'node:fs';
 
-const expected=['web','image','music','video','audio','als','data','ledger','lab'];
+const expected=['web','image','music','video','audio','als','data','ledger','lab','prose'];
 const fail=(message)=>{console.error(`STUDIO ARCHITECTURE FAIL: ${message}`);process.exitCode=1;};
 const app=readFileSync('ui/app.ts','utf8');
 const registry=readFileSync('ui/studio-registry.ts','utf8');

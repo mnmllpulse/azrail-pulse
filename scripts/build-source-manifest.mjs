@@ -3,7 +3,7 @@ import { readFileSync, readdirSync, statSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 const root=process.cwd();
 const version=JSON.parse(readFileSync('package.json','utf8')).version;
-const excludedTop=new Set(['node_modules','.work','backups','.git']);
+const excludedTop=new Set(['node_modules','.work','.wrangler','backups','.git']);
 const files=[];
 function walk(dir){
   for(const name of readdirSync(dir).sort()){

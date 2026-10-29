@@ -1,0 +1,4923 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-10-15T05:02:48.424Z",
+  "source": {
+    "unifiedCatalog": 182,
+    "workersAiSearch": 70,
+    "unique": 252
+  },
+  "models": [
+    {
+      "slug": "@cf/ai4bharat/indictrans2-en-indic-1B",
+      "displayName": "Indictrans2 En Indic 1B",
+      "provider": "Ai4bharat",
+      "providerId": "ai4bharat",
+      "task": "Translation",
+      "description": "IndicTrans2 is the first open-source transformer-based multilingual NMT model that supports high-quality translations across all the 22 scheduled Indic languages",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/aisingapore/gemma-sea-lion-v4-27b-it",
+      "displayName": "Gemma Sea Lion V4 27B It",
+      "provider": "Aisingapore",
+      "providerId": "aisingapore",
+      "task": "Text Generation",
+      "description": "SEA-LION stands for Southeast Asian Languages In One Network, which is a collection of Large Language Models (LLMs) which have been pretrained and instruct-tuned for the Southeast Asia (SEA) region.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "alibaba/hh1-i2v",
+      "displayName": "HappyHorse 1.0 I2V",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Image-to-Video",
+      "description": "Alibaba's HappyHorse 1.0 image-to-video model. Animates a reference image with an optional text prompt. Supports 720P and 1080P output with durations from 3 to 15 seconds.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image-to-Video",
+        "Video Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/hh1-t2v",
+      "displayName": "HappyHorse 1.0 T2V",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text-to-Video",
+      "description": "Alibaba's HappyHorse 1.0 text-to-video model. Generates videos from a text prompt with configurable resolution, aspect ratio, and duration (3-15s).",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Video",
+        "Video Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/hh1.1-i2v",
+      "displayName": "HappyHorse 1.1 I2V",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Image-to-Video",
+      "description": "Alibaba's HappyHorse 1.1 image-to-video model. Animates a reference image with an optional text prompt, with smoother motion, natural skin textures, and improved close-up quality over 1.0. Supports 720P and 1080P output with durations from 3 to 15 seconds.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image-to-Video",
+        "Video Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/hh1.1-r2v",
+      "displayName": "HappyHorse 1.1 R2V",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Image-to-Video",
+      "description": "Alibaba's HappyHorse 1.1 reference-to-video model. Takes 1-9 reference images (characters and scenes) and a prompt that choreographs them into a single video, keeping each subject's identity consistent. Supports 720P and 1080P output with durations from 3 to 15 seconds.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image-to-Video",
+        "Reference-to-Video",
+        "Video Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/hh1.1-t2v",
+      "displayName": "HappyHorse 1.1 T2V",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text-to-Video",
+      "description": "Alibaba's HappyHorse 1.1 text-to-video model. Generates videos from a text prompt with stronger dynamic expressiveness, better visual quality, and improved instruction following over 1.0. Configurable resolution, aspect ratio, and duration (3-15s).",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Video",
+        "Video Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/qwen-image-3.0-pro",
+      "displayName": "Qwen Image 3.0 Pro",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text-to-Image",
+      "description": "Alibaba's Qwen Image 3.0 Pro generates images from text prompts with a focus on complex layout generation, small-text precision, and multilingual font rendering. Supports up to 6 image variants per call, negative prompts, seed control, and optional prompt rewriting.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Negative Prompt",
+        "Text Rendering",
+        "Multi-Image"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/qwen3-max",
+      "displayName": "Qwen 3 Max",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text Generation",
+      "description": "Alibaba's Qwen 3 Max is a large language model with strong coding, reasoning, and multilingual capabilities, served via DashScope's OpenAI-compatible endpoint.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/qwen3.5-397b-a17b",
+      "displayName": "Qwen 3.5 397B A17B",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text Generation",
+      "description": "Alibaba's Qwen 3.5 is a 397B-parameter mixture-of-experts model with 17B active parameters, offering strong reasoning capabilities with efficient inference.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "MoE"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/qwen3.7-max",
+      "displayName": "Qwen 3.7 Max",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text Generation",
+      "description": "Alibaba's Qwen 3.7 Max is the largest and most capable model in the Qwen3.7 series, a next-generation flagship built for the agent-centric era with deep strengths in programming, office and productivity tasks, and long-term autonomous execution, served via DashScope's OpenAI-compatible endpoint.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/qwen3.7-plus",
+      "displayName": "Qwen 3.7 Plus",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text Generation",
+      "description": "Alibaba's Qwen 3.7 Plus is the cost-effective member of the Qwen3.7 series, pairing strong text capabilities with image and video understanding and full-stack agent-level intelligence for coding, tool use, and GUI-based automation, served via DashScope's OpenAI-compatible endpoint.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Vision",
+        "Video",
+        "Coding",
+        "Reasoning",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/qwen3.8-max",
+      "displayName": "Qwen 3.8 Max",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text Generation",
+      "description": "Alibaba's Qwen 3.8 Max is a 2.4-trillion-parameter MoE flagship built for professional-grade coding and long-horizon autonomous work, capable of delivering complete, production-grade projects spanning 10+ days across legal, financial, design, and other specialized domains. Native visual understanding of images and extended video runs through the full plan-execute-verify cycle, served via DashScope's OpenAI-compatible endpoint.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Vision",
+        "Video",
+        "Coding",
+        "Reasoning",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/wan-2.6-image",
+      "displayName": "Wan 2.6 Image",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text-to-Image",
+      "description": "Alibaba's Wan 2.6 text-to-image model generating images from text prompts with optional negative prompts and customizable dimensions.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Negative Prompt"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/wan-2.7-i2v",
+      "displayName": "Wan 2.7 I2V",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Image-to-Video",
+      "description": "Alibaba's Wan 2.7 image-to-video model that generates videos from a reference image with optional text prompts. Supports 720P and 1080P output with durations from 2 to 15 seconds.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image-to-Video",
+        "Video Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/wan-3.0",
+      "displayName": "Wan 3.0 Video",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text-to-Video",
+      "description": "Alibaba's Wan 3.0 text-to-video model. Generates cinematic videos from text prompts with adaptive aspect ratio, 480P, 720P, or 1080P resolution, and configurable duration.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Video",
+        "Video Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "alibaba/wan-3.0-prime",
+      "displayName": "Wan 3.0 Prime Video",
+      "provider": "Alibaba",
+      "providerId": "alibaba",
+      "task": "Text-to-Video",
+      "description": "Alibaba's Wan 3.0 Prime text-to-video model. Generates cinematic videos from text prompts with adaptive aspect ratio, 480P, 720P, or 1080P resolution, and configurable duration.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Video",
+        "Video Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-fable-5",
+      "displayName": "Claude Fable 5",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Fable 5 is Anthropic's most capable widely released model, built for the most demanding reasoning and long-horizon agentic work. Adaptive thinking is always on, and the model supports a 1M token context window with up to 128k output tokens per request.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Enterprise",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-fable-5.1",
+      "displayName": "Claude Fable 5.1",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Fable 5.1 is Anthropic's next model in the Fable family, with improvements in agentic coding, long-running agentic workflows, knowledge work, front-end and visual code generation, and finance and analysis tasks. It supports adaptive thinking and a 1M token context window.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Enterprise",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-haiku-4.5",
+      "displayName": "Claude Haiku 4.5",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Haiku 4.5 delivers similar levels of coding performance at one-third the cost and more than twice the speed of larger models.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 200000,
+      "maxOutputTokens": 8192,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Fast",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-haiku-5.5",
+      "displayName": "Claude Haiku 5.5",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Haiku 5.5 is a fast, cost-efficient model for high-volume, latency-sensitive tasks such as classification, extraction, routing, and subagent work.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient",
+        "Classification"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-opus-4.5",
+      "displayName": "Claude Opus 4.5",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Opus 4.5 brings further reasoning, coding, and agentic improvements over Opus 4.1, with stronger tool use and tighter instruction following.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 200000,
+      "maxOutputTokens": 32000,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Coding",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-opus-4.6",
+      "displayName": "Claude Opus 4.6",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Opus 4.6 is Anthropic's flagship language model built for complex, multi-step work in coding, financial analysis, and legal reasoning. It uses extended thinking to work through complex problems carefully and features a one million token context window.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Enterprise",
+        "Agentic",
+        "Financial Analysis",
+        "Legal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-opus-4.7",
+      "displayName": "Claude Opus 4.7",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Opus 4.7 is Anthropic's most capable generally available model, with a step-change improvement in agentic coding over Claude Opus 4.6. It uses adaptive thinking to calibrate reasoning per task and supports a one million token context window at standard pricing.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Enterprise",
+        "Agentic",
+        "Financial Analysis",
+        "Legal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-opus-4.8",
+      "displayName": "Claude Opus 4.8",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Opus 4.8 is Anthropic's most capable generally available model, with a step-change improvement in agentic coding over Claude Opus 4.7. It uses adaptive thinking to calibrate reasoning per task and supports a one million token context window at standard pricing.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Enterprise",
+        "Agentic",
+        "Financial Analysis",
+        "Legal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-opus-5",
+      "displayName": "Claude Opus 5",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Opus 5 is Anthropic's model for complex agentic coding and enterprise work, delivering intelligence close to Claude Fable 5 at half the price. It uses adaptive thinking to calibrate reasoning per task and supports a one million token context window at standard pricing. Unlike Fable 5, Opus 5 has no data retention requirements for general access.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Enterprise",
+        "Agentic",
+        "Financial Analysis",
+        "Legal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-opus-5.5",
+      "displayName": "Claude Opus 5.5",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Opus 5.5 is Anthropic's model for long-running agentic coding and knowledge work. It combines a one million token context window with adaptive thinking that is always on, a 128K token maximum output, and a medium default effort level.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Agentic",
+        "Knowledge Work"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-sonnet-4.5",
+      "displayName": "Claude Sonnet 4.5",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Sonnet 4.5 is the best coding model to date, with significant improvements across the entire development lifecycle.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 200000,
+      "maxOutputTokens": 8192,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-sonnet-4.6",
+      "displayName": "Claude Sonnet 4.6",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Sonnet 4.6 is Anthropic's latest balanced model offering strong coding, reasoning, and agentic capabilities with improved instruction following.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 200000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-sonnet-5",
+      "displayName": "Claude Sonnet 5",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Sonnet 5 is Anthropic's most agentic Sonnet model yet, built for coding, tool use, reasoning, and long-horizon professional work at lower cost than Opus-class models.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "anthropic/claude-sonnet-5.5",
+      "displayName": "Claude Sonnet 5.5",
+      "provider": "Anthropic",
+      "providerId": "anthropic",
+      "task": "Text Generation",
+      "description": "Claude Sonnet 5.5 offers the best combination of speed and intelligence, with adaptive thinking for coding, tool use, reasoning, and long-horizon work.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "assemblyai/universal-3-pro",
+      "displayName": "AssemblyAI Universal-3 Pro",
+      "provider": "AssemblyAI",
+      "providerId": "assemblyai",
+      "task": "Automatic Speech Recognition",
+      "description": "AssemblyAI's Universal 3 Pro speech recognition model for high-accuracy transcription.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Speech-to-Text",
+        "Transcription",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "assemblyai/universal-3.5-pro",
+      "displayName": "AssemblyAI Universal-3.5 Pro",
+      "provider": "AssemblyAI",
+      "providerId": "assemblyai",
+      "task": "Automatic Speech Recognition",
+      "description": "AssemblyAI's Universal-3.5 Pro speech recognition model for fast, high-accuracy transcription.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Speech-to-Text",
+        "Transcription",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/baai/bge-base-en-v1.5",
+      "displayName": "Bge Base En V1.5",
+      "provider": "BAAI",
+      "providerId": "baai",
+      "task": "Text Embeddings",
+      "description": "BAAI general embedding (Base) model that transforms any given text into a 768-dimensional vector",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/baai/bge-large-en-v1.5",
+      "displayName": "Bge Large En V1.5",
+      "provider": "BAAI",
+      "providerId": "baai",
+      "task": "Text Embeddings",
+      "description": "BAAI general embedding (Large) model that transforms any given text into a 1024-dimensional vector",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/baai/bge-m3",
+      "displayName": "Bge M3",
+      "provider": "BAAI",
+      "providerId": "baai",
+      "task": "Text Embeddings",
+      "description": "Multi-Functionality, Multi-Linguality, and Multi-Granularity embeddings model.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/baai/bge-reranker-base",
+      "displayName": "Bge Reranker Base",
+      "provider": "BAAI",
+      "providerId": "baai",
+      "task": "Text Classification",
+      "description": "Different from embedding model, reranker uses question and document as input and directly output similarity instead of embedding. You can get a relevance score by inputting query and passage to the reranker. And the score can be mapped to a float value in [0,1] by sigmoid function.\n\n",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/baai/bge-small-en-v1.5",
+      "displayName": "Bge Small En V1.5",
+      "provider": "BAAI",
+      "providerId": "baai",
+      "task": "Text Embeddings",
+      "description": "BAAI general embedding (Small) model that transforms any given text into a 384-dimensional vector",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/black-forest-labs/flux-1-schnell",
+      "displayName": "Flux 1 Schnell",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX.1 [schnell] is a 12 billion parameter rectified flow transformer capable of generating images from text descriptions. ",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/black-forest-labs/flux-2-dev",
+      "displayName": "Flux 2 Dev",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX.2 [dev] is an image model from Black Forest Labs where you can generate highly realistic and detailed images, with multi-reference support.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/black-forest-labs/flux-2-klein-4b",
+      "displayName": "Flux 2 Klein 4B",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX.2 [klein] is an ultra-fast, distilled image model. It unifies image generation and editing in a single model, delivering state-of-the-art quality enabling interactive workflows, real-time previews, and latency-critical applications.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/black-forest-labs/flux-2-klein-9b",
+      "displayName": "Flux 2 Klein 9B",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX.2 [klein] 9B is a 9 billion parameter model that can generate images from text descriptions and supports multi-reference editing capabilities.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "black-forest-labs/flux-1-kontext-max",
+      "displayName": "FLUX.1 Kontext [max]",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX.1 Kontext [max] is Black Forest Labs' highest-quality Kontext model for text-to-image generation and context-aware image editing.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Maximum Quality"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "black-forest-labs/flux-1-kontext-pro",
+      "displayName": "FLUX.1 Kontext [pro]",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX.1 Kontext [pro] creates and edits images from text prompts with strong character and style consistency.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Character Consistency"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "black-forest-labs/flux-2-flex",
+      "displayName": "FLUX.2 [flex]",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX.2 [flex] is Black Forest Labs' fine-grained control variant of FLUX.2 — exposes tunable inference steps, guidance, and prompt upsampling for typography-heavy and production workflows.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Typography",
+        "Tunable"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "black-forest-labs/flux-2-max",
+      "displayName": "FLUX.2 [max]",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX.2 [max] is Black Forest Labs' highest-quality image model — top editing consistency, strongest prompt following, and grounding search for visualizations of real-time information.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "High Quality",
+        "Grounding Search"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "black-forest-labs/flux-2-pro-preview",
+      "displayName": "FLUX.2 [pro]",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX.2 [pro] Preview is Black Forest Labs' recommended default for production image generation and editing — tracks the latest [pro] weights with strong multi-reference support.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Preview"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "black-forest-labs/flux-3-video",
+      "displayName": "FLUX 3 Video",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Video",
+      "description": "FLUX 3 Video is Black Forest Labs' video generation model. It generates video from a text prompt (t2v), animates one or more reference images (i2v), or continues an existing clip (v2v), with synchronized audio, up to fhd resolution, and 5-20 second durations.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image to Video",
+        "Audio"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "black-forest-labs/flux-video-upscale",
+      "displayName": "FLUX Video Upscale",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "video-to-video",
+      "description": "FLUX Video Upscale increases video resolution with a precise mode for source-faithful results and a creative mode for stronger detail enhancement. It accepts clips up to 20 seconds and preserves audio.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Upscaling",
+        "Video Enhancement",
+        "Super Resolution"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bria/fibo-edit-1.5",
+      "displayName": "FIBO Edit 1.5",
+      "provider": "Bria",
+      "providerId": "bria",
+      "task": "Image-to-Image",
+      "description": "FIBO Edit changes one to four input images from a natural-language or structured JSON (VGL) instruction. Add a black-and-white mask to edit only part of a single image, or refer to several images as \"image 1\", \"image 2\", and so on to combine them or transfer a style.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Editing",
+        "Image-to-Image",
+        "Multi-Reference Editing",
+        "Inpainting"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bria/fibo-generate-1.5",
+      "displayName": "FIBO Generate 1.5",
+      "provider": "Bria",
+      "providerId": "bria",
+      "task": "Text-to-Image",
+      "description": "FIBO Generate creates images from a text prompt, a reference image, or both. Each result includes the seed and the structured JSON (VGL) prompt used to render it; send them back to recreate the image exactly or to refine it with a new prompt. Outputs are 1MP or 4MP in nine aspect ratios.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Text-to-Image",
+        "Reference Images",
+        "Structured Prompts"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bria/remove-background",
+      "displayName": "Remove Background",
+      "provider": "Bria",
+      "providerId": "bria",
+      "task": "Image-to-Image",
+      "description": "Bria's RMBG 2.0 model removes the background from an image and returns a PNG cutout with a transparent background. Partial transparency from the input's alpha channel is kept by default.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Editing",
+        "Image-to-Image",
+        "Background Removal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bria/v-rmbg-3.0",
+      "displayName": "Video Remove Background 3.0",
+      "provider": "Bria",
+      "providerId": "bria",
+      "task": "video-to-video",
+      "description": "Bria's video background removal replaces the background of a clip up to 60 seconds long with a solid color or with transparency. Transparent output needs the mov_proresks (ProRes) preset. Frame rate and audio are preserved, and the output resolution matches the input unless auto_zoom crops to the subject.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Editing",
+        "Video-to-Video",
+        "Background Removal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/bytedance/stable-diffusion-xl-lightning",
+      "displayName": "Stable Diffusion Xl Lightning",
+      "provider": "Bytedance",
+      "providerId": "bytedance",
+      "task": "Text-to-Image",
+      "description": "SDXL-Lightning is a lightning-fast text-to-image generation model. It can generate high-quality 1024px images in a few steps.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "bytedance/seedance-2.0",
+      "displayName": "Seedance 2.0",
+      "provider": "Bytedance",
+      "providerId": "bytedance",
+      "task": "Text-to-Video",
+      "description": "ByteDance's next-generation video model with a unified multimodal architecture. Generates high-quality video with synchronized audio from text, images, video clips, and audio inputs. Supports multimodal references (up to 9 images, 3 videos, 3 audio files), native audio generation, video editing, video extension, intelligent duration, and adaptive aspect ratio.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Reference Images",
+        "Audio Generation",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bytedance/seedance-2.0-fast",
+      "displayName": "Seedance 2.0 Fast",
+      "provider": "Bytedance",
+      "providerId": "bytedance",
+      "task": "Text-to-Video",
+      "description": "Faster variant of ByteDance's Seedance 2.0 video model. Trades some quality for speed while sharing the same multimodal architecture. Supports text-to-video, image-to-video, native audio generation, multimodal references (images, videos, audio), video editing, and video extension.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Fast",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bytedance/seedance-2.0-mini",
+      "displayName": "Seedance 2.0 Mini",
+      "provider": "Bytedance",
+      "providerId": "bytedance",
+      "task": "Text-to-Video",
+      "description": "ByteDance's compact, cost-efficient video generation model from the Seedance 2.0 family. Supports text-to-video, image-to-video, reference video, and reference audio for background music. Ideal for high-volume workloads where speed and cost matter.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Audio Generation",
+        "Fast",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bytedance/seedance-2.5",
+      "displayName": "Seedance 2.5",
+      "provider": "Bytedance",
+      "providerId": "bytedance",
+      "task": "Text-to-Video",
+      "description": "ByteDance's next-generation video model with a unified multimodal reference-to-video architecture. Generates video from text, up to 30 reference images, 10 reference videos, and 10 reference audio clips — including audio-only input with no image or video required. Supports first/last-frame image-to-video, video editing, video extension, intelligent duration (including automatic selection), and adaptive aspect ratio.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Reference Images",
+        "Reference Videos",
+        "Reference Audio",
+        "Audio Generation",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bytedance/seedream-4.0",
+      "displayName": "Seedream 4.0",
+      "provider": "Bytedance",
+      "providerId": "bytedance",
+      "task": "Text-to-Image",
+      "description": "Seedream 4.0 is ByteDance's image creation model that combines text-to-image generation and image editing into a single architecture, offering fast, high-resolution output up to 4K.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "High Resolution"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bytedance/seedream-4.5",
+      "displayName": "Seedream 4.5",
+      "provider": "Bytedance",
+      "providerId": "bytedance",
+      "task": "Text-to-Image",
+      "description": "Seedream 4.5 builds on 4.0 with multi-reference image support, batch generation, and sequential image generation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Multi-Reference",
+        "Batch"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bytedance/seedream-5-lite",
+      "displayName": "Seedream 5 Lite",
+      "provider": "Bytedance",
+      "providerId": "bytedance",
+      "task": "Text-to-Image",
+      "description": "Seedream 5 Lite is a lighter, faster version of the Seedream 5 family with multi-reference and batch generation support.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Multi-Reference",
+        "Batch",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "bytedance/seedream-5-pro",
+      "displayName": "Seedream 5 Pro",
+      "provider": "Bytedance",
+      "providerId": "bytedance",
+      "task": "Text-to-Image",
+      "description": "Seedream 5 Pro is ByteDance's high-quality image generation and editing model with text prompts, up to 10 reference images, and 1K, 2K, or explicit pixel-size output controls.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Multi-Reference"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/cloudflare/clef",
+      "displayName": "Clef",
+      "provider": "Cloudflare",
+      "providerId": "cloudflare",
+      "task": "Text Generation",
+      "description": "Clef is a 27B multimodal decision model that turns a state and a schema of typed questions into decisions. It reads the state as text, JSON, images, or video, and returns a probability for every allowed option of every question.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/cloudflare/clef-flash",
+      "displayName": "Clef Flash",
+      "provider": "Cloudflare",
+      "providerId": "cloudflare",
+      "task": "Text Generation",
+      "description": "Clef-flash is a fast 9B multimodal decision model that turns a state and a schema of typed questions into decisions. It reads the state as text, JSON, images, or video, and returns a probability for every allowed option of every question.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/cloudflare/clef-omni",
+      "displayName": "Clef Omni",
+      "provider": "Cloudflare",
+      "providerId": "cloudflare",
+      "task": "Text Generation",
+      "description": "Clef-omni is a multimodal decision model built on a 30B-parameter mixture-of-experts (3B active) backbone. It turns a state and a schema of typed questions into decisions, reads the state as text, JSON, images, audio, or video, and returns a probability for every allowed option of every question.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/deepgram/aura-1",
+      "displayName": "Aura 1",
+      "provider": "Deepgram",
+      "providerId": "deepgram",
+      "task": "Text-to-Speech",
+      "description": "Aura is a context-aware text-to-speech (TTS) model that applies natural pacing, expressiveness, and fillers based on the context of the provided text. The quality of your text input directly impacts the naturalness of the audio output.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/deepgram/aura-2-en",
+      "displayName": "Aura 2 En",
+      "provider": "Deepgram",
+      "providerId": "deepgram",
+      "task": "Text-to-Speech",
+      "description": "Aura-2 is a context-aware text-to-speech (TTS) model that applies natural pacing, expressiveness, and fillers based on the context of the provided text. The quality of your text input directly impacts the naturalness of the audio output.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/deepgram/aura-2-es",
+      "displayName": "Aura 2 Es",
+      "provider": "Deepgram",
+      "providerId": "deepgram",
+      "task": "Text-to-Speech",
+      "description": "Aura-2 is a context-aware text-to-speech (TTS) model that applies natural pacing, expressiveness, and fillers based on the context of the provided text. The quality of your text input directly impacts the naturalness of the audio output.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/deepgram/flux",
+      "displayName": "Flux",
+      "provider": "Deepgram",
+      "providerId": "deepgram",
+      "task": "Automatic Speech Recognition",
+      "description": "Flux is the first conversational speech recognition model built specifically for voice agents.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/deepgram/nova-3",
+      "displayName": "Nova 3",
+      "provider": "Deepgram",
+      "providerId": "deepgram",
+      "task": "Automatic Speech Recognition",
+      "description": "Transcribe audio using Deepgram’s speech-to-text model",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b",
+      "displayName": "DeepSeek R1 Distill Qwen 32B",
+      "provider": "DeepSeek",
+      "providerId": "deepseek-ai",
+      "task": "Text Generation",
+      "description": "DeepSeek-R1-Distill-Qwen-32B is a model distilled from DeepSeek-R1 based on Qwen2.5. It outperforms OpenAI-o1-mini across various benchmarks, achieving new state-of-the-art results for dense models.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/deepseek-ai/deepseek-v4-flash-0731",
+      "displayName": "DeepSeek V4 Flash 0731",
+      "provider": "DeepSeek",
+      "providerId": "deepseek-ai",
+      "task": "Text Generation",
+      "description": "DeepSeek-V4-Flash-0731 is the official release of DeepSeek-V4-Flash, superseding the preview version, with substantially enhanced agentic capabilities. ",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/deepseek-ai/deepseek-v4-pro-0813",
+      "displayName": "DeepSeek V4 Pro 0813",
+      "provider": "DeepSeek",
+      "providerId": "deepseek-ai",
+      "task": "Text Generation",
+      "description": "DeepSeek V4 Pro is a high-capability reasoning model from DeepSeek with a one million token context window, built for long-horizon agentic workflows and complex, multi-step problem-solving",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "deepseek/deepseek-v4-pro",
+      "displayName": "DeepSeek V4 Pro",
+      "provider": "DeepSeek",
+      "providerId": "deepseek",
+      "task": "Text Generation",
+      "description": "DeepSeek V4 Pro is a high-capability reasoning model from DeepSeek, served via Fireworks infrastructure for production-grade inference.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 131072,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Reasoning"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "elevenlabs/eleven-flash-v2-5",
+      "displayName": "Eleven Flash v2.5",
+      "provider": "ElevenLabs",
+      "providerId": "elevenlabs",
+      "task": "Text-to-Speech",
+      "description": "ElevenLabs' low-latency Flash v2.5 text-to-speech model for fast multilingual speech generation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Speech",
+        "Audio Generation",
+        "Low Latency",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "elevenlabs/eleven-multilingual-v2",
+      "displayName": "Eleven Multilingual v2",
+      "provider": "ElevenLabs",
+      "providerId": "elevenlabs",
+      "task": "Text-to-Speech",
+      "description": "ElevenLabs' multilingual text-to-speech model for generating natural speech across many languages with ElevenLabs voices.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Speech",
+        "Audio Generation",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "elevenlabs/eleven-turbo-v2-5",
+      "displayName": "Eleven Turbo v2.5",
+      "provider": "ElevenLabs",
+      "providerId": "elevenlabs",
+      "task": "Text-to-Speech",
+      "description": "ElevenLabs' Turbo v2.5 text-to-speech model balancing high-quality voice generation with low latency across 32 languages.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Speech",
+        "Audio Generation",
+        "Low Latency",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "elevenlabs/eleven-v3",
+      "displayName": "Eleven v3",
+      "provider": "ElevenLabs",
+      "providerId": "elevenlabs",
+      "task": "Text-to-Speech",
+      "description": "ElevenLabs' latest text-to-speech model for highly expressive, natural speech generation with advanced voice control.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Speech",
+        "Audio Generation",
+        "Expressive Speech"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "elevenlabs/music-v2",
+      "displayName": "ElevenLabs Music v2",
+      "provider": "ElevenLabs",
+      "providerId": "elevenlabs",
+      "task": "Music Generation",
+      "description": "ElevenLabs Music v2 composes songs and instrumental tracks from a prompt or detailed composition plan.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Music",
+        "Audio Generation",
+        "Instrumental",
+        "Vocals"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/google/embeddinggemma-300m",
+      "displayName": "Embeddinggemma 300M",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Embeddings",
+      "description": "EmbeddingGemma is a 300M parameter, state-of-the-art for its size, open embedding model from Google, built from Gemma 3 (with T5Gemma initialization) and the same research and technology used to create Gemini models. EmbeddingGemma produces vector representations of text, making it well-suited for search and retrieval tasks, including classification, clustering, and semantic similarity search. This model was trained with data in 100+ spoken languages.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/google/gemma-2b-it-lora",
+      "displayName": "Gemma 2B It Lora",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "This is a Gemma-2B base model that Cloudflare dedicates for inference with LoRA adapters. Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/google/gemma-4-26b-a4b-it",
+      "displayName": "Gemma 4 26B A4b It",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Gemma 4 is Google's most intelligent family of open models, built from Gemini 3 research to maximize intelligence-per-parameter.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/google/gemma-7b-it-lora",
+      "displayName": "Gemma 7B It Lora",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "  This is a Gemma-7B base model that Cloudflare dedicates for inference with LoRA adapters. Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "google/gemini-2.5-flash",
+      "displayName": "Gemini 2.5 Flash",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Google's fast multimodal Gemini 2.5 model with strong reasoning and a 1M token context window.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 8192,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-2.5-flash-lite",
+      "displayName": "Gemini 2.5 Flash Lite",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Google's lightest and most cost-efficient Gemini 2.5 model for high-throughput tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 8192,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-2.5-pro",
+      "displayName": "Gemini 2.5 Pro",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Google's most capable Gemini 2.5 model with strong reasoning, thinking support, and a 1M token context window.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 65536,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Multimodal",
+        "Thinking"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3-flash",
+      "displayName": "Gemini 3 Flash",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Gemini 3 Flash is Google's fast multimodal model with frontier intelligence, superior search, and grounding capabilities.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 8192,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Multimodal",
+        "Reasoning"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.1-flash-lite",
+      "displayName": "Gemini 3.1 Flash Lite",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Google's lightest and most cost-efficient Gemini model for high-throughput tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 8192,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.1-flash-tts",
+      "displayName": "Gemini 3.1 Flash TTS",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Speech",
+      "description": "",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.1-pro",
+      "displayName": "Gemini 3.1 Pro",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Google's most intelligent Gemini model with improved reasoning, a medium thinking level, and a 1M token context window.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 65536,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Multimodal",
+        "Thinking"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.5-flash",
+      "displayName": "Gemini 3.5 Flash",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Gemini 3.5 Flash is Google's fast multimodal model with frontier intelligence, superior search, and grounding capabilities.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1048576,
+      "maxOutputTokens": 65536,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Multimodal",
+        "Reasoning"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.5-flash-lite",
+      "displayName": "Gemini 3.5 Flash-Lite",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Gemini 3.5 Flash-Lite is a low-latency, cost-effective multimodal model optimized for high-throughput, low-cost execution for subagent tasks and document parsing.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1048576,
+      "maxOutputTokens": 65536,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient",
+        "Multimodal",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.6-flash",
+      "displayName": "Gemini 3.6 Flash",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Gemini 3.6 Flash provides sustained frontier-level intelligence optimized for real-world tasks at a higher speed and lower cost, excelling at code generation, agentic execution, and spatial reasoning.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1048576,
+      "maxOutputTokens": 65536,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Multimodal",
+        "Reasoning",
+        "Agentic",
+        "Coding"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.7-flash",
+      "displayName": "Gemini 3.7 Flash",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Gemini 3.7 Flash is a highly capable, natively multimodal reasoning model optimized for agentic workflows and real-world tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1048576,
+      "maxOutputTokens": 65536,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Multimodal",
+        "Reasoning",
+        "Agentic",
+        "Coding"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.8-flash",
+      "displayName": "Gemini 3.8 Flash",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Our most intelligent Flash model, engineered for long-horizon software engineering, autonomous agents, and complex enterprise workflows.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1048576,
+      "maxOutputTokens": 65536,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Multimodal",
+        "Reasoning",
+        "Agentic",
+        "Coding"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.8-flash-lite-tts",
+      "displayName": "Gemini 3.8 Flash-Lite TTS",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Speech",
+      "description": "Gemini 3.8 Flash-Lite TTS is a fast, cost-efficient text-to-speech model optimized for high-throughput production workloads.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 8192,
+      "maxOutputTokens": 16384,
+      "tags": [],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-3.8-flash-tts",
+      "displayName": "Gemini 3.8 Flash TTS",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Speech",
+      "description": "Gemini 3.8 Flash TTS is Google's flagship text-to-speech model for expressive, natural speech generation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 8192,
+      "maxOutputTokens": 16384,
+      "tags": [],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-4-argon",
+      "displayName": "Gemini 4 Argon",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text Generation",
+      "description": "Google's frontier model for deep work on complex, real-world tasks across coding, finance, legal, cybersecurity and science. The first model in the Gemini 4 family.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1048576,
+      "maxOutputTokens": 65536,
+      "tags": [
+        "LLM",
+        "Multimodal",
+        "Reasoning",
+        "Agentic",
+        "Coding"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-omni-1.1-flash",
+      "displayName": "Gemini Omni Flash 1.1",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Video",
+      "description": "High-performance multimodal video generation and editing model with conversational controls and generated audio.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Audio",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/gemini-omni-flash",
+      "displayName": "Gemini Omni Flash",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Video",
+      "description": "Preview high-performance multimodal video generation and editing model with conversational controls and generated audio.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Audio",
+        "Multimodal",
+        "Preview"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/nano-banana",
+      "displayName": "Nano Banana",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Image",
+      "description": "Google's fast image generation model producing high-quality images from text prompts.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/nano-banana-2",
+      "displayName": "Nano Banana 2",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Image",
+      "description": "Google's second-generation image generation model with improved quality and speed.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Fast",
+        "High Quality"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/nano-banana-2-lite",
+      "displayName": "Nano Banana 2 Lite",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Image",
+      "description": "Google's fastest Gemini image generation model for rapid image creation and iteration.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 65536,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Fast",
+        "Image Editing"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/nano-banana-2.1",
+      "displayName": "Nano Banana 2.1",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Image",
+      "description": "Google's Nano Banana 2.1 image generation and editing model, optimized for a balance of quality and performance.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 131072,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Fast",
+        "High Quality"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/nano-banana-pro",
+      "displayName": "Nano Banana Pro",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Image",
+      "description": "Google's higher-quality image generation model with improved detail and prompt adherence.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "High Quality"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/veo-3.1",
+      "displayName": "Veo 3.1",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Video",
+      "description": "Google's latest video generation model with improved quality, motion, and audio generation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Audio",
+        "High Quality"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "google/veo-3.1-fast",
+      "displayName": "Veo 3.1 Fast",
+      "provider": "Google",
+      "providerId": "google",
+      "task": "Text-to-Video",
+      "description": "A faster version of Veo 3.1 optimized for lower latency while maintaining high-quality video and audio output.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Audio",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/huggingface/distilbert-sst-2-int8",
+      "displayName": "Distilbert Sst 2 Int8",
+      "provider": "Hugging Face",
+      "providerId": "huggingface",
+      "task": "Text Classification",
+      "description": "Distilled BERT model that was finetuned on SST-2 for sentiment classification",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/ibm-granite/granite-4.0-h-micro",
+      "displayName": "Granite 4.0 H Micro",
+      "provider": "IbmGranite",
+      "providerId": "ibm-granite",
+      "task": "Text Generation",
+      "description": "Granite 4.0 instruct models deliver strong performance across benchmarks, achieving industry-leading results in key agentic tasks like instruction following and function calling. These efficiencies make the models well-suited for a wide range of use cases like retrieval-augmented generation (RAG), multi-agent workflows, and edge deployments.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "inworld/tts-1.5-max",
+      "displayName": "Inworld TTS 1.5 Max",
+      "provider": "Inworld",
+      "providerId": "inworld",
+      "task": "Text-to-Speech",
+      "description": "Highest-quality text-to-speech with under 200ms latency, emotion control, and 15-language support.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "TTS",
+        "Speech Synthesis",
+        "Low Latency",
+        "Multilingual",
+        "Emotion Control"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "inworld/tts-1.5-mini",
+      "displayName": "Inworld TTS 1.5 Mini",
+      "provider": "Inworld",
+      "providerId": "inworld",
+      "task": "Text-to-Speech",
+      "description": "Ultra-fast, cost-efficient text-to-speech with approximately 120ms latency and 15-language support.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "TTS",
+        "Speech Synthesis",
+        "Ultra-Low Latency",
+        "Multilingual",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "inworld/tts-2",
+      "displayName": "Inworld TTS 2",
+      "provider": "Inworld",
+      "providerId": "inworld",
+      "task": "Text-to-Speech",
+      "description": "Inworld's most powerful and expressive text-to-speech model. Builds on TTS 1.5 with rich expressive speech, real-time latency, natural language steering (e.g. [whisper], [say excitedly]), and stronger multilingual support across 15 production languages plus 90+ experimental languages.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "TTS",
+        "Speech Synthesis",
+        "Low Latency",
+        "Multilingual",
+        "Natural Language Steering",
+        "Expressive"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "krea/krea-2-large",
+      "displayName": "Krea 2 Large",
+      "provider": "Krea",
+      "providerId": "krea",
+      "task": "Text-to-Image",
+      "description": "More than 2x the size of Medium, with softer post-training. Outputs are rawer, more textured, and more flexible — at its best, Large produces results Medium can't match. Strongest on photorealism, raw looks (motion blur, grain, low dynamic range), and expressive and artistic styles.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Text to Image",
+        "Photorealism",
+        "Style Transfer"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "krea/krea-2-medium",
+      "displayName": "Krea 2 Medium",
+      "provider": "Krea",
+      "providerId": "krea",
+      "task": "Text-to-Image",
+      "description": "Smaller, faster, more cost-efficient. Extensive post-training makes outputs especially stable and consistent across generations. Strongest on illustration, anime, painting, and other expressive or artistic styles.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Text to Image",
+        "Illustration",
+        "Style Transfer"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "krea/krea-2-medium-turbo",
+      "displayName": "Krea 2 Medium Turbo",
+      "provider": "Krea",
+      "providerId": "krea",
+      "task": "Text-to-Image",
+      "description": "The fastest Krea 2 model, built for low-cost iteration on expressive illustrations, style-driven concepts, and rapid visual exploration. Keeps the Krea 2 style system and expressive visual range but uses a distilled sampling schedule so you can move through ideas much faster. Especially useful for expressive illustration, graphic styles, typography experiments, and quick campaign or concept directions.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Text to Image",
+        "Fast",
+        "Illustration",
+        "Style Transfer"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/leonardo/lucid-origin",
+      "displayName": "Lucid Origin",
+      "provider": "Leonardo",
+      "providerId": "leonardo",
+      "task": "Text-to-Image",
+      "description": "Lucid Origin from Leonardo.AI is their most adaptable and prompt-responsive model to date. Whether you're generating images with sharp graphic design, stunning full-HD renders, or highly specific creative direction, it adheres closely to your prompts, renders text with accuracy, and supports a wide array of visual styles and aesthetics – from stylized concept art to crisp product mockups.\n",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/leonardo/phoenix-1.0",
+      "displayName": "Phoenix 1.0",
+      "provider": "Leonardo",
+      "providerId": "leonardo",
+      "task": "Text-to-Image",
+      "description": "Phoenix 1.0 is a model by Leonardo.Ai that generates images with exceptional prompt adherence and coherent text.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "lightricks/ltx-2-5-fast",
+      "displayName": "LTX-2.5 Fast",
+      "provider": "Lightricks",
+      "providerId": "lightricks",
+      "task": "Text-to-Video",
+      "description": "Lightricks LTX-2.5 Fast is a fast video generation model for text-to-video and image-to-video workflows, with synchronized audio, configurable duration, resolution, and frame rate.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Audio Generation",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/llava-hf/llava-1.5-7b-hf",
+      "displayName": "Llava 1.5 7B Hf",
+      "provider": "LlavaHf",
+      "providerId": "llava-hf",
+      "task": "Image-to-Text",
+      "description": "LLaVA is an open-source chatbot trained by fine-tuning LLaMA/Vicuna on GPT-generated multimodal instruction-following data. It is an auto-regressive language model, based on the transformer architecture.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/lykon/dreamshaper-8-lcm",
+      "displayName": "Dreamshaper 8 Lcm",
+      "provider": "Lykon",
+      "providerId": "lykon",
+      "task": "Text-to-Image",
+      "description": "Stable Diffusion model that has been fine-tuned to be better at photorealism without sacrificing range.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/meta-llama/llama-2-7b-chat-hf-lora",
+      "displayName": "Llama 2 7B Hf Lora",
+      "provider": "Meta",
+      "providerId": "meta-llama",
+      "task": "Text Generation",
+      "description": "This is a Llama2 base model that Cloudflare dedicated for inference with LoRA adapters. Llama 2 is a collection of pretrained and fine-tuned generative text models ranging in scale from 7 billion to 70 billion parameters. This is the repository for the 7B fine-tuned model, optimized for dialogue use cases and converted for the Hugging Face Transformers format. ",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/meta/llama-3.1-8b-instruct-fp8",
+      "displayName": "Llama 3.1 8B",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "Llama 3.1 8B quantized to FP8 precision",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/meta/llama-3.2-11b-vision-instruct",
+      "displayName": "Llama 3.2 11B Vision",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": " The Llama 3.2-Vision instruction-tuned models are optimized for visual recognition, image reasoning, captioning, and answering general questions about an image.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/meta/llama-3.2-1b-instruct",
+      "displayName": "Llama 3.2 1B",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "The Llama 3.2 instruction-tuned text only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/meta/llama-3.2-3b-instruct",
+      "displayName": "Llama 3.2 3B",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "The Llama 3.2 instruction-tuned text only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/meta/llama-3.3-70b-instruct-fp8-fast",
+      "displayName": "Llama 3.3 70B Fast",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "Llama 3.3 70B quantized to fp8 precision, optimized to be faster.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/meta/llama-4-scout-17b-16e-instruct",
+      "displayName": "Llama 4 Scout 17B 16e",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "Meta's Llama 4 Scout is a 17 billion parameter model with 16 experts that is natively multimodal. These models leverage a mixture-of-experts architecture to offer industry-leading performance in text and image understanding.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/meta/llama-guard-3-8b",
+      "displayName": "Llama Guard 3 8B",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "Llama Guard 3 is a Llama-3.1-8B pretrained model, fine-tuned for content safety classification. Similar to previous versions, it can be used to classify content in both LLM inputs (prompt classification) and in LLM responses (response classification). It acts as an LLM – it generates text in its output that indicates whether a given prompt or response is safe or unsafe, and if unsafe, it also lists the content categories violated.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/meta/m2m100-1.2b",
+      "displayName": "M2m100 1.2B",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Translation",
+      "description": "Multilingual encoder-decoder (seq-to-seq) model trained for Many-to-Many multilingual translation",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "meta/muse-spark-1.1",
+      "displayName": "Muse Spark 1.1",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "Muse Spark 1.1 is Meta's agentic and coding model for multi-step tool loops, software engineering assistants, and long-context reasoning.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text Generation",
+        "Reasoning",
+        "Tool Calling",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "meta/muse-spark-1.2",
+      "displayName": "Muse Spark 1.2",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "Muse Spark 1.2 is Meta's agentic and coding model for multi-step tool loops, software engineering assistants, and long-context reasoning.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text Generation",
+        "Reasoning",
+        "Tool Calling",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "meta/muse-spark-1.3",
+      "displayName": "Muse Spark 1.3",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "Muse Spark 1.3 is Meta's latest agentic and coding model, tuned for multi-step tool loops, browser tasks, software engineering, and long-horizon reasoning.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text Generation",
+        "Reasoning",
+        "Tool Calling",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "meta/muse-wonder-1.0",
+      "displayName": "Muse Wonder 1.0",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "Muse Wonder 1.0 is Meta's agentic and coding model for complex software engineering, multi-step tool loops, and long-context reasoning.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text Generation",
+        "Reasoning",
+        "Tool Calling",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/microsoft/resnet-50",
+      "displayName": "Resnet 50",
+      "provider": "Microsoft",
+      "providerId": "microsoft",
+      "task": "Image Classification",
+      "description": "50 layers deep image classification CNN trained on more than 1M images from ImageNet",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "minimax/h3",
+      "displayName": "MiniMax H3",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text-to-Video",
+      "description": "A multimodal video generation model supporting text-to-video, first and last frame image-to-video, and reference-to-video generation with 768P and 2K output.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Text-to-Video",
+        "Image-to-Video",
+        "Reference-to-Video",
+        "Multimodal",
+        "2K"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/h3-max",
+      "displayName": "MiniMax H3 Max",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text-to-Video",
+      "description": "A fast multimodal video generation model supporting text-to-video and image-to-video generation at 480P and 768P.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Text-to-Video",
+        "Image-to-Video",
+        "Fast Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/hailuo-2.3",
+      "displayName": "MiniMax Hailuo 2.3",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text-to-Video",
+      "description": "A high-fidelity video generation model optimized for realistic human motion, cinematic VFX, expressive characters, and strong prompt and style adherence across text-to-video and image-to-video workflows.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Cinematic",
+        "Image-to-Video"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/hailuo-2.3-fast",
+      "displayName": "MiniMax Hailuo 2.3 Fast",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text-to-Video",
+      "description": "A lower-latency version of Hailuo 2.3 that preserves core motion quality, visual consistency, and stylization while enabling faster iteration.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/m2.7",
+      "displayName": "MiniMax M2.7",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text Generation",
+      "description": "MiniMax's M2.7 language model with multilingual capabilities.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 128000,
+      "maxOutputTokens": 4096,
+      "tags": [
+        "LLM",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/m3",
+      "displayName": "MiniMax M3",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text Generation",
+      "description": "MiniMax's M3 language model with frontier coding and agentic capabilities, a 1M token context window, and multilingual support.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 4096,
+      "tags": [
+        "LLM",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/music-2.6",
+      "displayName": "MiniMax Music 2.6",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Music Generation",
+      "description": "MiniMax's music generation model that creates full-length songs with vocals from text prompts and lyrics, or instrumental tracks. Supports BPM/key control and auto-generated lyrics.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Music",
+        "Audio Generation",
+        "Vocals",
+        "Instrumental"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/speech-2.8-hd",
+      "displayName": "MiniMax Speech 2.8 HD",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text-to-Speech",
+      "description": "MiniMax Speech 2.8 HD focuses on studio-grade audio generation with emotion control, multilingual support (40+ languages), and voice cloning.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "TTS",
+        "Speech Synthesis",
+        "Voice Cloning",
+        "Multilingual",
+        "High Quality"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/speech-2.8-turbo",
+      "displayName": "MiniMax Speech 2.8 Turbo",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text-to-Speech",
+      "description": "MiniMax Speech 2.8 Turbo turns text into natural, expressive speech with voice cloning, emotion control, and 40+ language support at faster speeds.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "TTS",
+        "Speech Synthesis",
+        "Voice Cloning",
+        "Multilingual",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/mistral/mistral-7b-instruct-v0.2-lora",
+      "displayName": "Mistral 7B V0.2 Lora",
+      "provider": "Mistral",
+      "providerId": "mistral",
+      "task": "Text Generation",
+      "description": "The Mistral-7B-Instruct-v0.2 Large Language Model (LLM) is an instruct fine-tuned version of the Mistral-7B-v0.2.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/mistralai/mistral-small-3.1-24b-instruct",
+      "displayName": "Mistral Small 3.1 24B",
+      "provider": "Mistral",
+      "providerId": "mistralai",
+      "task": "Text Generation",
+      "description": "Building upon Mistral Small 3 (2501), Mistral Small 3.1 (2503) adds state-of-the-art vision understanding and enhances long context capabilities up to 128k tokens without compromising text performance. With 24 billion parameters, this model achieves top-tier capabilities in both text and vision tasks.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/moondream/moondream3.1-9B-A2B",
+      "displayName": "Moondream3.1 9B A2B",
+      "provider": "Moondream",
+      "providerId": "moondream",
+      "task": "Image-to-Text",
+      "description": "Moondream 3 is a fast, efficient 9B mixture-of-experts vision language model (2B active parameters) that delivers frontier-level visual reasoning for tasks like object detection, pointing, OCR, and structured output.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/moonshotai/kimi-k2.6",
+      "displayName": "Kimi K2.6",
+      "provider": "Moonshot AI",
+      "providerId": "moonshotai",
+      "task": "Text Generation",
+      "description": "Kimi K2.6 is a frontier-scale open-source 1T parameter model with a 262.1k context window, multi-turn tool calling, vision inputs, and structured outputs for agentic workloads.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/moonshotai/kimi-k2.7-code",
+      "displayName": "Kimi K2.7 Code",
+      "provider": "Moonshot AI",
+      "providerId": "moonshotai",
+      "task": "Text Generation",
+      "description": "Kimi K2.7 is a frontier-scale open-source 1T parameter model with a 262.1k context window, multi-turn tool calling, vision inputs, and structured outputs for agentic workloads.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "moonshotai/kimi-k3",
+      "displayName": "Kimi K3",
+      "provider": "Moonshot AI",
+      "providerId": "moonshotai",
+      "task": "Text Generation",
+      "description": "Kimi K3 is Moonshot's flagship 2.8 trillion-parameter model, built on Kimi Delta Attention (a hybrid linear attention mechanism) with Attention Residuals. It offers native visual understanding, always-on reasoning, and a 1M-token context window for long-horizon coding, knowledge work, and deep reasoning tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1048576,
+      "maxOutputTokens": 1048576,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multilingual",
+        "Function Calling",
+        "Vision",
+        "Frontier"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/myshell-ai/melotts",
+      "displayName": "Melotts",
+      "provider": "MyshellAi",
+      "providerId": "myshell-ai",
+      "task": "Text-to-Speech",
+      "description": "MeloTTS is a high-quality multi-lingual text-to-speech library by MyShell.ai.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/nvidia/nemotron-3-120b-a12b",
+      "displayName": "Nemotron 3 120B A12b",
+      "provider": "NVIDIA",
+      "providerId": "nvidia",
+      "task": "Text Generation",
+      "description": "NVIDIA Nemotron 3 Super is a hybrid MoE model with leading accuracy for multi-agent applications and specialized agentic AI systems.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/openai/gpt-oss-120b",
+      "displayName": "GPT OSS 120B",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "OpenAI’s open-weight models designed for powerful reasoning, agentic tasks, and versatile developer use cases – gpt-oss-120b is for production, general purpose, high reasoning use-cases.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/openai/gpt-oss-20b",
+      "displayName": "GPT OSS 20B",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "OpenAI’s open-weight models designed for powerful reasoning, agentic tasks, and versatile developer use cases – gpt-oss-20b is for lower latency, and local or specialized use-cases.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/openai/whisper",
+      "displayName": "Whisper",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Automatic Speech Recognition",
+      "description": "Whisper is a general-purpose speech recognition model. It is trained on a large dataset of diverse audio and is also a multitasking model that can perform multilingual speech recognition, speech translation, and language identification.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/openai/whisper-large-v3-turbo",
+      "displayName": "Whisper Large V3 Turbo",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Automatic Speech Recognition",
+      "description": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation. ",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/openai/whisper-tiny-en",
+      "displayName": "Whisper Tiny En",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Automatic Speech Recognition",
+      "description": "Whisper is a pre-trained model for automatic speech recognition (ASR) and speech translation. Trained on 680k hours of labelled data, Whisper models demonstrate a strong ability to generalize to many datasets and domains without the need for fine-tuning. This is the English-only version of the Whisper Tiny model which was trained on the task of speech recognition.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "openai/gpt-4.1",
+      "displayName": "GPT-4.1",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "OpenAI's flagship GPT model for complex tasks with a million-token context window.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1047576,
+      "maxOutputTokens": 32768,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-4.1-mini",
+      "displayName": "GPT-4.1 mini",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "Fast, affordable version of GPT-4.1 with a million-token context window.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1047576,
+      "maxOutputTokens": 32768,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-4.1-nano",
+      "displayName": "GPT-4.1 nano",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-4.1 Nano is OpenAI’s smallest and cheapest GPT-4.1 variant, optimized for high-throughput, low-latency tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 32768,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-4o",
+      "displayName": "GPT-4o",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-4o is OpenAI’s multimodal flagship, accepting text and images and responding quickly across a wide range of tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 128000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Multimodal",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-4o-mini",
+      "displayName": "GPT-4o mini",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-4o Mini is the lightweight, low-cost variant of GPT-4o, well suited to high-volume tasks with multimodal inputs.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 128000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Multimodal",
+        "Fast",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-4o-transcribe",
+      "displayName": "GPT-4o Transcribe",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Automatic Speech Recognition",
+      "description": "A speech-to-text model that uses GPT-4o to transcribe audio with improved word error rate and better language recognition compared to original Whisper models.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Speech-to-Text",
+        "Transcription",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5",
+      "displayName": "GPT-5",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "OpenAI's model excelling at coding, writing, and reasoning.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 128000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Writing"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5-mini",
+      "displayName": "GPT-5 mini",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5 Mini is the lightweight, low-cost variant of GPT-5, well suited to high-volume coding and reasoning tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 128000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5-nano",
+      "displayName": "GPT-5 nano",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5 Nano is OpenAI’s smallest GPT-5 variant, optimized for low latency and cheap, high-throughput tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 128000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.1",
+      "displayName": "GPT-5.1",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.1 is OpenAI’s incremental improvement over GPT-5, with stronger coding, reasoning, and writing.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 128000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Writing"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.4",
+      "displayName": "GPT-5.4",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.4 is OpenAI's flagship model with strong coding, reasoning, and multimodal capabilities.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.4-mini",
+      "displayName": "GPT-5.4 mini",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.4 mini is a smaller, faster, and more cost-efficient version of GPT-5.4 for lightweight tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 128000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.4-nano",
+      "displayName": "GPT-5.4 nano",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.4 nano is OpenAI's smallest and fastest model, optimized for edge and low-latency use cases.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 128000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Fast",
+        "Cost-Efficient",
+        "Edge"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.4-pro",
+      "displayName": "GPT-5.4 pro",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.4 pro uses OpenAI's Responses API with built-in tools, improved reasoning, and stateful context management.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal",
+        "Responses API"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.5",
+      "displayName": "GPT-5.5",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.5 is OpenAI's flagship model with strong coding, reasoning, and multimodal capabilities.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.5-pro",
+      "displayName": "GPT-5.5 pro",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.5 pro uses OpenAI's Responses API with built-in tools, improved reasoning, and stateful context management.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 16384,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal",
+        "Responses API"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.6-luna",
+      "displayName": "GPT-5.6 Luna",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.6 Luna is an OpenAI GPT-5.6 model optimized for cost-sensitive workloads, using the Responses API for efficient text generation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1050000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal",
+        "Responses API"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.6-sol",
+      "displayName": "GPT-5.6 Sol",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.6 Sol is OpenAI's frontier GPT-5.6 model for complex professional work, using the Responses API for reasoning and stateful context management.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1050000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal",
+        "Responses API"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-5.6-terra",
+      "displayName": "GPT-5.6 Terra",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-5.6 Terra is an OpenAI GPT-5.6 model that balances intelligence and cost, using the Responses API for reasoning and stateful context management.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1050000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal",
+        "Responses API"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-6-astra",
+      "displayName": "GPT-6 Astra",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-6 Astra is OpenAI's most capable model, built for complex reasoning, coding, computer use, research, and document creation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1050000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal",
+        "Computer Use"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-6-luna",
+      "displayName": "GPT-6 Luna",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-6 Luna is OpenAI's most efficient GPT-6 model, built for focused, high-volume tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1050000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal",
+        "Computer Use"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-6-sol",
+      "displayName": "GPT-6 Sol",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-6 Sol is OpenAI's mid-tier GPT-6 model, built to power complex coding and agentic workflows.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1050000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal",
+        "Computer Use"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-6.1-sol",
+      "displayName": "GPT-6.1 Sol",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-6.1 Sol is OpenAI's newest Sol model, delivering near-Astra performance at a lower cost for complex coding, computer use, and professional work.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1050000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Multimodal",
+        "Computer Use"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-image-1.5",
+      "displayName": "GPT Image 1.5",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text-to-Image",
+      "description": "OpenAI's image generation model that creates and edits images from text prompts, supporting multiple quality levels and output sizes.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-image-2",
+      "displayName": "GPT Image 2",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text-to-Image",
+      "description": "OpenAI's next-generation image model that creates and edits images from text prompts, with support for multiple quality levels, sizes, and output formats. Note: transparent backgrounds are not supported — use openai/gpt-image-1.5 for transparent PNGs.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-image-2.5-flare",
+      "displayName": "GPT Image 2.5 Flare",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text-to-Image",
+      "description": "OpenAI's fastest high-quality everyday image generation model. It accepts text and image inputs and produces images with low, medium, high, xhigh, max, and auto quality settings.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/gpt-image-2.5-sunburst",
+      "displayName": "GPT Image 2.5 Sunburst",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text-to-Image",
+      "description": "OpenAI's most capable image generation and editing model. It accepts text and image inputs and produces images with low, medium, high, xhigh, max, and auto quality settings.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/o3",
+      "displayName": "o3",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "o3 is OpenAI’s general-purpose reasoning model, balancing strong analytical performance with reasonable latency and cost.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 200000,
+      "maxOutputTokens": 100000,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Coding"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/o3-mini",
+      "displayName": "o3-mini",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "o3-mini is the lightweight, low-cost reasoning variant of o3, well suited to quick analytical tasks at scale.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 200000,
+      "maxOutputTokens": 100000,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Fast",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/o4-mini",
+      "displayName": "o4-mini",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "OpenAI's fast, lightweight reasoning model optimized for multi-step problem solving at lower cost.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 200000,
+      "maxOutputTokens": 100000,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Fast",
+        "Cost-Efficient"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/tts-1",
+      "displayName": "TTS-1",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text-to-Speech",
+      "description": "OpenAI's text-to-speech model optimized for real-time use with low latency.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "TTS",
+        "Speech Synthesis"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "openai/tts-1-hd",
+      "displayName": "TTS-1 HD",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text-to-Speech",
+      "description": "OpenAI's high-definition text-to-speech model producing higher quality audio output.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "TTS",
+        "Speech Synthesis",
+        "High Quality"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/pfnet/plamo-embedding-1b",
+      "displayName": "Plamo Embedding 1B",
+      "provider": "Pfnet",
+      "providerId": "pfnet",
+      "task": "Text Embeddings",
+      "description": "PLaMo-Embedding-1B is a Japanese text embedding model developed by Preferred Networks, Inc.\n\nIt can convert Japanese text input into numerical vectors and can be used for a wide range of applications, including information retrieval, text classification, and clustering.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/pipecat-ai/smart-turn-v2",
+      "displayName": "Smart Turn V2",
+      "provider": "PipecatAi",
+      "providerId": "pipecat-ai",
+      "task": "Dumb Pipe",
+      "description": "An open source, community-driven, native audio turn detection model in 2nd version",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "pixverse/v5.6",
+      "displayName": "Pixverse v5.6",
+      "provider": "Pixverse",
+      "providerId": "pixverse",
+      "task": "Text-to-Video",
+      "description": "Pixverse v5.6 is a video generation model supporting text-to-video and image-to-video with audio generation, customizable aspect ratios, and up to 1080p output.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Audio"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "pixverse/v6",
+      "displayName": "Pixverse v6",
+      "provider": "Pixverse",
+      "providerId": "pixverse",
+      "task": "Text-to-Video",
+      "description": "Pixverse v6 is the latest Pixverse video model with support for up to 15-second videos, customizable duration from 1 to 15 seconds, and audio generation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Audio",
+        "Long Form"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "pruna/p-image",
+      "displayName": "P-Image",
+      "provider": "Pruna",
+      "providerId": "pruna",
+      "task": "Text-to-Image",
+      "description": "Pruna's P-Image is an ultra-fast text-to-image model with automatic prompt enhancement and 2-stage refinement, combining exceptional speed with high-quality output and flexible aspect ratios.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Image",
+        "Image Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "pruna/p-image-edit",
+      "displayName": "P-Image-Edit",
+      "provider": "Pruna",
+      "providerId": "pruna",
+      "task": "Image-to-Image",
+      "description": "Pruna's P-Image-Edit edits and composes 1-5 reference images with text instructions. It supports complex compositions, style transfers, and targeted edits with flexible output aspect ratios.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Editing",
+        "Image-to-Image",
+        "Composition"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "pruna/p-image-try-on",
+      "displayName": "P-Image Try-On",
+      "provider": "Pruna",
+      "providerId": "pruna",
+      "task": "Image-to-Image",
+      "description": "Pruna's P-Image Try-On virtually fits one or more garments onto a person's photo. Provide a photo of a person plus garment reference images and the model realistically dresses the person in the provided garments.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Editing",
+        "Virtual Try-On",
+        "Fashion"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "pruna/p-image-upscale",
+      "displayName": "P-Image-Upscale",
+      "provider": "Pruna",
+      "providerId": "pruna",
+      "task": "Image-to-Image",
+      "description": "Pruna's P-Image-Upscale increases image resolution using AI, targeting 1-128 megapixels with optional detail and realism enhancement for sharper, cleaner results.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Upscaling",
+        "Image-to-Image",
+        "Enhancement"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "pruna/p-video",
+      "displayName": "P-Video",
+      "provider": "Pruna",
+      "providerId": "pruna",
+      "task": "Text-to-Video",
+      "description": "Pruna's P-Video is a premium video generation model supporting text-to-video, image-to-video, and audio-conditioned generation up to 1080p at 24 or 48 fps, with configurable duration up to 20 seconds.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Text-to-Video",
+        "Image-to-Video"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "pruna/p-video-animate",
+      "displayName": "P-Video-Animate",
+      "provider": "Pruna",
+      "providerId": "pruna",
+      "task": "Image-to-Video",
+      "description": "Pruna's P-Video-Animate takes a source video and a subject reference image, then animates the referenced subject using the motion and audio from the source video.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Motion Transfer",
+        "Animation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "pruna/p-video-avatar",
+      "displayName": "P-Video-Avatar",
+      "provider": "Pruna",
+      "providerId": "pruna",
+      "task": "Image-to-Video",
+      "description": "Pruna's P-Video-Avatar generates talking-head videos from a single portrait image driven by a text script or audio file, with multiple voices, languages, and output resolutions.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Talking Head",
+        "Avatar"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "pruna/p-video-replace",
+      "displayName": "P-Video-Replace",
+      "provider": "Pruna",
+      "providerId": "pruna",
+      "task": "Image-to-Video",
+      "description": "Pruna's P-Video-Replace takes a source video and one or more identity reference images, then places the referenced person or people into the video while preserving the source motion and audio.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Character Replacement",
+        "Identity"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/qwen/qwen2.5-coder-32b-instruct",
+      "displayName": "Qwen2.5 Coder 32B",
+      "provider": "Qwen",
+      "providerId": "qwen",
+      "task": "Text Generation",
+      "description": "Qwen2.5-Coder is the latest series of Code-Specific Qwen large language models (formerly known as CodeQwen). As of now, Qwen2.5-Coder has covered six mainstream model sizes, 0.5, 1.5, 3, 7, 14, 32 billion parameters, to meet the needs of different developers. Qwen2.5-Coder brings the following improvements upon CodeQwen1.5:",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/qwen/qwen3-30b-a3b-fp8",
+      "displayName": "Qwen3 30B A3b",
+      "provider": "Qwen",
+      "providerId": "qwen",
+      "task": "Text Generation",
+      "description": "Qwen3 is the latest generation of large language models in Qwen series, offering a comprehensive suite of dense and mixture-of-experts (MoE) models. Built upon extensive training, Qwen3 delivers groundbreaking advancements in reasoning, instruction-following, agent capabilities, and multilingual support.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/qwen/qwen3-embedding-0.6b",
+      "displayName": "Qwen3 Embedding 0.6B",
+      "provider": "Qwen",
+      "providerId": "qwen",
+      "task": "Text Embeddings",
+      "description": "The Qwen3 Embedding model series is the latest proprietary model of the Qwen family, specifically designed for text embedding and ranking tasks. ",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/qwen/qwen3.8-27b",
+      "displayName": "Qwen3.8 27B",
+      "provider": "Qwen",
+      "providerId": "qwen",
+      "task": "Text Generation",
+      "description": "Qwen 3.8 27B is a 27-billion-parameter instruction-tuned language model from Alibaba's Qwen family, designed for vision, efficient general-purpose text generation and agentic workloads.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/qwen/qwq-32b",
+      "displayName": "Qwq 32B",
+      "provider": "Qwen",
+      "providerId": "qwen",
+      "task": "Text Generation",
+      "description": "QwQ is the reasoning model of the Qwen series. Compared with conventional instruction-tuned models, QwQ, which is capable of thinking and reasoning, can achieve significantly enhanced performance in downstream tasks, especially hard problems. QwQ-32B is the medium-sized reasoning model, which is capable of achieving competitive performance against state-of-the-art reasoning models, e.g., DeepSeek-R1, o1-mini.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv3",
+      "displayName": "Recraft V3",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Recraft V3 is the previous-generation text-to-image model from Recraft, well-suited to design-quality compositions, brand-aware imagery, and accurate text rendering.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Design",
+        "Text Rendering"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4",
+      "displayName": "Recraft V4",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Recraft V4 generates art-directed images with strong composition, accurate text rendering, and design taste built in. Fast and cost-efficient at standard resolution.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Design",
+        "Text Rendering"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-1",
+      "displayName": "Recraft V4.1",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Recraft V4.1 generates art-directed images tuned for high aesthetics, with strong composition, accurate text rendering, and refined design taste. Fast and cost-efficient at standard resolution.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Design",
+        "Text Rendering"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-1-flash",
+      "displayName": "Recraft V4.1 Flash",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Recraft V4.1 Flash is Recraft's fastest and lowest-cost image model, generating a 1K raster image in about 1.3 seconds with quality close to Recraft V4.1. Built for high-volume generation and rapid iteration, with strong results for photography, portraits, atmospheric scenes, mixed media, and logo concepts. It outputs raster images only and does not support styles.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-1-pro",
+      "displayName": "Recraft V4.1 Pro",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Recraft V4.1 Pro generates high-resolution, art-directed images at 2048px+ tuned for high aesthetics, with strong composition, text rendering, and refined design taste. Built for print and production work.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Design",
+        "Text Rendering",
+        "High Resolution"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-1-pro-vector",
+      "displayName": "Recraft V4.1 Pro SVG",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Generate detailed, high-resolution SVG vector graphics from text prompts with high aesthetic quality, fine geometry, scalable to any size for print and design work.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "SVG",
+        "Vector",
+        "Design",
+        "High Resolution"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-1-utility",
+      "displayName": "Recraft V4.1 Utility",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Recraft V4.1 Utility is a general-purpose text-to-image model balancing quality and flexibility for a wide range of everyday use cases at standard resolution.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Design",
+        "Text Rendering"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-1-utility-pro",
+      "displayName": "Recraft V4.1 Utility Pro",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Recraft V4.1 Utility Pro is a general-purpose text-to-image model producing high-resolution 2048px+ output for a wide range of production and print use cases.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Design",
+        "Text Rendering",
+        "High Resolution"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-1-utility-pro-vector",
+      "displayName": "Recraft V4.1 Utility Pro SVG",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Generate detailed, high-resolution SVG vector graphics from text prompts with a general-purpose model, scalable to any size for print and large-scale design work.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "SVG",
+        "Vector",
+        "Design",
+        "High Resolution"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-1-utility-vector",
+      "displayName": "Recraft V4.1 Utility SVG",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Generate production-ready SVG vector graphics from text prompts with a general-purpose model suited for a wide range of design and illustration tasks.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "SVG",
+        "Vector",
+        "Design"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-1-vector",
+      "displayName": "Recraft V4.1 SVG",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Generate production-ready SVG vector graphics from text prompts with high aesthetic quality, clean geometry, structured layers, and editable paths.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "SVG",
+        "Vector",
+        "Design"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-pro",
+      "displayName": "Recraft V4 Pro",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Recraft V4 Pro generates high-resolution, art-directed images at 2048px+ with strong composition, text rendering, and design taste. Built for print and production work.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Design",
+        "Text Rendering",
+        "High Resolution"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-pro-vector",
+      "displayName": "Recraft V4 Pro SVG",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Generate detailed, production-ready SVG vector graphics from text prompts with fine geometry, scalable to any size for print and design work.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "SVG",
+        "Vector",
+        "Design",
+        "High Resolution"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "recraft/recraftv4-vector",
+      "displayName": "Recraft V4 SVG",
+      "provider": "Recraft",
+      "providerId": "recraft",
+      "task": "Text-to-Image",
+      "description": "Generate production-ready SVG vector graphics from text prompts with clean geometry, structured layers, and editable paths.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "SVG",
+        "Vector",
+        "Design"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/runwayml/stable-diffusion-v1-5-inpainting",
+      "displayName": "Stable Diffusion V1 5 Inpainting",
+      "provider": "Runwayml",
+      "providerId": "runwayml",
+      "task": "Text-to-Image",
+      "description": "Stable Diffusion Inpainting is a latent text-to-image diffusion model capable of generating photo-realistic images given any text input, with the extra capability of inpainting the pictures by using a mask.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "runwayml/aleph-2",
+      "displayName": "RunwayML Aleph 2",
+      "provider": "Runwayml",
+      "providerId": "runwayml",
+      "task": "Text-to-Video",
+      "description": "RunwayML's video editing model. Edit one frame to update your whole video, make changes across multiple shots, and work with up to 30 seconds of video. Supports keyframe-guided editing for precise control over specific moments in the clip.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Editing",
+        "Video-to-Video",
+        "Keyframe Control",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "runwayml/gen-4.5",
+      "displayName": "RunwayML Gen-4.5",
+      "provider": "Runwayml",
+      "providerId": "runwayml",
+      "task": "Text-to-Video",
+      "description": "RunwayML's video generation model supporting both text-to-video and image-to-video with customizable duration, aspect ratio, and content moderation controls.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Cinematic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/stabilityai/stable-diffusion-xl-base-1.0",
+      "displayName": "Stable Diffusion Xl Base 1.0",
+      "provider": "Stabilityai",
+      "providerId": "stabilityai",
+      "task": "Text-to-Image",
+      "description": "Diffusion-based text-to-image generative model by Stability AI. Generates and modify images based on text prompts.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/swiss-ai/apertus-v1.5-8b",
+      "displayName": "Apertus V1.5 8B",
+      "provider": "Swiss AI",
+      "providerId": "swiss-ai",
+      "task": "Text Generation",
+      "description": "Apertus 1.5 is an 8B parameter language model designed to advance the state of multilingual, multimodal, fully open, and transparent AI. The models support a wide range of languages, handle contexts of up to 262,144 tokens, and it uses only fully open training data whilst delivering performance comparable to other models of similar size. For access, please fill out this form: https://forms.gle/kgvmkr6ucHN3xNuH6",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "thinkingmachines/inkling",
+      "displayName": "Inkling",
+      "provider": "Thinkingmachines",
+      "providerId": "thinkingmachines",
+      "task": "Text Generation",
+      "description": "Inkling is Thinking Machines' open-weights hybrid reasoning model, built on a mixture-of-experts architecture. It reasons by default, exposing its chain-of-thought as leading thinking content blocks, with reasoning effort tunable via a Tinker-specific output_config.effort parameter. Available through Tinker's beta Anthropic Messages-compatible endpoint alongside tool use, streaming, and multi-turn conversations. Currently intended for low-traffic testing and internal use rather than high-throughput production deployments; prompt caching, citations, and audio input are not supported through this endpoint.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 64000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Coding",
+        "Agentic",
+        "Open Source",
+        "Tool Use",
+        "MoE"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "thinkingmachines/inkling-256k",
+      "displayName": "Inkling 256K",
+      "provider": "Thinkingmachines",
+      "providerId": "thinkingmachines",
+      "task": "Text Generation",
+      "description": "The 256K-context variant of Inkling, Thinking Machines' open-weights hybrid reasoning MoE model. Same hybrid reasoning, tool-use, and streaming support as the base model, with an extended context window for longer conversations and documents. Currently intended for low-traffic testing and internal use rather than high-throughput production deployments.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 262144,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Coding",
+        "Agentic",
+        "Open Source",
+        "Tool Use",
+        "MoE",
+        "Long Context"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "topaz/starlight-fast-2",
+      "displayName": "Starlight Fast 2",
+      "provider": "Topaz",
+      "providerId": "topaz",
+      "task": "video-to-video",
+      "description": "Topaz Labs Starlight Fast 2 (slf-2) enhances and upscales source video to 1080p or 4K with faster processing than Starlight Precise. It is designed for video restoration workflows where turnaround time is important.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Enhancement",
+        "Upscaling",
+        "Restoration",
+        "Video-to-Video"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "topaz/starlight-precise-2-6",
+      "displayName": "Starlight Precise 2.6",
+      "provider": "Topaz",
+      "providerId": "topaz",
+      "task": "video-to-video",
+      "description": "Topaz Labs Starlight Precise 2.6 (slp-2.6) is a video enhancement model that upscales and restores low-quality source video to 1080p or 4K. The quality-focused variant of the Starlight family, prioritizing detail reconstruction over speed. Billed using provider-reported processing credits.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Enhancement",
+        "Upscaling",
+        "Restoration",
+        "Video-to-Video"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "typesafe/jev",
+      "displayName": "Jev",
+      "provider": "Typesafe",
+      "providerId": "typesafe",
+      "task": "Text Generation",
+      "description": "Jev is TypeSafe's structured evaluation model. It evaluates one state against typed Noul, Choice, and Score questions and returns calibrated answers with probabilities and confidence.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 32000,
+      "maxOutputTokens": null,
+      "tags": [
+        "Structured Output",
+        "Classification",
+        "Evaluation",
+        "Confidence"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "unbiased/pareto",
+      "displayName": "Pareto",
+      "provider": "Unbiased",
+      "providerId": "unbiased",
+      "task": "Text Generation",
+      "description": "Pareto is Unbiased's blended AI model. It engages multiple language models in parallel for each request, synthesizes one answer, and supports text and vision inputs through a single API response.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Blended Model",
+        "Reasoning",
+        "Coding",
+        "Vision"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/utter-project/eurollm-9b-it",
+      "displayName": "Eurollm 9B It",
+      "provider": "UtterProject",
+      "providerId": "utter-project",
+      "task": "Text Generation",
+      "description": "EuroLLM-9B is a 9B parameter model trained on 4 trillion tokens divided across the considered languages and several data sources: Web data, parallel data (en-xx and xx-en), and high-quality datasets. For access, please fill out this form: https://forms.gle/kgvmkr6ucHN3xNuH6",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "vidu/q3-pro",
+      "displayName": "Vidu Q3 Pro",
+      "provider": "Vidu",
+      "providerId": "vidu",
+      "task": "Text-to-Video",
+      "description": "Vidu Q3 Pro is a high-quality video generation model supporting text-to-video, image-to-video, and start/end-frame-to-video workflows with audio and up to 16-second clips.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Audio"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "vidu/q3-turbo",
+      "displayName": "Vidu Q3 Turbo",
+      "provider": "Vidu",
+      "providerId": "vidu",
+      "task": "Text-to-Video",
+      "description": "Vidu Q3 Turbo is a faster version of Vidu Q3 optimized for lower latency video generation while maintaining audio support and up to 16-second clips.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Audio",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-4.20-0309-non-reasoning",
+      "displayName": "Grok 4.20 Non-Reasoning",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text Generation",
+      "description": "xAI's Grok 4.20 non-reasoning model. Skips the thinking trace for fast, single-pass responses while keeping the same training as the reasoning variant.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 2000000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Writing"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-4.20-0309-reasoning",
+      "displayName": "Grok 4.20 Reasoning",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text Generation",
+      "description": "xAI's Grok 4.20 reasoning model. Uses extended thinking to work through complex problems, returning a reasoning trace alongside the final answer.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 2000000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Coding",
+        "Agentic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-4.20-multi-agent-0309",
+      "displayName": "Grok 4.20 Multi-Agent",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text Generation",
+      "description": "xAI's Grok 4.20 multi-agent model with a 2M-token context window. Multiple agents collaborate in parallel to perform deep research tasks, with function calling, structured outputs, and reasoning capabilities.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 2000000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Agentic",
+        "Reasoning",
+        "Tool Use"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-4.3",
+      "displayName": "Grok 4.3",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text Generation",
+      "description": "xAI's Grok 4.3 model with a 1M-token context window and strong agentic tool calling with minimal hallucinations. Accepts text and image inputs, and supports function calling, structured outputs, and configurable reasoning effort (none, low, medium, high).",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Coding",
+        "Agentic",
+        "Tool Use",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-4.5",
+      "displayName": "Grok 4.5",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text Generation",
+      "description": "xAI's Grok 4.5, a frontier model built for coding, agentic tasks, and knowledge work. Accepts text and image inputs, and supports function calling, structured outputs, and configurable reasoning effort (low, medium, high).",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 500000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Coding",
+        "Agentic",
+        "Tool Use",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-4.6",
+      "displayName": "Grok 4.6",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text Generation",
+      "description": "xAI's Grok 4.6, a flagship reasoning model for coding, agentic tasks, and visual work. Accepts text and image inputs, and supports function calling and structured outputs.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 500000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Coding",
+        "Agentic",
+        "Tool Use",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-4.7",
+      "displayName": "Grok 4.7",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text Generation",
+      "description": "xAI's Grok 4.7, a frontier reasoning model for coding, agentic tasks, and knowledge work. Accepts text and image inputs, and supports function calling, structured outputs, and configurable reasoning effort (low, medium, high, xhigh).",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 500000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Coding",
+        "Agentic",
+        "Tool Use",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-imagine-image",
+      "displayName": "Grok Imagine Image",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text-to-Image",
+      "description": "xAI's Grok Imagine image model. Generates and edits images from text and reference-image inputs with configurable aspect ratio and resolution.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-imagine-image-2.0",
+      "displayName": "Grok Imagine Image 2.0",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text-to-Image",
+      "description": "xAI's Grok Imagine Image 2.0 is a precise image generation and editing model for creative work, with strong instruction following, typography, layout, and reference-image preservation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Multimodal",
+        "Text Rendering",
+        "Typography"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-imagine-image-quality",
+      "displayName": "Grok Imagine Image Quality",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text-to-Image",
+      "description": "xAI's higher-fidelity text-to-image model optimized for sharper details, more accurate compositions, and stronger text rendering. Supports image editing via reference images and masks. Trades speed for quality compared to grok-imagine-image. Default output at 2k resolution.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Multimodal",
+        "Text Rendering",
+        "High Quality"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-imagine-video",
+      "displayName": "Grok Imagine Video",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text-to-Video",
+      "description": "xAI's video generation model. Generates, edits, and extends videos from text and image inputs with native synchronized audio including dialogue, sound effects, and music. Supports multiple creative modes (normal, fun, custom).",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-imagine-video-1.5-preview",
+      "displayName": "Grok Imagine Video 1.5 Preview",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Image-to-Video",
+      "description": "xAI's next-generation video generation model. Generates, edits, and extends videos from text and image inputs. Supports multiple aspect ratios and resolutions with improved quality over the previous generation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Image-to-Video",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-stt",
+      "displayName": "Grok STT",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Automatic Speech Recognition",
+      "description": "xAI's Grok speech-to-text model. Transcribes audio files into text across 25 languages with word-level timestamps, multichannel transcription, speaker diarization, and key-term biasing.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Speech-to-Text",
+        "Transcription",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-tts",
+      "displayName": "Grok TTS",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "Text-to-Speech",
+      "description": "xAI's Grok text-to-speech model. Generates high-fidelity spoken audio in 5 expressive voices (eve, ara, rex, sal, leo) with 20+ supported languages. Supports inline speech tags for laughter, whispers, and pauses.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Text-to-Speech",
+        "Audio Generation",
+        "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "xai/grok-voice",
+      "displayName": "Grok Voice",
+      "provider": "xAI",
+      "providerId": "xai",
+      "task": "websocket",
+      "description": "xAI's real-time voice conversation model with low-latency audio input and output streaming.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Voice",
+        "Real-time",
+        "Streaming",
+        "Audio"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "@cf/zai-org/glm-4.7-flash",
+      "displayName": "GLM 4.7 Flash",
+      "provider": "Z.ai",
+      "providerId": "zai-org",
+      "task": "Text Generation",
+      "description": "GLM-4.7-Flash is a fast and efficient multilingual text generation model with a 131,072 token context window. Optimized for dialogue, instruction-following, and multi-turn tool calling across 100+ languages.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/zai-org/glm-5.2",
+      "displayName": "GLM 5.2",
+      "provider": "Z.ai",
+      "providerId": "zai-org",
+      "task": "Text Generation",
+      "description": "Z.ai's flagship agentic coding model",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/zai-org/glm-5.3",
+      "displayName": "GLM 5.3",
+      "provider": "Z.ai",
+      "providerId": "zai-org",
+      "task": "Text Generation",
+      "description": "GLM-5.3 is Z.ai's flagship agentic coding model, pairing a 1M-token context window with reasoning, function calling, and structured outputs to power multi-step, tool-driven development workflows.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/zai-org/glm-5.3-flash",
+      "displayName": "GLM 5.3 Flash",
+      "provider": "Z.ai",
+      "providerId": "zai-org",
+      "task": "Text Generation",
+      "description": "The first natively multimodal model in the GLM-5 series. With 320B total parameters and just 18B active parameters, it outperforms GLM-5.2 across benchmarks and real-world workloads at one-tenth the price, while approaching Claude Opus 4.8 on coding and agentic benchmarks.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    }
+  ]
+}

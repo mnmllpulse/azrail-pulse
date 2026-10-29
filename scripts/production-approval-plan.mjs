@@ -15,9 +15,10 @@ for(const [name,spec] of Object.entries(c.required_receipts)){
   (ok?ready:blockers).push(ok?`${name}: ready`:`${name}: ${v?`found status=${v.status??v.mode??'unknown'} for release=${v.release??'unknown'}`:'receipt missing'}`);
 }
 const smoke=read(c.required_receipts.staging_smoke.path);if(smoke?.status==='VERIFIED'&&smoke.deployment_id===c.leases.staging_reviewed_deployment_id)blockers.push('staging_smoke: receipt points to the old reviewed deployment; a new RC deployment must be proven.');
-if(snap.cloudflare?.production?.observability==null)blockers.push('production observability is not enabled in the live reviewed baseline; canonical release must enable it.');
+if(snap.cloudflare?.production?.worker!=='azrail-pulse')blockers.push('reviewed production worker must be the working site azrail-pulse.');
+if(snap.cloudflare?.production?.observability!==true)blockers.push('production observability is not enabled in the live reviewed baseline; canonical release must enable it.');
 if(snap.cloudflare?.production?.binding_names?.includes('CORS_ORIGIN'))blockers.push('legacy production CORS_ORIGIN binding is still present; release must reconcile to strict PUBLIC_ORIGINS.');
-if(!snap.cloudflare?.production?.binding_names?.includes('AUTH_MODE'))blockers.push('production AUTH_MODE=oidc is not present in the reviewed live baseline.');
+if(!snap.cloudflare?.production?.binding_names?.includes('AUTH_MODE'))blockers.push('production AUTH_MODE is not present in the reviewed live baseline.');
 blockers.push('operator input pending: exact production OIDC issuer/client ID must be verified, not copied from staging.');
 blockers.push('operator input pending: production preview policy must be disabled or Access-protected.');
 blockers.push(`owner approval pending: set ${c.required_operator_inputs.approval_version_env}=${pkg.version} and exact approval phrase only after every technical prerequisite is green.`);

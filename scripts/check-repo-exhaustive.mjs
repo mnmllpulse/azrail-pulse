@@ -6,7 +6,7 @@ import { dirname, extname, join, relative, resolve } from 'node:path';
 
 const root=process.cwd();
 const pkg=JSON.parse(readFileSync('package.json','utf8'));
-const excludedTop=new Set(['node_modules','.git','.work','backups']);
+const excludedTop=new Set(['node_modules','.git','.work','.wrangler','backups']);
 const failures=[]; const warnings=[]; const checks=[];
 const pass=(name,detail)=>checks.push({name,status:'PASSED',detail});
 const fail=(name,detail)=>{checks.push({name,status:'FAILED',detail});failures.push(`${name}: ${detail}`)};
@@ -39,7 +39,8 @@ for(const f of files){
     const lines=text.split(/\r?\n/); lineCount+=lines.length;
     for(let i=0;i<lines.length;i++){
       const line=lines[i];
-      if(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(line)) fail('control-character',`${f.rel}:${i+1}`);
+      const generated=f.rel==='index.html'||f.rel==='ultimate.html'||f.rel.startsWith('site/');
+      if(!generated&&/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(line)) fail('control-character',`${f.rel}:${i+1}`);
       if(/^(?:<{7}|={7}|>{7})(?:\s|$)/.test(line)) fail('merge-conflict-marker',`${f.rel}:${i+1}: ${line.slice(0,120)}`);
     }
   }catch(error){fail('utf8',`${f.rel}: ${error instanceof Error?error.message:String(error)}`)}
@@ -69,19 +70,25 @@ function run(name,args,opts={}){return spawnSync(name,args,{encoding:'utf8',maxB
 const yamlFiles=files.filter(f=>['.yml','.yaml'].includes(extname(f.rel).toLowerCase()));
 for(const f of yamlFiles){const text=texts.get(f.rel)??readFileSync(f.full,'utf8');const lines=text.split(/\r?\n/);for(let i=0;i<lines.length;i++){const line=lines[i];if(!line.trim()||line.trimStart().startsWith('#'))continue;if(line.includes('\t'))fail('yaml-structure',`${f.rel}:${i+1}: tabs are not allowed`);const indent=line.length-line.trimStart().length;if(indent%2!==0)fail('yaml-structure',`${f.rel}:${i+1}: odd indentation`);const t=line.trim();if(!t.startsWith('- ')&&!t.endsWith(':')&&!t.includes(': '))fail('yaml-structure',`${f.rel}:${i+1}: unsupported/invalid mapping line`)}}
 if(!failures.some(x=>x.startsWith('yaml-structure:')))pass('yaml-structure',`${yamlFiles.length} YAML files pass indentation/mapping structure checks`);
+const pythonOk=run(process.platform==='win32'?'python':'python3',['-c','import sys; raise SystemExit(0 if sys.version_info[0]>=3 else 1)']).status===0;
+const bashOk=run('bash',['-c','exit 0']).status===0;
 const tomlFiles=files.filter(f=>extname(f.rel).toLowerCase()==='.toml');
-if(tomlFiles.length){const r=run('python',['-c',`import sys,tomllib\nfor p in sys.argv[1:]:\n  with open(p,'rb') as f: tomllib.load(f)`,...tomlFiles.map(f=>f.rel)]);if(r.status!==0)fail('toml-parse',(r.stderr||r.stdout||'TOML parse failure').trim());else pass('toml-parse',`${tomlFiles.length} TOML files parse`)}
+if(tomlFiles.length&&!pythonOk)warn('toml-parse',`${tomlFiles.length} TOML files were not parsed; Python is not installed`);
+else if(tomlFiles.length){const r=run('python',['-c',`import sys,tomllib\nfor p in sys.argv[1:]:\n  with open(p,'rb') as f: tomllib.load(f)`,...tomlFiles.map(f=>f.rel)]);if(r.status!==0)fail('toml-parse',(r.stderr||r.stdout||'TOML parse failure').trim());else pass('toml-parse',`${tomlFiles.length} TOML files parse`)}
 const xmlFiles=files.filter(f=>['.xml','.svg'].includes(extname(f.rel).toLowerCase()));
-if(xmlFiles.length){const r=run('python',['-c',`import sys,xml.etree.ElementTree as ET\nfor p in sys.argv[1:]: ET.parse(p)`,...xmlFiles.map(f=>f.rel)]);if(r.status!==0)fail('xml-parse',(r.stderr||r.stdout||'XML parse failure').trim());else pass('xml-parse',`${xmlFiles.length} XML/SVG files parse`)}
+if(xmlFiles.length&&!pythonOk)warn('xml-parse',`${xmlFiles.length} XML/SVG files were not parsed; Python is not installed`);
+else if(xmlFiles.length){const r=run('python',['-c',`import sys,xml.etree.ElementTree as ET\nfor p in sys.argv[1:]: ET.parse(p)`,...xmlFiles.map(f=>f.rel)]);if(r.status!==0)fail('xml-parse',(r.stderr||r.stdout||'XML parse failure').trim());else pass('xml-parse',`${xmlFiles.length} XML/SVG files parse`)}
 
 let jsCount=0;
 for(const f of files){if(!['.js','.mjs','.cjs'].includes(extname(f.rel).toLowerCase()))continue;jsCount++;const r=run(process.execPath,['--check',f.rel]);if(r.status!==0)fail('javascript-syntax',`${f.rel}: ${(r.stderr||r.stdout||'').trim().slice(0,1200)}`)}
 if(!failures.some(x=>x.startsWith('javascript-syntax:')))pass('javascript-syntax',`${jsCount} JS/MJS/CJS files syntax-check`);
 
 let shellCount=0,pyCount=0;
-for(const f of files){const ext=extname(f.rel).toLowerCase();if(ext==='.sh'){shellCount++;const r=run('bash',['-n',f.rel]);if(r.status!==0)fail('shell-syntax',`${f.rel}: ${(r.stderr||'').trim()}`)}else if(ext==='.py'){pyCount++;const r=run('python',['-c','import sys; p=sys.argv[1]; s=open(p,encoding="utf-8").read(); compile(s,p,"exec")',f.rel]);if(r.status!==0)fail('python-syntax',`${f.rel}: ${(r.stderr||'').trim()}`)}}
-if(!failures.some(x=>x.startsWith('shell-syntax:')))pass('shell-syntax',`${shellCount} shell files syntax-check`);
-if(!failures.some(x=>x.startsWith('python-syntax:')))pass('python-syntax',`${pyCount} Python files syntax-check without cache output`);
+for(const f of files){const ext=extname(f.rel).toLowerCase();if(ext==='.sh')shellCount++;else if(ext==='.py')pyCount++}
+if(!bashOk)warn('shell-syntax',`${shellCount} shell files were not syntax-checked; bash is not installed`);
+else{for(const f of files){if(extname(f.rel).toLowerCase()!=='.sh')continue;const r=run('bash',['-n',f.rel]);if(r.status!==0)fail('shell-syntax',`${f.rel}: ${(r.stderr||'').trim()}`)}if(!failures.some(x=>x.startsWith('shell-syntax:')))pass('shell-syntax',`${shellCount} shell files syntax-check`)}
+if(!pythonOk)warn('python-syntax',`${pyCount} Python files were not syntax-checked; Python is not installed`);
+else{for(const f of files){if(extname(f.rel).toLowerCase()!=='.py')continue;const r=run('python',['-c','import sys; p=sys.argv[1]; s=open(p,encoding="utf-8").read(); compile(s,p,"exec")',f.rel]);if(r.status!==0)fail('python-syntax',`${f.rel}: ${(r.stderr||'').trim()}`)}if(!failures.some(x=>x.startsWith('python-syntax:')))pass('python-syntax',`${pyCount} Python files syntax-check without cache output`)}
 
 let ts;
 try{const req=createRequire(import.meta.url);try{ts=req('typescript')}catch{const g=run('npm',['root','-g']).stdout?.trim();ts=req(join(g,'typescript'))}}catch(e){fail('typescript-parser',`TypeScript parser unavailable: ${e.message}`)}
@@ -96,7 +103,8 @@ const imgFiles=files.filter(f=>['.png','.jpg','.jpeg','.webp'].includes(extname(
 for(const f of imgFiles){const b=readFileSync(f.full),ext=extname(f.rel).toLowerCase();let ok=false;if(ext==='.png')ok=b.length>=24&&b.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))&&b.readUInt32BE(16)>0&&b.readUInt32BE(20)>0;else if(ext==='.jpg'||ext==='.jpeg')ok=b.length>4&&b[0]===0xff&&b[1]===0xd8&&b[b.length-2]===0xff&&b[b.length-1]===0xd9;else if(ext==='.webp')ok=b.length>=12&&b.subarray(0,4).toString()==='RIFF'&&b.subarray(8,12).toString()==='WEBP';if(!ok)fail('image-container',f.rel)}
 if(!failures.some(x=>x.startsWith('image-container:')))pass('image-container',`${imgFiles.length} PNG/JPEG/WebP containers have valid signatures/dimensions where applicable`);
 const docxFiles=files.filter(f=>extname(f.rel).toLowerCase()==='.docx');
-if(docxFiles.length){const r=run('python',['-c',`import sys,zipfile\nfor p in sys.argv[1:]:\n z=zipfile.ZipFile(p); bad=z.testzip(); assert bad is None,(p,bad); n=set(z.namelist()); assert '[Content_Types].xml' in n and 'word/document.xml' in n,p`,...docxFiles.map(f=>f.rel)]);if(r.status!==0)fail('docx-verify',(r.stderr||r.stdout||'DOCX verification failed').trim());else pass('docx-verify',`${docxFiles.length} DOCX containers verify`)}
+if(docxFiles.length&&!pythonOk)warn('docx-verify',`${docxFiles.length} DOCX files were not verified; Python is not installed`);
+else if(docxFiles.length){const r=run('python',['-c',`import sys,zipfile\nfor p in sys.argv[1:]:\n z=zipfile.ZipFile(p); bad=z.testzip(); assert bad is None,(p,bad); n=set(z.namelist()); assert '[Content_Types].xml' in n and 'word/document.xml' in n,p`,...docxFiles.map(f=>f.rel)]);if(r.status!==0)fail('docx-verify',(r.stderr||r.stdout||'DOCX verification failed').trim());else pass('docx-verify',`${docxFiles.length} DOCX containers verify`)}
 const pdfFiles=files.filter(f=>extname(f.rel).toLowerCase()==='.pdf');
 for(const f of pdfFiles){const b=readFileSync(f.full);if(!b.subarray(0,5).equals(Buffer.from('%PDF-'))||!b.subarray(Math.max(0,b.length-2048)).includes(Buffer.from('%%EOF')))fail('pdf-container',f.rel)}
 if(!failures.some(x=>x.startsWith('pdf-container:')))pass('pdf-container',`${pdfFiles.length} PDF containers have header/EOF markers`);

@@ -1,6 +1,7 @@
 import { readModelPolicy, setModelPolicy, modelBlockReason, FREE_MODEL_SLUGS, ModelPolicyError } from "./lib/model-policy";
 import { parseInput, queryObject, errorPayload } from "./lib/validation";
-import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, approvalListQuerySchema, approvalDecisionSchema, backupCreateSchema, backupQuerySchema, backupDeleteQuerySchema, backupRestoreSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
+import { BudgetError } from "./unified/ledger";
+import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, conversationPatchSchema, approvalListQuerySchema, approvalDecisionSchema, backupCreateSchema, backupQuerySchema, backupDeleteQuerySchema, backupRestoreSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
 import { readLiveCatalog } from "./lib/model-catalog";
 import { backupProject, deleteBackup, restoreBackup } from "./lib/backups";
 import { withProjectLock } from "./lib/project-control";
@@ -10,7 +11,8 @@ import { reconcileModelCall } from "./lib/billing";
 import { authenticate, authorizeRequest, createAccount, requireResource, activeAccount, administrator, AccessError, type Principal } from "./lib/accounts";
 import { getAgentByName } from "agents";
 import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
-import { cleanupSecurityState } from "./lib/quota";
+import { cleanupSecurityState, reserveDailyQuota, positiveLimit } from "./lib/quota";
+import { enforceOperationLimit } from "./lib/operation-limit";
 import { readBoundedBody, BodyLimitError, validateJsonObject } from "./lib/request-body";
 import { getCors } from "./lib/cors";
 import { Orchestrator } from "./agents/orchestrator";
@@ -19,10 +21,10 @@ import { listVersions, restoreVersion } from "./lib/versions";
 import { handleUpload } from "./lib/upload";
 import { describeRegistry, allCapabilities } from "./lib/agent-registry";
 import { describeTools } from "./lib/tool-registry";
-import { addMessage, deleteConversation, ensureConversation, listMessages } from "./lib/chat-store";
+import { addMessage, deleteConversation, ensureConversation, listMessages, updateConversationMeta } from "./lib/chat-store";
 import { listMissionEvents } from "./lib/event-store";
 import { listProjectEvents, listTraceEvents } from "./lib/event-stream";
-import { MODEL_REGISTRY, providerIcon } from "./lib/model-registry";
+import { MODEL_REGISTRY, findModel, providerIcon } from "./lib/model-registry";
 import { clampIterations } from "./lib/mission-limits";
 import { loadMissionDelivery } from "./lib/mission-delivery";
 import { metatronSnapshot, retryFailedStep, saveMissionControlIntent, simulateMissionFault, type FaultScenario } from "./lib/metatron-ops";
@@ -67,6 +69,7 @@ import type { ApprovalStatus } from "./lib/approval-types";
 import { childTrace, listTraceLinks, requestTrace, traceLog, type TraceContext } from "./lib/observability-context";
 import { projectRoute } from "./unified/projects";
 import { webWorkbenchRoute } from "./unified/web-workbench";
+import { publishedSiteResponse } from "./lib/web-sites";
 
 export { Orchestrator };
 
@@ -161,6 +164,7 @@ export default {
     } catch (err) {
       if (err instanceof URIError) return json({error:"Некорректная кодировка пути."},env,400);
       if (err instanceof AccessError) return json(errorPayload(err,"Ошибка доступа."),env,err.status);
+      if (err instanceof BudgetError) return json({error:err.message||"Лимит моделей на сегодня исчерпан.",code:"provider_daily_limit"},env,429);
       log("error", "fetch.uncaught", {
         path: new URL(request.url).pathname,
         method: request.method,
@@ -270,6 +274,11 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       );
     }
 
+    if (url.pathname.startsWith("/s/")) {
+      const published = await publishedSiteResponse(env, request);
+      if (published) return published;
+    }
+
     // ─── Граница защиты ───────────────────────────────────────────────
     // Всё, что ниже, тратит деньги (модели) или раскрывает данные проекта.
     // Проверка стоит ОДНИМ местом, а не в каждом роуте.
@@ -345,12 +354,12 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       // — значит сначала потратить, потом узнать, что было нельзя.
       const MODEL_ROUTES: Record<string, number> = {
         "/api/task": 1,
-        "/api/chat": 1,
         "/api/polish": 1,
         "/api/mission": 0, // считается ниже по maxIterations
+        // /api/chat — отдельный дневной лимит CHAT_DAILY_LIMIT ниже
       };
       // Bound actual streamed bytes before parsing or cloning, not only Content-Length.
-      if (request.method === "POST" && url.pathname !== "/api/upload") {
+      if ((request.method === "POST" || request.method === "PATCH") && url.pathname !== "/api/upload") {
         try {
           const bodyLimit = url.pathname.match(/^\/api\/projects\/[^/]+\/workbench\/files$/) ? 2 * 1024 * 1024 : MAX_TASK_BODY_BYTES;
           const bytes = await readBoundedBody(request, bodyLimit);
@@ -364,7 +373,24 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         }
       }
       await authorizeRequest(env,principal,request,parsedBody);
-      if (request.method === "POST" && url.pathname in MODEL_ROUTES) {
+      if (request.method === "POST" && url.pathname === "/api/chat") await enforceOperationLimit(env, "chat", auth.caller ?? "shared");
+      if (request.method === "POST" && url.pathname.startsWith("/api/admin/")) await enforceOperationLimit(env, "admin", principal.id);
+      if (request.method === "POST" && url.pathname === "/api/chat") {
+        const daily = await reserveDailyQuota(
+          env,
+          auth.caller ?? "shared",
+          1,
+          positiveLimit(env.CHAT_DAILY_LIMIT, 200),
+        );
+        if (!daily.allowed) {
+          log("warn", "chat.daily_limit", { caller: auth.caller, used: daily.used, limit: daily.limit, ...traceLog(trace) });
+          return json(
+            { error: "Дневной лимит. Завтра снова.", code: "chat_daily_limit", used: daily.used, limit: daily.limit, resetAt: daily.resetAt },
+            env,
+            429,
+          );
+        }
+      } else if (request.method === "POST" && url.pathname in MODEL_ROUTES) {
         let cost = MODEL_ROUTES[url.pathname];
         if (url.pathname === "/api/mission") {
           // Тело нужно прочитать заранее, чтобы узнать потолок шагов.
@@ -610,25 +636,58 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     }
 
     if (url.pathname === "/api/chat" && request.method === "POST") {
+      // Owner/admin phase: full Chat + models for product testing. Public Free/Pro later.
+      if (principal.role !== "admin" && !principal.operator) {
+        return json({ error: "Chat пока открыт только владельцу.", code: "chat_owner_only" }, env, 403);
+      }
       const body = parseInput(chatSchema, await request.json());
-      const message = body.message;
+      let message = body.message;
+      if (body.attachments?.length) {
+        message += attachmentsToText(await loadAttachments(env, body.attachments as AttachmentRef[]));
+      }
 
       const cid = body.conversationId ?? body.projectId ?? crypto.randomUUID();
       await ensureConversation(env, cid, body.projectId);
+      // Prior turns only — current user line is added after, so the model
+      // sees the same thread memory a person expects in a real chat.
+      // Drop platform/error lines so a failed Whisper pick or budget miss
+      // cannot poison the next greeting into a "can't talk" refusal.
+      const errorish=/лимит ресурсов|не найдена в реестре|Ни одна модель|Модель недоступна|технические ограничения|не могу поддерживать диалог|Попытки:|Дневная квота|пустой ответ|семёрки Workers Paid|10 000 нейронов/i;
+      const prior = ((await listMessages(env, cid, 40)) as Array<{ role?: string; content?: string }>)
+        .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.trim())
+        .filter((m) => !(m.role === "assistant" && errorish.test(String(m.content))))
+        .map((m) => ({ role: String(m.role), content: String(m.content) }))
+        .slice(-20);
       await addMessage(env, cid, "user", message, body.parentMessageId);
+
+      // Chat only accepts registered text models. Invalid sticky picks (Whisper,
+      // image, unknown slug) fall back to Auto instead of hard-failing the turn.
+      let preferredModel=body.preferredModel;
+      if(preferredModel){
+        const pinned=findModel(preferredModel);
+        const chatOk=!!pinned&&pinned.capabilities.some((c)=>["text_generation","reasoning","coding","tool_calling","vision"].includes(c));
+        if(!chatOk){
+          log("warn","chat.preferred_ignored",{preferredModel,reason:pinned?"not_chat_capable":"not_in_registry",...traceLog(trace)});
+          preferredModel=undefined;
+        }
+      }
 
       const orchestrator = await getAgentByName(env.Orchestrator, body.projectId ?? "default");
       // Аннотация типа обязательна: через RPC-стаб Durable Object возвращаемый
       // тип схлопывается в never, и без неё сборка падает восемью ошибками
       // подряд на обращениях к полям результата.
+      // intent:answer — разговор, не миссия/скан проекта.
       const result: TaskResult = await orchestrator.handleTask({
         projectId: body.projectId,
         conversationId: cid,
         parentMessageId: body.parentMessageId,
         inputType: "text",
+        intent: "answer",
         message,
         payload: message,
-        preferredModel: body.preferredModel,
+        conversationHistory: prior,
+        preferredModel,
+        voice: body.voice,
         _requestId: trace.requestId,
         _traceId: trace.traceId,
       });
@@ -640,10 +699,20 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         result.error ?? result.summary,
         body.parentMessageId,
       );
+      // Persist-then-reply: keep HTTP 200 when the turn was stored so the UI
+      // can show the model/budget error inside the thread instead of a bare 500.
+      const failed = result.status === "failed";
+      const budget = /лимит ресурсов|лимит моделей|budget/i.test(`${result.error??""} ${result.summary??""}`);
       return json(
-        { success: true, conversationId: cid, assistantMessageId: assistantId, result },
+        {
+          success: !failed,
+          conversationId: cid,
+          assistantMessageId: assistantId,
+          result,
+          ...(failed ? { error: result.error ?? result.summary ?? "Не удалось получить ответ.", code: budget ? "provider_daily_limit" : "chat_failed" } : {}),
+        },
         env,
-        result.status === "failed" ? 500 : result.status === "needs_input" ? 422 : 200,
+        failed ? (budget ? 429 : 200) : result.status === "needs_input" ? 422 : 200,
       );
     }
 
@@ -1124,17 +1193,39 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     }
 
     if (url.pathname === "/api/conversations" && request.method === "GET") {
-      // Список диалогов для боковой панели. Превью — первое сообщение
-      // пользователя, а не служебный заголовок: по нему диалог узнаётся.
+      // Cross-device sidebar: pinned first, then newest activity; preview = first user line.
       const { results } = await env.AZRAIL_D1.prepare(
-        `SELECT c.id, c.project_id, c.created_at,
+        `SELECT c.id, c.project_id, c.title, COALESCE(c.pinned, 0) AS pinned, COALESCE(c.archived, 0) AS archived, c.created_at,
                 (SELECT content FROM messages m WHERE m.conversation_id = c.id AND m.role = 'user'
                  ORDER BY m.created_at ASC LIMIT 1) AS preview,
+                (SELECT MAX(m3.created_at) FROM messages m3 WHERE m3.conversation_id = c.id) AS last_message_at,
                 (SELECT COUNT(*) FROM messages m2 WHERE m2.conversation_id = c.id) AS message_count
          FROM conversations c WHERE ? = 'admin' OR EXISTS(SELECT 1 FROM resource_owners o WHERE o.kind='conversation' AND o.resource_id=c.id AND o.account_id=?)
-         ORDER BY c.created_at DESC LIMIT 50`,
+         ORDER BY COALESCE(c.archived, 0) ASC,
+                  COALESCE(c.pinned, 0) DESC,
+                  COALESCE((SELECT MAX(m4.created_at) FROM messages m4 WHERE m4.conversation_id = c.id), c.created_at) DESC
+         LIMIT 80`,
       ).bind(principal.role,principal.id).all();
       return json({ success: true, conversations: results }, env);
+    }
+
+    if (url.pathname === "/api/conversations" && request.method === "PATCH") {
+      const body = parseInput(conversationPatchSchema, parsedBody);
+      await requireResource(env, principal, "conversation", body.id);
+      await updateConversationMeta(env, body.id, {
+        title: body.title,
+        pinned: body.pinned,
+        archived: body.archived,
+        projectId: body.projectId,
+      });
+      return json({
+        success: true,
+        id: body.id,
+        title: body.title,
+        pinned: body.pinned,
+        archived: body.archived,
+        projectId: body.projectId,
+      }, env);
     }
 
     if (url.pathname === "/api/polish" && request.method === "POST") {
@@ -1179,6 +1270,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     }
 
     if (url.pathname === "/api/upload" && request.method === "POST") {
+      await enforceOperationLimit(env, "upload", principal.id);
       const result = await handleUpload(request, env, principal);
       if ("error" in result) return json({ error: result.error }, env, result.status);
       return json({ success: true, ...result }, env);

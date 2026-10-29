@@ -1,6 +1,7 @@
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { Env } from '../types';
-import { hashToken, type Principal } from '../lib/accounts';
+import { AccessError, hashToken, type Principal } from '../lib/accounts';
+import { enforceOperationLimit } from '../lib/operation-limit';
 import { validateTrustedHttpsUrl } from './trusted-endpoint';
 import { readBoundedBody } from '../lib/request-body';
 
@@ -14,12 +15,28 @@ function cookie(name:string,value:string,seconds:number) {
 }
 function random() { return crypto.randomUUID().replaceAll('-','')+crypto.randomUUID().replaceAll('-',''); }
 const validateOidcEndpoint=(value:string,label='OIDC endpoint')=>validateTrustedHttpsUrl(value,label,{allowSearch:true});
+/**
+ * Workers reject `redirect: "error"`. `manual` keeps the same boundary:
+ * a 3xx is discarded here and never followed, so a token POST cannot be
+ * replayed to another host with the code or client secret.
+ */
+async function fetchOidc(url:string,init:RequestInit={}):Promise<Response> {
+ const response=await fetch(url,{...init,redirect:'manual'});
+ if(response.status>=300&&response.status<400){
+  await response.body?.cancel().catch(()=>{});
+  throw new Error('OIDC endpoint отклонил перенаправление.');
+ }
+ return response;
+}
 
 /** Default admin group when OIDC_ADMIN_GROUPS is unset. An explicitly empty value disables admin entirely. */
 export const DEFAULT_OIDC_ADMIN_GROUPS='pulse-admins';
 export function oidcAdminGroups(env:Env):string[] {
  const raw=env.OIDC_ADMIN_GROUPS===undefined?DEFAULT_OIDC_ADMIN_GROUPS:env.OIDC_ADMIN_GROUPS;
  return [...new Set(String(raw).split(',').map(s=>s.trim()).filter(Boolean))];
+}
+export function oidcAdminEmails(env:Env):string[] {
+ return [...new Set(String(env.OIDC_ADMIN_EMAILS??'').split(',').map(s=>s.trim().toLowerCase()).filter(s=>s.includes('@')))];
 }
 /**
  * Role for a verified ID token. Fail closed: admin only when the configured
@@ -28,6 +45,8 @@ export function oidcAdminGroups(env:Env):string[] {
  * Missing, empty or wrongly typed claims, or an empty group list, give editor.
  */
 export function oidcRoleFromClaims(payload:Record<string,unknown>,env:Env):'admin'|'editor' {
+ const email=typeof payload.email==='string'?payload.email.trim().toLowerCase():'';
+ if(email&&oidcAdminEmails(env).includes(email))return 'admin';
  const groups=oidcAdminGroups(env);
  if(!groups.length)return 'editor';
  const claimName=(env.OIDC_GROUPS_CLAIM??'').trim()||'groups';
@@ -51,7 +70,7 @@ async function metadata(env:Env) {
  if(!env.OIDC_ISSUER || !env.OIDC_CLIENT_ID) throw new Error('OIDC не настроен: нужны issuer и client ID.');
  const issuer=env.OIDC_ISSUER.replace(/\/$/,'');
  validateTrustedHttpsUrl(issuer,'OIDC issuer');
- const r=await fetch(`${issuer}/.well-known/openid-configuration`,{redirect:'error',signal:AbortSignal.timeout(8000),headers:{Accept:'application/json'}});
+ const r=await fetchOidc(`${issuer}/.well-known/openid-configuration`,{signal:AbortSignal.timeout(8000),headers:{Accept:'application/json'}});
  if(!r.ok) throw new Error('OIDC discovery недоступен.');
  const d=await responseObject(r,256*1024,'OIDC discovery');
  if(d.issuer!==env.OIDC_ISSUER && d.issuer!==issuer) throw new Error('OIDC issuer mismatch.');
@@ -82,7 +101,7 @@ export async function authRoute(request:Request,env:Env):Promise<Response|null> 
  if(!url.pathname.startsWith('/auth/'))return null;
  const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
  if(!trustedOrigin(request,env))return reply({error:'Домен не разрешён в PUBLIC_ORIGINS.'},403);
- if(url.pathname==='/auth/status')return reply({configured:!!env.OIDC_ISSUER&&!!env.OIDC_CLIENT_ID,account:await sessionPrincipal(request,env)});
+ if(url.pathname==='/auth/status')return reply({configured:!!env.OIDC_ISSUER&&!!env.OIDC_CLIENT_ID,key:env.AUTH_MODE!=='oidc',account:await sessionPrincipal(request,env)});
  if(url.pathname==='/auth/logout' && request.method==='POST') {
   if(request.headers.get('Origin')!==url.origin)return reply({error:'Origin mismatch'},403);
   await env.AZRAIL_D1.prepare('DELETE FROM web_sessions WHERE token_hash=?').bind(await hashToken(cookies(request)[cookieName]??'')).run();
@@ -91,6 +110,10 @@ export async function authRoute(request:Request,env:Env):Promise<Response|null> 
  if(request.method!=='GET')return reply({error:'Method not allowed'},405);
  try {
   if(url.pathname==='/auth/callback' && (!url.searchParams.get('code') || !url.searchParams.get('state') || url.searchParams.get('state')!==cookies(request)['__Host-pulse-state']))return reply({error:'Недействительный вход. Начните заново.'},400);
+  if(url.pathname==='/auth/login') {
+   const ip=(request.headers.get('CF-Connecting-IP')??'unknown').slice(0,64);
+   try{await enforceOperationLimit(env,'login',ip);}catch(error){if(error instanceof AccessError)return reply({error:error.message},error.status);throw error;}
+  }
   const d=await metadata(env), redirectURI=`${url.origin}/auth/callback`;
   if(url.pathname==='/auth/login') {
    const state=random(),verifier=random(),nonce=random();
@@ -111,10 +134,7 @@ export async function authRoute(request:Request,env:Env):Promise<Response|null> 
    const form=new URLSearchParams({grant_type:'authorization_code',client_id:env.OIDC_CLIENT_ID!,code,redirect_uri:redirectURI,code_verifier:pending.verifier});
    // client_secret_post; configure this method on the IdP. Public clients use PKCE only.
    if(env.OIDC_CLIENT_SECRET)form.set('client_secret',env.OIDC_CLIENT_SECRET);
-   // Do not follow 307/308 redirects with the authorization code or client
-   // secret in the request body. A configured/discovered endpoint is trusted;
-   // an arbitrary redirect target is not.
-   const tr=await fetch(d.token_endpoint,{method:'POST',body:form,redirect:'error',signal:AbortSignal.timeout(10000),headers:{Accept:'application/json'}});
+   const tr=await fetchOidc(d.token_endpoint,{method:'POST',body:form,signal:AbortSignal.timeout(10000),headers:{Accept:'application/json'}});
    if(!tr.ok)return reply({error:'Провайдер отклонил вход.'},401);
    const tokens=await responseObject(tr,256*1024,'OIDC token response') as {id_token?:string};
    if(!tokens.id_token)return reply({error:'Провайдер не вернул ID token.'},401);
@@ -122,7 +142,8 @@ export async function authRoute(request:Request,env:Env):Promise<Response|null> 
    const {payload}=await jwtVerify(tokens.id_token,jwks.get(d.jwks_uri)!,{issuer:d.issuer,audience:env.OIDC_CLIENT_ID,algorithms:['RS256','ES256'],requiredClaims:['exp','iat','sub','nonce'],maxTokenAge:'10m'});
    if(payload.nonce!==pending.nonce || typeof payload.sub!=='string' || (payload.azp!==undefined && payload.azp!==env.OIDC_CLIENT_ID) || (Array.isArray(payload.aud)&&payload.aud.length>1&&payload.azp!==env.OIDC_CLIENT_ID))return reply({error:'OIDC nonce mismatch.'},401);
    const id=`oidc_${(await hashToken(`${d.issuer}\n${payload.sub}`)).slice(0,48)}`;
-   const name=String(payload.name??payload.preferred_username??'Пользователь').slice(0,100);
+   const emailName=typeof payload.email==='string'?payload.email.trim():'';
+   const name=String(payload.name??payload.preferred_username??(emailName||'Пользователь')).slice(0,100);
    // Random unusable API key hash: OIDC identities never get a shared owner key.
    // Role is recomputed from the group claim on every login; a manual viewer downgrade is kept.
    const role=oidcRoleFromClaims(payload as Record<string,unknown>,env);
@@ -143,5 +164,9 @@ export async function authRoute(request:Request,env:Env):Promise<Response|null> 
    return new Response(null,{status:302,headers});
   }
   return reply({error:'Not found'},404);
- } catch { return reply({error:'Вход не завершён. Проверьте OIDC issuer, client и разрешённые callback URL.'},503); }
+ } catch (error) {
+  const text=error instanceof Error?error.message:'';
+  if(text.startsWith('OIDC'))return reply({error:text},503);
+  return reply({error:'Вход не завершён. Проверьте OIDC issuer, client и разрешённые callback URL.'},503);
+ }
 }

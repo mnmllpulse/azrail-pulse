@@ -4,7 +4,7 @@ import {AccessError,requireResource} from '../lib/accounts';
 import {readJsonRecord} from './request-json';
 import {BROWSER_QA_REQUIRED_CHECKS,REAL_E2E_JOURNEYS,rankSystemSuggestions,undoContract,type SystemSurface} from '../lib/series-g';
 
-const SURFACES=new Set<SystemSurface>(['chat','web','image','music','video','audio','als','data','ledger','lab']);
+const SURFACES=new Set<SystemSurface>(['chat','web','image','music','video','audio','als','data','ledger','lab','prose']);
 const FEEDBACK_OUTCOMES=new Set(['accepted','dismissed','completed','failed']);
 function text(v:unknown,max:number,label:string){if(typeof v!=='string')throw new AccessError(`${label}: ожидается текст.`,400);const s=v.trim();if(!s||s.length>max)throw new AccessError(`${label}: максимум ${max} символов.`,400);return s;}
 

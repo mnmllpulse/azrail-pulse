@@ -1,5 +1,6 @@
 import { XMLParser, XMLValidator } from 'fast-xml-parser';
 import { gunzipSync } from 'node:zlib';
+import { classifyTrackRole, colorGroupFor, summarizeRoles } from './als-music-parser';
 
 const MiB=1024*1024;
 export const ALS_COMPRESSED_LIMIT=12*MiB;
@@ -11,8 +12,11 @@ export class AbletonAnalysisError extends Error { constructor(public status:numb
 
 export type AbletonDevice={type:string;name:string;active:boolean|null;plugin:boolean;cpuHeavy:boolean};
 export type AbletonRouting={kind:string;target:string};
+export type AbletonClip={name:string;startBeats:number;lengthBeats:number};
+export type AbletonLocator={name:string;timeBeats:number};
 export type AbletonTrack={
  id:number|null;name:string;type:'audio'|'midi'|'group'|'return'|'master';groupId:number|null;
+ role:string;colorGroup:string;clips:AbletonClip[];
  clipCount:number;deviceCount:number;pluginCount:number;automationEnvelopeCount:number;
  frozen:boolean;volume:number|null;pan:number|null;devices:AbletonDevice[];routing:AbletonRouting[];
 };
@@ -20,8 +24,8 @@ export type AbletonSample={name:string;path:string|null;missing:boolean;referenc
 export type AbletonIssue={kind:string;severity:'warning'|'info';track?:string;device?:string;detail:string;heuristic?:boolean};
 export type AbletonSidechain={track:string;device:string;source:string|null;enabled:boolean|null};
 export type AbletonReport={
- format:'Ableton Live Set';abletonVersion:string|null;bpm:number|null;timeSignature:string|null;sceneCount:number;
- groups:number;trackCount:number;tracks:AbletonTrack[];samples:AbletonSample[];masterChain:AbletonDevice[];
+ format:'Ableton Live Set';abletonVersion:string|null;bpm:number|null;timeSignature:string|null;keyRoot:string|null;keyScale:string|null;locators:AbletonLocator[];sceneCount:number;
+ groups:number;trackCount:number;roleSummary:Record<string,number>;tracks:AbletonTrack[];samples:AbletonSample[];masterChain:AbletonDevice[];
  checks:{missingPlugins:AbletonIssue[];missingSamples:AbletonIssue[];duplicatedProcessing:AbletonIssue[];routingLoops:AbletonIssue[];sidechainTopology:AbletonSidechain[];gainStagingWarnings:AbletonIssue[];cpuHeavyDevices:AbletonIssue[];frozenTracks:AbletonIssue[];inactiveDevices:AbletonIssue[]};
  summary:{clips:number;devices:number;plugins:number;automationEnvelopes:number;samples:number;issues:number};
  warnings:string[];analysisBoundary:string[];
@@ -91,24 +95,70 @@ function collectSidechains(trackName:string,devices:Array<{type:string,node:Rec}
  for(const {type,node}of devices){let has=false,enabled:boolean|null=null,source:string|null=null;walk(node,(key,value)=>{if(!/side.?chain/i.test(key))return;has=true;if(enabled===null){const b=bool(value);if(b!==null)enabled=b;}if(!source&&rec(value)){source=firstText(value,['Target','UpperDisplayString','LowerDisplayString','Name','@_Value']);if(!source)walk(value,(nested,nestedValue)=>{if(!source&&/AudioFrom|MidiFrom|Input|Source|Routing/i.test(nested))source=text(nestedValue);});}});if(has)out.push({track:trackName,device:nameOf(node,type),source,enabled});}
  return out;
 }
+function nestedNumber(root:unknown,keys:string[]):number|null{
+ let out:number|null=null;walk(root,(key,value)=>{if(out!==null||!keys.includes(key))return;const n=num(value);if(n!==null)out=n;});return out;
+}
+function collectClips(track:Rec):AbletonClip[]{
+ const clips:AbletonClip[]=[];walk(track,(key,value)=>{if(key!=='AudioClip'&&key!=='MidiClip')return;for(const raw of list(value)){if(!rec(raw))continue;const start=firstNumber(raw,['CurrentStart'])??num(raw['@_Time'])??0;const end=firstNumber(raw,['CurrentEnd']);const attrLength=num(raw['@_Length']);const length=end!==null?Math.max(0,end-start):attrLength??0;clips.push({name:nameOf(raw,'Clip'),startBeats:start,lengthBeats:length});}});return clips.slice(0,400);
+}
 function mixerValue(track:Rec,key:string):number|null{return firstNumber(rec(track.DeviceChain)&&rec(track.DeviceChain.Mixer)?track.DeviceChain.Mixer:null,[key])??firstNumber(track,[key]);}
 function frozen(track:Rec):boolean{let found=false;walk(track,(key,value)=>{if(found)return;if(/Frozen|Freeze/i.test(key)){const b=bool(value);if(b===true||(/FreezeSequencer/i.test(key)&&rec(value)))found=true;}});return found;}
 function extractTracks(live:Rec):{tracks:AbletonTrack[];sidechains:AbletonSidechain[]}{
  const tracks:AbletonTrack[]=[];const sidechains:AbletonSidechain[]=[];const groups:[string,AbletonTrack['type']][]=[['AudioTrack','audio'],['MidiTrack','midi'],['GroupTrack','group'],['ReturnTrack','return']];
  const root=rec(live.Tracks)?live.Tracks:{};
- for(const [key,type]of groups){for(const raw of list(root[key])){if(!rec(raw))continue;const devicesRaw=collectDeviceContainers(raw),devices=devicesRaw.map(({type:t,node})=>deviceFrom(t,node)),name=nameOf(raw,`${type} track`);sidechains.push(...collectSidechains(name,devicesRaw));tracks.push({id:num(raw['@_Id']),name,type,groupId:firstNumber(raw,['TrackGroupId','GroupId']),clipCount:countKeys(raw,new Set(['AudioClip','MidiClip'])),deviceCount:devices.length,pluginCount:devices.filter(d=>d.plugin).length,automationEnvelopeCount:countKeys(raw,new Set(['AutomationEnvelope'])),frozen:frozen(raw),volume:mixerValue(raw,'Volume'),pan:mixerValue(raw,'Pan'),devices,routing:collectRouting(raw)});}}
+ for(const [key,type]of groups){for(const raw of list(root[key])){if(!rec(raw))continue;const devicesRaw=collectDeviceContainers(raw),devices=devicesRaw.map(({type:t,node})=>deviceFrom(t,node)),name=nameOf(raw,`${type} track`);sidechains.push(...collectSidechains(name,devicesRaw));const colorIndex=firstNumber(raw,['ColorIndex'])??0;tracks.push({id:num(raw['@_Id']),name,type,groupId:firstNumber(raw,['TrackGroupId','GroupId']),role:classifyTrackRole(name,type),colorGroup:colorGroupFor(Math.trunc(colorIndex)),clips:collectClips(raw),clipCount:countKeys(raw,new Set(['AudioClip','MidiClip'])),deviceCount:devices.length,pluginCount:devices.filter(d=>d.plugin).length,automationEnvelopeCount:countKeys(raw,new Set(['AutomationEnvelope'])),frozen:frozen(raw),volume:mixerValue(raw,'Volume'),pan:mixerValue(raw,'Pan'),devices,routing:collectRouting(raw)});}}
  return {tracks,sidechains};
 }
 function extractSamples(live:Rec):AbletonSample[]{
  const byKey=new Map<string,AbletonSample>();walk(live,(key,value)=>{if(key!=='FileRef')return;for(const raw of list(value)){if(!rec(raw))continue;const path=firstText(raw,['RelativePath','Path','AbsolutePath','Name']);const name=firstText(raw,['Name'])??path?.split(/[\\/]/).pop()??'Sample';if(!path&&!name)continue;const k=(path??name).toLowerCase();const current=byKey.get(k);if(current){current.references++;current.missing ||= explicitUnavailable(raw);}else byKey.set(k,{name,path,missing:explicitUnavailable(raw),references:1});}});return [...byKey.values()].slice(0,4000);
 }
+const LIVE_44_AUTOMATION=201326592;
+function decodePackedTimeSignature(value:number):string|null{
+ if(!Number.isFinite(value))return null;
+ const raw=Math.trunc(value);
+ if(raw===LIVE_44_AUTOMATION)return '4/4';
+ const numerator=(raw>>16)&0xff,denomPow=raw&0xff;
+ if(numerator<1||numerator>32||denomPow>5)return null;
+ const denominator=2**denomPow;
+ return [1,2,4,8,16,32].includes(denominator)?`${numerator}/${denominator}`:null;
+}
 function timeSignature(live:Rec):string|null{
- let found:string|null=null;walk(live,(key,value)=>{if(found||!/TimeSignature/i.test(key)||!rec(value))return;const n=firstNumber(value,['Numerator','TimeSignatureNumerator']),d=firstNumber(value,['Denominator','TimeSignatureDenominator']);if(n&&d&&n>=1&&n<=32&&[1,2,4,8,16,32].includes(d))found=`${n}/${d}`;});return found;
+ let explicit:string|null=null,packed:string|null=null;
+ walk(live,(key,value)=>{
+  if(!/TimeSignature$/i.test(key)||!rec(value))return;
+  const n=nestedNumber(value,['Numerator','TimeSignatureNumerator']),d=nestedNumber(value,['Denominator','TimeSignatureDenominator']);
+  if(!explicit&&n&&d&&n>=1&&n<=32&&[1,2,4,8,16,32].includes(d))explicit=`${n}/${d}`;
+  if(packed)return;
+  walk(value,(innerKey,inner)=>{
+   if(packed||innerKey!=='AutomationEvent')return;
+   for(const event of list(inner)){const encoded=rec(event)?num(event['@_Value']??event.Value??event):num(event);const decoded=encoded===null?null:decodePackedTimeSignature(encoded);if(decoded){packed=decoded;return;}}
+  });
+ });
+ return explicit??packed;
+}
+const NOTE_NAMES=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const SCALE_BY_INDEX:Record<number,string>={0:'Major',1:'Minor',2:'Dorian',3:'Mixolydian',4:'Lydian',5:'Phrygian',6:'Locrian',7:'Whole Tone'};
+function projectKey(live:Rec):{keyRoot:string|null;keyScale:string|null}{
+ let keyRoot:string|null=null,keyScale:string|null=null;
+ walk(live,(key,value)=>{if(key!=='ScaleInformation'&&key!=='KeyScale')return;for(const node of list(value)){if(!rec(node))continue;const rootIdx=nestedNumber(node,['RootNote','Root']);if(keyRoot===null&&rootIdx!==null&&rootIdx>=0&&rootIdx<=11)keyRoot=NOTE_NAMES[rootIdx];const named=firstText(node,['Name']);const scaleIdx=nestedNumber(node,['Scale']);if(keyScale===null){if(named&&/major|minor|dorian|mixolydian|lydian|phrygian|locrian/i.test(named))keyScale=named;else if(scaleIdx!==null&&SCALE_BY_INDEX[scaleIdx])keyScale=SCALE_BY_INDEX[scaleIdx];}}});
+ return {keyRoot,keyScale};
+}
+function manualTempo(node:unknown):number|null{
+ if(!rec(node))return null;
+ const manual=rec(node.Manual)?num(node.Manual):num(node);
+ return manual!==null&&manual>=20&&manual<=999?manual:null;
 }
 function tempo(live:Rec):number|null{
  const master=rec(live.MasterTrack)?live.MasterTrack:rec(live.MainTrack)?live.MainTrack:null;
- const direct=master&&rec(master.DeviceChain)&&rec(master.DeviceChain.Mixer)?num(master.DeviceChain.Mixer.Tempo):null;if(direct&&direct>=20&&direct<=999)return direct;
- let out:number|null=null;walk(live,(key,value)=>{if(out!==null)return;if(key==='Tempo'){const n=num(value);if(n&&n>=20&&n<=999)out=n;}});return out;
+ const chain=master&&rec(master.DeviceChain)?master.DeviceChain:null;
+ const mixer=chain&&rec(chain.Mixer)?manualTempo(chain.Mixer.Tempo):null;if(mixer)return mixer;
+ const sequencer=chain&&rec(chain.MainSequencer)?manualTempo(chain.MainSequencer.Tempo):null;if(sequencer)return sequencer;
+ let out:number|null=null;walk(live,(key,value)=>{if(out!==null||key!=='Tempo')return;const n=manualTempo(value);if(n)out=n;});return out;
+}
+function arrangementLocators(live:Rec):AbletonLocator[]{
+ const out:AbletonLocator[]=[];const seen=new Set<Rec>();
+ walk(live,(key,value)=>{if(key!=='Locator')return;for(const raw of list(value)){if(!rec(raw)||seen.has(raw))continue;seen.add(raw);const name=firstText(raw,['Name'])??'Locator';const time=firstNumber(raw,['Time'])??0;out.push({name,timeBeats:time});}});
+ return out.sort((a,b)=>a.timeBeats-b.timeBeats).slice(0,200);
 }
 function version(parsed:Rec):string|null{
  const ableton=rec(parsed.Ableton)?parsed.Ableton:null;if(!ableton)return null;return firstText(ableton,['@_Creator','@_MinorVersion','@_MajorVersion','Creator','MinorVersion']);
@@ -142,19 +192,23 @@ export function parseAbletonXML(xml:string):AbletonReport{
  const live=parsed.Ableton.LiveSet as Rec,{tracks,sidechains}=extractTracks(live),samples=extractSamples(live),masterChain=masterDevices(live),projectChecks=checks(tracks,samples,sidechains);
  // Scan plugin descriptors for explicit unavailable flags without inventing local installation state.
  walk(live,(key,value)=>{if(!/Plugin(?:Device|Desc|Info)|Vst\d?PluginInfo|AuPluginInfo/i.test(key))return;for(const raw of list(value)){if(!rec(raw)||!explicitUnavailable(raw))continue;const name=nameOf(raw,key);if(!projectChecks.missingPlugins.some(x=>x.device===name))projectChecks.missingPlugins.push({kind:'missing_plugin',severity:'warning',device:name,detail:'ALS explicitly marks this plugin descriptor unavailable.'});}});
- const sceneCount=countKeys(live,new Set(['Scene'])),bpm=tempo(live),sig=timeSignature(live),groups=tracks.filter(t=>t.type==='group').length;
+ const sceneCount=countKeys(live,new Set(['Scene'])),bpm=tempo(live),sig=timeSignature(live),markers=arrangementLocators(live),groups=tracks.filter(t=>t.type==='group').length,musicalKey=projectKey(live),roleSummary=summarizeRoles(tracks.map(t=>t.role));
  const summary={clips:tracks.reduce((n,t)=>n+t.clipCount,0),devices:tracks.reduce((n,t)=>n+t.deviceCount,0)+masterChain.length,plugins:tracks.reduce((n,t)=>n+t.pluginCount,0)+masterChain.filter(d=>d.plugin).length,automationEnvelopes:tracks.reduce((n,t)=>n+t.automationEnvelopeCount,0),samples:samples.length,issues:0};
  summary.issues=projectChecks.missingPlugins.length+projectChecks.missingSamples.length+projectChecks.duplicatedProcessing.length+projectChecks.routingLoops.length+projectChecks.gainStagingWarnings.length+projectChecks.cpuHeavyDevices.length+projectChecks.inactiveDevices.length;
  const warnings:string[]=[];
  if(projectChecks.missingPlugins.length)warnings.push(`${projectChecks.missingPlugins.length} plugin warning(s) explicitly indicated by ALS metadata.`);
  if(projectChecks.missingSamples.length)warnings.push(`${projectChecks.missingSamples.length} sample reference(s) explicitly marked unavailable.`);
  if(projectChecks.routingLoops.length)warnings.push(`${projectChecks.routingLoops.length} routing cycle(s) detected from resolvable track-output names.`);
+ if(bpm===null)warnings.push('BPM не найден в Tempo/Manual.');
  if(!tracks.length)warnings.push('Треки не найдены в поддерживаемых Audio/MIDI/Group/Return контейнерах.');
- return {format:'Ableton Live Set',abletonVersion:version(parsed),bpm,timeSignature:sig,sceneCount,groups,trackCount:tracks.length,tracks,samples,masterChain,checks:projectChecks,summary,warnings,analysisBoundary:[
+ const unclassified=tracks.filter(t=>t.role==='unknown/unclassified').length;if(unclassified)warnings.push(`${unclassified} track name(s) did not match a music role and stay unclassified.`);
+ return {format:'Ableton Live Set',abletonVersion:version(parsed),bpm,timeSignature:sig,keyRoot:musicalKey.keyRoot,keyScale:musicalKey.keyScale,locators:markers,sceneCount,groups,roleSummary,trackCount:tracks.length,tracks,samples,masterChain,checks:projectChecks,summary,warnings,analysisBoundary:[
   'ALS structure is parsed without modifying the source file.',
   'Missing plugins/samples are only claimed when the ALS metadata explicitly indicates unavailability; local filesystem/plugin installation is not probed.',
   'Duplicated processing, CPU-heavy devices and gain staging are heuristics that require confirmation in Ableton Live.',
   'Routing-loop detection only follows output routes that can be resolved to track names stored in the set.',
+  'Track roles come from the track name and type. They are a mix map, not a claim about the audio content.',
+  'Locators are arrangement markers stored in beats. They describe the set structure, not a detected musical form.',
  ]};
 }
 

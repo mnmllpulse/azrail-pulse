@@ -1,0 +1,24 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.63",
+  "master_item": 31,
+  "source": "site/assets of the hosted build. The self-contained root index.html is not this budget.",
+  "ceilings": {
+    "initial_js_bytes": 257188,
+    "css_bytes": 123722,
+    "lazy_js_bytes": 690910,
+    "largest_lazy_js_bytes": 169026,
+    "image_bytes": 5929,
+    "font_bytes": 0
+  },
+  "local_samples": {
+    "route": "GET /health",
+    "observed_response_bytes": 337,
+    "response_bytes_ceiling": 512,
+    "d1_statements": 1,
+    "kv_reads": 1,
+    "r2_heads": 1,
+    "note": "One local token-auth health probe. Not a budget for every API, D1, or R2 call."
+  },
+  "unmeasured": ["api_payload", "d1_queries", "r2_operations"]
+}

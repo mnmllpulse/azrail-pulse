@@ -2,6 +2,7 @@ import { searchConnectorTools, prepareConnectorCall, executeConnectorCall, proje
 import { canonical } from "../unified/connector-vault";
 import { boundedStructure } from "../unified/connector-schema";
 import { hashToken } from "../lib/accounts";
+import { assertSubsystem } from "../lib/kill-switch";
 import { syncWorkspaceFromSandbox } from "./sandbox-export";
 import { requireCapability, toolCapability, type ProjectLease } from "../lib/project-control";
 import type { Env, TaskRequest, ToolName } from "../types";
@@ -145,6 +146,7 @@ export class ExecutionToolExecutor {
         });
 
       case "sandbox_exec": {
+        assertSubsystem(this.env, "sandbox");
         /* Произвольная команда в контейнере.
          *
          * Риск review не случайно: команда может сделать что угодно в

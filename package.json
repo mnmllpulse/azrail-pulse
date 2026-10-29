@@ -37,6 +37,7 @@
     "docs:check": "node scripts/check-doc-truth.mjs",
     "migrations:check": "node scripts/check-migration-integrity.mjs",
     "source:manifest": "node scripts/build-source-manifest.mjs",
+    "cloud:snapshot": "node scripts/cloudflare-readonly-snapshot.mjs",
     "cloud:drift": "node scripts/cloud-drift.mjs --snapshot verification/cloudflare-snapshot.json --env all",
     "cloud:drift:staging": "node scripts/cloud-drift.mjs --snapshot verification/cloudflare-snapshot.json --env staging --out .work/cloud-drift-staging.json",
     "cloud:drift:production": "node scripts/cloud-drift.mjs --snapshot verification/cloudflare-snapshot.json --env production --out .work/cloud-drift-production.json",
@@ -81,11 +82,20 @@
     "staging:smoke:plan": "node scripts/staging-smoke-plan.mjs",
     "staging:smoke:run": "node scripts/staging-smoke-run.mjs",
     "sbom:build": "node scripts/build-sbom.mjs",
-    "dependency:check": "node scripts/check-dependency-lock.mjs",
+    "dependency:check": "node scripts/check-dependency-lock.mjs && node scripts/check-supply-chain.mjs",
+    "supply:check": "node scripts/check-supply-chain.mjs",
+    "viewport:local": "node scripts/local-viewports.mjs",
+    "contrast:local": "node scripts/local-contrast.mjs",
     "security:verify:check": "node scripts/check-security-verification-preparation.mjs",
     "security:verify:simulate": "node scripts/security-verification-simulate.mjs",
     "security:verify:plan": "node scripts/security-verification-plan.mjs",
     "security:verify:run": "node scripts/security-verification-run.mjs",
+    "production:certify": "node scripts/production-certify.mjs",
+    "slo:check": "node scripts/check-slo.mjs",
+    "performance:budget": "node scripts/check-performance-budget.mjs",
+    "local:load": "node scripts/local-load.mjs",
+    "local:load:check": "node scripts/check-local-load.mjs",
+    "rollout:check": "node scripts/check-rollout.mjs",
     "production:drift:check": "node scripts/check-production-drift-reconciliation.mjs",
     "production:drift:simulate": "node scripts/production-drift-simulate.mjs",
     "production:drift:plan": "node scripts/production-drift-plan.mjs",
@@ -94,6 +104,7 @@
     "backup:restore:simulate": "node scripts/backup-restore-simulate.mjs",
     "backup:restore:plan": "node scripts/backup-restore-plan.mjs",
     "backup:restore:strict": "node scripts/check-backup-restore-proof.mjs --strict",
+    "backup:restore:drill": "node scripts/backup-restore-cloud-drill.mjs",
     "production:approval:check": "node scripts/check-production-approval-gate.mjs",
     "production:approval:plan": "node scripts/production-approval-plan.mjs",
     "production:approval:authorize": "node scripts/production-approval-authorize.mjs",
@@ -108,6 +119,7 @@
     "production:release:finalize": "node scripts/production-release-finalize.mjs",
     "repo:hygiene": "node scripts/check-repo-hygiene.mjs",
     "dependency:audit": "npm audit --audit-level=high",
+    "dependency:cve-audit": "node scripts/dependency-cve-audit.mjs",
     "repo:exhaustive": "node scripts/check-repo-exhaustive.mjs",
     "staging:auto-deploy:check": "node scripts/check-staging-autodeploy.mjs",
     "staging:auto-health": "node scripts/staging-auto-health.mjs",
@@ -128,29 +140,31 @@
     "cross:final": "node scripts/check-cross-cutting-final.mjs"
   },
   "dependencies": {
+    "@breezystack/lamejs": "^1.2.7",
     "@cfworker/json-schema": "4.1.1",
     "@cloudflare/sandbox": "0.12.9",
-    "agents": "^0.8.0",
+    "@modelcontextprotocol/client": "^2.3.1",
+    "agents": "^0.31.0",
     "fast-xml-parser": "^5.11.2",
     "fflate": "^0.8.2",
     "jose": "^6.2.12",
-    "zod": "^3.25.76"
+    "zod": "^4.6.7"
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20240729.0",
     "@types/node": "^24.13.6",
     "esbuild": "^0.25.12",
-    "happy-dom": "^20.14.5",
+    "happy-dom": "^21.0.4",
     "typescript": "^5.6.0",
     "vitest": "^4.1.11",
-    "wrangler": "^4.0.0"
+    "wrangler": "4.155.0"
   },
   "engines": {
     "node": ">=24.0.0"
   },
   "overrides": {
     "miniflare": {
-      "undici": "7.29.1"
+      "undici": "7.30.1"
     }
   }
 }

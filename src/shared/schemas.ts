@@ -8,12 +8,13 @@
 import { z } from "zod";
 
 const trimmed = (max: number, label: string) =>
-  z.string({ required_error: `${label} обязателен.`, invalid_type_error: `${label} должен быть строкой.` }).trim().min(1, `${label} обязателен.`).max(max, `${label}: не длиннее ${max} символов.`);
+  z.string({ error: (issue) => issue.input === undefined ? `${label} обязателен.` : `${label} должен быть строкой.` }).trim().min(1, `${label} обязателен.`).max(max, `${label}: не длиннее ${max} символов.`);
 
 const idSchema = (label = "id") => trimmed(512, label);
 const projectIdSchema = trimmed(512, "projectId");
 const missionIdSchema = trimmed(512, "missionId");
 const preferredModelSchema = z.string().trim().max(200).optional();
+const chatVoiceSchema = z.enum(["lumen", "shade", "aria"]).optional();
 
 const attachmentRefSchema = z.object({
   r2Key: z.string().min(1).max(1024).optional(),
@@ -43,10 +44,23 @@ export const chatSchema = z.object({
   conversationId: z.string().trim().max(512).optional(),
   parentMessageId: z.string().trim().max(512).optional(),
   preferredModel: preferredModelSchema,
+  voice: chatVoiceSchema,
+  attachments: attachmentsSchema,
 });
 export type ChatBody = z.infer<typeof chatSchema>;
 
 export const polishSchema = z.object({ text: trimmed(20_000, "text"), preferredModel: preferredModelSchema });
+
+export const conversationPatchSchema = z.object({
+  id: z.string().trim().min(1).max(128),
+  title: z.string().trim().min(1).max(90).optional(),
+  pinned: z.boolean().optional(),
+  archived: z.boolean().optional(),
+  projectId: z.string().trim().min(1).max(128).nullable().optional(),
+}).refine(
+  (v) => v.title !== undefined || v.pinned !== undefined || v.archived !== undefined || v.projectId !== undefined,
+  { message: "Нужно title, pinned, archived или projectId." },
+);
 
 export const benchSchema = z.object({
   confirm: z.boolean().optional(),
@@ -63,7 +77,7 @@ export const approvalListQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(500).default(100),
 });
 export const approvalDecisionSchema = z.object({
-  decision: z.enum(["approved", "rejected"], { errorMap: () => ({ message: "decision должен быть approved или rejected." }) }),
+  decision: z.enum(["approved", "rejected"], { error: "decision должен быть approved или rejected." }),
   reason: z.string().max(2000).optional(),
   payloadDigest: z.string().max(256).optional(),
 });
@@ -90,11 +104,11 @@ export const accountCreateSchema = z.object({
 export const accountRevokeSchema = z.object({ accountId: idSchema("accountId") }).strict();
 export const permissionSchema = z.object({
   projectId: projectIdSchema,
-  capability: z.enum(["git", "deploy", "sandbox", "qa"], { errorMap: () => ({ message: "Неверное разрешение." }) }),
+  capability: z.enum(["git", "deploy", "sandbox", "qa"], { error: "Неверное разрешение." }),
   enabled: z.boolean().optional(),
 }).strict();
 export const ownershipSchema = z.object({
-  kind: z.enum(["project", "conversation", "upload"], { errorMap: () => ({ message: "Неверный владелец или тип ресурса." }) }),
+  kind: z.enum(["project", "conversation", "upload"], { error: "Неверный владелец или тип ресурса." }),
   resourceId: idSchema("resourceId"),
   accountId: idSchema("accountId"),
 }).strict();
@@ -121,7 +135,7 @@ export const faultInjectionSchema = z.object({
 export const studioDraftSchema = z.object({
   baseRevision: z.number().int().nonnegative(),
   // Per-field allowlist and length limits stay in src/unified/drafts.ts.
-  values: z.record(z.unknown()),
+  values: z.record(z.string(), z.unknown()),
 }).strict();
 export type StudioDraftBody = z.infer<typeof studioDraftSchema>;
 

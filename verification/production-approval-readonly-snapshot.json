@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
-  "release": "1.5.0-rc.54",
+  "release": "1.5.0-rc.63",
   "master_item": 36,
-  "generated_at": "2026-10-10T08:45:49Z",
+  "generated_at": "2026-10-29T02:18:00Z",
   "mutation_free": true,
   "github": {
-    "repository": "mnmllpulse/azrail-os",
+    "repository": "mnmllpulse/azrail-pulse",
     "default_branch": "main",
     "head_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
     "package_version": "1.4.0",
@@ -42,26 +42,35 @@
       ]
     },
     "production": {
-      "worker": "azrail-os",
-      "deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
-      "version_id": "476a3e6d-c066-484c-a0f8-d986bc630119",
+      "worker": "azrail-pulse",
+      "deployment_id": "1603300f-0a39-44c8-b79a-39580de6a7d4",
+      "version_id": "b6be5826-d2a0-4530-b9ba-a5c7de625826",
       "traffic_percent": 100,
-      "compatibility_date": "2026-08-08",
-      "observability": null,
+      "compatibility_date": "2026-09-29",
+      "observability": true,
       "binding_names": [
         "AI",
         "AI_GATEWAY_ID",
         "ASSETS",
+        "AUTH_MODE",
         "AZRAIL_D1",
+        "AZRAIL_FORCE_FREE",
         "AZRAIL_KV",
         "AZRAIL_METERING",
         "AZRAIL_MISSION_BUDGET_USD",
         "AZRAIL_R2",
-        "AZRAIL_SANDBOX",
         "AZRAIL_TOKEN",
         "AZRAIL_WORKERS_PLAN",
-        "CORS_ORIGIN",
-        "Orchestrator"
+        "AZRAIL_WRITE_BUDGET",
+        "CHAT_DAILY_LIMIT",
+        "DAILY_PROVIDER_CALLS",
+        "OIDC_ADMIN_EMAILS",
+        "OIDC_CLIENT_ID",
+        "OIDC_GROUPS_CLAIM",
+        "OIDC_ISSUER",
+        "Orchestrator",
+        "PUBLIC_ORIGINS",
+        "UNIFIED_LEDGER"
       ]
     },
     "remote_write_performed": false
@@ -74,6 +83,8 @@
   },
   "notes": [
     "Snapshot contains identifiers and binding names only; no Cloudflare secret values are stored.",
-    "GitHub, Cloudflare and Canva were read only for this stage."
+    "Production was re-read on 2026-10-29. The working site is azrail-pulse. The deleted worker azrail-os is not this lease.",
+    "The staging deployment in this file stays the older reviewed baseline so a newer smoke can prove movement.",
+    "GitHub repository mnmllpulse/azrail-os was deleted by the owner. The release repository is mnmllpulse/azrail-pulse."
   ]
 }

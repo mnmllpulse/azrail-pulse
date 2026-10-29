@@ -2,11 +2,11 @@
   "schema_version": 1,
   "release": "1.5.0-rc.54",
   "master_item": 38,
-  "generated_at": "2026-10-10T09:42:01Z",
+  "generated_at": "2026-10-29T04:12:33.605Z",
   "source": "GitHub, Cloudflare and Canva connectors; read-only inspection for production release preparation",
   "mutation_free": true,
   "github": {
-    "repository": "mnmllpulse/azrail-os",
+    "repository": "mnmllpulse/azrail-pulse",
     "default_branch": "main",
     "main_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
     "remote_package_version": "1.4.0",
@@ -20,18 +20,16 @@
   },
   "cloudflare": {
     "production": {
-      "worker_name": "azrail-os",
-      "deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
-      "version_id": "476a3e6d-c066-484c-a0f8-d986bc630119",
-      "compatibility_date": "2026-08-08",
-      "d1_database_id": "c76e7d92-648c-45bc-b0df-f26b00d0ff88",
-      "d1_bookmark": "00000e1f-00000000-00005100-9c9850f11ed7d9569fb8f9c8c00edf1",
+      "worker_name": "azrail-pulse",
+      "deployment_id": "1603300f-0a39-44c8-b79a-39580de6a7d4",
+      "version_id": "b6be5826-d2a0-4530-b9ba-a5c7de625826",
+      "compatibility_date": "2026-09-29",
+      "d1_database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f",
+      "d1_bookmark": "00000915-00000000-00005113-0a4f8c084a616139e714b6cd621c2a64",
       "known_drift": [
-        "compatibility_date differs from canonical RC",
-        "AUTH_MODE/OIDC/PUBLIC_ORIGINS/UNIFIED_LEDGER are not aligned",
-        "legacy CORS_ORIGIN=* is still bound",
-        "observability is not enabled in live settings",
-        "legacy AZRAIL_TOKEN secret remains"
+        "Retargeted 2026-10-29 from the deleted worker azrail-os to the working site azrail-pulse.",
+        "Preview URLs are enabled on the working site.",
+        "The deleted GitHub repository mnmllpulse/azrail-os is not the release target."
       ]
     },
     "staging": {

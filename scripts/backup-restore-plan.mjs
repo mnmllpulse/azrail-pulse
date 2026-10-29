@@ -7,7 +7,7 @@ for(const args of [['scripts/check-backup-restore-proof.mjs'],['scripts/backup-r
 const proof=JSON.parse(readFileSync('.work/backup-restore-proof.json','utf8'));
 const sim=JSON.parse(readFileSync('.work/backup-restore-simulation.json','utf8'));
 const node24=existsSync('.work/node24-suite.json')?JSON.parse(readFileSync('.work/node24-suite.json','utf8')):null;
-const security=existsSync('.work/security-verification.json')?JSON.parse(readFileSync('.work/security-verification.json','utf8')):null;
+const security=existsSync('.work/staging-security-verified.json')?JSON.parse(readFileSync('.work/staging-security-verified.json','utf8')):null;
 const plan={schema_version:1,release:proof.release,master_item:35,status:'PREPARED_LOCAL_PROOF_REMOTE_DRILL_PENDING',local_proof:sim.status,read_only_bookmarks:'RECORDED',blockers:[...(node24?.status==='VERIFIED'?[]:['Node24 release suite is not VERIFIED.']),...(security?.status==='VERIFIED'?[]:['Post-deploy staging security verification is not VERIFIED.']),'A real restore into a disposable Cloudflare D1/R2 environment has not been authorized or executed.','Secret recovery must be proven by operator-controlled re-provision/rotation; secret values are intentionally absent from backup artifacts.'],ordered_cloud_drill:[
   'Create a disposable non-production recovery environment only after explicit owner authorization.',
   'Export the approved source D1 backup and record SHA-256/size before any migration.',

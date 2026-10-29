@@ -20,4 +20,12 @@ export class DurableObject {
 
 export class WorkflowEntrypoint {}
 
+export class WorkerEntrypoint {}
+
+export class RpcTarget {}
+
+export class EmailMessage {}
+
+export const exports = {};
+
 export const env = {};

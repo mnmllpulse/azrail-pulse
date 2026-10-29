@@ -151,7 +151,7 @@ if (!retentionPreview.includes('ROW_NUMBER() OVER') || !retentionPreview.include
 if (!retentionPreview.includes('unsafeReferencesSkipped') || !retentionPreview.includes('startsWith(`projects/${row.project_id}/`)') || !retentionPreview.includes('startsWith(`studio/${row.account_id}/`)'))
   fail('retention preview must reject cross-scope/corrupted R2 references');
 const voiceAdapter = readFileSync('src/unified/voice.ts','utf8');
-if (studios.includes('audio:[...bytes]') || voiceAdapter.includes('audio:[...') || !voiceAdapter.includes('input.audio as never'))
+if (studios.includes('audio:[...bytes]') || voiceAdapter.includes('audio:[...') || !voiceAdapter.includes('function audioToBase64'))
   fail('Studio voice must use bounded binary Whisper input through SpeechToTextAdapter instead of expanding bytes into a JS number array');
 if (!studios.includes('saveArtifactStream') || !studios.includes('request.body.pipeThrough(limiter)'))
   fail('Studio artifact uploads must stream to R2 through a byte-counting limiter');
@@ -173,7 +173,7 @@ if (/if\s*\(\s*id\s*===\s*['"]/.test(studioApp) || !studioApp.includes('loadStud
   fail('Studio UI must stay registry-driven; per-studio branching is forbidden in ui/app.ts');
 if (!studioTypes.includes('export type StudioModule=') || !studioTypes.includes('capabilities:readonly StudioCapability[]'))
   fail('StudioModule contract/capabilities missing');
-for (const id of ['web','image','music','video','audio','als','data','ledger','lab']) {
+for (const id of ['web','image','music','video','audio','als','data','ledger','lab','prose']) {
   if (!studioRegistry.includes(`${id}:()=>import('./studio-modules/${id}')`)) fail(`Studio registry lazy loader missing: ${id}`);
   if (!existsSync(`ui/studio-modules/${id}.ts`)) fail(`Studio module missing: ${id}`);
 }
@@ -184,9 +184,10 @@ const musicBackend = readFileSync('src/lib/music-studio.ts','utf8');
 for (const marker of ['Промпт','Genre','Mood','BPM','Key','Scale','Bars','Time signature','Pattern','Arrangement','Synth preset','>Generate<','Waveform','Piano Roll','Save session']) {
   if (!musicStudio.includes(marker)) fail(`Music Studio invariant missing: ${marker}`);
 }
-for (const marker of ['composeMusicSession','renderMusicSession','OfflineAudioContext','audio/wav','audio/midi']) {
+for (const marker of ['composeMusicSession','renderMusicSession','OfflineAudioContext','wavFromChannels','audio/midi']) {
   if (!musicEngine.includes(marker)) fail(`Music engine invariant missing: ${marker}`);
 }
+if (!readFileSync('ui/audio-codecs.ts','utf8').includes("type:'audio/wav'")) fail('Music engine invariant missing: audio/wav');
 if (!musicBackend.includes('parseMusicSessionRequest') || !schema.includes('CREATE TABLE IF NOT EXISTS music_sessions')) fail('Professional Music Studio durable session contract missing');
 if (!migrationFiles.has('024-professional-video-studio.sql')) fail('migration 024 file is missing');
 const videoStudio = readFileSync('ui/video-studio-2.ts','utf8');

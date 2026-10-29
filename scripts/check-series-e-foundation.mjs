@@ -5,7 +5,7 @@ for(const file of required)checks.push([`${file} exists`,existsSync(file)]);
 const app=readFileSync('ui/app.ts','utf8'),html=readFileSync('ui/app.html','utf8'),draft=readFileSync('ui/studio-draft.ts','utf8'),catalog=readFileSync('src/lib/model-catalog.ts','utf8'),toolbar=readFileSync('ui/components/studio-toolbar.ts','utf8');
 checks.push(['studio toolbar host',html.includes('id="studio-toolbar"')]);
 checks.push(['studio suggestion host',html.includes('id="studio-suggestions"')]);
-checks.push(['chat suggestion host',html.includes('id="chat-suggestions"')]);
+checks.push(['home code screen',html.includes('id="preview-panel"')&&html.includes('id="home-canvas"')&&html.includes('id="home-code"')&&html.includes('id="home-screen"')&&html.includes('id="preview-toggle"')]);
 checks.push(['suggestions mounted',app.includes('mountSuggestionBar')]);
 checks.push(['state machine mounted',app.includes('createStudioStateController')]);
 checks.push(['universal toolbar mounted',app.includes('mountStudioToolbar')]);

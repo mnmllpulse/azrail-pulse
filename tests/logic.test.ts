@@ -173,7 +173,15 @@ describe("Загрузка файлов", () => {
   it("определяет тип по расширению", () => {
     expect(inferInputType("a.zip")).toBe("zip");
     expect(inferInputType("a.PDF")).toBe("pdf");
+    expect(inferInputType("track.flac")).toBe("audio");
+    expect(inferInputType("sheet.csv")).toBe("text");
+    expect(inferInputType("set.als")).toBe("unknown");
+    expect(inferInputType("Makefile")).toBe("unknown");
     expect(inferInputType("a.exe")).toBeNull();
+    expect(inferInputType("a.BAT")).toBeNull();
+    expect(inferInputType("a.cmd")).toBeNull();
+    expect(inferInputType("a.msi")).toBeNull();
+    expect(inferInputType("a.dll")).toBeNull();
   });
 
   it("обезвреживает имя файла", () => {

@@ -1,5 +1,6 @@
 import { DatabaseSync } from 'node:sqlite';
 import { readFileSync, readdirSync } from 'node:fs';
+import { execIdempotent } from './lib/additive-sql.mjs';
 
 const db = new DatabaseSync(':memory:');
 db.exec('PRAGMA foreign_keys = ON;');
@@ -51,7 +52,7 @@ for (const filename of files) db.exec(readFileSync(`migrations/${filename}`, 'ut
 // a second execution. Every later additive migration must remain idempotent.
 for (const filename of files) {
   if (filename.startsWith('002-')) continue;
-  db.exec(readFileSync(`migrations/${filename}`, 'utf8'));
+  execIdempotent(db, readFileSync(`migrations/${filename}`, 'utf8'));
 }
 
 const table = (name) => Boolean(db.prepare("SELECT 1 FROM sqlite_master WHERE type='table' AND name=?").get(name));

@@ -17,7 +17,7 @@ type Deps={
 
 const MAX_FILES=12;
 const MAX_BYTES=50*1024*1024;
-const ACCEPTED=['zip','pdf','docx','js','ts','tsx','jsx','html','css','py','md','json','txt','png','jpg','jpeg','webp','svg','mp3','wav','m4a','mp4','mov','webm'];
+const BLOCKED=new Set(['exe','bat','cmd','msi','dll']);
 function id(){return crypto.randomUUID();}
 function ext(name:string){return name.split('.').pop()?.toLowerCase()??'';}
 const bytes=(n:number)=>formatBytes(n,{compactKb:true});
@@ -45,7 +45,7 @@ export function createAttachmentManager(deps:Deps){
   }
   notify();
  }
- function validate(file:File){if(!ACCEPTED.includes(ext(file.name)))throw Error(`Тип файла ${file.name} не поддерживается.`);if(file.size>MAX_BYTES)throw Error(`${file.name}: максимум 50 MB.`);}
+ function validate(file:File){const e=ext(file.name);if(e&&BLOCKED.has(e))throw Error(`${file.name}: программы (.exe, .bat, .cmd, .msi, .dll) прикрепить нельзя.`);if(file.size>MAX_BYTES)throw Error(`${file.name}: максимум 50 MB.`);}
  async function upload(item:ManagedAttachment){
   try{
    item.state='uploading';item.progress=15;item.error=undefined;render();
@@ -69,5 +69,5 @@ export function createAttachmentManager(deps:Deps){
  deps.root.addEventListener('dragover',e=>{e.preventDefault();deps.root.classList.add('drop-target');});
  deps.root.addEventListener('dragleave',()=>deps.root.classList.remove('drop-target'));
  deps.root.addEventListener('drop',e=>{e.preventDefault();deps.root.classList.remove('drop-target');void add([...e.dataTransfer!.files]);});
- return {refs,add,clear(){items.splice(0);render();},hasPending(){return items.some(i=>i.state==='queued'||i.state==='uploading');},hasFailed(){return items.some(i=>i.state==='failed');},count(){return items.length;}};
+ return {refs,files:()=>items.map(item=>item.file),add,clear(){items.splice(0);render();},hasPending(){return items.some(i=>i.state==='queued'||i.state==='uploading');},hasFailed(){return items.some(i=>i.state==='failed');},count(){return items.length;}};
 }

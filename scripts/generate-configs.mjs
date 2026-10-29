@@ -21,6 +21,7 @@ function build(envName) {
   if (env.sandbox) { durable.push({ name: 'AZRAIL_SANDBOX', class_name: 'Sandbox' }); migrations.push({ tag: 'v2', new_sqlite_classes: ['Sandbox'] }); }
   const out = {name:env.name,main:env.main,compatibility_date:c.compatibility_date,compatibility_flags:deepClone(c.compatibility_flags),assets:deepClone(c.assets),durable_objects:{bindings:durable},migrations,d1_databases:[deepClone(env.d1)],kv_namespaces:[{binding:env.kv.binding,id:env.kv.id}],r2_buckets:[deepClone(env.r2)],ai:deepClone(c.ai),triggers:deepClone(c.triggers),vars:deepClone(env.vars),observability:deepClone(c.observability)};
   if (env.sandbox) out.containers=[{class_name:'Sandbox',image:'./Dockerfile',max_instances:2}];
+  if (typeof env.preview_urls === 'boolean') out.preview_urls = env.preview_urls;
   return out;
 }
 validateModel();

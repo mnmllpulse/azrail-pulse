@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.63",
+  "master_item": 22,
+  "policy": {
+    "numbers_are_measurements_only": true,
+    "targets_not_chosen": true,
+    "production_claim_allowed": false
+  },
+  "metrics": [
+    { "id": "api_availability", "unit": "ratio", "status": "unmeasured" },
+    { "id": "api_latency_p95_ms", "unit": "ms", "status": "unmeasured" },
+    { "id": "api_latency_p99_ms", "unit": "ms", "status": "unmeasured" },
+    { "id": "job_success_rate", "unit": "ratio", "status": "unmeasured" },
+    { "id": "provider_failure_rate", "unit": "ratio", "status": "unmeasured" },
+    { "id": "auth_failure_rate", "unit": "ratio", "status": "unmeasured" },
+    { "id": "d1_error_rate", "unit": "ratio", "status": "unmeasured" }
+  ]
+}

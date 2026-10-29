@@ -114,4 +114,14 @@ describe("RC12 retention preview", () => {
     expect(() => parseRetentionPreviewRequest(new URL("https://x/api/admin/retention-preview?olderThanDays=1"))).toThrow();
     expect(() => parseRetentionPreviewRequest(new URL("https://x/api/admin/retention-preview?keepNewest=0"))).toThrow();
   });
+
+  it("records a rejected edit as failed and lets the mission continue", async () => {
+    const { env } = envWithDb();
+    const { ToolRejectedError } = await import("../src/lib/tool-errors");
+    await expect(checkpointTool(env, "m", 0, "edit_file", { path: "a" }, async () => { throw new ToolRejectedError("search обязателен."); }, true, "attempt-edit"))
+      .rejects.toBeInstanceOf(ToolRejectedError);
+    const point = (await loadCheckpoints(env, "m"))[0];
+    expect(point.status).toBe("failed");
+    expect(point.receipt_status).toBe("failed");
+  });
 });

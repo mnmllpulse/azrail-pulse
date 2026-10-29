@@ -1,5 +1,6 @@
 import type {Env} from '../types';
 import {AccessError,authenticate,hashToken,activeAccount} from '../lib/accounts';
+import {assertSubsystem} from '../lib/kill-switch';
 import {readJsonRecord} from './request-json';
 import {connectorPolicies,findPolicy,toolRisk,type ConnectorPolicy} from './connector-policy';
 import {seal,unseal,canonical} from './connector-vault';
@@ -132,6 +133,7 @@ export async function executeConnectorCall(env:Env,account:string,id:string,conf
  }
  const c=await connection(env,account,row.connection_id),p=findPolicy(env,c.endpoint_key);
  if(c.revision!==row.connection_revision||c.tools_digest!==row.tools_digest||await hashToken(canonical(p))!==row.policy_digest)throw new AccessError('Подключение или политика изменены. Подготовьте операцию заново.',409);
+ assertSubsystem(env,'tools');
  const args=await unseal<Record<string,unknown>>(env,callBinding(row)+':args',row.arguments_cipher),rpc=await client(env,c,p,signal);
  // CAS admits only one executor. A worker crash after this point blocks retries.
  const claimed=await env.AZRAIL_D1.prepare("UPDATE connector_calls SET status='running',approved_at=?,updated_at=? WHERE id=? AND account_id=? AND status='prepared' AND expires_at>? RETURNING id").bind(confirmed?Date.now():null,Date.now(),id,account,Date.now()).first();

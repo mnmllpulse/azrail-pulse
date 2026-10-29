@@ -5,7 +5,7 @@ import { extname, join, relative, resolve, dirname } from 'node:path';
 
 const root=process.cwd();
 const pkg=JSON.parse(readFileSync('package.json','utf8'));
-const excludedTop=new Set(['node_modules','.git','.work','backups']);
+const excludedTop=new Set(['node_modules','.git','.work','backups','.cursor','.wrangler']);
 const activeTextExt=new Set(['.ts','.tsx','.js','.mjs','.cjs','.json','.md','.html','.css','.sql','.sh','.py','.yml','.yaml','.toml','.txt','.glsl']);
 const syntaxJsExt=new Set(['.js','.mjs','.cjs']);
 const failures=[];const warnings=[];const checks=[];
@@ -24,7 +24,7 @@ function walk(dir){
 walk(root);
 pass('inventory',`${files.length} files scanned`);
 
-const rootAllowedFiles=new Set(['.env.example','.gitignore','.node-version','.npmrc','.nvmrc','DEPLOY.md','DEPLOY_RU.md','Dockerfile','README.md','SOURCE_MANIFEST.json','START_HERE_RU.md','index.html','package-lock.json','package.json','release-manifest.json','schema.sql','tsconfig.json','tsconfig.ui.json','vitest.config.ts','wrangler.production.json','wrangler.staging.json']);
+const rootAllowedFiles=new Set(['.env.example','.gitignore','.node-version','.npmrc','.nvmrc','DEPLOY.md','DEPLOY_RU.md','Dockerfile','README.md','SOURCE_MANIFEST.json','START_HERE_RU.md','index.html','package-lock.json','package.json','release-manifest.json','schema.sql','tsconfig.json','tsconfig.ui.json','vitest.config.ts','wrangler.jsonc','wrangler.production.json','wrangler.staging.json']);
 const rootAllowedDirs=new Set(['.github','config','docs','migrations','public','references','scripts','site','src','tests','ui','verification']);
 for(const ent of readdirSync(root,{withFileTypes:true})){
   if(excludedTop.has(ent.name))continue;

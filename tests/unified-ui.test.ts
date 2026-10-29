@@ -10,10 +10,13 @@ it('standalone HTML opens locally and studio navigation works without fetching a
  window.requestIdleCallback=()=>0;window.HTMLElement.prototype.scrollIntoView=()=>{};
  const code=html.match(/<script>([\s\S]*?)<\/script>/)![1];
  window.eval(code);
- expect(window.document.querySelector('h1')?.textContent).toContain('Одна идея');
+ expect(window.document.querySelector('#create h1')?.textContent).toContain('AZRAIL');
+ expect(window.document.querySelector('[data-view="create"]')?.textContent).toContain('Chat');
  (window.document.querySelector('[data-view="studios"]') as any).click();
  expect(window.document.getElementById('studios')?.hidden).toBe(false);
- expect(window.document.querySelectorAll('#studio-list .card')).toHaveLength(9);
+ expect(window.document.querySelectorAll('#studio-list .card')).toHaveLength(8);
+ expect(window.document.querySelector('#studio-list [data-studio="audio"]')).toBeNull();
+ expect(window.document.querySelector('#studio-list [data-studio="als"]')).toBeNull();
  (window.document.querySelector('#studio-list [data-studio="music"]') as any).click();
  await new Promise(r=>setTimeout(r,0));await new Promise(r=>setTimeout(r,0));
  expect(window.document.getElementById('studio-title')?.textContent).toBe('Music Studio');
@@ -38,6 +41,7 @@ it.each(['rejected','uncertain'] as const)('mission retry after %s delivery pres
  window.fetch=(async(path:any,options:any={})=>{
   if(path==='/auth/status')return reply({account:{id:'user-a',name:'Пользователь'},configured:true});
   if(path==='/api/routing-settings')return reply({policy:{allowThirdPartyModels:false}});
+  if(String(path).startsWith('/api/metatron/missions'))return reply({items:[]});
   if(path==='/api/mission'&&options.method==='POST'){
    calls.push({key:new window.Headers(options.headers).get('Idempotency-Key')!,body:options.body});
    if(calls.length===1){if(mode==='uncertain')throw new Error('Connection lost');return reply({error:'Исправьте запрос'},400);}
@@ -49,6 +53,7 @@ it.each(['rejected','uncertain'] as const)('mission retry after %s delivery pres
  const settle=async()=>{await new Promise(resolve=>setTimeout(resolve,0));await new Promise(resolve=>setTimeout(resolve,0));};
  try{
   window.eval(html.match(/<script>([\s\S]*?)<\/script>/)![1]);await settle();
+  (window.document.querySelector('[data-view="mission"]') as any).click();await settle();
   const prompt=window.document.getElementById('prompt') as any;
   const form=window.document.getElementById('composer')!;
   prompt.value='Первый запрос';form.dispatchEvent(new window.Event('submit',{cancelable:true}));await settle();

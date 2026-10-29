@@ -1,7 +1,8 @@
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join, resolve } from 'node:path';
-const root=resolve(new URL('..',import.meta.url).pathname);
+import { fileURLToPath } from 'node:url';
+const root=fileURLToPath(new URL('..',import.meta.url));
 const pkg=JSON.parse(readFileSync(join(root,'package.json'),'utf8'));
 const policy=JSON.parse(readFileSync(join(root,'release-manifest.json'),'utf8'));
 const artifact=policy.artifact_pattern.replace('{version}',pkg.version);const dir=join(root,'.work','release',artifact);const receiptPath=join(dir,'RELEASE_FILES.json');

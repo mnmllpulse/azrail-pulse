@@ -7,7 +7,7 @@ export const MUSIC_SCALES=['minor','major','dorian','phrygian'] as const;
 const MUSIC_KEYS=['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'] as const;
 export const MUSIC_TIME_SIGNATURES=['4/4','3/4','6/8'] as const;
 export const MUSIC_PATTERNS=['pulse','arpeggio','bassline','chords','ambient'] as const;
-export const MUSIC_ARRANGEMENTS=['loop','intro-build-drop','minimal-evolution'] as const;
+export const MUSIC_ARRANGEMENTS=['loop','intro-build-drop','minimal-evolution','section-story'] as const;
 export const MUSIC_SYNTH_PRESETS=['dark-pulse','warm-pad','glass','sub','acid'] as const;
 
 export type MusicSessionRequest={
@@ -42,7 +42,7 @@ export function parseMusicSessionRequest(body:Record<string,unknown>):MusicSessi
  const bpm=Math.trunc(Number(body.bpm));
  if(!Number.isSafeInteger(bpm)||bpm<60||bpm>180)throw new AccessError('BPM должен быть от 60 до 180.',400);
  const bars=Math.trunc(Number(body.bars));
- if(!Number.isSafeInteger(bars)||bars<1||bars>16)throw new AccessError('Длина должна быть от 1 до 16 тактов.',400);
+ if(!Number.isSafeInteger(bars)||bars<1||bars>640)throw new AccessError('Длина должна быть от 1 до 640 тактов.',400);
  const seed=Math.trunc(Number(body.seed));
  if(!Number.isSafeInteger(seed)||seed<0||seed>2147483647)throw new AccessError('Некорректный seed сессии.',400);
  return {

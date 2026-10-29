@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { spawnSync } from 'node:child_process';
+import { spawnCommand } from './lib/run-command.mjs';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 
 const pkg = JSON.parse(readFileSync('package.json', 'utf8'));
@@ -37,17 +37,17 @@ function finish(status, exitCode) {
 }
 
 function run(name, command, { required = true } = {}) {
-  const [bin, ...args] = command;
-  const result = spawnSync(bin, args, { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, AZRAIL_NODE24_SUITE: '1' } });
-  const detail = [result.stdout, result.stderr].filter(Boolean).join('\n').trim().slice(-8000);
+  const result = spawnCommand(command, { encoding: 'utf8', stdio: 'pipe', env: { ...process.env, AZRAIL_NODE24_SUITE: '1' } });
+  const detail = [result.stdout, result.stderr, result.error?.message].filter(Boolean).join('\n').trim().slice(-8000);
   const status = result.status === 0 ? 'PASSED' : 'FAILED';
   report.gates.push({ name, status, required, command: command.join(' '), exit_code: result.status, detail });
   if (result.stdout) process.stdout.write(result.stdout);
   if (result.stderr) process.stderr.write(result.stderr);
+  if (result.error) console.error(result.error.message);
   return status === 'PASSED';
 }
 
-const npmVersion = spawnSync('npm', ['--version'], { encoding: 'utf8' });
+const npmVersion = spawnCommand(['npm', '--version'], { encoding: 'utf8' });
 report.runtime.npm = npmVersion.status === 0 ? npmVersion.stdout.trim() : null;
 if (nodeMajor < requiredMajor) {
   report.gates.push({ name: 'runtime-node24', status: 'BLOCKED', required: true, detail: `Node ${process.version} detected; Node >=${requiredMajor} is required.` });

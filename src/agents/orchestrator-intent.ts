@@ -28,6 +28,7 @@ export function checkTaskSufficiency(request: TaskRequest): string[] {
 
   if (request.gitOp) return questions;
   if (request.intent === "evolution_audit") return questions;
+  if (request.intent === "answer") return questions; // Chat greetings like «привет» are valid
   if (request.qaOp && request.qaOp.type !== "coverage_gaps") return questions;
 
   if (!request.payload && !request.r2Key) {

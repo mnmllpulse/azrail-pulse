@@ -38,6 +38,6 @@ describe('Audit 1.4 studio protections',()=>{
   const f=await fixture();f.env.ASSETS={fetch:vi.fn(async()=>new Response('app html'))} as any;
   const r=await f.call('/studios/music');expect(r.status).toBe(200);
   const request=vi.mocked(f.env.ASSETS!.fetch).mock.calls.at(-1)![0] as Request;
-  expect(new URL(request.url).pathname).toBe('/app.html');expect(r.headers.get('Content-Security-Policy')).toContain("script-src 'self'");
+  expect(new URL(request.url).pathname).toBe('/index.html');expect(r.headers.get('Content-Security-Policy')).toContain("script-src 'self'");
  });
 });

@@ -1,6 +1,7 @@
 import { currentBillingScope } from "./billing-context";
 import { ProviderOutcomeUncertainError } from "./billing";
 import { eligibleRegistry, policyModelCall, ModelPolicyError } from "./model-policy";
+import { isNeuronPaidModel, NEURON_PAID_BLOCK } from "./neuron-paid";
 // AZRAIL — выбор модели под задачу.
 //
 // Что этот модуль делает и, что важнее, чего НЕ делает.
@@ -277,6 +278,9 @@ export async function runModel<T = unknown>(
       throw new Error(
         `Модель "${req.preferredModel}" не найдена в реестре. Проверь слаг — маршрутизатор не подставляет другую модель молча, когда выбор сделан явно.`,
       );
+    }
+    if (isNeuronPaidModel(pinned.slug)) {
+      throw new ModelPolicyError(NEURON_PAID_BLOCK);
     }
     if (pinned.requiresGateway && !env.AI_GATEWAY_ID) {
       throw new Error(

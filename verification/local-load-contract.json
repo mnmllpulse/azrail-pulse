@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "release": "1.5.0-rc.63",
+  "master_item": 32,
+  "levels": [10, 100, 500, 1000],
+  "in_flight_cap": 100,
+  "production_targeted": false,
+  "remote_allowed": false,
+  "stage_closes_on_local_only": false
+}

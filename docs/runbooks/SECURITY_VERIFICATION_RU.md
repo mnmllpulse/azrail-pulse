@@ -32,8 +32,8 @@ npm run security:verify:plan
 - `.work/staging-deploy-applied.json`;
 - `.work/staging-smoke-verified.json`;
 - live OIDC session/token только в runtime environment;
-- закрытие tamper-evident audit-event integrity gap;
-- current dependency CVE audit в Node24 release environment.
+- цепочка SHA-256 у новых событий (`event_integrity`, миграция 030) должна проходить проверку `audit-integrity`;
+- `.work/dependency-cve-audit.json` со статусом `VERIFIED` для exact RC: Node 24, живой `npm audit --json`, high=0 и critical=0. Moderate и low остаются в отчёте и не прячутся.
 
 ## Реальный staging security run
 
@@ -47,6 +47,16 @@ npm run security:verify:run
 
 Runner проверяет strict CORS, security headers, unauthenticated/admin boundaries, authenticated identity boundary, отсутствие secret-like data и exact `/health.version`. Receipt: `.work/staging-security-verified.json`.
 
-## Известный hardening gap
+## Журнал и реестр
 
-Текущий Unified Event Stream durable, но ещё не имеет cryptographic checksum/signature chain. Этот пункт из master security-hardening списка остаётся blocker для production approval и не маскируется зелёным статусом.
+Новые события пишутся в `event_integrity` со связкой SHA-256 и запретом развилки на одном предшественнике. Проверка пересчитывает цепочку. Старые строки журнала без этой связки остаются читаемыми.
+
+Реестровый аудит:
+
+```sh
+node scripts/dependency-cve-audit.mjs
+```
+
+`VERIFIED` ставится только когда реестр ответил и high/critical равны нулю. Иначе отчёт `FAILED`, и живой security run не стартует. Пустую отметку без ответа реестра скрипт не пишет.
+
+Этот прогон не одобряет бой и не делает выклад.

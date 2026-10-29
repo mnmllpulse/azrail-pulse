@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "release": "1.5.0-rc.54",
-  "generated_at": "2026-10-10T08:45:49Z",
-  "source": "Cloudflare API read-only inspection via ChatGPT connector for RC46; no Cloudflare write",
+  "generated_at": "2026-10-29T00:12:02.043Z",
+  "source": "Cloudflare API read-only GET. No Cloudflare write.",
   "mutation_free": true,
   "worker": {
     "name": "azrail-pulse-staging",
@@ -76,9 +76,19 @@
         "text": "20"
       },
       {
+        "name": "OIDC_ADMIN_GROUPS",
+        "type": "plain_text",
+        "text": "pulse-admins"
+      },
+      {
         "name": "OIDC_CLIENT_ID",
         "type": "plain_text",
         "text": "5d880b1255ef2f3c804b1f6ea9d58fffe53ca12f5f6522a5f5fafa8f18363a4a"
+      },
+      {
+        "name": "OIDC_GROUPS_CLAIM",
+        "type": "plain_text",
+        "text": "groups"
       },
       {
         "name": "OIDC_ISSUER",
@@ -108,10 +118,10 @@
       }
     ],
     "latest_deployment": {
-      "deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1",
-      "version_id": "159daae0-edaf-4b7a-be85-3760974a5aa9",
+      "deployment_id": "711e1854-8690-4826-9dfb-85ea4765a2c6",
+      "version_id": "844d68dd-733b-42c5-ad76-15bb2d803fa1",
       "percentage": 100,
-      "created_on": "2026-10-09T11:40:53.308736Z"
+      "created_on": "2026-10-29T00:11:34.885242Z"
     }
   }
 }

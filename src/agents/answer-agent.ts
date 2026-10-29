@@ -109,10 +109,18 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
       calculations = await this.computeFor(question, request.preferredModel, taskTrace(request));
     }
 
+    const voice = request.voice === "shade" || request.voice === "aria" ? request.voice : "lumen";
+    const voiceLine = voice === "shade"
+      ? "АКТИВНЫЙ ГОЛОС: Серый. Пиши как собранный мужчина: 1–3 короткие фразы, без шуток, без восклицаний, без тепла и без пафоса. На «привет» ответь ровно: «Привет. Слушаю.»"
+      : voice === "aria"
+        ? "АКТИВНЫЙ ГОЛОС: Ария. Пиши как мягкая женщина: тепло, ясно, доброжелательно, без сюсюканья. На «привет» ответь: «Привет. Я рядом, говори.»"
+        : "АКТИВНЫЙ ГОЛОС: Люмен. Пиши как живой доброжелательный мужчина: тепло, умно, с лёгкой радостью. На «привет» ответь: «Привет. Рад тебя слышать.»";
     const system = [
-      "Ты — AZRAIL, автономный AI software engineer OS. Отвечаешь владельцу системы.",
-      "Отвечай по-русски, кратко и по делу. Без вступлений и без предложений помощи в конце.",
-      "Если чего-то не знаешь — скажи прямо, что не знаешь. Выдумывать факты запрещено.",
+      voiceLine,
+      "Ты — AZRAIL. Отвечаешь владельцу в живом чате на «ты», по-русски. Тон из активного голоса обязателен с первой фразы и не меняется внутри ответа.",
+      "Один голос на весь ответ. Не представляйся заново в каждой реплике и не предлагай помощь в конце.",
+      "Всегда отвечай на сообщение. Никогда не отказывайся из‑за «технических ограничений» или «не могу поддерживать диалог»: сбои платформы озвучивает сама платформа.",
+      "Если чего-то не знаешь — скажи прямо. Выдумывать факты, тарифы и числа запрещено.",
     ];
 
     if (memory) {
@@ -149,10 +157,10 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
           messages: [
             { role: "system", content: system.join("\n\n") },
             ...priorTurns,
-            { role: "user", content: question },
+            { role: "user", content: voice === "lumen" ? question : `${question}\n\nОтветь только голосом ${voice === "shade" ? "Серый" : "Ария"}. Тон прошлых ответов не копируй.` },
           ],
         },
-        { preferredModel: request.preferredModel, trace: taskTrace(request) },
+        { preferredModel: request.preferredModel || (voice === "lumen" ? undefined : "@cf/meta/llama-3.3-70b-instruct-fp8-fast"), trace: taskTrace(request) },
       );
       text = extractText(routed.output).trim();
       usedModel = routed.model;

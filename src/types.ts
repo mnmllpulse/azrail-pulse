@@ -7,6 +7,8 @@ export interface Env {
   OIDC_ISSUER?: string;
   /** Comma-separated OIDC groups granted admin (default "pulse-admins"; empty disables admin). */
   OIDC_ADMIN_GROUPS?: string;
+  /** Comma-separated verified ID-token emails granted admin. Empty grants none. */
+  OIDC_ADMIN_EMAILS?: string;
   /** ID-token claim holding groups (default "groups", falls back to "roles"). */
   OIDC_GROUPS_CLAIM?: string;
   OIDC_CLIENT_ID?: string;
@@ -20,6 +22,12 @@ export interface Env {
   MCP_OAUTH_SECRETS?: string;
 
   AZRAIL_FORCE_FREE?: string;
+  /** Set to "off" to stop one subsystem. Any other value, including unset, leaves it on. */
+  AZRAIL_SWITCH_MUSIC?: string;
+  AZRAIL_SWITCH_VIDEO?: string;
+  AZRAIL_SWITCH_AI?: string;
+  AZRAIL_SWITCH_SANDBOX?: string;
+  AZRAIL_SWITCH_TOOLS?: string;
   AZRAIL_WORKERS_PLAN?: "free" | "paid";
   AZRAIL_METERING?: "observe" | "enforce";
   AZRAIL_MISSION_BUDGET_USD?: string;
@@ -60,11 +68,15 @@ export interface Env {
   // Секреты (wrangler secret put) — опциональны
   GITHUB_TOKEN?: string;
   GITHUB_REPO?: string;
+  /** ElevenLabs Music. Worker secret only. Never sent to the browser. */
+  ELEVENLABS_API_KEY?: string;
 
   /** Токен доступа к платным эндпоинтам. Без него они закрыты (fail-closed). */
   AZRAIL_TOKEN?: string;
   /** Лимит задач в час на вызывающего. По умолчанию 50. */
   AZRAIL_HOURLY_LIMIT?: string;
+  /** Soft daily Chat request cap (owner testing). Default 200. */
+  CHAT_DAILY_LIMIT?: string;
   /** Сколько минут без обновления считать миссию зависшей. По умолчанию 20. */
   AZRAIL_MISSION_STALE_MINUTES?: string;
 
@@ -217,6 +229,8 @@ export interface TaskRequest {
   /** Явный слаг модели из реестра — обходит автоматический выбор по тиру.
    *  См. RunOptions.preferredModel в lib/model-router.ts за причиной. */
   preferredModel?: string;
+  /** Голос чата: один активный характер агента ответа. */
+  voice?: "lumen" | "shade" | "aria";
   /** Диалог, к которому относится задача. Хранится в D1 (lib/chat-store.ts),
    *  а не в памяти конкретного Durable Object: диалогов много, и они должны
    *  переживать выгрузку объекта. */

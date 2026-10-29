@@ -9,7 +9,7 @@ const add=(name,ok,detail)=>{checks.push({name,status:ok?'PASSED':'FAILED',detai
 add('master-item',c.master_item===38,'contract is pinned to Stage D #38');
 add('release-contract',c.release===pkg.version&&s.release===c.readonly_evidence_source_release,`target=${pkg.version}; immutable evidence source=${s.release}`);
 add('snapshot-read-only',s.mutation_free===true&&Object.values(s.remote_mutations??{}).every(v=>v===false),'connector evidence records no remote mutation');
-add('production-worker',s.cloudflare?.production?.worker_name===prod.name&&prod.name==='azrail-os','production worker identity is canonical');
+add('production-worker',s.cloudflare?.production?.worker_name===prod.name&&prod.name==='azrail-pulse','working site azrail-pulse is the release worker');
 add('production-d1',s.cloudflare?.production?.d1_database_id===prod.d1_databases?.[0]?.database_id,'production D1 identity matches canonical config');
 add('production-deployment-lease',Boolean(s.cloudflare?.production?.deployment_id&&s.cloudflare?.production?.version_id),'current production deployment/version baseline is recorded');
 add('time-travel-bookmark',Boolean(s.cloudflare?.production?.d1_bookmark),'read-only production D1 bookmark is available');

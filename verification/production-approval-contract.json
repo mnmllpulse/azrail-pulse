@@ -24,7 +24,7 @@
       "status": "VERIFIED"
     },
     "security": {
-      "path": ".work/security-verification.json",
+      "path": ".work/staging-security-verified.json",
       "status": "VERIFIED"
     },
     "production_drift": {
@@ -64,7 +64,7 @@
   },
   "leases": {
     "github_main_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
-    "production_deployment_id": "473850a1-df43-47fb-b05e-0211ef9f7bae",
+    "production_deployment_id": "1603300f-0a39-44c8-b79a-39580de6a7d4",
     "staging_reviewed_deployment_id": "914363dc-2157-48a4-a28f-ac12fae38ef1"
   },
   "policy": {
@@ -84,5 +84,5 @@
     "github_pr_required_after_approval": true,
     "production_release_required_after_github_pr": true
   },
-  "readonly_evidence_source_release": "1.5.0-rc.54"
+  "readonly_evidence_source_release": "1.5.0-rc.63"
 }

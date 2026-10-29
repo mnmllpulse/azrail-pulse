@@ -12,7 +12,13 @@ import {log} from '../lib/resilience';
 import {normalizeStudioId} from '../lib/project-center';
 import {parseImageStudioRequest,loadReferenceImage,runImageProvider,selectImageModel,imageDimensions} from '../lib/image-studio';
 import {parseMusicSessionRequest} from '../lib/music-studio';
+import { API_CONTRACT } from '../lib/api-contract';
+import {generateRemoteMusic} from './music-remote';
+import {enforceOperationLimit} from '../lib/operation-limit';
+import {assertSubsystem} from '../lib/kill-switch';
+import {generateSitePlan,listPublishedSites,publishSite,publishedNotes,publishedStats,readCompetitorPages,readReferencePage} from '../lib/web-sites';
 import {buildVideoScenePlan,parseVideoPlanRequest,parseVideoSessionRequest} from '../lib/video-studio';
+import {buildProse,parseProseRequest} from '../lib/prose-studio';
 import {parseVideo2StoryboardRequest} from '../lib/video-studio-2';
 import {parseDataReportRequest} from '../lib/data-studio';
 import {emitEvent} from '../lib/event-stream';
@@ -71,6 +77,10 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
  if(!auth.ok)return json({error:auth.error},{status:401});
  const account=auth.principal!.id;
  if(auth.principal!.role==='viewer'&&request.method!=='GET')throw new AccessError('Только чтение');
+ if(request.method==='POST'&&path==='/api/studio/music/generate')assertSubsystem(env,'music');
+ if(request.method==='POST'&&path==='/api/studio/video/plan')assertSubsystem(env,'video');
+ if(request.method==='POST'&&['/api/studio/image','/api/studio/voice','/api/studio/web/generate','/api/studio/prose','/api/studio/video/plan'].includes(path))assertSubsystem(env,'ai');
+ if(request.method==='POST'&&['/api/studio/music/generate','/api/studio/image','/api/studio/voice','/api/studio/video/plan','/api/studio/web/generate','/api/studio/prose'].includes(path))await enforceOperationLimit(env,'generation',account);
  if(path==='/api/studio/design-contract')return designRoute(request,env,auth.principal!);
  if(path.startsWith('/api/studio/drafts/'))return draftRoute(request,env,account);
  const intelligence=await productIntelligenceRoute(request,env,auth.principal!);if(intelligence)return intelligence;
@@ -83,10 +93,18 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
   const project=url.searchParams.get('projectId')??'';await requireResource(env,auth.principal!,'project',project);
   return exportProjectZip(env,project);
  }
+ if(path==='/api/studio/contract'&&request.method==='GET')return json({version:'v1',endpoints:API_CONTRACT});
  if(path==='/api/studio/capabilities')return json({
-  image:!!env.AI,voice:!!env.AI,music:'local-wav-midi',musicDawImport:true,video:'storyboard+timeline+local-webm',videoProviderGeneration:false,videoContinuityMemory:true,als:true,
+  image:!!env.AI,voice:!!env.AI,music:'local-wav-aiff-flac-mp3-midi',musicRemote:!!env.ELEVENLABS_API_KEY,musicDawImport:true,video:'storyboard+timeline+local-webm',videoProviderGeneration:false,videoContinuityMemory:true,als:true,prose:'local-draft+free-text',
   sandbox:!!env.AZRAIL_SANDBOX,auth:env.AUTH_MODE==='oidc'?'oidc':'token',ledger:true,providerCosts:'See Cloudflare account; request ledger is not a Neuron meter',
  });
+ if(path==='/api/studio/web/generate'&&request.method==='POST'){const body=await readJsonRecord(request,12000);return json(await accountCall(env,'@cf/openai/gpt-oss-20b',()=>generateSitePlan(env,body,onProviderDispatch)));}
+ if(path==='/api/studio/web/reference'&&request.method==='POST')return json(await readReferencePage((await readJsonRecord(request,4000)).url));
+ if(path==='/api/studio/web/competitors'&&request.method==='POST'){const body=await readJsonRecord(request,4000);return json(await readCompetitorPages(body.urls));}
+ if(path==='/api/studio/web/publish'&&request.method==='POST')return json(await publishSite(env,account,await readJsonRecord(request,500000)));
+ if(path==='/api/studio/web/sites'&&request.method==='GET')return json(await listPublishedSites(env,account));
+ if(path==='/api/studio/web/stats'&&request.method==='GET')return json(await publishedStats(env,account,url.searchParams.get('id')??''));
+ if(path==='/api/studio/web/notes'&&request.method==='GET')return json(await publishedNotes(env,account,url.searchParams.get('id')??''));
 
 
  if(path==='/api/studio/video/storyboards'&&request.method==='GET') {
@@ -104,6 +122,7 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
    : await env.AZRAIL_D1.prepare(`SELECT * FROM video_sessions WHERE account_id=? ORDER BY created_at DESC LIMIT 60`).bind(account).all<Record<string,unknown>>();
   return json({items:(rows.results??[]).map(row=>({id:String(row.id),projectId:row.project_id?String(row.project_id):null,prompt:String(row.prompt),aspectRatio:String(row.aspect_ratio),resolution:String(row.resolution),durationSeconds:Number(row.duration_seconds),fps:Number(row.fps),transition:String(row.transition),motionPreset:String(row.motion_preset),exportPreset:String(row.export_preset),scenes:JSON.parse(String(row.scenes_json)),hasAudio:Number(row.has_audio)===1,imageCount:Number(row.image_count),videoArtifactId:row.video_artifact_id?String(row.video_artifact_id):null,createdAt:Number(row.created_at)}))});
  }
+ if(path==='/api/studio/music/generate'&&request.method==='POST'){const body=await readJsonRecord(request,12000);return json(await generateRemoteMusic(env,{...body,accountId:account}));}
  if(path==='/api/studio/music/daw-imports'&&request.method==='GET') {
   const projectId=(url.searchParams.get('projectId')??'').trim();
   if(projectId)await requireResource(env,auth.principal!,'project',projectId);
@@ -199,6 +218,11 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
   const plan=await accountCall(env,'@cf/openai/gpt-oss-20b',()=>buildVideoScenePlan(env,input,onProviderDispatch));
   return json(plan);
  }
+ if(path==='/api/studio/prose'&&request.method==='POST') {
+  const body=await readJsonRecord(request,20000),input=parseProseRequest(body);
+  const prose=await accountCall(env,'@cf/openai/gpt-oss-20b',()=>buildProse(env,input,onProviderDispatch));
+  return json(prose);
+ }
  if(path==='/api/studio/video/sessions') {
   const body=await readJsonRecord(request,40000),input=parseVideoSessionRequest(body);
   if(input.projectId)await requireResource(env,auth.principal!,'project',input.projectId);
@@ -237,7 +261,7 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
   const analysisId=crypto.randomUUID(),packed=compactAbletonReport(report);
   let stored=packed.json,truncated=packed.truncated;
   if(stored.length>900_000){const reduced={...report,tracks:report.tracks.slice(0,120).map(track=>({...track,devices:track.devices.slice(0,30),routing:track.routing.slice(0,10)})),samples:report.samples.slice(0,200),masterChain:report.masterChain.slice(0,50)};stored=JSON.stringify(reduced);truncated=true;}
-  if(stored.length>900_000){stored=JSON.stringify({format:report.format,abletonVersion:report.abletonVersion,bpm:report.bpm,timeSignature:report.timeSignature,sceneCount:report.sceneCount,groups:report.groups,trackCount:report.trackCount,summary:report.summary,warnings:report.warnings,analysisBoundary:report.analysisBoundary,checks:{missingPlugins:report.checks.missingPlugins.slice(0,100),missingSamples:report.checks.missingSamples.slice(0,100),duplicatedProcessing:report.checks.duplicatedProcessing.slice(0,100),routingLoops:report.checks.routingLoops.slice(0,100),sidechainTopology:report.checks.sidechainTopology.slice(0,100),gainStagingWarnings:report.checks.gainStagingWarnings.slice(0,100),cpuHeavyDevices:report.checks.cpuHeavyDevices.slice(0,100),frozenTracks:report.checks.frozenTracks.slice(0,100),inactiveDevices:report.checks.inactiveDevices.slice(0,100)},tracks:[],samples:[],masterChain:[]});truncated=true;}
+  if(stored.length>900_000){stored=JSON.stringify({format:report.format,abletonVersion:report.abletonVersion,bpm:report.bpm,timeSignature:report.timeSignature,keyRoot:report.keyRoot,keyScale:report.keyScale,locators:report.locators.slice(0,80),roleSummary:report.roleSummary,sceneCount:report.sceneCount,groups:report.groups,trackCount:report.trackCount,summary:report.summary,warnings:report.warnings,analysisBoundary:report.analysisBoundary,checks:{missingPlugins:report.checks.missingPlugins.slice(0,100),missingSamples:report.checks.missingSamples.slice(0,100),duplicatedProcessing:report.checks.duplicatedProcessing.slice(0,100),routingLoops:report.checks.routingLoops.slice(0,100),sidechainTopology:report.checks.sidechainTopology.slice(0,100),gainStagingWarnings:report.checks.gainStagingWarnings.slice(0,100),cpuHeavyDevices:report.checks.cpuHeavyDevices.slice(0,100),frozenTracks:report.checks.frozenTracks.slice(0,100),inactiveDevices:report.checks.inactiveDevices.slice(0,100)},tracks:[],samples:[],masterChain:[]});truncated=true;}
   const artifact=await saveArtifact(env,account,projectId,'als',fileName,'application/octet-stream',bytes,(artifactId,now)=>[env.AZRAIL_D1.prepare(`INSERT INTO ableton_analyses(id,account_id,project_id,source_artifact_id,file_name,ableton_version,bpm,time_signature,track_count,scene_count,issue_count,report_json,report_truncated,created_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`).bind(analysisId,account,projectId,artifactId,fileName,report.abletonVersion,report.bpm,report.timeSignature,report.trackCount,report.sceneCount,report.summary.issues,stored,truncated?1:0,now)]);
   emitEvent(env,{domain:'verification',type:'verification.ableton.analysis_completed',accountId:account,projectId,subjectType:'ableton_analysis',subjectId:analysisId,actor:auth.principal!.id,payload:{sourceArtifactId:artifact.id,fileName,trackCount:report.trackCount,sceneCount:report.sceneCount,issueCount:report.summary.issues,reportTruncated:truncated}}).catch(error=>log('warn','ableton.event_emit_failed',{analysisId,error:error instanceof Error?error.message:String(error)}));
   return json({...report,saved:true,analysisId,sourceArtifactId:artifact.id,reportTruncated:truncated},{status:201});
@@ -290,7 +314,7 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
   if(!bytes.length)return json({error:'Аудиозапись пуста'},{status:400});
   const audio=bytes.buffer.slice(bytes.byteOffset,bytes.byteOffset+bytes.byteLength) as ArrayBuffer;
   const adapter=new CloudflareSpeechToTextAdapter(env);
-  const result=await accountCall(env,'@cf/openai/whisper',()=>adapter.transcribe({audio,mimeType:request.headers.get('Content-Type')??undefined},onProviderDispatch));
+  const result=await accountCall(env,'@cf/openai/whisper-large-v3-turbo',()=>adapter.transcribe({audio,mimeType:request.headers.get('Content-Type')??undefined,language:'ru'},onProviderDispatch));
   return json(result);
  }
  return json({error:'Маршрут не найден'},{status:404});

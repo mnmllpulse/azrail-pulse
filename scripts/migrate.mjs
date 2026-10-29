@@ -87,6 +87,17 @@ const missionColumns = tables.has('missions')
   ? new Set(query("PRAGMA table_info('missions')").map((r) => r.name))
   : new Set();
 
+function columnsAlreadyPresent(sql) {
+  const statements = sql.split(';').map((part) => part.replace(/--.*$/gm, '').trim()).filter(Boolean);
+  if (!statements.length || !statements.every((part) => /^ALTER\s+TABLE\s+/i.test(part))) return false;
+  return statements.every((part) => {
+    const match = part.match(/^ALTER\s+TABLE\s+([A-Za-z0-9_]+)\s+ADD\s+COLUMN\s+([A-Za-z0-9_]+)/i);
+    if (!match || !tables.has(match[1])) return false;
+    const columns = new Set(query(`PRAGMA table_info('${match[1]}')`).map((row) => row.name));
+    return columns.has(match[2]);
+  });
+}
+
 const ledgerRows = tables.has('schema_migrations')
   ? query('SELECT version,filename,checksum,applied_at,applied_by,duration_ms,status FROM schema_migrations ORDER BY version')
   : [];
@@ -109,6 +120,9 @@ const planItems = catalog.map((migration) => {
   if (cleanDatabase) return { ...migration, action: 'bootstrap', reason: 'schema.sql creates current schema' };
   if (migration.version === '002' && missionColumns.has('result_json')) {
     return { ...migration, action: 'baseline', reason: 'legacy database already has missions.result_json' };
+  }
+  if (columnsAlreadyPresent(migration.sql)) {
+    return { ...migration, action: 'baseline', reason: 'columns already present in canonical schema' };
   }
   return { ...migration, action: 'apply', reason: 'not present in migration ledger' };
 });
@@ -156,7 +170,7 @@ const stamp = new Date().toISOString().replaceAll(':', '-');
 const backup = resolve(root, `backups/d1-before-${stamp}.sql`);
 run('d1', 'export', 'AZRAIL_D1', location, '--output', backup);
 console.log(`D1 backup: ${backup}`);
-if (location === '--remote' && config.endsWith('.json')) {
+if (location === '--remote' && /\.jsonc?$/.test(config)) {
   const selected = JSON.parse(readFileSync(config, 'utf8'));
   const bucket = selected.r2_buckets?.find((b) => b.binding === 'AZRAIL_R2')?.bucket_name;
   if (!bucket) throw Error('No backup bucket in deployment config');

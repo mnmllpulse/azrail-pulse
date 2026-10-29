@@ -12,6 +12,7 @@ export const studioManifest = [
  {id:'data',icon:'table',title:'Data Studio',description:'Данные, определение схемы, валидация, фильтрация, сортировка, статистика, графики, преобразования и экспорт.',type:'НА УСТРОЙСТВЕ',action:'Анализировать данные',cloud:false,capabilities:['data-analysis']},
  {id:'als',icon:'ableton',title:'Ableton Lab',description:'Анализ Ableton Live Set: дорожки, клипы, устройства и плагины, маршрутизация, сэмплы, мастер-цепь и отчёт о недостающих ресурсах.',type:'ОБЛАКО',action:'Анализировать ALS',cloud:true,capabilities:['ableton-analysis','cloud-write']},
  {id:'audio',icon:'waveform',title:'Audio Lab',description:'Измеряемый анализ аудио: LUFS, true peak, динамика, стерео, BPM и тональность, форма волны, спектр и A/B-сравнение.',type:'НА УСТРОЙСТВЕ',action:'Анализировать аудио',cloud:false,capabilities:['audio-analysis']},
+ {id:'prose',icon:'text',title:'Prose Studio',description:'Готовый текст остаётся текстом. Короткие фразы, слова для трека, описания картинок и ролики на 5–10 секунд. Студия пишет слова и не поёт.',type:'ТЕКСТ',action:'Написать текст',cloud:true,capabilities:['prose-writing']},
 ] as const satisfies readonly StudioMeta[];
 
 export function studioMeta(id:StudioId):StudioMeta {

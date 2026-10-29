@@ -15,6 +15,7 @@ add('release-truth',contract.release===pkg.version&&snapshot.release===contract.
 add('snapshot-read-only',snapshot.mutation_free===true&&snapshot.github?.remote_write_performed===false&&snapshot.cloudflare?.remote_write_performed===false&&snapshot.canva?.remote_write_performed===false,'Connected-service evidence is explicitly mutation-free.');
 add('github-base-lease',isSha(contract.leases?.github_main_sha)&&contract.leases.github_main_sha===snapshot.github?.head_sha,'Approval is leased to the reviewed GitHub main SHA.');
 add('production-deployment-lease',isUuid(contract.leases?.production_deployment_id)&&contract.leases.production_deployment_id===snapshot.cloudflare?.production?.deployment_id,'Approval is leased to the reviewed production deployment.');
+add('production-worker',snapshot.cloudflare?.production?.worker==='azrail-pulse','Reviewed production worker is the working site azrail-pulse.');
 add('staging-baseline-lease',isUuid(contract.leases?.staging_reviewed_deployment_id)&&contract.leases.staging_reviewed_deployment_id===snapshot.cloudflare?.staging?.deployment_id,'Staging smoke must prove a deployment newer than the reviewed baseline.');
 add('no-secret-values',!JSON.stringify(snapshot).match(/client_secret|access_token|refresh_token|secret_cipher|authorization\s*:/i),'Snapshot stores no credential values.');
 add('approval-local-only',contract.policy?.approval_is_local_evidence_only===true&&contract.policy?.production_mutation_allowed===false,'Stage 31 can only create local approval evidence; production remains frozen.');
