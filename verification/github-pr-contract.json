@@ -9,7 +9,7 @@
   "post_publish_receipt": ".work/github-pr-published.json",
   "repository": "mnmllpulse/azrail-pulse",
   "base_branch": "main",
-  "base_sha": "a8adecfb79c8b8b1350af1b72c9204ef8044d4a1",
+  "base_sha": "c219f886a701db9ab9683020e3fb06a1fb3b8018",
   "branch_name": "release/azrail-pulse-1.5.0-rc.63",
   "pull_request": {
     "title": "release: AZRAIL PULSE 1.5.0-rc.63",
