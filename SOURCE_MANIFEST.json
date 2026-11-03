@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-10-29T04:12:58.514Z",
+  "generated_at": "2026-11-03T19:00:38.083Z",
   "excludes_self": true,
   "file_count": 1292,
   "files": [
@@ -202,8 +202,8 @@
     },
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
-      "bytes": 2133,
-      "sha256": "2c8735666157e04ba9a26ab2523a6af0237a19dd1d534e454d551785c63e78bd"
+      "bytes": 2064,
+      "sha256": "8344a22ebc7281e8a4b63ccef290b4fb31cb48b52979454e3bcde7c372445279"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -237,8 +237,8 @@
     },
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
-      "bytes": 16852,
-      "sha256": "cc959e6bca395312d60e9847dd42e38d5fcf1546950880dbc4f5bccef36d17d7"
+      "bytes": 16872,
+      "sha256": "534376927e4509b4f01c63556e44b2d6d315d73d504d847d08e65bfb5d481dcc"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -6087,13 +6087,13 @@
     },
     {
       "path": "verification/github-pr-contract.json",
-      "bytes": 2728,
-      "sha256": "419db5c8995e354d2f5ca1af2bc81ee52eabce9aca523f51c2774c5098a7da78"
+      "bytes": 2731,
+      "sha256": "cc8c98ecc1237bb30df7885aca0ab78a9309eee1ad4880386745baf53beacde9"
     },
     {
       "path": "verification/github-pr-readonly-snapshot.json",
-      "bytes": 2895,
-      "sha256": "6de4315fce7258be12b5f12538eb1c99bc5879a9ce780b0b2a4263d064a5c0be"
+      "bytes": 2898,
+      "sha256": "f8877c537a70f537291dd576f732f98cb533f461291a167f9d7ffd65edd6f8a6"
     },
     {
       "path": "verification/history/rc/VERIFICATION_RC10.json",
@@ -6368,12 +6368,12 @@
     {
       "path": "verification/production-approval-contract.json",
       "bytes": 3064,
-      "sha256": "b1caaf1f5cef353ad84e3332bd4dca87c14097479780b3155bb68cc597fe4e99"
+      "sha256": "536ffa88be15dd8f8278ee909d6a38bb5d864ad5a55268a3eae3e25002421f4e"
     },
     {
       "path": "verification/production-approval-readonly-snapshot.json",
-      "bytes": 2839,
-      "sha256": "467abaac17d676d350da9c5f567624d6b54b71cd396d30be173d5edb52cd6ed6"
+      "bytes": 2799,
+      "sha256": "5432f0e770be6202a653e03ef7fc0886e4be766fd901556b52dcff7baae6fe9c"
     },
     {
       "path": "verification/production-drift-contract.json",
@@ -6392,8 +6392,8 @@
     },
     {
       "path": "verification/production-release-readonly-snapshot.json",
-      "bytes": 1849,
-      "sha256": "f02740f9d7289950303802042bbd1cb8d3f466c7425987e1279ccbfc02e9e41a"
+      "bytes": 1852,
+      "sha256": "dc543dc1c9886747d189f409e571703d1aafe49a6f0fe77561158463496cfe63"
     },
     {
       "path": "verification/sbom.spdx.json",
