@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-03T19:00:38.083Z",
+  "generated_at": "2026-11-03T19:05:37.874Z",
   "excludes_self": true,
   "file_count": 1292,
   "files": [
@@ -102,8 +102,8 @@
     },
     {
       "path": "config/environments.json",
-      "bytes": 4803,
-      "sha256": "a2ff9cab9441ba1bc4c197a65210bf22fb28b4a5d21ac18ce2722898fd68ab59"
+      "bytes": 4804,
+      "sha256": "7810d519a278bcb898b23a6f0b57a6436139b6cc69398524990a36fd9dd8eedd"
     },
     {
       "path": "docs/README.md",
@@ -202,8 +202,8 @@
     },
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
-      "bytes": 2064,
-      "sha256": "8344a22ebc7281e8a4b63ccef290b4fb31cb48b52979454e3bcde7c372445279"
+      "bytes": 2153,
+      "sha256": "7fb47ab450753bbbe7084f8714e6afe19a308c48f247b704110e4cac7952bd41"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -237,8 +237,8 @@
     },
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
-      "bytes": 16872,
-      "sha256": "534376927e4509b4f01c63556e44b2d6d315d73d504d847d08e65bfb5d481dcc"
+      "bytes": 16882,
+      "sha256": "6768110bcb4f5a4813d5c4e114104d47e7bab86311a759bada238c137b0b4a8c"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1172,8 +1172,8 @@
     },
     {
       "path": "docs/runbooks/PRODUCTION_APPROVAL_RU.md",
-      "bytes": 3719,
-      "sha256": "701798937033b50e6c2e6b0a69bbaf4b6f329a91b0b996871a11af169f157f47"
+      "bytes": 3567,
+      "sha256": "a3a4aeca86f8f574cd1686d95fd358c73efa8485b162e3cac2bcfbf2b8946e41"
     },
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
@@ -6452,8 +6452,8 @@
     },
     {
       "path": "wrangler.jsonc",
-      "bytes": 1835,
-      "sha256": "89144b6573cea1faf202578e0d615947507e689726fb444ef0898a2b8cb4197a"
+      "bytes": 1836,
+      "sha256": "e3d66c43fce3a0d1de6d698337d1a42f5aaebe8c39b57c85c5039618c2d7904d"
     },
     {
       "path": "wrangler.production.json",
