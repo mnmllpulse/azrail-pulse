@@ -1,10 +1,10 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-10-15T05:02:48.424Z",
+  "generatedAt": "2026-11-04T17:01:15.076Z",
   "source": {
-    "unifiedCatalog": 182,
-    "workersAiSearch": 70,
-    "unique": 252
+    "unifiedCatalog": 195,
+    "workersAiSearch": 73,
+    "unique": 268
   },
   "models": [
     {
@@ -937,6 +937,27 @@
       ]
     },
     {
+      "slug": "black-forest-labs/flux-3-image-klein",
+      "displayName": "FLUX 3 Image Klein",
+      "provider": "Black Forest",
+      "providerId": "black-forest-labs",
+      "task": "Text-to-Image",
+      "description": "FLUX 3 Image Klein is Black Forest Labs' 5.6B-parameter image model for text-to-image, image editing, and multi-reference generation with up to 10 reference images. It supports native 4K output and bounding-box layout control.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Image Editing",
+        "Multi-Reference",
+        "Fast"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
       "slug": "black-forest-labs/flux-3-video",
       "displayName": "FLUX 3 Video",
       "provider": "Black Forest",
@@ -977,82 +998,20 @@
       ]
     },
     {
-      "slug": "bria/fibo-edit-1.5",
-      "displayName": "FIBO Edit 1.5",
+      "slug": "bria/ad-delayer",
+      "displayName": "Ad Delayer",
       "provider": "Bria",
       "providerId": "bria",
-      "task": "Image-to-Image",
-      "description": "FIBO Edit changes one to four input images from a natural-language or structured JSON (VGL) instruction. Add a black-and-white mask to edit only part of a single image, or refer to several images as \"image 1\", \"image 2\", and so on to combine them or transfer a style.",
+      "task": "Image-to-Document",
+      "description": "Ad Delayer turns a finished, flat ad image into an editable JSON layer document: a background plate, product and logo cutouts, live text with typography, and vector shapes, with each image layer hosted as its own file. It is designed for flat ads; results for ordinary photographs are not guaranteed. Bria trains it exclusively on licensed data.",
       "freeAllowlisted": false,
       "hosted": false,
       "contextWindow": null,
       "maxOutputTokens": null,
       "tags": [
-        "Image Editing",
-        "Image-to-Image",
-        "Multi-Reference Editing",
-        "Inpainting"
-      ],
-      "source": [
-        "unified-catalog"
-      ]
-    },
-    {
-      "slug": "bria/fibo-generate-1.5",
-      "displayName": "FIBO Generate 1.5",
-      "provider": "Bria",
-      "providerId": "bria",
-      "task": "Text-to-Image",
-      "description": "FIBO Generate creates images from a text prompt, a reference image, or both. Each result includes the seed and the structured JSON (VGL) prompt used to render it; send them back to recreate the image exactly or to refine it with a new prompt. Outputs are 1MP or 4MP in nine aspect ratios.",
-      "freeAllowlisted": false,
-      "hosted": false,
-      "contextWindow": null,
-      "maxOutputTokens": null,
-      "tags": [
-        "Image Generation",
-        "Text-to-Image",
-        "Reference Images",
-        "Structured Prompts"
-      ],
-      "source": [
-        "unified-catalog"
-      ]
-    },
-    {
-      "slug": "bria/remove-background",
-      "displayName": "Remove Background",
-      "provider": "Bria",
-      "providerId": "bria",
-      "task": "Image-to-Image",
-      "description": "Bria's RMBG 2.0 model removes the background from an image and returns a PNG cutout with a transparent background. Partial transparency from the input's alpha channel is kept by default.",
-      "freeAllowlisted": false,
-      "hosted": false,
-      "contextWindow": null,
-      "maxOutputTokens": null,
-      "tags": [
-        "Image Editing",
-        "Image-to-Image",
-        "Background Removal"
-      ],
-      "source": [
-        "unified-catalog"
-      ]
-    },
-    {
-      "slug": "bria/v-rmbg-3.0",
-      "displayName": "Video Remove Background 3.0",
-      "provider": "Bria",
-      "providerId": "bria",
-      "task": "video-to-video",
-      "description": "Bria's video background removal replaces the background of a clip up to 60 seconds long with a solid color or with transparency. Transparent output needs the mov_proresks (ProRes) preset. Frame rate and audio are preserved, and the output resolution matches the input unless auto_zoom crops to the subject.",
-      "freeAllowlisted": false,
-      "hosted": false,
-      "contextWindow": null,
-      "maxOutputTokens": null,
-      "tags": [
-        "Video Editing",
-        "Video-to-Video",
-        "Background Removal"
+        "Design",
+        "Advertising",
+        "Layer Decomposition"
       ],
       "source": [
         "unified-catalog"
@@ -1245,6 +1204,22 @@
       ]
     },
     {
+      "slug": "@cf/cloudflare/clairic",
+      "displayName": "Clairic",
+      "provider": "Cloudflare",
+      "providerId": "cloudflare",
+      "task": "Text Generation",
+      "description": "Clairic is a System One-style model that can extract, compute, estimate, and forecast values from inputs. It is strongly typed and outputs confidence scores and probabilities against its outputs. This model is in early research preview from the Cloudflare Workers AI team.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
       "slug": "@cf/cloudflare/clef",
       "displayName": "Clef",
       "provider": "Cloudflare",
@@ -1283,6 +1258,22 @@
       "providerId": "cloudflare",
       "task": "Text Generation",
       "description": "Clef-omni is a multimodal decision model built on a 30B-parameter mixture-of-experts (3B active) backbone. It turns a state and a schema of typed questions into decisions, reads the state as text, JSON, images, audio, or video, and returns a probability for every allowed option of every question.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "@cf/daily-co/phonellm-mini-alpha-2",
+      "displayName": "Phonellm Mini Alpha 2",
+      "provider": "DailyCo",
+      "providerId": "daily-co",
+      "task": "Text Generation",
+      "description": "PhoneLLM is an open model tuned for voice agents. The model is based on Nemotron Nano 30B base capabilities and excels at typical voice agent tasks with thinking disabled.",
       "freeAllowlisted": true,
       "hosted": true,
       "contextWindow": null,
@@ -1421,6 +1412,22 @@
       ]
     },
     {
+      "slug": "@cf/deepseek-ai/deepseek-v4.1-flash-1017",
+      "displayName": "DeepSeek V4.1 Flash 1017",
+      "provider": "DeepSeek",
+      "providerId": "deepseek-ai",
+      "task": "Text Generation",
+      "description": "We introduce DeepSeek-V4.1-Flash, a multimodal Mixture-of-Experts (MoE) model with 552B backbone parameters and support for contexts of up to one million tokens. The model natively processes images and text, and generates text autoregressively.",
+      "freeAllowlisted": true,
+      "hosted": true,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [],
+      "source": [
+        "workers-ai-search"
+      ]
+    },
+    {
       "slug": "deepseek/deepseek-v4-pro",
       "displayName": "DeepSeek V4 Pro",
       "provider": "DeepSeek",
@@ -1537,6 +1544,28 @@
         "Audio Generation",
         "Instrumental",
         "Vocals"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "fireworks/ember-1",
+      "displayName": "Ember-1",
+      "provider": "Fireworks",
+      "providerId": "fireworks",
+      "task": "Text Generation",
+      "description": "Fireworks' Ember-1 is a specialized long-context multimodal reasoning model built on Kimi K3. It produces shorter reasoning traces using approximately 40% fewer tokens while maintaining comparable quality across Fireworks' evaluations.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1040000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Multimodal",
+        "Function Calling",
+        "Long Context"
       ],
       "source": [
         "unified-catalog"
@@ -2193,6 +2222,47 @@
       ]
     },
     {
+      "slug": "klingai/kling-v3-image",
+      "displayName": "Kling v3 Image",
+      "provider": "Klingai",
+      "providerId": "klingai",
+      "task": "Text-to-Image",
+      "description": "Kling V3 Image is Kling AI's text-to-image model for photorealistic image generation.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Generation",
+        "Photorealistic"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "klingai/kling-v4",
+      "displayName": "Kling 4.0",
+      "provider": "Klingai",
+      "providerId": "klingai",
+      "task": "Text-to-Video",
+      "description": "Kling 4.0 is Kling AI's video generation model for text-to-video and multi-keyframe image-to-video, producing up to 30 seconds of 720p or 1080p video from prompts of up to 26,000 characters and up to 10 keyframes.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Text-to-Video",
+        "Image-to-Video",
+        "Keyframes",
+        "1080p"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
       "slug": "krea/krea-2-large",
       "displayName": "Krea 2 Large",
       "provider": "Krea",
@@ -2251,6 +2321,26 @@
         "Fast",
         "Illustration",
         "Style Transfer"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "krea/krea-3",
+      "displayName": "Krea 3",
+      "provider": "Krea",
+      "providerId": "krea",
+      "task": "Image-to-Image",
+      "description": "Krea 3 is Krea's image generation and editing model, in beta. It edits one or more reference images from a text instruction, or generates an image from the prompt alone. References are passed as HTTP(S) URLs in image_urls (up to 8). Outputs go up to 2K, with optional thinking_mode, aspect_ratio, seed and regional_edit controls.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Editing",
+        "Image to Image",
+        "Text to Image"
       ],
       "source": [
         "unified-catalog"
@@ -2549,6 +2639,29 @@
       ]
     },
     {
+      "slug": "meta/muse-spark-open",
+      "displayName": "Muse Spark Open",
+      "provider": "Meta",
+      "providerId": "meta",
+      "task": "Text Generation",
+      "description": "Muse Spark Open is Meta's open-weights reasoning model for coding and agentic workflows. It supports native image understanding and function calling, and is served through Fireworks serverless inference.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1040000,
+      "maxOutputTokens": null,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Function Calling",
+        "Vision",
+        "Long Context"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
       "slug": "meta/muse-wonder-1.0",
       "displayName": "Muse Wonder 1.0",
       "provider": "Meta",
@@ -2603,6 +2716,51 @@
         "Reference-to-Video",
         "Multimodal",
         "2K"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/h3-highspeed",
+      "displayName": "MiniMax H3 Highspeed",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text-to-Video",
+      "description": "A multimodal video generation model that balances quality and speed, supporting text-to-video, first and last frame image-to-video, and reference-to-video generation at 768P.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Text-to-Video",
+        "Image-to-Video",
+        "Reference-to-Video",
+        "Multimodal",
+        "Fast Generation"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/h3-lite",
+      "displayName": "MiniMax H3 Lite",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text-to-Video",
+      "description": "A lightweight multimodal video generation model supporting text-to-video, first and last frame image-to-video, and reference-to-video generation at 480P and 768P.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Video Generation",
+        "Text-to-Video",
+        "Image-to-Video",
+        "Reference-to-Video",
+        "Multimodal"
       ],
       "source": [
         "unified-catalog"
@@ -2702,6 +2860,30 @@
       "tags": [
         "LLM",
         "Multilingual"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "minimax/m3.1-flash",
+      "displayName": "MiniMax M3.1 Flash",
+      "provider": "Minimax",
+      "providerId": "minimax",
+      "task": "Text Generation",
+      "description": "MiniMax M3.1 Flash is a fast, cost-efficient multimodal model for agentic tasks, coding, and computer use. It accepts text, image, and video input, always reasons before answering with adjustable effort, and has a 1M-token context window.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 131072,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Agentic",
+        "Multimodal",
+        "Long Context",
+        "Cost-Efficient"
       ],
       "source": [
         "unified-catalog"
@@ -2986,6 +3168,25 @@
       "tags": [],
       "source": [
         "workers-ai-search"
+      ]
+    },
+    {
+      "slug": "openai/decisions",
+      "displayName": "Decisions",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "Decisions uses GPT-6 Luna to evaluate shared text or image evidence against typed questions. It returns probabilities, fixed choices, or rubric scores for low-latency classification, routing, and prioritization workflows.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1050000,
+      "maxOutputTokens": null,
+      "tags": [
+        "Classification",
+        "Multimodal"
+      ],
+      "source": [
+        "unified-catalog"
       ]
     },
     {
@@ -3473,6 +3674,28 @@
       ]
     },
     {
+      "slug": "openai/gpt-6.1-terra",
+      "displayName": "GPT-6.1 Terra",
+      "provider": "OpenAI",
+      "providerId": "openai",
+      "task": "Text Generation",
+      "description": "GPT-6.1 Terra is OpenAI's fast, efficient model for visual reasoning, precise computer use, and clear, natural writing. Use it to match product photos to catalog entries, interpret technical drawings, act on application screens, or draft and revise text. Tool calling requires the Responses API.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1050000,
+      "maxOutputTokens": 128000,
+      "tags": [
+        "LLM",
+        "Reasoning",
+        "Multimodal",
+        "Computer Use",
+        "Writing"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
       "slug": "openai/gpt-image-1.5",
       "displayName": "GPT Image 1.5",
       "provider": "OpenAI",
@@ -3648,6 +3871,28 @@
         "TTS",
         "Speech Synthesis",
         "High Quality"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "particle/particle-1",
+      "displayName": "Particle-1",
+      "provider": "Particle",
+      "providerId": "particle",
+      "task": "Text Generation",
+      "description": "Particle-1 is Particle AI's reasoning model for chat, agentic coding, and tool use. It accepts text and images, with a 1,048,576-token context window, streaming responses, and configurable reasoning effort.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 1048576,
+      "maxOutputTokens": 131072,
+      "tags": [
+        "LLM",
+        "Coding",
+        "Reasoning",
+        "Function Calling",
+        "Vision"
       ],
       "source": [
         "unified-catalog"
@@ -4257,6 +4502,29 @@
       ]
     },
     {
+      "slug": "reflection-ai/beam-1.0-501b-a23b",
+      "displayName": "Beam 1.0 501B A23B",
+      "provider": "ReflectionAi",
+      "providerId": "reflection-ai",
+      "task": "Text Generation",
+      "description": "Beam-1.0-501B-A23B is Reflection AI's open-weights mixture-of-experts model with 501B total parameters and 23B active parameters, built for coding, reasoning, and agentic workloads.",
+      "freeAllowlisted": true,
+      "hosted": false,
+      "contextWindow": 262144,
+      "maxOutputTokens": 131072,
+      "tags": [
+        "Text Generation",
+        "Coding",
+        "Reasoning",
+        "Tool Calling",
+        "Agentic",
+        "MoE"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
       "slug": "@cf/runwayml/stable-diffusion-v1-5-inpainting",
       "displayName": "Stable Diffusion V1 5 Inpainting",
       "provider": "Runwayml",
@@ -4395,6 +4663,46 @@
       ]
     },
     {
+      "slug": "topaz/gigapixel-high-fidelity-3",
+      "displayName": "Gigapixel High Fidelity 3",
+      "provider": "Topaz",
+      "providerId": "topaz",
+      "task": "Image-to-Image",
+      "description": "Topaz Labs Gigapixel High Fidelity 3 is a precision image upscaler tuned for high-resolution sources and professional photography, preserving fine texture and detail with minimal alteration. It adds recovery-strength and opacity controls over High Fidelity 2.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Upscaling",
+        "Image-to-Image",
+        "Enhancement"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "topaz/gigapixel-standard-2",
+      "displayName": "Gigapixel Standard 2",
+      "provider": "Topaz",
+      "providerId": "topaz",
+      "task": "Image-to-Image",
+      "description": "Topaz Labs Gigapixel Standard 2 is a general-purpose precision image upscaler that balances detail, sharpness, and noise reduction while staying true to the source. It is the recommended default for photos, graphics, and print, with optional face recovery.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": null,
+      "maxOutputTokens": null,
+      "tags": [
+        "Image Upscaling",
+        "Image-to-Image",
+        "Enhancement"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
       "slug": "topaz/starlight-fast-2",
       "displayName": "Starlight Fast 2",
       "provider": "Topaz",
@@ -4442,7 +4750,7 @@
       "provider": "Typesafe",
       "providerId": "typesafe",
       "task": "Text Generation",
-      "description": "Jev is TypeSafe's structured evaluation model. It evaluates one state against typed Noul, Choice, and Score questions and returns calibrated answers with probabilities and confidence.",
+      "description": "Jev 1.13 is TypeSafe's structured evaluation model. It evaluates one state against typed Noul, Choice, and Score questions and returns calibrated answers with probabilities and confidence. Image inputs are beta and dreamer-ready, not recommended for production.",
       "freeAllowlisted": false,
       "hosted": false,
       "contextWindow": 32000,
@@ -4451,7 +4759,31 @@
         "Structured Output",
         "Classification",
         "Evaluation",
-        "Confidence"
+        "Confidence",
+        "Multimodal (Beta)"
+      ],
+      "source": [
+        "unified-catalog"
+      ]
+    },
+    {
+      "slug": "typesafe/jev-1.14.0",
+      "displayName": "Jev 1.14",
+      "provider": "Typesafe",
+      "providerId": "typesafe",
+      "task": "Text Generation",
+      "description": "Jev 1.14 is TypeSafe's structured evaluation model. It evaluates one state against typed Noul, Choice, Score, and Box questions and returns calibrated answers with probabilities and confidence. Image inputs and Box questions are beta and dreamer-ready, not recommended for production.",
+      "freeAllowlisted": false,
+      "hosted": false,
+      "contextWindow": 32000,
+      "maxOutputTokens": null,
+      "tags": [
+        "Structured Output",
+        "Classification",
+        "Evaluation",
+        "Confidence",
+        "Multimodal (Beta)",
+        "Box (Beta)"
       ],
       "source": [
         "unified-catalog"
