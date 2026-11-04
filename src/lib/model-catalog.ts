@@ -91,7 +91,7 @@ function staticModels():LiveModelCatalogItem[]{
 }
 
 /** Metadata only. Catalog presence never authorizes a paid inference.
- *  Merges the committed 252-model registry with the live Workers AI binding. */
+ *  Merges the committed registry with the live Workers AI binding. */
 export async function readLiveCatalog(env: Env) {
   const bySlug = new Map<string, LiveModelCatalogItem>();
   for (const model of staticModels()) bySlug.set(model.slug, model);
@@ -138,6 +138,6 @@ export async function readLiveCatalog(env: Env) {
     staticCount: (staticRegistry as {source?:{unique?:number}}).source?.unique ?? staticModels().length,
     complete,
     fetchedAt: new Date().toISOString(),
-    scope: "Full AZRAIL model registry (static 252) merged with live Workers AI binding. Context/speed/cost metadata is shown only when AZRAIL has reviewed evidence; unknown is preserved instead of guessed.",
+    scope: `Full AZRAIL model registry (static ${staticModels().length}) merged with live Workers AI binding. Context/speed/cost metadata is shown only when AZRAIL has reviewed evidence; unknown is preserved instead of guessed.`,
   };
 }
