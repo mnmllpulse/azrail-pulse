@@ -24,6 +24,7 @@ import {openUniversalCompareCenter} from './components/universal-compare';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
+import {formatAssignment,readAssignment,type Assignment} from './assignment';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
 function reportGlobalError(source:string,reason:unknown){
@@ -601,7 +602,7 @@ function syncComposer(route:Route){
  const dock=document.querySelector<HTMLElement>('.composer-dock')!;
  dock.hidden=route.page!=='create'&&route.page!=='mission'&&route.page!=='studio'&&route.page!=='metatron';
  if(changed)prompt.value=composerRoom==='home'?chatHistory.current()?.draft??'':studioRooms.draft(composerRoom);
- prompt.placeholder=route.page==='mission'?'Что сделать…':route.page==='create'?'Напиши сообщение…':composerRoom==='home'?'Напиши сообщение…':roomPlaceholder[composerRoom]??'Напиши задачу для этой студии…';
+ prompt.placeholder=route.page==='mission'?'Что сделать…':route.page==='create'?'Опиши, что нужно получить…':composerRoom==='home'?'Опиши, что нужно получить…':roomPlaceholder[composerRoom]??'Напиши задачу для этой студии…';
  $<HTMLButtonElement>('attach').hidden=route.page==='mission';
  $('composer-models').hidden=true;
  $<HTMLButtonElement>('submit').title=route.page==='mission'?'Старт · Enter':'Отправить · Enter';
@@ -772,13 +773,15 @@ async function refreshMissionHistory(){
   }
  }catch{host.replaceChildren();const note=document.createElement('p');note.className='muted';note.textContent='Не удалось загрузить список миссий.';host.append(note);}
 }
-async function runMission(goal?:string){
- if(missionSubmitting)return;
+async function runMission(goal?:string,opts?:{keepTurn?:boolean}){
+ if(missionSubmitting&&!opts?.keepTurn)return;
  if(!account)throw Error('Войдите в аккаунт, чтобы запустить AZRAIL.');
  if(account.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
  const message=(goal??prompt.value).trim();if(!message)return;
  if(composerPage!=='mission'){
-  skipComposerSave=true;chatHistory.setDraft(message);navigation.navigate({page:'mission'});prompt.value=message;
+  skipComposerSave=true;
+  if(!opts?.keepTurn){chatHistory.setDraft(message);prompt.value=message;}
+  navigation.navigate({page:'mission'});
  }
  // First Mission Control version: text goal only. Attachments stay available later.
  if(!pending){project=project||crypto.randomUUID();pending={key:crypto.randomUUID(),body:JSON.stringify({message,projectId:project,maxIterations:8,attachments:[],...(preferredModel?{preferredModel}:{})})};}
@@ -788,8 +791,11 @@ async function runMission(goal?:string){
  try{
   const r=await api('/api/mission',{method:'POST',headers:{'Idempotency-Key':submitted.key},body:submitted.body});
   const sent=JSON.parse(submitted.body);mission=r.missionId;pending=null;remember();
-  chatHistory.accepted(submitted.key,sent.message,project,mission);
-  if(prompt.value.trim()===sent.message)prompt.value='';chatHistory.setDraft(prompt.value);clearAttachments();workspace.resizePrompt();
+  if(opts?.keepTurn)chatHistory.attach(project,mission);
+  else chatHistory.accepted(submitted.key,sent.message,project,mission);
+  if(!opts?.keepTurn&&prompt.value.trim()===sent.message)prompt.value='';
+  if(!opts?.keepTurn)chatHistory.setDraft(prompt.value);
+  clearAttachments();workspace.resizePrompt();
   $('mission-panel').hidden=false;$('mission-summary').textContent='Задача принята. Получаю состояние…';$('mission-status').textContent='Задача принята';
   syncChatUI();workspace.toLatest();ensureEventStream();await poll(++epoch);void refreshMissionHistory().catch(failure);
  }
@@ -801,12 +807,71 @@ async function runMission(goal?:string){
  }
  finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
 }
+function showAssignment(plan:Assignment){
+ const host=$('assignment-live');
+ host.hidden=false;
+ host.dataset.kind=plan.kind;
+ $('assignment-worker').textContent=plan.worker;
+ $('assignment-now').textContent=plan.now;
+ $('assignment-ready').textContent=plan.ready;
+ $('assignment-next').textContent=plan.next;
+ $('assignment-you').textContent=plan.needsYou;
+}
+function waitForSelector(selector:string,ms=8000){
+ return new Promise<boolean>(resolve=>{
+  const start=Date.now();
+  const tick=()=>{
+   if(document.querySelector(selector)){resolve(true);return;}
+   if(Date.now()-start>=ms){resolve(false);return;}
+   window.setTimeout(tick,40);
+  };
+  tick();
+ });
+}
+async function runAssignment(plan:Assignment,message:string){
+ if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
+ if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
+ const thread=chatHistory.current()??chatHistory.create();
+ project=thread.projectId||project||crypto.randomUUID();
+ const requestKey=crypto.randomUUID();
+ remember();
+ missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
+ chatHistory.accepted(requestKey,message,project,'');
+ if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
+ const paint=(next:Assignment,status='completed')=>{showAssignment(next);chatHistory.report(requestKey,formatAssignment(next),status);syncChatUI();workspace.toLatest();};
+ try{
+  if(!account&&plan.kind!=='music'){paint({...plan,needsYou:'Войди в аккаунт, и я начну это поручение.'});return;}
+  if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
+  paint(plan);
+  if(plan.studio&&plan.control){
+   navigation.navigate({page:'studio',studio:plan.studio});
+   const found=await waitForSelector(plan.control);
+   if(!found){paint({...plan,needsYou:'Студия не открылась. Отправь фразу ещё раз.'},'failed');return;}
+   prompt.value=message;
+   missionSubmitting=false;
+   await runStudioRoom();
+   return;
+  }
+  missionSubmitting=false;
+  await runMission(message,{keepTurn:true});
+  const live=$('mission-status').textContent?.trim();
+  if(live)$('assignment-now').textContent=live;
+ }
+ catch(e){
+  const text=e instanceof Error?e.message:'Не удалось начать поручение.';
+  paint({...plan,needsYou:text},'failed');
+  throw e;
+ }
+ finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
+}
 async function runChat(){
  if(missionSubmitting)return;
+ const message=prompt.value.trim();if(!message)return;
+ const plan=readAssignment(message);
+ if(plan.kind!=='talk'){await runAssignment(plan,message);return;}
  if(!account)throw Error('Войдите в аккаунт, чтобы писать в Chat.');
  if(account.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
  if(account.role!=='admin'&&!account.operator)throw Error('Chat пока открыт только владельцу.');
- const message=prompt.value.trim();if(!message)return;
  if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
  if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
  const thread=chatHistory.current()??chatHistory.create();
@@ -959,6 +1024,11 @@ async function poll(version=epoch){
   const state=renderMission(document,r,!!account?.operator);
   const previous=chatHistory.current()?.turns.find(t=>t.missionId===observedMission)?.status;
   chatHistory.report(observedMission,$('mission-summary').textContent??'',state.status);
+  const assignment=$('assignment-live');
+  if(assignment.dataset.kind==='web'||assignment.dataset.kind==='build'){
+   const live=$('mission-status').textContent?.trim();
+   if(live)$('assignment-now').textContent=live;
+  }
   $('context-status').textContent=$('mission-status').textContent;syncChatUI();
   if(previous!==state.status&&!state.active&&!$('mission-panel').hidden)void refreshContextFiles();
   if(state.active)pollTimer=window.setTimeout(()=>void poll(version),3000);
