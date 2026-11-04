@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-03T19:00:38.083Z",
+  "generated_at": "2026-11-04T16:15:54.611Z",
   "excludes_self": true,
   "file_count": 1292,
   "files": [
@@ -102,8 +102,8 @@
     },
     {
       "path": "config/environments.json",
-      "bytes": 4803,
-      "sha256": "a2ff9cab9441ba1bc4c197a65210bf22fb28b4a5d21ac18ce2722898fd68ab59"
+      "bytes": 4804,
+      "sha256": "7810d519a278bcb898b23a6f0b57a6436139b6cc69398524990a36fd9dd8eedd"
     },
     {
       "path": "docs/README.md",
@@ -202,8 +202,8 @@
     },
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
-      "bytes": 2064,
-      "sha256": "8344a22ebc7281e8a4b63ccef290b4fb31cb48b52979454e3bcde7c372445279"
+      "bytes": 2283,
+      "sha256": "855f7712481512e94d1767be833e81da4973379b29abea71acef1ffc3409eac9"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -237,8 +237,8 @@
     },
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
-      "bytes": 16872,
-      "sha256": "534376927e4509b4f01c63556e44b2d6d315d73d504d847d08e65bfb5d481dcc"
+      "bytes": 17314,
+      "sha256": "0d2c0708b5fd39ca056a5cf8fcdc21b85ee8676e9639c3f0305ed4091149997f"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1172,13 +1172,13 @@
     },
     {
       "path": "docs/runbooks/PRODUCTION_APPROVAL_RU.md",
-      "bytes": 3719,
-      "sha256": "701798937033b50e6c2e6b0a69bbaf4b6f329a91b0b996871a11af169f157f47"
+      "bytes": 3601,
+      "sha256": "21ef2d2fb5c93201201b6d09bf721c77c79f727ad285f42066892db1231c703a"
     },
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
-      "bytes": 5558,
-      "sha256": "ff2bd5e56e665dfdf219bb8702cc77243523b1d22621e6f1fb6e7457e545b937"
+      "bytes": 6416,
+      "sha256": "3200533a97fb19a203caff133960a706a7cde30eafef339b881407d2fc368d6f"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -3642,8 +3642,8 @@
     },
     {
       "path": "scripts/cloudflare-readonly-snapshot.mjs",
-      "bytes": 9314,
-      "sha256": "f2dd29a8f4d896cfd93b7e60092e979618647a4364fa506cde852b09e6a8c738"
+      "bytes": 9353,
+      "sha256": "8f6882bfbfd1fd1db17ed939ec98c109282747ee66ebaf9224c0a0586a7ac4a7"
     },
     {
       "path": "scripts/code-hygiene.mjs",
@@ -3757,8 +3757,8 @@
     },
     {
       "path": "scripts/production-drift-plan.mjs",
-      "bytes": 2527,
-      "sha256": "60cb88c211c98d9dbba34f28fa0c6db374a22638e9c672451e081cee70af2818"
+      "bytes": 2441,
+      "sha256": "5ed72814f9a15de20af9a131efe668b5e983e91eb70ea264df1c581f8602c51a"
     },
     {
       "path": "scripts/production-drift-simulate.mjs",
@@ -6368,22 +6368,22 @@
     {
       "path": "verification/production-approval-contract.json",
       "bytes": 3064,
-      "sha256": "536ffa88be15dd8f8278ee909d6a38bb5d864ad5a55268a3eae3e25002421f4e"
+      "sha256": "3746339b47cda376b51d1bafddf69890aff1d5282007146ef634ee1120ecada2"
     },
     {
       "path": "verification/production-approval-readonly-snapshot.json",
-      "bytes": 2799,
-      "sha256": "5432f0e770be6202a653e03ef7fc0886e4be766fd901556b52dcff7baae6fe9c"
+      "bytes": 2775,
+      "sha256": "26d6945991f4a0e6eb2939f27c24fe9590da5a16e036918fe927f316b9ffb765"
     },
     {
       "path": "verification/production-drift-contract.json",
-      "bytes": 1014,
-      "sha256": "b53b6f78505400d564c0297420313755e1d769dc21eb3d1ca58bb4e064da6f1a"
+      "bytes": 1007,
+      "sha256": "1065623949d057acbeeba8310731e15324bdefc9ab611d5b1577c1e92ace3667"
     },
     {
       "path": "verification/production-drift-readonly-snapshot.json",
-      "bytes": 5646,
-      "sha256": "789dfe27bc10badc42d97d91a2f3d2bb7020cfd7d7315a0089e096da8c2ec8bf"
+      "bytes": 8839,
+      "sha256": "0666d883560aff7bd194c2508da3787e86fa9787bc30d8a654d2dfa6f9d7fa46"
     },
     {
       "path": "verification/production-release-contract.json",
@@ -6392,8 +6392,8 @@
     },
     {
       "path": "verification/production-release-readonly-snapshot.json",
-      "bytes": 1852,
-      "sha256": "dc543dc1c9886747d189f409e571703d1aafe49a6f0fe77561158463496cfe63"
+      "bytes": 1953,
+      "sha256": "9281950ec7f42b77672cb28b23731f11a75029c46cce8c809886b4afed384852"
     },
     {
       "path": "verification/sbom.spdx.json",
@@ -6452,8 +6452,8 @@
     },
     {
       "path": "wrangler.jsonc",
-      "bytes": 1835,
-      "sha256": "89144b6573cea1faf202578e0d615947507e689726fb444ef0898a2b8cb4197a"
+      "bytes": 1836,
+      "sha256": "e3d66c43fce3a0d1de6d698337d1a42f5aaebe8c39b57c85c5039618c2d7904d"
     },
     {
       "path": "wrangler.production.json",

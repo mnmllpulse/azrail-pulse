@@ -43,8 +43,8 @@
     },
     "production": {
       "worker": "azrail-pulse",
-      "deployment_id": "1603300f-0a39-44c8-b79a-39580de6a7d4",
-      "version_id": "b6be5826-d2a0-4530-b9ba-a5c7de625826",
+      "deployment_id": "9a6fd87a-3ccf-49dd-929e-9c172a38a8e8",
+      "version_id": "121a7bdb-2255-4cf5-a188-ffcbfdc768d6",
       "traffic_percent": 100,
       "compatibility_date": "2026-09-29",
       "observability": true,
@@ -59,7 +59,6 @@
         "AZRAIL_METERING",
         "AZRAIL_MISSION_BUDGET_USD",
         "AZRAIL_R2",
-        "AZRAIL_TOKEN",
         "AZRAIL_WORKERS_PLAN",
         "AZRAIL_WRITE_BUDGET",
         "CHAT_DAILY_LIMIT",

@@ -1,19 +1,19 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-29T00:12:02.043Z",
-  "source": "Cloudflare API read-only GET for worker settings and resources. D1 schema block is the previous read and was not queried again.",
+  "generated_at": "2026-11-03T19:35:51.042Z",
+  "source": "Cloudflare API read-only GET plus read-only D1 SELECT on azrail-pulse-db. Secret name re-read after deletion. No schema write.",
   "mutation_free": true,
   "environment": "production",
   "environments": {
     "production": {
-      "worker_name": "azrail-os",
+      "worker_name": "azrail-pulse",
       "settings": {
-        "compatibility_date": "2026-08-08",
+        "compatibility_date": "2026-09-29",
         "compatibility_flags": [
           "nodejs_compat"
         ],
         "observability": {
-          "enabled": false,
+          "enabled": true,
           "head_sampling_rate": 1,
           "redact_query_string": false,
           "logs": {
@@ -23,12 +23,9 @@
             "invocation_logs": true
           },
           "traces": {
-            "enabled": true,
+            "enabled": false,
             "persist": true,
             "head_sampling_rate": 1
-          },
-          "issues": {
-            "enabled": true
           }
         },
         "bindings": [
@@ -46,55 +43,95 @@
             "type": "assets"
           },
           {
+            "name": "AUTH_MODE",
+            "type": "plain_text",
+            "text": "oidc"
+          },
+          {
             "name": "AZRAIL_D1",
             "type": "d1",
-            "database_id": "c76e7d92-648c-45bc-b0df-f26b00d0ff88"
+            "database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f"
+          },
+          {
+            "name": "AZRAIL_FORCE_FREE",
+            "type": "plain_text",
+            "text": "true"
           },
           {
             "name": "AZRAIL_KV",
             "type": "kv_namespace",
-            "namespace_id": "dab3b792264f4d9cbec5d637d4f8d71e"
+            "namespace_id": "90738a2617074fa3825bf5d45e6cf50d"
           },
           {
             "name": "AZRAIL_METERING",
             "type": "plain_text",
-            "text": "observe"
+            "text": "enforce"
           },
           {
             "name": "AZRAIL_MISSION_BUDGET_USD",
             "type": "plain_text",
-            "text": "1"
+            "text": "0.10"
           },
           {
             "name": "AZRAIL_R2",
             "type": "r2_bucket",
-            "bucket_name": "azrail-artifacts"
-          },
-          {
-            "name": "AZRAIL_SANDBOX",
-            "type": "durable_object_namespace",
-            "class_name": "Sandbox",
-            "namespace_id": "4b79e361386245e68f45161fd349e5f3"
-          },
-          {
-            "name": "AZRAIL_TOKEN",
-            "type": "secret_text"
+            "bucket_name": "azrail-pulse-artifacts"
           },
           {
             "name": "AZRAIL_WORKERS_PLAN",
             "type": "plain_text",
-            "text": "paid"
+            "text": "free"
           },
           {
-            "name": "CORS_ORIGIN",
+            "name": "AZRAIL_WRITE_BUDGET",
             "type": "plain_text",
-            "text": "*"
+            "text": "1000"
+          },
+          {
+            "name": "CHAT_DAILY_LIMIT",
+            "type": "plain_text",
+            "text": "200"
+          },
+          {
+            "name": "DAILY_PROVIDER_CALLS",
+            "type": "plain_text",
+            "text": "500"
+          },
+          {
+            "name": "OIDC_ADMIN_EMAILS",
+            "type": "plain_text",
+            "text": "mnmllpulse@gmail.com"
+          },
+          {
+            "name": "OIDC_CLIENT_ID",
+            "type": "plain_text",
+            "text": "2f6b60f04afb1141453899b193e2620b3d65b8a7904e81e1450bc97e705c1912"
+          },
+          {
+            "name": "OIDC_GROUPS_CLAIM",
+            "type": "plain_text",
+            "text": "groups"
+          },
+          {
+            "name": "OIDC_ISSUER",
+            "type": "plain_text",
+            "text": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/2f6b60f04afb1141453899b193e2620b3d65b8a7904e81e1450bc97e705c1912"
           },
           {
             "name": "Orchestrator",
             "type": "durable_object_namespace",
             "class_name": "Orchestrator",
-            "namespace_id": "038f459445494cddba984df5aca4520b"
+            "namespace_id": "b1f95681bcdb4ccebdc6a47238fae425"
+          },
+          {
+            "name": "PUBLIC_ORIGINS",
+            "type": "plain_text",
+            "text": "https://azrail-pulse.mnmllpulse.workers.dev"
+          },
+          {
+            "name": "UNIFIED_LEDGER",
+            "type": "plain_text",
+            "text": "true"
           }
         ]
       },
@@ -105,39 +142,107 @@
       ],
       "subdomain": {
         "enabled": true,
-        "previews_enabled": true
+        "previews_enabled": false
       },
       "deployment": {
-        "id": "5f783b96-4e5e-451a-98f1-c045a6a4fd2f",
-        "version_id": "359c773a-dee4-4b9e-b886-96445de06184",
-        "created_on": "2026-10-12T19:51:23.814612Z",
-        "source": "dash"
+        "id": "9a6fd87a-3ccf-49dd-929e-9c172a38a8e8",
+        "version_id": "121a7bdb-2255-4cf5-a188-ffcbfdc768d6",
+        "created_on": "2026-11-03T19:35:03.003159Z",
+        "source": "wrangler"
       },
-      "secret_bindings": [
-        {
-          "name": "AZRAIL_TOKEN",
-          "type": "secret_text"
-        }
-      ],
+      "secret_bindings": [],
       "d1_schema": {
-        "database_id": "c76e7d92-648c-45bc-b0df-f26b00d0ff88",
-        "database_name": "azrail-db",
-        "served_by_region": "EEUR",
+        "database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f",
+        "database_name": "azrail-pulse-db",
         "table_names": [
+          "_cf_KV",
+          "ableton_analyses",
+          "access_accounts",
+          "approval_receipts",
+          "approval_requests",
           "approvals",
+          "asset_intelligence",
+          "asset_intelligence_evidence",
+          "backup_manifests",
+          "bench_results",
+          "bench_runs",
+          "connector_calls",
+          "connector_connections",
+          "connector_health_checks",
+          "connector_oauth_states",
+          "connector_reconciliations",
           "conversations",
+          "data_analyses",
+          "event_integrity",
+          "event_stream",
+          "image_generations",
+          "image_jobs",
+          "integration_connections",
+          "intelligence_memory",
+          "intelligence_memory_policy",
           "messages",
+          "mission_admissions",
+          "mission_agent_runtime",
+          "mission_checkpoints",
           "mission_checks",
+          "mission_controls",
+          "mission_decisions",
+          "mission_delivery_leases",
+          "mission_delivery_state",
           "mission_events",
+          "mission_fault_runs",
+          "mission_hints",
+          "mission_memory_reads",
+          "mission_outbox",
+          "mission_recovery_state",
+          "mission_snapshots",
           "mission_steps",
+          "mission_test_baselines",
+          "mission_tool_receipts",
           "missions",
+          "model_call_budget_scopes",
+          "model_call_dimensions",
+          "model_calls",
+          "model_prices",
+          "model_routing_settings",
+          "music_daw_imports",
+          "music_reference_metadata",
+          "music_sessions",
+          "oidc_states",
+          "operation_locks",
+          "project_design_contracts",
+          "project_lock_counters",
+          "project_lock_leases",
           "project_memory",
+          "project_permissions",
+          "project_profiles",
           "project_versions",
           "projects",
-          "sessions",
+          "release_evidence",
+          "request_quotas",
+          "resource_budgets",
+          "resource_ledger",
+          "resource_owners",
+          "schema_migrations",
+          "spend_limits",
+          "sqlite_sequence",
+          "studio_artifact_projects",
+          "studio_artifacts",
+          "studio_drafts",
+          "studio_reviews",
+          "suggestion_feedback",
+          "system_e2e_runs",
           "task_history",
           "tool_calls",
-          "users"
+          "trace_links",
+          "users",
+          "video_sessions",
+          "video_storyboards",
+          "web_sessions",
+          "websocket_tickets",
+          "workspace_heads",
+          "workspace_publications",
+          "workspace_snapshots"
         ],
         "mission_columns": [
           "id",
@@ -149,24 +254,18 @@
           "progress",
           "created_at",
           "updated_at",
-          "finished_at"
+          "finished_at",
+          "result_json"
         ],
         "feature_presence": {
-          "missions.result_json": false,
-          "schema_migrations": false,
-          "event_stream": false,
-          "trace_links": false,
-          "resource_owners": false,
-          "model_call_dimensions": false,
-          "release_evidence": false,
-          "connector_health_checks": false
-        },
-        "row_counts": {
-          "projects": 3,
-          "missions": 15,
-          "mission_events": 251,
-          "approvals": 0,
-          "task_history": 44
+          "missions.result_json": true,
+          "schema_migrations": true,
+          "event_stream": true,
+          "trace_links": true,
+          "resource_owners": true,
+          "model_call_dimensions": true,
+          "release_evidence": true,
+          "connector_health_checks": true
         },
         "last_read_meta": {
           "rows_written": 0,
@@ -216,5 +315,5 @@
       }
     ]
   },
-  "d1_schema_observed_at": "2026-10-10T08:01:07Z"
+  "d1_schema_observed_at": "2026-11-03T19:29:29.903Z"
 }

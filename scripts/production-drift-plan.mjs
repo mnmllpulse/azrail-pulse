@@ -24,7 +24,7 @@ const plan = {
     'Complete the exact-release Node24 suite and the staging migration/deploy/smoke/security chain before any production action.',
     'Stage D #35 must prove production backup/restore before production migration or deployment approval.',
     'Operator must verify the production OIDC client and issuer; never invent or copy staging identity values.',
-    'At production migration time, use the reviewed migration planner. Current live schema requires migration 002 because missions.result_json is absent, then continue through the latest numbered migration.',
+    'Do not apply remote migrations from this read-only plan. Use the observed schema start in migration_reconciliation.',
     'Deploy the canonical production config only after explicit production approval: compatibility date, OIDC, strict PUBLIC_ORIGINS, metering=enforce, Unified Ledger, observability and reviewed bindings.',
     'After verified OIDC cutover, rotate/revoke the legacy AZRAIL_TOKEN through the approval boundary; do not remove it prematurely.',
     'Disable production preview URLs or prove they are protected by Cloudflare Access before approval.',

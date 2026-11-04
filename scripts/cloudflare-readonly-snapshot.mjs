@@ -148,6 +148,7 @@ const productionSnapshot = {
   environments: {
     production: {
       ...previousProduction.environments.production,
+      worker_name: workers.production,
       settings: {
         compatibility_date: productionSettings.compatibility_date,
         compatibility_flags: productionSettings.compatibility_flags ?? [],

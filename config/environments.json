@@ -29,7 +29,7 @@
     "pulse": {
       "config_file": "wrangler.jsonc",
       "name": "azrail-pulse",
-      "preview_urls": true,
+      "preview_urls": false,
       "main": "src/unified.free.ts",
       "plan": "free",
       "sandbox": false,

@@ -1,12 +1,12 @@
 # Production Drift Reconciliation — Stage D #34
 
-Статус текущего live production относительно canonical RC: **RECONCILIATION_REQUIRED**.
+Статус текущего live production относительно canonical RC: **ALIGNED**.
 
 Этот этап исключительно read-only. Он не применяет D1 migrations, не меняет Worker settings/bindings, не отключает Preview URLs, не удаляет secrets, не выполняет GitHub push и не редактирует Canva.
 
 ## Источник истины
 
-- target config: `wrangler.production.json` (генерируется из `config/environments.json`);
+- target config: `wrangler.jsonc` рабочего сайта `azrail-pulse` (генерируется из `config/environments.json`);
 - live evidence: `verification/production-drift-readonly-snapshot.json`;
 - policy: `verification/production-drift-contract.json`;
 - computed report: `.work/production-drift-reconciliation.json`.
@@ -21,9 +21,13 @@ npm run production:drift:plan
 
 `production:drift:check` проверяет evidence и строит drift matrix, но не считает наличие известного drift ошибкой самого инструмента. `production:drift:strict` предназначен для будущего post-release gate и завершается ненулевым кодом, пока production не станет `ALIGNED`.
 
+## Сверка 3 ноября 2026
+
+Сверка смотрит на рабочий сайт `azrail-pulse`, deployment `9a6fd87a-3ccf-49dd-929e-9c172a38a8e8`, и на `wrangler.jsonc`. База `azrail-pulse-db` прочитана запросами SELECT: нужные таблицы на месте, запись не выполнялась. 3 ноября секрет `AZRAIL_TOKEN` снят, вход остаётся только почтой. Совпадений 42, расхождений нет, блокеров нет. Статус **ALIGNED**. Одно предупреждение: выкладка пришла из Wrangler, не из слитого запроса GitHub.
+
 ## Read-only snapshot 2026-10-10
 
-Этот снимок снят 10 октября 2026. Воркер `azrail-os` удалён 29 октября 2026 и рабочим сайтом не является. Цифры ниже описывают тот старый снимок.
+Этот снимок снят 10 октября 2026. Его статус был **RECONCILIATION_REQUIRED**. Воркер `azrail-os` удалён 29 октября 2026 и рабочим сайтом не является. Цифры ниже описывают тот старый снимок.
 
 Прежний Worker снимка: `azrail-os`.
 
@@ -31,7 +35,7 @@ npm run production:drift:plan
 
 Подтверждённые совпадения: production D1/KV/R2 identities, Workers AI binding, Assets binding, Orchestrator, Sandbox, cron `*/10 * * * *`, Workers plan `paid`, mission budget `1`, AI Gateway id `default`.
 
-## Критический drift
+## Критический drift снимка 10 октября 2026
 
 Live production всё ещё отличается от canonical RC по release-critical параметрам:
 
@@ -47,7 +51,7 @@ Live production всё ещё отличается от canonical RC по releas
 - Preview URLs включены и требуют отдельной Access-проверки либо отключения перед production approval;
 - legacy secret binding `AZRAIL_TOKEN` всё ещё существует и должен оставаться до доказанного OIDC cutover, после чего — rotation/revocation через approval boundary.
 
-## D1 schema drift
+## Схема базы в снимке 10 октября 2026
 
 Production D1 `azrail-db` содержит реальные данные, поэтому никакого destructive reset быть не должно. Read-only inspection показал как минимум 3 projects, 15 missions, 251 legacy mission events и 44 task-history rows.
 
@@ -57,7 +61,7 @@ Live `missions` не имеет `result_json`, а также отсутству�
 
 Локальная `production:drift:simulate` строит fixture по реально наблюдённой production schema и проверяет migrations 002–032 без удаления legacy data; migrations 003–032 дополнительно переисполняются для проверки additive idempotency.
 
-## Порядок будущего reconciliation
+## Порядок, записанный 10 октября 2026
 
 1. Не менять production на Stage D #34.
 2. Закрыть Node24 и весь staging chain: migration → deploy → authenticated smoke → security verification.
