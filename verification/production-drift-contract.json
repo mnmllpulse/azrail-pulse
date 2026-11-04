@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
   "environment": "production",
-  "worker_name": "azrail-os",
-  "canonical_config": "wrangler.production.json",
+  "worker_name": "azrail-pulse",
+  "canonical_config": "wrangler.jsonc",
   "snapshot": "verification/production-drift-readonly-snapshot.json",
   "policy": {
     "cloudflare_mutation_allowed": false,

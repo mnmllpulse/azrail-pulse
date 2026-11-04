@@ -21,14 +21,15 @@
   "cloudflare": {
     "production": {
       "worker_name": "azrail-pulse",
-      "deployment_id": "1603300f-0a39-44c8-b79a-39580de6a7d4",
-      "version_id": "b6be5826-d2a0-4530-b9ba-a5c7de625826",
+      "deployment_id": "9a6fd87a-3ccf-49dd-929e-9c172a38a8e8",
+      "version_id": "121a7bdb-2255-4cf5-a188-ffcbfdc768d6",
       "compatibility_date": "2026-09-29",
       "d1_database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f",
       "d1_bookmark": "00000915-00000000-00005113-0a4f8c084a616139e714b6cd621c2a64",
       "known_drift": [
         "Retargeted 2026-10-29 from the deleted worker azrail-os to the working site azrail-pulse.",
-        "Preview URLs are enabled on the working site.",
+        "Preview URLs are disabled on the working site.",
+        "The AZRAIL_TOKEN secret was removed on 2026-11-03. Email login remains the only sign-in.",
         "The deleted GitHub repository mnmllpulse/azrail-os is not the release target."
       ]
     },
