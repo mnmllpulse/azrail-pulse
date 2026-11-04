@@ -24,7 +24,9 @@ import {openUniversalCompareCenter} from './components/universal-compare';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
-import {formatAssignment,readAssignment,type Assignment} from './assignment';
+import {formatAssignment,type Assignment} from './assignment';
+import {requestImage} from './image-request';
+import {formatPlan,planWork,type PlanPart,type WorkPlan} from './planner';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
 function reportGlobalError(source:string,reason:unknown){
@@ -773,12 +775,12 @@ async function refreshMissionHistory(){
   }
  }catch{host.replaceChildren();const note=document.createElement('p');note.className='muted';note.textContent='Не удалось загрузить список миссий.';host.append(note);}
 }
-async function runMission(goal?:string,opts?:{keepTurn?:boolean}){
- if(missionSubmitting&&!opts?.keepTurn)return;
+async function runMission(goal?:string,opts?:{keepTurn?:boolean;stay?:boolean;nested?:boolean}){
+ if(missionSubmitting&&!opts?.keepTurn&&!opts?.nested)return;
  if(!account)throw Error('Войдите в аккаунт, чтобы запустить AZRAIL.');
  if(account.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
  const message=(goal??prompt.value).trim();if(!message)return;
- if(composerPage!=='mission'){
+ if(!opts?.stay&&composerPage!=='mission'){
   skipComposerSave=true;
   if(!opts?.keepTurn){chatHistory.setDraft(message);prompt.value=message;}
   navigation.navigate({page:'mission'});
@@ -805,7 +807,7 @@ async function runMission(goal?:string,opts?:{keepTurn?:boolean}){
   if(e instanceof APIError&&([400,401,403,404,405,413,415,422,429].includes(e.status)||e.code==='project_busy')){pending=null;remember();}
   throw e;
  }
- finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
+ finally{if(!opts?.nested){missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}}
 }
 function showAssignment(plan:Assignment){
  const host=$('assignment-live');
@@ -816,6 +818,26 @@ function showAssignment(plan:Assignment){
  $('assignment-ready').textContent=plan.ready;
  $('assignment-next').textContent=plan.next;
  $('assignment-you').textContent=plan.needsYou;
+ $('assignment-parts').replaceChildren();
+}
+function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
+ const host=$('assignment-live');
+ host.hidden=false;
+ host.dataset.kind='plan';
+ const ready=plan.parts.filter(part=>part.wave===0);
+ $('assignment-worker').textContent=plan.parallel?`План · ${plan.parts.length} части, рядом ${ready.length}`:`План · ${plan.parts.length} части`;
+ $('assignment-now').textContent=ready.map(part=>part.worker).join(' · ');
+ $('assignment-ready').textContent=plan.parts.map(part=>part.ready).join(' ');
+ $('assignment-next').textContent=plan.parallel?'Независимые части идут рядом. Следующая волна ждёт, пока предыдущая закончится.':'Части идут по очереди: следующая начинается после предыдущей.';
+ $('assignment-you').textContent=needsYou;
+ const list=$('assignment-parts');
+ list.replaceChildren();
+ for(const part of plan.parts){
+  const item=document.createElement('li');
+  const place=part.state==='running'?'идёт':part.state==='done'?'готово':part.state==='failed'?'не вышло':part.wave===0?'рядом':'ждёт';
+  item.textContent=`${part.worker} — ${place} — ${part.text}`;
+  list.append(item);
+ }
 }
 function waitForSelector(selector:string,ms=8000){
  return new Promise<boolean>(resolve=>{
@@ -864,11 +886,97 @@ async function runAssignment(plan:Assignment,message:string){
  }
  finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
 }
+async function runPlan(plan:WorkPlan,message:string){
+ if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
+ if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
+ const thread=chatHistory.current()??chatHistory.create();
+ project=thread.projectId||project||crypto.randomUUID();
+ const requestKey=crypto.randomUUID();
+ remember();
+ missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
+ chatHistory.accepted(requestKey,message,project,'');
+ if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
+ const paint=(needsYou?:string)=>{paintPlan(plan,needsYou);chatHistory.report(requestKey,[formatPlan(plan),needsYou].filter(Boolean).join('\n\n'),plan.parts.some(part=>part.state==='failed')?'failed':'completed');syncChatUI();workspace.toLatest();};
+ const needsAccount=plan.parts.some(part=>part.kind!=='music');
+ try{
+  if(!account&&needsAccount){paint('Войди в аккаунт, и я начну части, которым нужен вход.');return;}
+  if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
+  const waves=[...new Set(plan.parts.map(part=>part.wave))].sort((a,b)=>a-b);
+  for(const wave of waves){
+   const group=plan.parts.filter(part=>part.wave===wave);
+   if(group.some(part=>plan.parts.some(dep=>part.dependsOn.includes(dep.id)&&dep.state==='failed'))){
+    for(const part of group)part.state='failed';
+    paint('Следующая часть остановлена: предыдущая не вышла.');
+    continue;
+   }
+   for(const part of group)part.state='running';
+   paint();
+   const screen=group.find(part=>part.kind==='music')??group.find(part=>part.kind==='video')??null;
+   const jobs:Array<Promise<void>>=[];
+   for(const part of group){
+    if(part===screen)continue;
+    jobs.push(runPlanPart(part));
+   }
+   if(screen)jobs.push(runPlanScreen(screen));
+   const results=await Promise.allSettled(jobs);
+   results.forEach((result,index)=>{
+    const part=group.filter(item=>item!==screen).concat(screen? [screen]:[])[index];
+    if(!part)return;
+    if(result.status==='rejected'){part.state='failed';part.needsYou=result.reason instanceof Error?result.reason.message:'Эта часть не вышла.';}
+    else if(part.state==='running')part.state='done';
+   });
+   paint(plan.parts.some(part=>part.state==='failed')?'Часть плана не вышла. Остальные, которые уже шли рядом, не откатываю.':undefined);
+  }
+ }
+ catch(e){
+  const text=e instanceof Error?e.message:'Не удалось начать план.';
+  paint(text);
+  throw e;
+ }
+ finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
+}
+async function runPlanPart(part:PlanPart){
+ if(part.kind==='image'){
+  const signed=account;if(!signed)throw Error('Войдите, чтобы собрать изображение.');
+  const result=await requestImage(signed.id,{prompt:part.text,projectId:project||undefined,aspectRatio:'1:1',resolution:1024,style:'auto',seed:null,variations:1,operation:'generate'},api) as {items?:Array<{name?:string}>};
+  part.state='done';
+  part.ready=result.items?.[0]?.name?`Картинка «${result.items[0].name}» сохранена.`:'Картинка собрана.';
+  return;
+ }
+ if(part.kind==='video'){
+  if(!account)throw Error('Войдите, чтобы собрать раскадровку.');
+  const result=await api('/api/studio/video/plan',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({prompt:part.text,sceneCount:4,transition:'fade',motion:'pan'})}) as {scenes?:Array<{text?:string}>};
+  const scenes=(result.scenes??[]).map(scene=>scene.text?.trim()).filter(Boolean).slice(0,4);
+  part.state='done';
+  part.ready=scenes.length?`Раскадровка: ${scenes.join(' · ')}`:'Раскадровка запрошена. Ролик из кадров собирается в Video Studio.';
+  return;
+ }
+ if(part.kind==='web'||part.kind==='build'){
+  await runMission(part.text,{keepTurn:true,stay:true,nested:true});
+  part.state='done';
+  part.ready=$('mission-status').textContent?.trim()||'Ход задачи открыт.';
+  return;
+ }
+ part.state='done';
+}
+async function runPlanScreen(part:PlanPart){
+ if(!part.studio||!part.control)throw Error('Для этой части нет экрана студии.');
+ navigation.navigate({page:'studio',studio:part.studio});
+ const found=await waitForSelector(part.control);
+ if(!found)throw Error('Студия не открылась. Отправь фразу ещё раз.');
+ prompt.value=part.text;
+ const held=missionSubmitting;
+ missionSubmitting=false;
+ try{await runStudioRoom();}
+ finally{missionSubmitting=held;}
+ part.state='done';
+}
 async function runChat(){
  if(missionSubmitting)return;
  const message=prompt.value.trim();if(!message)return;
- const plan=readAssignment(message);
- if(plan.kind!=='talk'){await runAssignment(plan,message);return;}
+ const planned=planWork(message);
+ if(planned.parts.length>1){await runPlan(planned,message);return;}
+ if(planned.parts.length===1){await runAssignment(planned.parts[0],message);return;}
  if(!account)throw Error('Войдите в аккаунт, чтобы писать в Chat.');
  if(account.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
  if(account.role!=='admin'&&!account.operator)throw Error('Chat пока открыт только владельцу.');
@@ -1025,7 +1133,7 @@ async function poll(version=epoch){
   const previous=chatHistory.current()?.turns.find(t=>t.missionId===observedMission)?.status;
   chatHistory.report(observedMission,$('mission-summary').textContent??'',state.status);
   const assignment=$('assignment-live');
-  if(assignment.dataset.kind==='web'||assignment.dataset.kind==='build'){
+  if(assignment.dataset.kind==='web'||assignment.dataset.kind==='build'||assignment.dataset.kind==='plan'){
    const live=$('mission-status').textContent?.trim();
    if(live)$('assignment-now').textContent=live;
   }
