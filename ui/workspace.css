@@ -66,6 +66,9 @@ html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: hidden; }
 .app-shell .assignment-facts { display: grid; grid-template-columns: 88px minmax(0,1fr); gap: 3px 10px; margin: 2px 0 0; font-size: 12px; line-height: 1.45; }
 .app-shell .assignment-facts dt { margin: 0; color: #8d849c; }
 .app-shell .assignment-facts dd { margin: 0; color: #d9d2e4; }
+.app-shell .assignment-parts { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; }
+.app-shell .assignment-parts:empty { display: none; }
+.app-shell .assignment-parts li { font-size: 12px; line-height: 1.4; color: #d9d2e4; }
 .app-shell .workspace-title { display: flex; align-items: center; gap: 16px; min-width: 0; margin-right: auto; }
 .app-shell .workspace-product { color: #d0c3e0; font-size: 12px; font-weight: 650; letter-spacing: .12em; white-space: nowrap; }
 .app-shell .workspace-product > span { color: #716979; font-size: 9px; font-weight: 400; }
