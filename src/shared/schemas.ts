@@ -51,6 +51,11 @@ export type ChatBody = z.infer<typeof chatSchema>;
 
 export const polishSchema = z.object({ text: trimmed(20_000, "text"), preferredModel: preferredModelSchema });
 
+export const planDraftSchema = z.object({
+  message: trimmed(4_000, "message"),
+  memory: z.string().trim().max(1_000).optional(),
+});
+
 const planThingSchema = z.object({
   type: z.enum(["image", "audio", "page", "storyboard", "note"]),
   url: z.string().max(300).regex(/^\/api\/studio\/artifacts\/[A-Za-z0-9._~-]+(?:\?inline=1)?$|^\/s\/[A-Za-z0-9_-]+\/?$/).optional(),
@@ -71,6 +76,8 @@ export const conversationPlanSchema = z.object({
       worker: z.string().max(80),
       state: z.enum(["waiting", "running", "done", "failed"]),
       ready: z.string().max(500),
+      wave: z.number().int().min(0).max(3).optional(),
+      dependsOn: z.array(z.string().trim().min(1).max(32)).max(3).optional(),
       thing: planThingSchema.optional(),
     })).max(4),
   }),

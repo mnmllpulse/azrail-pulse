@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPlan, planRecord, planWork } from '../ui/planner';
+import { formatPlan, openStoredPlan, planRecord, planWork, revisePart, wavesToRun, workPlanFromDraft } from '../ui/planner';
 
 describe('Планировщик поручения', () => {
   it('одну картинку не дробит', () => {
@@ -44,5 +44,54 @@ describe('Планировщик поручения', () => {
     const record = planRecord(plan);
     expect(record.parts[0]?.thing).toEqual({ type: 'image', url: '/api/studio/artifacts/poster-1?inline=1', title: 'Постер' });
     expect(record.parts[1]?.thing).toBeUndefined();
+  });
+
+  it('план модели ставит картинку и трек в одну волну', () => {
+    const plan = workPlanFromDraft([
+      { text: 'Постер бюро', kind: 'image' },
+      { text: 'Тёмный трек', kind: 'music' },
+    ]);
+    expect(plan?.parts.map((part) => part.kind)).toEqual(['image', 'music']);
+    expect(plan?.parallel).toBe(true);
+    expect(plan?.parts[1]?.wave).toBe(0);
+  });
+
+  it('after у модели ставит вторую часть после первой', () => {
+    const plan = workPlanFromDraft([
+      { text: 'Сайт бюро', kind: 'web' },
+      { text: 'Постер', kind: 'image', after: true },
+    ]);
+    expect(plan?.parts[1]?.wave).toBe(1);
+    expect(plan?.parts[1]?.dependsOn).toEqual(['part-1']);
+  });
+
+  it('неизвестный вид отменяет ответ модели', () => {
+    expect(workPlanFromDraft([{ text: 'Сделать', kind: 'deck' }])).toBeNull();
+    expect(workPlanFromDraft([])).toBeNull();
+  });
+
+  it('сохранённый план помнит готовую часть и оставляет упавшую', () => {
+    const plan = openStoredPlan([
+      { id: 'part-1', kind: 'image', text: 'Постер', state: 'done', wave: 0, thing: { type: 'image', url: '/api/studio/artifacts/poster-1?inline=1', title: 'Постер' } },
+      { id: 'part-2', kind: 'music', text: 'Трек', state: 'failed', wave: 0 },
+      { id: 'part-3', kind: 'web', text: 'Сайт', state: 'running', wave: 1, dependsOn: ['part-2'] },
+    ]);
+    expect(plan?.parts.map((part) => part.state)).toEqual(['done', 'failed', 'waiting']);
+    expect(plan?.parts[2]?.dependsOn).toEqual(['part-2']);
+    expect(wavesToRun(plan!).map((group) => group.map((part) => part.kind))).toEqual([['music'], ['web']]);
+  });
+
+  it('правка одной части не трогает соседнюю', () => {
+    const plan = planWork('Нарисуй постер и собери трек');
+    plan.parts[0].state = 'done';
+    plan.parts[0].thing = { type: 'image', url: '/api/studio/artifacts/poster-1?inline=1', title: 'Постер' };
+    plan.parts[1].state = 'done';
+    expect(revisePart(plan, plan.parts[1].id, '  тихий трек  ')).toBe(true);
+    expect(plan.parts[1]?.text).toBe('тихий трек');
+    expect(plan.parts[1]?.state).toBe('waiting');
+    expect(plan.parts[1]?.thing).toBeUndefined();
+    expect(plan.parts[0]?.state).toBe('done');
+    expect(plan.parts[0]?.thing?.url).toBe('/api/studio/artifacts/poster-1?inline=1');
+    expect(wavesToRun(plan, plan.parts[1].id).map((group) => group.map((part) => part.text))).toEqual([['тихий трек']]);
   });
 });

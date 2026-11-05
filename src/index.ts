@@ -1,7 +1,7 @@
 import { readModelPolicy, setModelPolicy, modelBlockReason, FREE_MODEL_SLUGS, ModelPolicyError } from "./lib/model-policy";
 import { parseInput, queryObject, errorPayload } from "./lib/validation";
 import { BudgetError } from "./unified/ledger";
-import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, conversationPatchSchema, conversationPlanSchema, approvalListQuerySchema, approvalDecisionSchema, backupCreateSchema, backupQuerySchema, backupDeleteQuerySchema, backupRestoreSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
+import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, approvalListQuerySchema, approvalDecisionSchema, backupCreateSchema, backupQuerySchema, backupDeleteQuerySchema, backupRestoreSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
 import { readLiveCatalog } from "./lib/model-catalog";
 import { backupProject, deleteBackup, restoreBackup } from "./lib/backups";
 import { withProjectLock } from "./lib/project-control";
@@ -22,6 +22,7 @@ import { handleUpload } from "./lib/upload";
 import { describeRegistry, allCapabilities } from "./lib/agent-registry";
 import { describeTools } from "./lib/tool-registry";
 import { addMessage, deleteConversation, ensureConversation, listMessages, updateConversationMeta } from "./lib/chat-store";
+import { parsePlanDraft } from "./lib/assignment-plan";
 import { listMissionEvents } from "./lib/event-store";
 import { listProjectEvents, listTraceEvents } from "./lib/event-stream";
 import { MODEL_REGISTRY, findModel, providerIcon } from "./lib/model-registry";
@@ -373,9 +374,9 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         }
       }
       await authorizeRequest(env,principal,request,parsedBody);
-      if (request.method === "POST" && url.pathname === "/api/chat") await enforceOperationLimit(env, "chat", auth.caller ?? "shared");
+      if (request.method === "POST" && (url.pathname === "/api/chat" || url.pathname === "/api/plan")) await enforceOperationLimit(env, "chat", auth.caller ?? "shared");
       if (request.method === "POST" && url.pathname.startsWith("/api/admin/")) await enforceOperationLimit(env, "admin", principal.id);
-      if (request.method === "POST" && url.pathname === "/api/chat") {
+      if (request.method === "POST" && (url.pathname === "/api/chat" || url.pathname === "/api/plan")) {
         const daily = await reserveDailyQuota(
           env,
           auth.caller ?? "shared",
@@ -1240,6 +1241,23 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         archived: body.archived,
         projectId: body.projectId,
       }, env);
+    }
+
+    if (url.pathname === "/api/plan" && request.method === "POST") {
+      if (principal.role !== "admin" && !principal.operator) {
+        return json({ error: "План модели пока открыт только владельцу.", code: "chat_owner_only" }, env, 403);
+      }
+      const body = parseInput(planDraftSchema, parsedBody);
+      const routed = await runModel<unknown>(env, "chat", {
+        messages: [
+          { role: "system", content: "Разбери поручение на части. Верни только JSON {\"parts\":[{\"text\":\"короткая задача\",\"kind\":\"image|music|video|web|build\",\"after\":false}]}. after true ставит часть после предыдущей. image — картинка, music — трек, video — раскадровка, web — сайт, build — другое дело. Вопрос без готовой вещи: {\"parts\":[]}. Не больше 4 частей. Не выдумывай темп, деньги и ссылки. Если сказано, что часть уже собрана, не заказывай её снова, пока новая фраза прямо не просит переделать." },
+          ...(body.memory ? [{ role: "user" as const, content: `Уже собрано: ${body.memory}` }] : []),
+          { role: "user", content: body.message },
+        ],
+      }, { ledger: new UsageLedger(`account:${principal.id}`), trace });
+      const parts = parsePlanDraft(extractText(routed.output));
+      if (!parts) return json({ success: true, fallback: true, parts: [] }, env);
+      return json({ success: true, fallback: false, parts }, env);
     }
 
     if (url.pathname === "/api/polish" && request.method === "POST") {
