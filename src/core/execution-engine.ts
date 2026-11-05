@@ -216,11 +216,11 @@ export class ExecutionEngine {
     memoryBlock=designInstruction(design.contract);
     if (ctx.projectId) {
       try {
-        const recalled = await recallContext(this.env, ctx.projectId, 30, {missionId:ctx.missionId});
+        const recalled = await recallContext(this.env, ctx.projectId, 30, {missionId:ctx.missionId, query:goal});
         if (recalled) {
           memoryBlock += "\n" +
-            `ИЗВЕСТНО ПО ПРОШЛЫМ МИССИЯМ (свежие записи; это не гарантия, ` +
-            `проверяй, если решение зависит от факта):\n${recalled}`;
+            `ИЗВЕСТНО ПО ПРОШЛЫМ МИССИЯМ (сначала совпавшие слова, затем свежие записи; ` +
+            `это не гарантия и не векторный поиск, проверяй, если решение зависит от факта):\n${recalled}`;
           await this.note(ctx, "memory.recalled", { reason: `записей: ${recalled.split("\n").length}` });
         }
       } catch (err) {

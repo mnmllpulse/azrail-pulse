@@ -47,10 +47,12 @@ export function mountProseStudio(context:StudioModuleContext){
   for(const item of items){const card=doc.createElement('article');card.className='prose-card';const title=doc.createElement('h3');title.textContent=item.title;const body=doc.createElement('p');body.textContent=item.text;card.append(title,body);bank.append(card);}
  };
  const giveToMusic=(draft:ProseDraft)=>{window.localStorage.setItem(PROSE_HANDOFF_KEY,JSON.stringify(proseHandoff(draft)));};
+ const giveToImage=(draft:ProseDraft)=>{window.localStorage.setItem('pulse.image.phrase',draft.text.slice(0,4000));};
  const renderDrafts=(drafts:ProseDraft[],source:string,used:ProseMode)=>{
   results.replaceChildren();
   const first=drafts[0];if(first)giveToMusic(first);
-  const parked=first?` В Music Studio лежит «${first.title}». Студия эти слова не поёт.`:'';
+  if(first&&used==='picture')giveToImage(first);
+  const parked=first?` В Music Studio лежит «${first.title}». Студия эти слова не поёт.${used==='picture'?' Фраза для картинки лежит в Image Studio.':''}`:'';
   status.textContent=(source==='kept'?'Это твой текст. Секции и ремарки в скобках сохранены. Тон его не меняет.':source==='model'?'Три варианта написала модель.':used==='directions'?'Три направления собраны на устройстве. Мрачнее снимает восклицания и усилители и не дописывает мрак. Текст в поле не изменён. Войди в аккаунт, чтобы модель написала полные варианты.':'Черновик собран на устройстве из твоей фразы. Войди в аккаунт, чтобы модель написала полные варианты.')+parked;
   for(const draft of drafts){
    const card=doc.createElement('article');card.className='prose-card';
@@ -63,9 +65,10 @@ export function mountProseStudio(context:StudioModuleContext){
    const save=doc.createElement('button');save.type='button';save.textContent='В банк';save.onclick=()=>{const items=readBank();items.unshift({id:crypto.randomUUID(),mode,tone,title:draft.title,text:draft.text,sections:draft.sections,savedAt:Date.now()});writeBank(items);renderBank();context.notice('Идея в банке этого браузера.');};
    const rhythm=doc.createElement('button');rhythm.type='button';rhythm.textContent='Проверить ритм';rhythm.onclick=()=>{const long=proseLongLines(draft.text);context.notice(long.length?long.map(row=>`Строка ${row.index}: ${row.syllables} слогов.`).join(' '):'Длинных строк нет.');};
    const hand=doc.createElement('button');hand.type='button';hand.textContent='В Music Studio';hand.onclick=()=>{giveToMusic(draft);context.notice(`«${draft.title}» теперь в Music Studio. Студия эти слова не поёт.`);};
+   const draw=doc.createElement('button');draw.type='button';draw.textContent='В Image Studio';draw.onclick=()=>{giveToImage(draft);context.notice('Фраза лежит в поле Image Studio.');};
    const open=doc.createElement('a');open.href='/studios/music';open.textContent='Открыть Music Studio';
    const file=document.createElement('button');file.type='button';file.textContent='Скачать txt';file.onclick=()=>{const blob=new Blob([draft.text],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=fileNameFromPhrase(draft.title||'текст','txt');link.click();URL.revokeObjectURL(url);};
-   bar.append(copy,file,save,rhythm,hand,open);
+   bar.append(copy,file,save,rhythm,hand,draw,open);
    card.append(bar);results.append(card);
   }
  };

@@ -2,6 +2,8 @@ import type {Env} from '../types';
 import {AGENT_REGISTRY} from './agent-registry';
 import {loadCheckpoints,type MissionCheckpoint} from './checkpoints';
 import {listMissionEvents} from './event-store';
+import {readDependencyNote} from '../core/planner';
+import {validateMissionGraph,type MissionGraphNode} from './mission-graph';
 
 export type MetatronControlAction='start'|'pause'|'resume'|'cancel'|'terminate'|'retry_step';
 export type FaultScenario='timeout'|'provider_down'|'d1_failure'|'network_loss';
@@ -31,8 +33,42 @@ function graphFromSteps(steps:Array<{id?:string;position:number;title:string;sta
     label:step.title,
     status:step.status,
     dependencies:index?[steps[index-1].id??`step-${steps[index-1].position}`]:[],
-    note:step.note??null,
+    note:readDependencyNote(step.note)?.text??step.note??null,
   }));
+}
+
+/** Явный граф, если у каждого шага записаны рёбра. Иначе порядок шагов, без выдуманной параллели. */
+export function readMissionGraph(steps:Array<{id?:string;position:number;title:string;status:string;note?:string|null}>){
+  const linear={mode:'derived-linear' as const,nodes:graphFromSteps(steps),warning:'Dependencies are derived from persisted step order until an explicit planner DAG is stored.'};
+  if(!steps.length)return linear;
+  const edges=steps.map(step=>readDependencyNote(step.note));
+  if(edges.some(edge=>!edge))return linear;
+  const nodes:MissionGraphNode[]=steps.map((step,index)=>({
+    id:step.id??`step-${step.position}`,
+    label:step.title,
+    dependencies:(edges[index]?.dependsOn??[]).filter(id=>id!==(step.id??`step-${step.position}`)),
+    retryLimit:0,
+    timeoutMs:60_000,
+    resourceRequirements:{},
+    estimatedMicroUsd:0,
+    status:'waiting',
+  }));
+  try{
+    validateMissionGraph(nodes);
+  }catch{
+    return {...linear,warning:'Явные зависимости не сошлись. Показан порядок шагов.'};
+  }
+  return {
+    mode:'explicit' as const,
+    nodes:steps.map((step,index)=>({
+      id:step.id??`step-${step.position}`,
+      label:step.title,
+      status:step.status,
+      dependencies:edges[index]?.dependsOn??[],
+      note:edges[index]?.text??null,
+    })),
+    warning:null,
+  };
 }
 
 function checkpointUncertain(points:MissionCheckpoint[]){
@@ -79,7 +115,7 @@ export async function metatronSnapshot(env:Env,missionId:string){
   return {
     mission,
     control,
-    graph:{mode:'derived-linear',nodes:graphFromSteps(steps),warning:'Dependencies are derived from persisted step order until an explicit planner DAG is stored.'},
+    graph:readMissionGraph(steps),
     agentCards:{registered,runtime:agents},
     live:{transport:'project-websocket+durable-replay',events},
     traceExplorer:{links:traceLinks,toolCalls,modelCalls},

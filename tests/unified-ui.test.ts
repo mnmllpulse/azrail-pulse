@@ -11,7 +11,7 @@ it('standalone HTML opens locally and studio navigation works without fetching a
  const code=html.match(/<script>([\s\S]*?)<\/script>/)![1];
  window.eval(code);
  expect(window.document.querySelector('#create h1')?.textContent).toContain('AZRAIL');
- expect(window.document.querySelector('[data-view="create"]')?.textContent).toContain('Chat');
+ expect(window.document.querySelector('[data-view="create"]')?.textContent).toContain('Чат');
  (window.document.querySelector('[data-view="studios"]') as any).click();
  expect(window.document.getElementById('studios')?.hidden).toBe(false);
  expect(window.document.querySelectorAll('#studio-list .card')).toHaveLength(8);
@@ -53,6 +53,7 @@ it.each(['rejected','uncertain'] as const)('mission retry after %s delivery pres
  const settle=async()=>{await new Promise(resolve=>setTimeout(resolve,0));await new Promise(resolve=>setTimeout(resolve,0));};
  try{
   window.eval(html.match(/<script>([\s\S]*?)<\/script>/)![1]);await settle();
+  (window.document.getElementById('expert-mode') as any).click();await settle();
   (window.document.querySelector('[data-view="mission"]') as any).click();await settle();
   const prompt=window.document.getElementById('prompt') as any;
   const form=window.document.getElementById('composer')!;

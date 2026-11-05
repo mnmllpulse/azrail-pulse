@@ -20,6 +20,7 @@ function open(url='file:///preview/index.html',fetcher?:Window['fetch']){
 }
 it.each(studios)('$id opens on its own hosted page, rather than in the studio catalog',async(studio)=>{
  const w=open(`https://app.example.com/studios/${studio.id}`);await settle();
+ if(studio.id==='lab'||studio.id==='ledger'){(w.document.getElementById('expert-mode') as any).click();await settle();(w.document.querySelector(`#studio-list [data-studio="${studio.id}"]`) as any).click();await settle();}
  expect(w.location.pathname).toBe(`/studios/${studio.id}`);
  expect(w.document.getElementById('studio-page')?.hidden).toBe(false);
  expect(w.document.getElementById('studios')?.hidden).toBe(true);
@@ -56,7 +57,7 @@ it('the bottom composer stays on studios, Mission Control and Metatron and hides
  expect(prompt.value).toBe('Мой музыкальный лейбл');
  (w.document.querySelector('[data-view="projects"]')as any).click();expect(dock.hidden).toBe(true);
  (w.document.querySelector('[data-view="studios"]')as any).click();expect(dock.hidden).toBe(true);
- (w.document.querySelector('[data-view="mission"]')as any).click();await settle();expect(dock.hidden).toBe(false);
+ (w.document.getElementById('expert-mode')as any).click();await settle();(w.document.querySelector('[data-view="mission"]')as any).click();await settle();expect(dock.hidden).toBe(false);
  expect(w.document.getElementById('mission')?.hidden).toBe(false);
  expect(w.document.querySelector('#mission h1')?.textContent).toBe('AZRAIL');
  expect(w.document.getElementById('mission-panel')?.closest('#mission')).toBeTruthy();
@@ -112,7 +113,7 @@ it('studio chats keep their own job and do not start a code mission',async()=>{
  w.document.getElementById('composer')!.dispatchEvent(new w.Event('submit',{cancelable:true}));await settle();
  expect(w.document.getElementById('studio-chat-log')?.textContent).toContain('Mission Control');
  expect(calls.some(call=>String(call).includes('/api/mission'))).toBe(false);
- (w.document.querySelector('#studio-list [data-studio="ledger"]') as any).click();await settle();
+ (w.document.getElementById('expert-mode') as any).click();await settle();(w.document.querySelector('#studio-list [data-studio="ledger"]') as any).click();await settle();
  prompt.value='Сколько потратили?';
  w.document.getElementById('composer')!.dispatchEvent(new w.Event('submit',{cancelable:true}));await settle();
  expect(w.document.getElementById('studio-chat-log')?.textContent).toContain('после входа');
@@ -217,7 +218,7 @@ it('two submit events while a mission is pending dispatch only one request',asyn
   if(path==='/api/mission'&&options.method==='POST'){posts++;return new Promise<Response>(resolve=>{finish=resolve;});}
   return Response.json({mission:{status:'completed'},result:{summary:'Готово'}});
  })as any);await settle();
- (w.document.querySelector('[data-view="mission"]') as any).click();await settle();
+ (w.document.getElementById('expert-mode') as any).click();await settle();(w.document.querySelector('[data-view="mission"]') as any).click();await settle();
  (w.document.getElementById('prompt')as any).value='Создай сайт';const form=w.document.getElementById('composer')!;
  form.dispatchEvent(new w.Event('submit',{cancelable:true}));form.dispatchEvent(new w.Event('submit',{cancelable:true}));await settle();
  expect(posts).toBe(1);finish(Response.json({missionId:'one'}, {status:202}));await settle();

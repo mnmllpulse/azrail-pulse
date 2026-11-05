@@ -11,7 +11,7 @@ describe('Git-connected azrail-pulse deployment', () => {
     expect(config.assets.directory).toBe('./site');
     expect(config.assets.binding).toBe('ASSETS');
     expect(config.containers).toBeUndefined();
-    expect(config.vars.AUTH_MODE).toBe('token');
+    expect(config.vars.AUTH_MODE).toBe('oidc');
     expect(config.vars.AZRAIL_TOKEN).toBeUndefined();
   });
 

@@ -67,6 +67,11 @@ export const studioModule:StudioModule={
   compare?.destroy();compare=mountCompareMode(context.controls);workbench?.destroy();workbench=null;try{workbench=mountImageStudio2(context,{setOperation:next=>setMode(context,next,referenceId),useReference:(item,next)=>prepareReference(context,item,next)});}catch(error){context.notice(`Mask Editor недоступен: ${errorMessage(error)} Генерация работает без него.`);}
   context.controls.querySelector<HTMLButtonElement>('#image-clear-reference')!.onclick=()=>setMode(context,'generate',null);
   context.controls.querySelector<HTMLButtonElement>('#image-refresh-history')!.onclick=()=>void refreshHistory(context);
+  try{
+   const phrase=window.localStorage.getItem('pulse.image.phrase')??'';
+   const field=context.controls.querySelector<HTMLTextAreaElement>('#studio-text');
+   if(phrase&&field&&!field.value.trim()){field.value=phrase.slice(0,4000);window.localStorage.removeItem('pulse.image.phrase');context.notice('Фраза из текста уже в поле.');}
+  }catch{/* Память браузера может быть закрыта. Поле остаётся пустым. */}
   const wrap=document.createElement('div');wrap.id='image-advanced-wrap';
   const advanced=document.createElement('div');advanced.id='image-advanced';advanced.hidden=true;
   const toggle=document.createElement('button');toggle.id='image-advanced-toggle';toggle.type='button';toggle.textContent='Сложные настройки';toggle.setAttribute('aria-expanded','false');

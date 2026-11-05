@@ -25,7 +25,8 @@ import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayN
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
 import {formatAssignment,type Assignment} from './assignment';
-import {requestImage} from './image-request';
+import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
+import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {formatPlan,fileNameFromPhrase,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
@@ -264,7 +265,7 @@ async function hydrateChat(id:string){
   for(let i=list.length-1;i>=0;i--)if(list[i]?.role==='plan'){planAt=i;break;}
   const content=planAt>=0&&typeof list[planAt]?.content==='string'?list[planAt].content:'';
   let earlier='';
-  for(let i=planAt-1;i>=0;i--)if(list[i]?.role==='user'&&typeof list[i]?.content==='string'){earlier=list[i].content;break;}
+  for(let i=planAt-1;i>=0;i--){const text=list[i]?.content;if(list[i]?.role==='user'&&typeof text==='string'){earlier=text;break;}}
   if(content)restoreStoredPlan(content,earlier);
   syncChatUI();workspace.toLatest();
  }catch{/* Offline or missing conversation — keep local cache. */}
@@ -460,7 +461,9 @@ function syncContextPanel(){
  }
  session.textContent=local?'Локальный просмотр. AI и проекты открываются после входа в развёрнутое приложение.':account?`Аккаунт · ${account.name}${account.role?` · ${account.role}`:''}`:'Вход не выполнен';
  $('context-page-label').textContent=`Страница · ${pageLabel(currentRoute)}`;
- $('context-model-label').textContent=`Модель · ${preferredModel?modelDisplayName(preferredModel):'автовыбор'}`;
+ const modelLine=$('context-model-label');
+ modelLine.hidden=!preferredModel;
+ modelLine.textContent=preferredModel?`Модель · ${modelDisplayName(preferredModel)}`:'';
  $('context-voice-label').textContent=`Голос · ${VOICES[chatVoice].name}. Ключ озвучки не поставлен.`;
  $('context-panel-project').textContent=project?(contextProjectTitle?`Проект · ${contextProjectTitle}`:'Проект · без названия'):'Проект не выбран. Откройте проекты или начните задачу.';
  const names=attachmentRefs.map(ref=>ref.fileName).filter(Boolean);
@@ -940,7 +943,7 @@ function appendThing(host:HTMLElement,thing:PlanThing,earlier=false,poster=''){
  }
  if(thing.type==='note'&&thing.title){const note=document.createElement('p');note.textContent=thing.title;host.append(note);}
 }
-function paintThings(parts:PlanPart[]){
+function paintThings(parts:Array<{thing?:PlanThing;state?:PlanPart['state'];versions?:PlanThing[]}>){
  const host=$('assignment-thing');host.replaceChildren();
  const poster=parts.find(part=>part.state==='done'&&part.thing?.type==='image'&&part.thing.url)?.thing?.url??'';
  let shown=0;
@@ -1122,8 +1125,7 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
  const running=plan.parts.filter(part=>part.state==='running');
  $('assignment-now').textContent=running.length?running.map(part=>`${part.worker}: ${part.text}`).join(' · '):ready.map(part=>part.worker).join(' · ');
  $('assignment-ready').textContent=plan.parts.map(part=>part.ready).join(' ');
- const video=plan.parts.some(part=>part.kind==='video');
- $('assignment-next').textContent=`${plan.parallel?'Независимые части идут рядом. Следующая волна ждёт, пока предыдущая закончится.':'Части идут по очереди: следующая начинается после предыдущей.'}${video?' Ролик в этом плане — раскадровка, не снятый клип. Черновик WebM собирается в Video Studio.':''} Прозрачный фон закрыт. Платная съёмка и увеличение ролика не включаются.`;
+ $('assignment-next').textContent=explainIntent(intentFromParts(heldMessage||plan.parts.map(part=>part.text).join(' · '),plan.parts));
  $('assignment-you').textContent=needsYou;
  paintThings(plan.parts);
  const frame=$('assignment-frame');
@@ -1135,7 +1137,8 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
   const item=document.createElement('li');
   const line=document.createElement('span');
   const place=part.state==='running'?'идёт':part.state==='done'?'готово':part.state==='failed'?'не вышло':part.wave===0?'рядом':'ждёт';
-  line.textContent=`${part.worker} — ${place} — ${part.text}`;
+  const why=part.state==='failed'&&part.needsYou&&part.needsYou!=='Пока не нужно.'?` — ${part.needsYou}`:'';
+  line.textContent=`${part.worker} — ${place} — ${part.text}${why}`;
   const edit=document.createElement('button');
   edit.type='button';
   edit.className='part-edit';
@@ -1367,6 +1370,20 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
  }
  finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;if(heldPlan)showContinue(heldPlan);}
 }
+const MISSION_BUSY=new Set(['','Задача принята','Составляю план','Выполняю задачу','Проверяю результат','Останавливаю задачу','Обновляю состояние']);
+async function settleMission(){
+ const start=Date.now();
+ let live='';
+ while(Date.now()-start<90_000){
+  await poll(++epoch);
+  live=$('mission-status').textContent?.trim()??'';
+  if(live==='Нужно ваше действие')throw Error('Миссия ждёт действие в ходе задачи.');
+  if(live==='Работа остановлена'||live==='Задача отменена')throw Error(live);
+  if(!MISSION_BUSY.has(live))return live;
+  await new Promise(resolve=>setTimeout(resolve,2000));
+ }
+ throw Error('Страница ещё собирается. Нажми «Повторить», когда ход задачи закончится.');
+}
 function artifactId(url:string){
  const match=/\/api\/studio\/artifacts\/([A-Za-z0-9._~-]+)/.exec(url);
  return match?.[1]??'';
@@ -1381,20 +1398,30 @@ async function runPlanPart(part:PlanPart){
   upscaleOnce.delete(part.id);
   const reference=grow?earlier:chosen||earlier;
   const operation=grow?'upscale':earlier&&!chosen?'edit':'generate';
-  const result=await requestImage(signed.id,{prompt:part.text,projectId:project||undefined,aspectRatio:imageFrame,resolution:1024,style:'auto',seed:part.seed??null,variations:grow?1:imageCount,operation,...(reference?{referenceArtifactId:reference}:{})},api) as {items?:Array<{name?:string;url?:string;seed?:number|null}>};
+  const fresh:ImageRequestBody={prompt:part.text,projectId:project||undefined,aspectRatio:imageFrame,resolution:1024,style:'auto',seed:part.seed??null,variations:grow?1:imageCount,operation,...(reference?{referenceArtifactId:reference}:{})};
+  const pending=readPendingImage(signed.id);
+  let body=fresh;
+  let stuck=false;
+  if(pending){
+   try{
+    const saved=JSON.parse(pending.body) as ImageRequestBody;
+    if(saved&&typeof saved.prompt==='string'){body=saved;stuck=pending.body!==JSON.stringify(fresh);}
+   }catch{/* Битый хвост не подменяет новую фразу. */}
+  }
+  const result=await requestImage(signed.id,body,api) as {items?:Array<{name?:string;url?:string;seed?:number|null}>};
   const urls=(result.items??[]).map(item=>safeMediaPath(String(item.url??''))).filter(Boolean);
   const name=fileNameFromPhrase(part.text,'png');
   const seed=result.items?.find(item=>Number.isInteger(item.seed))?.seed;
   if(typeof seed==='number')part.seed=seed;
   part.state='done';
-  part.ready=grow?`Детализация «${name}» сохранена.`:urls.length>1?`${urls.length} варианта «${name}».`:`Картинка «${name}» сохранена.`;
+  part.ready=stuck?`Закончила зависшую сборку «${name}».`:grow?`Детализация «${name}» сохранена.`:urls.length>1?`${urls.length} варианта «${name}».`:`Картинка «${name}» сохранена.`;
   if(urls[0])part.thing={type:'image',url:urls[0],title:name,...(urls.length>1?{alts:urls.slice(1,3)}:{})};
   return;
  }
  if(part.kind==='video'){
   if(!account)throw Error('Войдите, чтобы собрать раскадровку.');
   const result=await api('/api/studio/video/plan',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({prompt:part.text,sceneCount:4,transition:'fade',motion:'pan'})}) as {scenes?:Array<{text?:string}>};
-  const scenes=(result.scenes??[]).map(scene=>scene.text?.trim()).filter(Boolean).slice(0,4);
+  const scenes=(result.scenes??[]).flatMap(scene=>{const line=scene.text?.trim()??'';return line? [line] : [];}).slice(0,4);
   part.state='done';
   part.ready=scenes.length?`Раскадровка: ${scenes.join(' · ')}`:'Раскадровка запрошена. Ролик из кадров собирается в Video Studio.';
   if(scenes.length)part.thing={type:'storyboard',lines:scenes};
@@ -1402,10 +1429,11 @@ async function runPlanPart(part:PlanPart){
  }
  if(part.kind==='web'||part.kind==='build'){
   await runMission(part.text,{keepTurn:true,stay:true,nested:true});
+  const live=await settleMission();
+  const page=part.kind==='web'?await keepPage():undefined;
   part.state='done';
-  const live=$('mission-status').textContent?.trim()||'Ход задачи открыт.';
-  part.ready=live;
-  part.thing=(part.kind==='web'?await keepPage():undefined)??{type:'note',title:live};
+  part.ready=page?'Страница в проекте.':live;
+  part.thing=page??{type:'note',title:part.ready};
   return;
  }
  part.state='done';
@@ -1439,9 +1467,12 @@ async function chosenPlan(message:string):Promise<WorkPlan|null>{
 async function runChat(){
  if(missionSubmitting)return;
  const message=prompt.value.trim();if(!message)return;
+ missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
+ let handed=false;
+ try{
  const planned=await chosenPlan(message);
- if(planned&&planned.parts.length>1){await runPlan(planned,message);return;}
- if(planned&&planned.parts.length===1){await runAssignment(planned.parts[0],message);return;}
+ if(planned&&planned.parts.length>1){handed=true;await runPlan(planned,message);return;}
+ if(planned&&planned.parts.length===1){handed=true;await runAssignment(planned.parts[0],message);return;}
  if(!account)throw Error('Войдите в аккаунт, чтобы писать в Chat.');
  if(account.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
  if(account.role!=='admin'&&!account.operator)throw Error('Chat пока открыт только владельцу.');
@@ -1476,7 +1507,8 @@ async function runChat(){
   if(daily)notice(text,true);
   else throw e;
  }
- finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
+ finally{if(!handed){missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}}
+ }finally{if(!handed){missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}}
 }
 $('composer').onsubmit=e=>{
  e.preventDefault();
@@ -1506,16 +1538,16 @@ async function runStudioRoom(){
  if(missionSubmitting)return;
  const room=composerRoom;if(room==='home')return;
  const message=prompt.value.trim();if(!message)return;
+ missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  if(composerPage==='studio'||composerPage==='metatron')setStudioTalk(true);
- if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
- if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
  const title=room==='metatron'?'Metatron':studioById(room)?.title??'Студия';
  prompt.value='';studioRooms.setDraft(room,'');workspace.resizePrompt();
  studioRooms.push(room,'user',message);
  const reply=studioRooms.push(room,'studio','Принимаю задачу…');
  renderStudioChat();
- missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  try{
+  if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
+  if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
   const caps=new Set(studioById(room)?.capabilities??[]);
   if(caps.has('prose-writing')){
    const field=document.querySelector<HTMLTextAreaElement>('#prose-prompt');

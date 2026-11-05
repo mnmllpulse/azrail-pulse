@@ -128,15 +128,33 @@ export async function listFacts(env: Env, projectId: string, limit = 50): Promis
  * с чистого листа: где что лежит, какое решение принято, на чём уже
  * обжигались — всё лежало в D1 и до модели не доходило.
  *
- * Факты идут от свежих к старым (ORDER BY updated_at DESC в listFacts) и
- * обрезаются по числу. Это НЕ поиск по смыслу: подмешивается последнее, а
- * не подходящее. Честная граница — при большом проекте свежий пустяк
- * вытеснит важное решение полугодовой давности. Закрывается векторным
- * поиском; до него отбор по свежести лучше, чем ничего, но выдавать его
- * за релевантность нельзя.
+ * Сначала факты, в которых есть слова фразы. Остальные остаются в прежнем
+ * порядке, от свежих к старым. Это НЕ поиск по смыслу и не векторный поиск:
+ * совпадение подстроки. Закрывается векторным поиском позже.
+ * Записи с паролем, ключом API или приватным ключом в модель не попадают.
  */
-export async function recallContext(env: Env, projectId: string, limit = 30, audit?: {missionId?: string}): Promise<string | null> {
-  const facts = await listFacts(env, projectId, limit);
+const SECRET = /api[_-]?key|password|secret|private key|BEGIN (?:RSA |OPENSSH )?PRIVATE KEY/i;
+
+/** Совпадение слов с фразой. Ноль значит «порядок как в базе». Секреты в модель не уходят. */
+export function rankFacts<T extends { key: string; value: string }>(facts: T[], phrase = '', limit = 30): T[] {
+  const safe = facts.filter((fact) => !SECRET.test(fact.key) && !SECRET.test(fact.value));
+  const words = new Set(
+    phrase.toLocaleLowerCase('ru').split(/[^\p{L}\p{N}]+/u).filter((word) => word.length > 3),
+  );
+  const score = (fact: T) => {
+    if (!words.size) return 0;
+    const hay = `${fact.key} ${fact.value}`.toLocaleLowerCase('ru');
+    let hits = 0;
+    for (const word of words) if (hay.includes(word)) hits += 1;
+    return hits;
+  };
+  const ranked = safe.map((fact, index) => ({ fact, index, score: score(fact) }));
+  ranked.sort((a, b) => b.score - a.score || a.index - b.index);
+  return ranked.slice(0, limit).map((row) => row.fact);
+}
+
+export async function recallContext(env: Env, projectId: string, limit = 30, audit?: {missionId?: string; query?: string}): Promise<string | null> {
+  const facts = rankFacts(await listFacts(env, projectId, Math.max(limit, 50)), audit?.query ?? '', limit);
   if (facts.length === 0) return null;
 
   const lines = facts.map((f) => `[${f.category}] ${f.key}: ${f.value}`);

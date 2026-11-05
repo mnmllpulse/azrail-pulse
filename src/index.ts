@@ -210,6 +210,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     const url = new URL(request.url);
     const trace = ingressTrace ?? requestTrace(request);
     let principal: Principal = administrator;
+    let caller = "shared";
     let parsedBody: Record<string, unknown> = {};
     // SDK RPC bypasses application validation and budgets. Only /api/stream is public transport.
     if (url.pathname === "/agents" || url.pathname.startsWith("/agents/")) {
@@ -345,6 +346,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       }
 
       principal = auth.principal ?? principal;
+      caller = auth.caller ?? caller;
       // Лимит — на всё, что реально запускает модели. Раньше здесь стоял
       // только /api/task, и это была дыра: /api/mission прогоняет ЦИКЛ до
       // двадцати вызовов модели, а лимита на нём не было вовсе. Самый
@@ -557,7 +559,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
 
     if (url.pathname === "/api/limits" && request.method === "GET") {
       const chatLimit = positiveLimit(env.CHAT_DAILY_LIMIT, 200);
-      const chat = await readDailyQuota(env, auth.caller ?? "shared", chatLimit);
+      const chat = await readDailyQuota(env, caller, chatLimit);
       const generation = await readGenerationBudget(env);
       return json({ success: true, chat, generation }, env);
     }

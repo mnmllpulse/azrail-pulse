@@ -3,7 +3,7 @@ import { parseDecision, renderHistory, type StepDecision } from "./execution-pro
 import { extractText, runModel } from "../lib/model-router";
 import { planStepCap } from "../lib/mission-limits";
 import { log } from "../lib/resilience";
-import { type PlanStep, parsePlan, savePlan, renderPlan } from "./planner";
+import { type PlanStep, parsePlan, parsePlanNodes, savePlan, renderPlan } from "./planner";
 import type { ExecutionContext, StepRecord } from "./execution-types";
 
 export const LOOP_SYSTEM_PROMPT = `Ты — исполнительное ядро AZRAIL. Ты решаешь, какой инструмент вызвать следующим, чтобы выполнить задачу владельца.
@@ -135,7 +135,9 @@ export class ExecutionPlanningEngine {
                 `ДОСТУПНЫЕ ИНСТРУМЕНТЫ:\n${toolList}\n\n` +
                 `Не повторяй уже сделанное. Шагов не больше ${Math.min(planStepCap(remaining), 6)}. ` +
                 `Каждый шаг выполним перечисленными инструментами.\n` +
-                `Ответь строго JSON-массивом строк: ["шаг", "шаг"]`,
+                `Если шаги независимы, верни объекты: [{"title":"шаг","dependsOn":[]},{"title":"шаг","dependsOn":[0]}]. ` +
+                `dependsOn — номера более ранних шагов, без которых этот шаг нельзя начать. ` +
+                `Если граф неясен, верни массив строк: ["шаг", "шаг"].`,
             },
           ],
         },
@@ -184,7 +186,9 @@ export class ExecutionPlanningEngine {
               `Шагов должно быть не больше ${planStepCap(maxIterations)}. ` +
               `Каждый шаг — то, что выполнимо ПЕРЕЧИСЛЕННЫМИ выше инструментами. ` +
               `Не придумывай шагов, для которых инструментов нет.\n` +
-              `Ответь строго JSON-массивом строк: ["шаг", "шаг"]`,
+              `Если шаги независимы, верни объекты: [{"title":"шаг","dependsOn":[]},{"title":"шаг","dependsOn":[0]}]. ` +
+              `dependsOn — номера более ранних шагов, без которых этот шаг нельзя начать. Пустой список значит, что шаг можно начать сразу. ` +
+              `Если граф неясен, верни массив строк: ["шаг", "шаг"].`,
           },
         ],
       },
@@ -192,9 +196,10 @@ export class ExecutionPlanningEngine {
     );
 
     // Жёсткая обрезка: лимит в промпте — просьба, а не гарантия.
-    const titles = parsePlan(extractText(routed.output)).slice(0, planStepCap(maxIterations));
-    if (!titles.length) return [];
-    return savePlan(this.env, ctx.missionId, titles);
+    const nodes = parsePlanNodes(extractText(routed.output)).slice(0, planStepCap(maxIterations));
+    if (!nodes.length) return [];
+    const explicit = nodes.every((node) => node.explicit);
+    return savePlan(this.env, ctx.missionId, nodes.map((node) => node.title), explicit ? nodes.map((node) => node.dependsOn) : undefined);
   }
 
 }

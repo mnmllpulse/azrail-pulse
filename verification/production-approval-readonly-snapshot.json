@@ -43,8 +43,8 @@
     },
     "production": {
       "worker": "azrail-pulse",
-      "deployment_id": "55e6ad43-4540-47f3-93d1-95b215805fab",
-      "version_id": "698d574d-47ee-4320-80e1-eeecd5ad4293",
+      "deployment_id": "a38c180b-8417-44fd-9f4c-5d158141816d",
+      "version_id": "c774b49a-01c9-4c7a-bb94-8c477a01b500",
       "traffic_percent": 100,
       "compatibility_date": "2026-09-29",
       "observability": true,

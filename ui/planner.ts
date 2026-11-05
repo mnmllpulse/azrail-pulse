@@ -1,3 +1,4 @@
+import { explainIntent, intentFromParts } from '../src/lib/intent-contract';
 import { assignmentForKind, readAssignment, type Assignment, type AssignmentKind } from './assignment';
 
 export type PlanState = 'waiting' | 'running' | 'done' | 'failed';
@@ -237,6 +238,8 @@ export function formatPlan(plan: WorkPlan): string {
     const place = part.wave === 0 ? 'рядом' : 'после предыдущей';
     lines.push(`${index + 1}. ${part.worker} — ${place} — ${part.text}`);
   });
+  lines.push('');
+  lines.push(explainIntent(intentFromParts(plan.parts.map((part) => part.text).join(' · '), plan.parts)));
   return lines.join('\n');
 }
 

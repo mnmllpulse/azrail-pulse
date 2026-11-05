@@ -71,11 +71,43 @@ export async function loadPlan(env: Env, missionId: string): Promise<PlanStep[] 
  * Второе — потому что модели регулярно отвечают списком несмотря на
  * просьбу дать JSON, и ронять из-за этого миссию незачем.
  */
-export function parsePlan(raw: string): string[] {
+export type PlanNode = { title: string; dependsOn: number[]; explicit: boolean };
+
+/** Заметка шага хранит явные рёбра, не подменяя человеческий текст. */
+export function readDependencyNote(note: string | null | undefined): { dependsOn: string[]; text?: string } | null {
+  if (!note || !note.startsWith("{")) return null;
+  try {
+    const body = JSON.parse(note) as { dependsOn?: unknown; text?: unknown };
+    if (!Array.isArray(body.dependsOn) || body.dependsOn.some((id) => typeof id !== "string" || !/^[A-Za-z0-9_.:-]{1,120}$/.test(id))) return null;
+    const text = typeof body.text === "string" && body.text.trim() ? body.text.slice(0, 400) : undefined;
+    return { dependsOn: body.dependsOn.slice(0, 12), ...(text ? { text } : {}) };
+  } catch {
+    return null;
+  }
+}
+
+export function dependencyNote(dependsOn: string[], text?: string): string {
+  const clean = text?.trim().slice(0, 400);
+  const body = JSON.stringify({ dependsOn: dependsOn.slice(0, 12), ...(clean ? { text: clean } : {}) });
+  return body.length > 500 ? JSON.stringify({ dependsOn: dependsOn.slice(0, 12) }) : body;
+}
+
+function mergeDependencyNote(previous: string | undefined, human: string | undefined): string | null {
+  const edge = readDependencyNote(previous);
+  if (!edge) return human ? human.slice(0, 500) : previous ?? null;
+  return dependencyNote(edge.dependsOn, human ?? edge.text);
+}
+
+/**
+ * Разбор плана из ответа модели.
+ *
+ * Строки и нумерованный список остаются прежним путём: рёбер нет, и граф
+ * честно остаётся производным от порядка. Объекты с dependsOn — явный граф.
+ * Номер в dependsOn указывает на более ранний шаг того же массива.
+ */
+export function parsePlanNodes(raw: string): PlanNode[] {
   const text = (raw ?? "").trim();
   if (!text) return [];
-
-  // Попытка 1: JSON-массив, возможно в ```-обёртке
   const unfenced = text.replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "").trim();
   const start = unfenced.indexOf("[");
   const end = unfenced.lastIndexOf("]");
@@ -83,37 +115,57 @@ export function parsePlan(raw: string): string[] {
     try {
       const parsed: unknown = JSON.parse(unfenced.slice(start, end + 1));
       if (Array.isArray(parsed)) {
-        const steps = parsed
-          .map((x) => (typeof x === "string" ? x : typeof x === "object" && x && "title" in x ? String((x as { title: unknown }).title) : ""))
-          .map((x) => x.trim())
-          .filter(Boolean);
-        if (steps.length) return steps.slice(0, MAX_STEPS);
+        const nodes: PlanNode[] = [];
+        for (const item of parsed) {
+          if (nodes.length >= MAX_STEPS) break;
+          if (typeof item === "string" && item.trim()) {
+            nodes.push({ title: item.trim().slice(0, 300), dependsOn: [], explicit: false });
+            continue;
+          }
+          if (!item || typeof item !== "object" || !("title" in item)) continue;
+          const title = String((item as { title: unknown }).title).trim().slice(0, 300);
+          if (!title) continue;
+          const rawDeps = (item as { dependsOn?: unknown }).dependsOn;
+          const explicit = Array.isArray(rawDeps);
+          const dependsOn = explicit
+            ? rawDeps.filter((dep): dep is number => Number.isInteger(dep) && (dep as number) >= 0 && (dep as number) < nodes.length)
+            : [];
+          nodes.push({ title, dependsOn, explicit });
+        }
+        if (nodes.length) return nodes;
       }
     } catch {
       // Не JSON — идём к списку. Это ожидаемый путь, не сбой.
     }
   }
-
-  // Попытка 2: нумерованный или маркированный список
-  const lines = unfenced
+  return unfenced
     .split("\n")
-    .map((l) => l.trim())
+    .map((line) => line.trim())
+    .filter((line) => /^(?:\d+[.)]|[-*•])\s+/.test(line))
+    .map((line) => line.replace(/^(?:\d+[.)]|[-*•])\s+/, "").trim())
     .filter(Boolean)
-    .filter((l) => /^(?:\d+[.)]|[-*•])\s+/.test(l))
-    .map((l) => l.replace(/^(?:\d+[.)]|[-*•])\s+/, "").trim())
-    .filter(Boolean);
+    .slice(0, MAX_STEPS)
+    .map((title) => ({ title: title.slice(0, 300), dependsOn: [], explicit: false }));
+}
 
-  return lines.slice(0, MAX_STEPS);
+export function parsePlan(raw: string): string[] {
+  return parsePlanNodes(raw).map((node) => node.title);
 }
 
 /** Сохранить план миссии. Возвращает сохранённые шаги. */
-export async function savePlan(env: Env, missionId: string, titles: string[]): Promise<PlanStep[]> {
+export async function savePlan(env: Env, missionId: string, titles: string[], edges?: number[][]): Promise<PlanStep[]> {
   const steps: PlanStep[] = titles.slice(0, MAX_STEPS).map((title, i) => ({
     id: crypto.randomUUID(),
     position: i,
     title: title.slice(0, 300),
     status: i === 0 ? "doing" : "pending",
   }));
+  if (edges) {
+    steps.forEach((step, index) => {
+      const prior = (edges[index] ?? []).filter((dep) => Number.isInteger(dep) && dep >= 0 && dep < index);
+      step.note = dependencyNote(prior.map((dep) => steps[dep].id));
+    });
+  }
 
   if (!steps.length) return [];
 
@@ -121,8 +173,8 @@ export async function savePlan(env: Env, missionId: string, titles: string[]): P
     // D1 batch is transactional. A partially persisted plan is worse than no
     // plan because recovery would then resume from a contradictory state.
     await env.AZRAIL_D1.batch(steps.map((s) => env.AZRAIL_D1.prepare(
-      `INSERT INTO mission_steps (id, mission_id, position, title, status) VALUES (?, ?, ?, ?, ?)`,
-    ).bind(s.id, missionId, s.position, s.title, s.status)));
+      `INSERT INTO mission_steps (id, mission_id, position, title, status, note) VALUES (?, ?, ?, ?, ?, ?)`,
+    ).bind(s.id, missionId, s.position, s.title, s.status, s.note ?? null)));
     return steps;
   } catch (err) {
     // The batch may have committed and lost its response. Re-read durable
@@ -146,7 +198,7 @@ export async function advancePlan(env: Env, missionId: string, steps: PlanStep[]
   if (!current) return steps;
   const next = steps.find((s) => s.status === "pending");
   const now = new Date().toISOString();
-  const currentNote = note ? note.slice(0, 500) : current.note ?? null;
+  const currentNote = mergeDependencyNote(current.note, note);
 
   try {
     const statements = [

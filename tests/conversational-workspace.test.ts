@@ -18,7 +18,7 @@ function open(options:{width?:number;hosted?:boolean;fetcher?:(w:Window)=>Window
 function node(w:Window,id:string){return w.document.getElementById(id)!;}
 function type(w:Window,text:string){const p=node(w,'prompt') as any;p.value=text;p.dispatchEvent(new w.Event('input',{bubbles:true}));}
 function submit(w:Window){node(w,'composer').dispatchEvent(new w.Event('submit',{cancelable:true}));}
-async function openMission(w:Window){(w.document.querySelector('[data-view="mission"]') as any).click();await settle();}
+async function openMission(w:Window){if(w.document.documentElement.dataset.expert!=='on'){(w.document.getElementById('expert-mode') as any).click();await settle();}(w.document.querySelector('[data-view="mission"]') as any).click();await settle();}
 function response(w:Window,data:unknown,status=200){return new w.Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json'}});}
 function api(w:Window,onMission:(init:any)=>Promise<any>,onChat?:(init:any)=>Promise<any>){return (async(path:any,init:any={})=>{
  if(path==='/auth/status')return response(w,{account:{id:'account-a',name:'A',role:'admin',operator:true},configured:true});
@@ -94,7 +94,7 @@ it('opening a studio from mobile navigation returns to an interactive center pan
 it('home Chat sends /api/chat and keeps Missions separate',async()=>{
  let chatCalls=0,missionCalls=0;
  const w=open({hosted:true,fetcher:w=>api(w,async()=>{missionCalls++;return response(w,{missionId:'m-home'},202);},async()=>{chatCalls++;return response(w,{success:true,conversationId:'c1',result:{status:'done',summary:'Привет!'}});})});await settle();
- expect(w.document.querySelector('[data-view="create"]')?.textContent).toContain('Chat');
+ expect(w.document.querySelector('[data-view="create"]')?.textContent).toContain('Чат');
  expect(node(w,'chat-welcome').textContent).toContain('AZRAIL');
  expect(node(w,'composer-models-label').textContent).toBe('Models');
  type(w,'привет бро');submit(w);await settle();

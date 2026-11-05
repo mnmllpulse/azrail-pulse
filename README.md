@@ -32,7 +32,7 @@ The event stream now has a SHA-256 tamper-evident integrity sidecar (`event_inte
 
 ## API surface and core modules
 
-Worker routes (`src/index.ts`): `/api/task`, `/api/upload`, `/api/agents`, `/api/selftest`, `/api/models`, `/api/tools`, `/api/chat`, `/api/mission`, `/api/conversations`, `/api/polish`, `/api/stream`, `/api/bench`, `/api/admin`, `/api/metrics`, `/api/approvals`, `/api/backups`, `/api/me`, `/api/metatron` (plus the unified/studio routes under `src/unified/`).
+Worker routes (`src/index.ts`): `/api/task`, `/api/upload`, `/api/agents`, `/api/selftest`, `/api/models`, `/api/tools`, `/api/chat`, `/api/plan`, `/api/limits`, `/api/mission`, `/api/conversations`, `/api/polish`, `/api/stream`, `/api/bench`, `/api/admin`, `/api/metrics`, `/api/approvals`, `/api/backups`, `/api/me`, `/api/metatron` (plus the unified/studio routes under `src/unified/`). `/api/plan` turns a phrase into parts. `/api/limits` reads the daily chat and generation remainder without spending it.
 
 Core modules: `src/core/execution-engine.ts` (execution-engine: mission loop), `src/lib/tool-registry.ts` (tool-registry), `src/lib/workspace.ts` / `workspace-head.ts` (workspace), `src/lib/chat-store.ts` (chat-store), `src/lib/event-store.ts` (event-store). Request input contracts live in `src/shared/schemas.ts` (Zod).
 
