@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPlan, planWork } from '../ui/planner';
+import { formatPlan, planRecord, planWork } from '../ui/planner';
 
 describe('Планировщик поручения', () => {
   it('одну картинку не дробит', () => {
@@ -35,5 +35,14 @@ describe('Планировщик поручения', () => {
     const text = formatPlan(planWork('Нарисуй постер и собери трек'));
     expect(text).toContain('План из 2 частей');
     expect(text).toContain('Рядом: Image Studio и Music Studio');
+  });
+
+  it('в запись плана попадает только своя ссылка на файл', () => {
+    const plan = planWork('Нарисуй постер и собери трек');
+    plan.parts[0].thing = { type: 'image', url: '/api/studio/artifacts/poster-1?inline=1', title: 'Постер' };
+    plan.parts[1].thing = { type: 'audio', url: 'https://evil.example/track.wav', title: 'Трек' };
+    const record = planRecord(plan);
+    expect(record.parts[0]?.thing).toEqual({ type: 'image', url: '/api/studio/artifacts/poster-1?inline=1', title: 'Постер' });
+    expect(record.parts[1]?.thing).toBeUndefined();
   });
 });

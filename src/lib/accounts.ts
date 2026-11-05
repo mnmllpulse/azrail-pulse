@@ -67,7 +67,8 @@ export async function authorizeRequest(env:Env,p:Principal,request:Request,body:
   if(p.role!=="admin" && request.method==="POST" && ["/api/task","/api/chat","/api/mission","/api/stream/ticket"].includes(path) && !project) throw new AccessError("Выберите проект.",400);
   if(p.role!=="admin" && path==="/api/stream" && !project) throw new AccessError("Выберите проект.",400);
   const conversation=typeof body.conversationId==="string"?body.conversationId:u.searchParams.get("conversationId");
-  if(conversation) await requireResource(env,p,"conversation",conversation,path==="/api/chat" && request.method==="POST");
+  const createConversation=request.method==="POST" && (path==="/api/chat" || path==="/api/conversations/plan");
+  if(conversation) await requireResource(env,p,"conversation",conversation,createConversation);
   if(path==="/api/chat" && request.method==="POST" && !conversation && project) await requireResource(env,p,"conversation",project,true);
   const mission=typeof body.missionId==="string"?body.missionId:u.searchParams.get("missionId");
   if(mission) {

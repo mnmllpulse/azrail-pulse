@@ -61,6 +61,14 @@ html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: hidden; }
 .app-shell .workspace-topbar-row { display: flex; align-items: center; gap: 12px; min-height: 66px; padding: 0 24px; }
 .app-shell .assignment-live { display: grid; gap: 4px; padding: 4px 24px 12px; }
 .app-shell .assignment-live[hidden] { display: none; }
+.app-shell .assignment-thing { display: grid; gap: 8px; }
+.app-shell .assignment-thing:empty { display: none; }
+.app-shell .assignment-thing img,
+.app-shell .assignment-thing video { width: min(100%, 420px); max-height: 280px; object-fit: contain; border-radius: 8px; }
+.app-shell .assignment-thing audio { width: min(100%, 420px); }
+.app-shell .assignment-thing iframe { width: min(100%, 640px); height: 240px; border: 0; border-radius: 8px; background: #111018; }
+.app-shell .assignment-thing p { margin: 0; color: #d9d0e2; }
+html[data-expert="off"] [data-expert] { display: none; }
 .app-shell .assignment-live .kicker { margin: 0; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #91809f; }
 .app-shell .assignment-live h2 { margin: 0; font-size: 15px; font-weight: 500; color: #f3eef8; }
 .app-shell .assignment-facts { display: grid; grid-template-columns: 88px minmax(0,1fr); gap: 3px 10px; margin: 2px 0 0; font-size: 12px; line-height: 1.45; }
