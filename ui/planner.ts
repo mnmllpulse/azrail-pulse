@@ -1,4 +1,4 @@
-import { readAssignment, type Assignment, type AssignmentKind } from './assignment';
+import { assignmentForKind, readAssignment, type Assignment, type AssignmentKind } from './assignment';
 
 export type PlanState = 'waiting' | 'running' | 'done' | 'failed';
 
@@ -73,6 +73,92 @@ function mergeWave(parts: PlanPart[]): PlanPart[] {
   });
 }
 
+/** План, который вернула модель. Пустой список значит разговор. Неверная часть отменяет весь ответ. */
+export function workPlanFromDraft(rows: Array<{ text?: string; kind?: string; after?: boolean }>): WorkPlan | null {
+  if (!rows.length) return null;
+  const drafted: PlanPart[] = [];
+  let wave = 0;
+  for (const row of rows.slice(0, 4)) {
+    const kind = row.kind;
+    if (kind !== 'image' && kind !== 'music' && kind !== 'video' && kind !== 'web' && kind !== 'build') return null;
+    const text = (row.text ?? '').trim().slice(0, 500);
+    if (!text) return null;
+    if (row.after && drafted.length) wave += 1;
+    drafted.push({
+      ...assignmentForKind(kind),
+      id: `part-${drafted.length + 1}`,
+      text,
+      wave,
+      dependsOn: [],
+      state: 'waiting',
+    });
+  }
+  const parts = drafted.map((part, index) => ({
+    ...part,
+    id: `part-${index + 1}`,
+    dependsOn: part.wave === 0 ? [] : [`part-${index}`],
+  }));
+  const parallel = parts.some((part) => parts.filter((other) => other.wave === part.wave).length > 1);
+  return { parts, parallel };
+}
+
+export type StoredPart = {
+  id?: string;
+  kind?: string;
+  text?: string;
+  state?: string;
+  ready?: string;
+  wave?: number;
+  dependsOn?: string[];
+  thing?: PlanThing;
+};
+
+/** План из записи переписки. Идущая часть после закрытия вкладки снова ждёт. */
+export function openStoredPlan(rows: StoredPart[]): WorkPlan | null {
+  const parts: PlanPart[] = [];
+  for (const row of rows.slice(0, 4)) {
+    const kind = row.kind;
+    if (kind !== 'image' && kind !== 'music' && kind !== 'video' && kind !== 'web' && kind !== 'build') return null;
+    const text = (row.text ?? '').trim().slice(0, 500);
+    if (!text) return null;
+    const state = row.state === 'done' || row.state === 'failed' || row.state === 'waiting' ? row.state : 'waiting';
+    const wave = Number.isInteger(row.wave) && (row.wave ?? 0) >= 0 && (row.wave ?? 0) <= 3 ? row.wave ?? 0 : 0;
+    parts.push({
+      ...assignmentForKind(kind),
+      id: (row.id ?? `part-${parts.length + 1}`).slice(0, 32),
+      text,
+      wave,
+      dependsOn: Array.isArray(row.dependsOn) ? row.dependsOn.filter((id) => typeof id === 'string').slice(0, 3) : [],
+      state,
+      ready: (row.ready ?? '').slice(0, 500),
+      ...(row.thing ? { thing: row.thing } : {}),
+    });
+  }
+  if (!parts.length) return null;
+  const parallel = parts.some((part) => parts.filter((other) => other.wave === part.wave).length > 1);
+  return { parts, parallel };
+}
+
+/** Волны, в которых ещё есть несобранная часть. Готовая часть сюда не входит. onlyId оставляет одну часть. */
+export function wavesToRun(plan: WorkPlan, onlyId?: string): PlanPart[][] {
+  const waves = [...new Set(plan.parts.map((part) => part.wave))].sort((a, b) => a - b);
+  return waves
+    .map((wave) => plan.parts.filter((part) => part.wave === wave && part.state !== 'done' && (!onlyId || part.id === onlyId)))
+    .filter((group) => group.length > 0);
+}
+
+/** Меняет текст одной части и ставит её заново. Соседние части не трогает. */
+export function revisePart(plan: WorkPlan, id: string, text: string): boolean {
+  const next = text.trim().slice(0, 500);
+  const part = plan.parts.find((item) => item.id === id);
+  if (!part || !next) return false;
+  part.text = next;
+  part.state = 'waiting';
+  part.ready = '';
+  delete part.thing;
+  return true;
+}
+
 /** Делит поручение на части. Волна 0 идёт рядом, следующая ждёт предыдущую. */
 export function planWork(text: string): WorkPlan {
   const source = (text ?? '').trim();
@@ -145,6 +231,8 @@ export function planRecord(plan: WorkPlan) {
         worker: part.worker.slice(0, 80),
         state: part.state,
         ready: part.ready.slice(0, 500),
+        wave: part.wave,
+        ...(part.dependsOn.length ? { dependsOn: part.dependsOn.slice(0, 3) } : {}),
         ...(thing ? { thing } : {}),
       };
     }),

@@ -52,6 +52,40 @@ function card(partial: Omit<Assignment, 'needsYou'> & { needsYou?: string }): As
   return { needsYou: 'Пока не нужно.', ...partial };
 }
 
+/** Карточка части, которую назвала модель. Слова фразы здесь не угадываются. */
+export function assignmentForKind(kind: Exclude<AssignmentKind, 'talk'>): Assignment {
+  if (kind === 'image') return card({
+    kind: 'image', studio: 'image', control: '#studio-run', worker: 'Image Studio',
+    now: 'Собираю изображение по этой фразе.',
+    ready: 'Картинка появится в полосе.',
+    next: 'Правку можно написать следующим сообщением.',
+  });
+  if (kind === 'video') return card({
+    kind: 'video', studio: 'video', control: '#video-build-scenes', worker: 'Video Studio',
+    now: 'Собираю раскадровку и ролик из кадров на экране.',
+    ready: 'Раскадровка появится в полосе.',
+    next: 'Это сборка кадров на экране. Внешняя видеомодель не вызывается.',
+  });
+  if (kind === 'music') return card({
+    kind: 'music', studio: 'music', control: '#music-listen-build', worker: 'Music Studio',
+    now: 'Собираю трек.',
+    ready: 'Трек появится в плеере полосы, когда файл сохранится.',
+    next: 'Длина и темп берутся из настроек студии.',
+  });
+  if (kind === 'web') return card({
+    kind: 'web', studio: null, control: null, worker: 'Миссия · сайт',
+    now: 'Собираю страницу.',
+    ready: 'Страница появится ссылкой в полосе.',
+    next: 'Ссылка живёт 90 дней.',
+  });
+  return card({
+    kind: 'build', studio: null, control: null, worker: 'Миссия AZRAIL',
+    now: 'Разбираю поручение.',
+    ready: 'Результат появится в проекте по шагам.',
+    next: 'На экране будет, кто работает и что уже сделано.',
+  });
+}
+
 /** Фраза → поручение. Вопрос остаётся разговором. Спорные слова (деплой, тесты, аудит) тоже. */
 export function readAssignment(text: string): Assignment {
   const source = (text ?? '').trim();

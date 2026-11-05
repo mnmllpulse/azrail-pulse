@@ -26,7 +26,7 @@ import {appendAssistantActions,copyText,shareText,speakText} from './chat-action
 import {fillMarkdownContent} from './chat-markdown';
 import {formatAssignment,type Assignment} from './assignment';
 import {requestImage} from './image-request';
-import {formatPlan,planRecord,planWork,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {formatPlan,openStoredPlan,planRecord,planWork,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
 function reportGlobalError(source:string,reason:unknown){
@@ -259,9 +259,13 @@ async function hydrateChat(id:string){
   const r=await api(`/api/chat?conversationId=${encodeURIComponent(id)}`);
   const messages=Array.isArray(r.messages)?r.messages:[];
   chatHistory.hydrate(id,messages);
-  const stored=[...messages].reverse().find(row=>row&&typeof row==='object'&&(row as {role?:string}).role==='plan');
-  const content=stored&&typeof (stored as {content?:unknown}).content==='string'?(stored as {content:string}).content:'';
-  if(content)restoreStoredPlan(content);
+  const list=messages as Array<{role?:string;content?:string}>;
+  let planAt=-1;
+  for(let i=list.length-1;i>=0;i--)if(list[i]?.role==='plan'){planAt=i;break;}
+  const content=planAt>=0&&typeof list[planAt]?.content==='string'?list[planAt].content:'';
+  let earlier='';
+  for(let i=planAt-1;i>=0;i--)if(list[i]?.role==='user'&&typeof list[i]?.content==='string'){earlier=list[i].content;break;}
+  if(content)restoreStoredPlan(content,earlier);
   syncChatUI();workspace.toLatest();
  }catch{/* Offline or missing conversation — keep local cache. */}
 }
@@ -283,7 +287,7 @@ function openChat(id:string){
  if(!canSwitchChat())return;
  saveComposerDraft();skipComposerSave=true;
  const thread=chatHistory.select(id);if(!thread)return;
- resetMissionView();clearAttachments();project=thread.projectId;mission=thread.missionId;prompt.value=thread.draft;remember();ensureEventStream();
+ resetMissionView();clearAttachments();clearHeldPlan();project=thread.projectId;mission=thread.missionId;prompt.value=thread.draft;remember();ensureEventStream();
  navigation.navigate({page:mission&&expertOn()?'mission':'create'});workspace.setContext(false);syncChatUI();workspace.toLatest();prompt.focus();
  if(mission&&account&&expertOn()){missionPanel.hidden=false;void poll(epoch);}else missionPanel.hidden=true;
  // Always refresh from server so a chat started on phone appears here with full history.
@@ -291,7 +295,7 @@ function openChat(id:string){
 }
 function newChat(){
  if(!canSwitchChat())return;
- saveComposerDraft();skipComposerSave=true;chatHistory.create();resetMissionView();clearAttachments();
+ saveComposerDraft();skipComposerSave=true;chatHistory.create();resetMissionView();clearAttachments();clearHeldPlan();
  project='';mission='';prompt.value='';remember();ensureEventStream();navigation.navigate({page:'create'});workspace.setContext(false);syncChatUI();workspace.toLatest();prompt.focus();
 }
 function syncChatAccount(){
@@ -659,6 +663,11 @@ bind('expert-mode',()=>{
  const studioId=currentRoute.page==='studio'?currentRoute.studio:'';
  if(!next&&(currentRoute.page==='mission'||currentRoute.page==='metatron'||currentRoute.page==='connections'||expertStudios.has(studioId)))navigation.navigate({page:'create'});
 });
+bind('assignment-continue',()=>{
+ if(!heldPlan||missionSubmitting)return;
+ const message=heldMessage||heldPlan.parts.map(part=>part.text).join(' · ');
+ return runPlan(heldPlan,message,true);
+});
 navigation.link($<HTMLAnchorElement>('close-studio'),{page:'studios'});
 for(const meta of studios){const link=document.createElement('a');link.textContent=meta.title;link.dataset.studio=meta.id;navigation.link(link,{page:'studio',studio:meta.id});$('context-studios').append(link);}
 document.addEventListener('azrail:open-studio',(event:Event)=>{const id=(event as CustomEvent<{studio?:string}>).detail?.studio;if(id&&studioById(id))navigation.navigate({page:'studio',studio:id as StudioId});});
@@ -846,10 +855,8 @@ function appendThing(host:HTMLElement,thing:PlanThing){
  if(thing.type==='image'&&thing.url){
   const img=document.createElement('img');img.src=thing.url;img.alt=thing.title||'Готовая картинка';host.append(img);return;
  }
- if((thing.type==='audio'||thing.type==='page')&&thing.url){
-  if(thing.type==='audio'){const audio=document.createElement('audio');audio.controls=true;audio.src=thing.url;host.append(audio);return;}
-  const frame=document.createElement('iframe');frame.src=thing.url;frame.title=thing.title||'Готовая страница';host.append(frame);return;
- }
+ if((thing.type==='audio')&&thing.url){const audio=document.createElement('audio');audio.controls=true;audio.src=thing.url;host.append(audio);return;}
+ if(thing.type==='page'&&thing.url){const link=document.createElement('a');link.href=thing.url;link.target='_blank';link.rel='noopener';link.textContent=thing.title||'Открыть страницу';host.append(link);return;}
  if(thing.type==='storyboard'&&thing.lines?.length){
   const list=document.createElement('ol');
   for(const line of thing.lines){const item=document.createElement('li');item.textContent=line;list.append(item);}
@@ -871,31 +878,74 @@ function harvestStudioThing():PlanThing|undefined{
  if(clip?.src)return{type:'note',title:clip instanceof HTMLVideoElement?'Ролик собран на этом экране.':'Трек собран на этом экране.'};
  return undefined;
 }
+async function keepPlayer():Promise<PlanThing|undefined>{
+ const clip=document.querySelector<HTMLAudioElement>('#music-player, #studio-result audio');
+ const src=clip?.currentSrc||clip?.src||'';
+ if(!src.startsWith('blob:')||!account)return undefined;
+ const send=async(withProject:boolean)=>{
+  const blob=await fetch(src).then(r=>r.blob());
+  const headers:Record<string,string>={'Content-Type':blob.type||'audio/webm','X-Filename':'track.webm','X-Studio-Id':'music'};
+  if(withProject&&project)headers['X-Project-Id']=project;
+  return api('/api/studio/artifacts',{method:'POST',headers,body:blob}) as Promise<{url?:string}>;
+ };
+ try{
+  let saved:{url?:string};
+  try{saved=await send(true);}catch{saved=await send(false);}
+  const url=safeMediaPath(saved.url?`${saved.url}${saved.url.includes('?')?'':'?inline=1'}`:'');
+  return url?{type:'audio',url,title:'Трек'}:undefined;
+ }catch{return undefined;}
+}
+async function keepPage():Promise<PlanThing|undefined>{
+ if(!account||!project)return undefined;
+ try{
+  const overview=await api(`/api/projects/${encodeURIComponent(project)}/workbench`) as {files?:Array<{path:string}>};
+  const files=overview.files??[];
+  if(!files.some(file=>file.path==='index.html'))return undefined;
+  const opened=await api(`/api/projects/${encodeURIComponent(project)}/workbench/file?path=${encodeURIComponent('index.html')}`) as {content?:string};
+  if(!opened.content)return undefined;
+  let style='body{margin:0;font-family:sans-serif}';
+  if(files.some(file=>file.path==='styles.css')){
+   const css=await api(`/api/projects/${encodeURIComponent(project)}/workbench/file?path=${encodeURIComponent('styles.css')}`) as {content?:string};
+   if(css.content)style=css.content;
+  }
+  const published=await api('/api/studio/web/publish',{method:'POST',body:JSON.stringify({name:'Страница',files:[{path:'index.html',text:opened.content},{path:'styles.css',text:style}]})}) as {url?:string};
+  const url=safeMediaPath(String(published.url??''));
+  return url?{type:'page',url,title:'Открыть страницу'}:undefined;
+ }catch{return undefined;}
+}
 function mountLiveClip(){
  const clip=document.querySelector<HTMLMediaElement>('#studio-result audio, #studio-result video');
  if(!clip?.src.startsWith('blob:'))return;
  const copy=clip.cloneNode(true) as HTMLMediaElement;copy.controls=true;copy.src=clip.src;$('assignment-thing').append(copy);
 }
-function restoreStoredPlan(content:string){
+function restoreStoredPlan(content:string,message=''){
  try{
-  const stored=JSON.parse(content) as {parts?:Array<{worker?:string;text?:string;state?:string;ready?:string;thing?:PlanThing}>};
-  const parts=Array.isArray(stored.parts)?stored.parts:[];
-  if(!parts.length)return;
-  const host=$('assignment-live');host.hidden=false;host.dataset.kind='plan';
-  $('assignment-worker').textContent=`План · ${parts.length} ${parts.length===1?'часть':'части'}`;
-  $('assignment-now').textContent=parts.map(part=>part.worker||'').filter(Boolean).join(' · ');
-  $('assignment-ready').textContent=parts.map(part=>part.ready||'').join(' ');
-  $('assignment-next').textContent='Этот план сохранён в переписке.';
-  $('assignment-you').textContent='Можно продолжить с того же чата.';
-  const list=$('assignment-parts');list.replaceChildren();
-  for(const part of parts){
-   const item=document.createElement('li');
-   const place=part.state==='done'?'готово':part.state==='failed'?'не вышло':part.state==='running'?'идёт':'ждёт';
-   item.textContent=`${part.worker??'Часть'} — ${place} — ${part.text??''}`;
-   list.append(item);
-  }
-  paintThings(parts);
+  const stored=JSON.parse(content) as {parts?:Array<{id?:string;kind?:string;text?:string;state?:string;ready?:string;wave?:number;dependsOn?:string[];thing?:PlanThing}>};
+  const plan=openStoredPlan(Array.isArray(stored.parts)?stored.parts:[]);
+  if(!plan)return;
+  heldMessage=message||plan.parts.map(part=>part.text).join(' · ');
+  const left=plan.parts.some(part=>part.state!=='done');
+  paintPlan(plan,left?'Можно продолжить с того же чата.':'Все части уже собраны.');
  }catch{/* Старая запись плана просто не рисуется. */}
+}
+let heldPlan:WorkPlan|null=null;
+let heldMessage='';
+function clearHeldPlan(){
+ heldPlan=null;heldMessage='';
+ const host=$('assignment-live');host.hidden=true;
+ $('assignment-parts').replaceChildren();
+ $('assignment-thing').replaceChildren();
+ $<HTMLButtonElement>('assignment-continue').hidden=true;
+}
+function showContinue(plan:WorkPlan|null){
+ heldPlan=plan;
+ const button=$<HTMLButtonElement>('assignment-continue');
+ button.hidden=!plan?.parts.some(part=>part.state!=='done');
+ button.disabled=missionSubmitting;
+}
+function finishedMemory(){
+ if(!heldPlan)return '';
+ return heldPlan.parts.filter(part=>part.state==='done').map(part=>`${part.kind}: ${part.text}`).join('; ').slice(0,1000);
 }
 async function rememberWork(message:string,plan:WorkPlan,finished:boolean){
  if(!account||local)return;
@@ -917,6 +967,8 @@ function showAssignment(plan:Assignment){
  $('assignment-you').textContent=plan.needsYou;
  $('assignment-parts').replaceChildren();
  $('assignment-thing').replaceChildren();
+ heldPlan=null;
+ $<HTMLButtonElement>('assignment-continue').hidden=true;
 }
 function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
  const host=$('assignment-live');
@@ -933,10 +985,42 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
  list.replaceChildren();
  for(const part of plan.parts){
   const item=document.createElement('li');
+  const line=document.createElement('span');
   const place=part.state==='running'?'идёт':part.state==='done'?'готово':part.state==='failed'?'не вышло':part.wave===0?'рядом':'ждёт';
-  item.textContent=`${part.worker} — ${place} — ${part.text}`;
+  line.textContent=`${part.worker} — ${place} — ${part.text}`;
+  const edit=document.createElement('button');
+  edit.type='button';
+  edit.className='part-edit';
+  edit.textContent='Править';
+  edit.dataset.part=part.id;
+  edit.onclick=()=>openPartEdit(plan,part.id);
+  item.append(line,edit);
   list.append(item);
  }
+ showContinue(plan);
+}
+function openPartEdit(plan:WorkPlan,id:string){
+ const part=plan.parts.find(item=>item.id===id);
+ if(!part||missionSubmitting)return;
+ const button=document.querySelector<HTMLButtonElement>(`#assignment-parts [data-part="${CSS.escape(id)}"]`);
+ const item=button?.closest('li');
+ if(!item)return;
+ item.replaceChildren();
+ const field=document.createElement('input');
+ field.type='text';
+ field.value=part.text;
+ field.maxLength=500;
+ field.setAttribute('aria-label',`Текст части ${part.worker}`);
+ const save=document.createElement('button');
+ save.type='button';
+ save.textContent='Собрать эту часть';
+ save.onclick=()=>{
+  if(!revisePart(plan,id,field.value))return;
+  const message=heldMessage||plan.parts.map(row=>row.text).join(' · ');
+  void runPlan(plan,message,true,id).catch(failure);
+ };
+ item.append(field,save);
+ field.focus();
 }
 function waitForSelector(selector:string,ms=8000){
  return new Promise<boolean>(resolve=>{
@@ -973,7 +1057,8 @@ async function runAssignment(plan:Assignment,message:string){
    missionSubmitting=false;
    await rememberWork(message,one(),false);
    await runStudioRoom();
-   const thing=harvestStudioThing();
+   const harvested=harvestStudioThing();
+   const thing=plan.kind==='music'&&harvested?.type!=='audio'?await keepPlayer()??harvested:harvested;
    paintThings(thing?[ {thing} ]:[]) ;
    mountLiveClip();
    await rememberWork(message,one(thing,'done'),true);
@@ -984,7 +1069,8 @@ async function runAssignment(plan:Assignment,message:string){
   await runMission(message,{keepTurn:true,stay:true});
   const live=$('mission-status').textContent?.trim();
   if(live)$('assignment-now').textContent=live;
-  const thing:PlanThing={type:'note',title:live||'Ход задачи сохранён в этом чате.'};
+  const page=plan.kind==='web'?await keepPage():undefined;
+  const thing:PlanThing=page??{type:'note',title:live||'Ход задачи сохранён в этом чате.'};
   paintThings([{thing}]);
   await rememberWork(message,one(thing,'done'),true);
  }
@@ -995,25 +1081,29 @@ async function runAssignment(plan:Assignment,message:string){
  }
  finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
 }
-async function runPlan(plan:WorkPlan,message:string){
+async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
  if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
  if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
  const thread=chatHistory.current()??chatHistory.create();
  project=thread.projectId||project||crypto.randomUUID();
  const requestKey=crypto.randomUUID();
+ heldMessage=message;
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
- chatHistory.accepted(requestKey,message,project,'');
- if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
- const paint=(needsYou?:string)=>{paintPlan(plan,needsYou);chatHistory.report(requestKey,[formatPlan(plan),needsYou].filter(Boolean).join('\n\n'),plan.parts.some(part=>part.state==='failed')?'failed':'completed');syncChatUI();workspace.toLatest();};
- const needsAccount=plan.parts.some(part=>part.kind!=='music');
+ if(!resume){
+  chatHistory.accepted(requestKey,message,project,'');
+  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
+ }
+ const paint=(needsYou?:string)=>{paintPlan(plan,needsYou);if(!resume)chatHistory.report(requestKey,[formatPlan(plan),needsYou].filter(Boolean).join('\n\n'),plan.parts.some(part=>part.state==='failed')?'failed':'completed');syncChatUI();workspace.toLatest();};
+ const aimed=onlyId?plan.parts.filter(part=>part.id===onlyId):plan.parts;
+ const needsAccount=aimed.some(part=>part.kind!=='music'&&part.state!=='done');
  try{
   if(!account&&needsAccount){paint('Войди в аккаунт, и я начну части, которым нужен вход.');return;}
   if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
+  const groups=wavesToRun(plan,onlyId||undefined);
+  if(!groups.length){paint('Все части уже собраны.');return;}
   await rememberWork(message,plan,false);
-  const waves=[...new Set(plan.parts.map(part=>part.wave))].sort((a,b)=>a-b);
-  for(const wave of waves){
-   const group=plan.parts.filter(part=>part.wave===wave);
+  for(const group of groups){
    if(group.some(part=>plan.parts.some(dep=>part.dependsOn.includes(dep.id)&&dep.state==='failed'))){
     for(const part of group)part.state='failed';
     paint('Следующая часть остановлена: предыдущая не вышла.');
@@ -1045,7 +1135,7 @@ async function runPlan(plan:WorkPlan,message:string){
   paint(text);
   throw e;
  }
- finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
+ finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;if(heldPlan)showContinue(heldPlan);}
 }
 async function runPlanPart(part:PlanPart){
  if(part.kind==='image'){
@@ -1071,7 +1161,7 @@ async function runPlanPart(part:PlanPart){
   part.state='done';
   const live=$('mission-status').textContent?.trim()||'Ход задачи открыт.';
   part.ready=live;
-  part.thing={type:'note',title:live};
+  part.thing=(part.kind==='web'?await keepPage():undefined)??{type:'note',title:live};
   return;
  }
  part.state='done';
@@ -1087,15 +1177,26 @@ async function runPlanScreen(part:PlanPart){
  try{await runStudioRoom();}
  finally{missionSubmitting=held;}
  const thing=harvestStudioThing();
- if(thing)part.thing=thing;
+ const stored=part.kind==='music'&&thing?.type!=='audio'?await keepPlayer()??thing:thing;
+ if(stored)part.thing=stored;
  part.state='done';
+}
+async function chosenPlan(message:string):Promise<WorkPlan|null>{
+ if(local||!account||(account.role!=='admin'&&!account.operator))return planWork(message);
+ try{
+  const memory=finishedMemory();
+  const drafted=await api('/api/plan',{method:'POST',body:JSON.stringify({message,...(memory?{memory}:{})})}) as {fallback?:boolean;parts?:Array<{text?:string;kind?:string;after?:boolean}>};
+  if(drafted.fallback)return planWork(message);
+  if(Array.isArray(drafted.parts)&&drafted.parts.length===0)return null;
+  return workPlanFromDraft(drafted.parts??[])??planWork(message);
+ }catch{return planWork(message);}
 }
 async function runChat(){
  if(missionSubmitting)return;
  const message=prompt.value.trim();if(!message)return;
- const planned=planWork(message);
- if(planned.parts.length>1){await runPlan(planned,message);return;}
- if(planned.parts.length===1){await runAssignment(planned.parts[0],message);return;}
+ const planned=await chosenPlan(message);
+ if(planned&&planned.parts.length>1){await runPlan(planned,message);return;}
+ if(planned&&planned.parts.length===1){await runAssignment(planned.parts[0],message);return;}
  if(!account)throw Error('Войдите в аккаунт, чтобы писать в Chat.');
  if(account.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
  if(account.role!=='admin'&&!account.operator)throw Error('Chat пока открыт только владельцу.');
