@@ -145,8 +145,8 @@
         "previews_enabled": false
       },
       "deployment": {
-        "id": "6038f423-3a37-412d-b2a3-a98e3e7ac739",
-        "version_id": "7973c382-df53-4d99-804d-36d1ecc60d8a",
+        "id": "3d2e71d1-d398-426c-9b0e-89042468b3e4",
+        "version_id": "b38f7869-18c2-40c7-be64-f2a45078afa9",
         "created_on": "2026-11-03T19:35:03.003159Z",
         "source": "wrangler"
       },

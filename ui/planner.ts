@@ -2,12 +2,20 @@ import { readAssignment, type Assignment, type AssignmentKind } from './assignme
 
 export type PlanState = 'waiting' | 'running' | 'done' | 'failed';
 
+export type PlanThing = {
+  type: 'image' | 'audio' | 'page' | 'storyboard' | 'note';
+  url?: string;
+  title?: string;
+  lines?: string[];
+};
+
 export type PlanPart = Assignment & {
   id: string;
   text: string;
   wave: number;
   dependsOn: string[];
   state: PlanState;
+  thing?: PlanThing;
 };
 
 export type WorkPlan = {
@@ -108,4 +116,37 @@ export function formatPlan(plan: WorkPlan): string {
     lines.push(`${index + 1}. ${part.worker} — ${place} — ${part.text}`);
   });
   return lines.join('\n');
+}
+
+const ARTIFACT_URL = /^\/api\/studio\/artifacts\/[A-Za-z0-9._~-]{1,180}(?:\?inline=1)?$/;
+const PAGE_URL = /^\/s\/[A-Za-z0-9_-]{1,80}\/?$/;
+
+function cleanThing(thing: PlanThing | undefined): PlanThing | undefined {
+  if (!thing) return undefined;
+  const lines = thing.lines?.map((line) => line.slice(0, 200)).filter(Boolean).slice(0, 8);
+  const title = thing.title?.slice(0, 200);
+  const url = thing.url && (ARTIFACT_URL.test(thing.url) || PAGE_URL.test(thing.url)) ? thing.url : undefined;
+  if (thing.type === 'storyboard') return lines?.length ? { type: thing.type, lines } : undefined;
+  if (thing.type === 'note') return title ? { type: thing.type, title } : undefined;
+  if (!url || (thing.type !== 'image' && thing.type !== 'audio' && thing.type !== 'page')) return undefined;
+  return { type: thing.type, url, ...(title ? { title } : {}), ...(lines?.length ? { lines } : {}) };
+}
+
+/** Снимок плана для уже существующей переписки. Чужой адрес в ссылку не проходит. */
+export function planRecord(plan: WorkPlan) {
+  return {
+    text: plan.parts.map((part) => part.text).join(' · ').slice(0, 2000),
+    parts: plan.parts.slice(0, 4).map((part) => {
+      const thing = cleanThing(part.thing);
+      return {
+        id: part.id.slice(0, 32),
+        kind: part.kind === 'talk' ? 'build' : part.kind,
+        text: part.text.slice(0, 500),
+        worker: part.worker.slice(0, 80),
+        state: part.state,
+        ready: part.ready.slice(0, 500),
+        ...(thing ? { thing } : {}),
+      };
+    }),
+  };
 }

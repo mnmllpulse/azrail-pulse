@@ -26,7 +26,7 @@ import {appendAssistantActions,copyText,shareText,speakText} from './chat-action
 import {fillMarkdownContent} from './chat-markdown';
 import {formatAssignment,type Assignment} from './assignment';
 import {requestImage} from './image-request';
-import {formatPlan,planWork,type PlanPart,type WorkPlan} from './planner';
+import {formatPlan,planRecord,planWork,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
 function reportGlobalError(source:string,reason:unknown){
@@ -76,6 +76,18 @@ function deviceValue(key:string){try{return localStorage.getItem(key)??sessionSt
 function deviceWrite(key:string,value:string|null){for(const store of [localStorage,sessionStorage])try{if(value===null)store.removeItem(key);else store.setItem(key,value);}catch{/* private mode */}}
 try{pending=JSON.parse(deviceValue('pulse.pending')??'null');project=deviceValue('pulse.project')??'';mission=deviceValue('pulse.mission')??'';authToken=sessionStorage.getItem('pulse.token')??'';preferredModel=sessionStorage.getItem('pulse.preferredModel')??'';const savedVoice=sessionStorage.getItem('pulse.voice');if(savedVoice==='lumen'||savedVoice==='shade'||savedVoice==='aria')chatVoice=savedVoice;}catch{}
 function remember(){deviceWrite('pulse.pending',pending?JSON.stringify(pending):null);deviceWrite('pulse.project',project);deviceWrite('pulse.mission',mission);}
+const expertStudios=new Set(['lab','ledger']);
+function expertOn(){return document.documentElement.dataset.expert==='on';}
+function applyExpert(on:boolean){
+ document.documentElement.dataset.expert=on?'on':'off';
+ deviceWrite('pulse.expert',on?'on':'off');
+ const button=$<HTMLButtonElement>('expert-mode');
+ button.textContent=on?'Обычный вид':'Эксперт';
+ button.setAttribute('aria-pressed',on?'true':'false');
+ const count=document.querySelector('.nav-count');
+ if(count)count.textContent=on?'8':'6';
+}
+applyExpert(deviceValue('pulse.expert')==='on');
 function setPreferredModel(model:string){preferredModel=model;try{if(model)sessionStorage.setItem('pulse.preferredModel',model);else sessionStorage.removeItem('pulse.preferredModel');}catch{}const select=$<HTMLSelectElement>('composer-model');if(model&&!Array.from(select.options).some(o=>o.value===model)){const option=document.createElement('option');option.value=model;option.textContent=modelDisplayName(model);option.title=model;select.append(option);}select.value=model;if(typeof syncModelsButton==='function')syncModelsButton();syncContextPanel();}
 function setChatVoice(voice:ChatVoice){chatVoice=voice;try{sessionStorage.setItem('pulse.voice',voice);}catch{}syncChatUI();notice(`Голос: ${VOICES[voice].name}. Следующий ответ будет в этом тоне.`);}
 
@@ -247,6 +259,9 @@ async function hydrateChat(id:string){
   const r=await api(`/api/chat?conversationId=${encodeURIComponent(id)}`);
   const messages=Array.isArray(r.messages)?r.messages:[];
   chatHistory.hydrate(id,messages);
+  const stored=[...messages].reverse().find(row=>row&&typeof row==='object'&&(row as {role?:string}).role==='plan');
+  const content=stored&&typeof (stored as {content?:unknown}).content==='string'?(stored as {content:string}).content:'';
+  if(content)restoreStoredPlan(content);
   syncChatUI();workspace.toLatest();
  }catch{/* Offline or missing conversation — keep local cache. */}
 }
@@ -269,10 +284,10 @@ function openChat(id:string){
  saveComposerDraft();skipComposerSave=true;
  const thread=chatHistory.select(id);if(!thread)return;
  resetMissionView();clearAttachments();project=thread.projectId;mission=thread.missionId;prompt.value=thread.draft;remember();ensureEventStream();
- navigation.navigate({page:mission?'mission':'create'});workspace.setContext(false);syncChatUI();workspace.toLatest();prompt.focus();
- if(mission&&account){missionPanel.hidden=false;void poll(epoch);}else missionPanel.hidden=true;
+ navigation.navigate({page:mission&&expertOn()?'mission':'create'});workspace.setContext(false);syncChatUI();workspace.toLatest();prompt.focus();
+ if(mission&&account&&expertOn()){missionPanel.hidden=false;void poll(epoch);}else missionPanel.hidden=true;
  // Always refresh from server so a chat started on phone appears here with full history.
- if(account&&!mission)void hydrateChat(id);
+ if(account&&(!mission||!expertOn()))void hydrateChat(id);
 }
 function newChat(){
  if(!canSwitchChat())return;
@@ -616,6 +631,8 @@ function syncComposer(route:Route){
  workspace.resizePrompt();
 }
 function renderRoute(route:Route,initial:boolean){
+ const studioId=route.page==='studio'?route.studio:'';
+ if(!expertOn()&&(route.page==='mission'||route.page==='metatron'||route.page==='connections'||expertStudios.has(studioId))){navigation.navigate({page:'create'});return;}
  currentRoute=route;
  leaveStudio();metatronCleanup();metatronCleanup=()=>{};const id=route.page==='studio'?'studio-page':route.page;
  document.querySelectorAll<HTMLElement>('.view').forEach(el=>el.hidden=el.id!==id);
@@ -627,7 +644,7 @@ function renderRoute(route:Route,initial:boolean){
  if(route.page==='mission'){if(mission&&account){missionPanel.hidden=false;void poll(epoch).catch(failure);}void refreshMissionHistory().catch(failure);}
  if(route.page==='metatron')metatronCleanup=mountMetatronLab({root:$('metatron-page'),api,local,account,getProjectId:()=>project,getMissionId:()=>mission,setMissionId:id=>{mission=id;remember();},notice,failure});
  syncComposer(route);
- const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='create'?'Chat':route.page==='mission'?'Mission Control':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Metatron Lab':route.page==='connections'?'Connections':'Страница не найдена';
+ const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='create'?'Чат':route.page==='mission'?'Ход задачи':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Метратрон':route.page==='connections'?'Подключения':'Страница не найдена';
  document.title=`${title} · AZRAIL MNMLL PULSE OS`;
  $('workspace-page-title').textContent=route.page==='create'?(chatHistory.current()?.title??'Новый чат'):title;
  workspace.routeChanged();syncChatUI();
@@ -636,6 +653,12 @@ function renderRoute(route:Route,initial:boolean){
 function view(id:'create'|'projects'|'studios'){navigation.navigate({page:id});}
 navigation.link(document.querySelector<HTMLAnchorElement>('[data-home]')!,{page:'create'});
 document.querySelectorAll<HTMLAnchorElement>('[data-view]').forEach(el=>navigation.link(el,{page:el.dataset.view as 'create'|'mission'|'projects'|'studios'|'metatron'|'connections'}));
+bind('expert-mode',()=>{
+ const next=!expertOn();
+ applyExpert(next);
+ const studioId=currentRoute.page==='studio'?currentRoute.studio:'';
+ if(!next&&(currentRoute.page==='mission'||currentRoute.page==='metatron'||currentRoute.page==='connections'||expertStudios.has(studioId)))navigation.navigate({page:'create'});
+});
 navigation.link($<HTMLAnchorElement>('close-studio'),{page:'studios'});
 for(const meta of studios){const link=document.createElement('a');link.textContent=meta.title;link.dataset.studio=meta.id;navigation.link(link,{page:'studio',studio:meta.id});$('context-studios').append(link);}
 document.addEventListener('azrail:open-studio',(event:Event)=>{const id=(event as CustomEvent<{studio?:string}>).detail?.studio;if(id&&studioById(id))navigation.navigate({page:'studio',studio:id as StudioId});});
@@ -652,7 +675,7 @@ const openTokenLogin=()=>{
    catch(e){authToken='';try{sessionStorage.removeItem('pulse.token');}catch{};throw e;}
    $<HTMLDialogElement>('dialog').close();$('account').textContent=account!.name;syncChatAccount();void refreshComposerModels();await refreshMode();
    await syncServerChats();
-   if(mission){navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}
+   if(mission&&expertOn()){navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}
    notice('Вход выполнен.');
   });
 };
@@ -681,14 +704,14 @@ bind('account',async()=>{
  });
 });
 async function refreshAccount(){
- if(local){syncChatAccount();$('local-notice').textContent='Локальный просмотр · WAV/MIDI, аудиоанализ и CSV доступны на устройстве. Для AI и проектов нужен вход в развёрнутое приложение.';$('local-notice').hidden=false;$('mode').textContent='AI подключается после развёртывания';return;}
+ if(local){syncChatAccount();$('local-notice').textContent='Локальный просмотр · WAV/MIDI, аудиоанализ и CSV доступны на устройстве. Для AI и проектов нужен вход в развёрнутое приложение.';$('local-notice').hidden=false;return;}
  const a=await api('/auth/status');account=a.account;oidcConfigured=!!a.configured;if(typeof a.key==='boolean')keyLogin=a.key;
  if(!account&&authToken){try{const me=await api('/api/me');account=me.account;}catch{authToken='';try{sessionStorage.removeItem('pulse.token');}catch{}}}
  syncChatAccount();void refreshComposerModels();
- if(account){$('account').textContent=account.name;await refreshMode();ensureEventStream();if(mission){if(composerPage==='create')navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}}
+ if(account){$('account').textContent=account.name;await refreshMode();ensureEventStream();if(mission&&expertOn()){if(composerPage==='create')navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}}
  else if(!oidcConfigured)notice('OIDC не настроен. Войдите по токену через кнопку «Аккаунт» — регистрация внешнего приложения не нужна.');
 }
-async function refreshMode(){const r=await api('/api/routing-settings');$('mode').textContent=r.policy.allowThirdPartyModels?'Сторонние модели включены':'Сторонние модели выключены';return r;}
+async function refreshMode(){return api('/api/routing-settings');}
 function currentModelLabel(){
  const hit=preferredModel?catalogModels.find(m=>m.slug===preferredModel):undefined;
  return hit?modelLabel(hit):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL');
@@ -809,6 +832,80 @@ async function runMission(goal?:string,opts?:{keepTurn?:boolean;stay?:boolean;ne
  }
  finally{if(!opts?.nested){missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}}
 }
+function safeMediaPath(src:string){
+ try{
+  const url=new URL(src,location.origin);
+  if(url.origin!==location.origin)return '';
+  const path=url.pathname+url.search;
+  if(/^\/api\/studio\/artifacts\/[A-Za-z0-9._~-]+(?:\?inline=1)?$/.test(path))return path;
+  if(/^\/s\/[A-Za-z0-9_-]+\/?$/.test(url.pathname))return url.pathname;
+ }catch{/* Чужой адрес в полосу не ставим. */}
+ return '';
+}
+function appendThing(host:HTMLElement,thing:PlanThing){
+ if(thing.type==='image'&&thing.url){
+  const img=document.createElement('img');img.src=thing.url;img.alt=thing.title||'Готовая картинка';host.append(img);return;
+ }
+ if((thing.type==='audio'||thing.type==='page')&&thing.url){
+  if(thing.type==='audio'){const audio=document.createElement('audio');audio.controls=true;audio.src=thing.url;host.append(audio);return;}
+  const frame=document.createElement('iframe');frame.src=thing.url;frame.title=thing.title||'Готовая страница';host.append(frame);return;
+ }
+ if(thing.type==='storyboard'&&thing.lines?.length){
+  const list=document.createElement('ol');
+  for(const line of thing.lines){const item=document.createElement('li');item.textContent=line;list.append(item);}
+  host.append(list);return;
+ }
+ if(thing.type==='note'&&thing.title){const note=document.createElement('p');note.textContent=thing.title;host.append(note);}
+}
+function paintThings(parts:Array<{thing?:PlanThing}>){
+ const host=$('assignment-thing');host.replaceChildren();
+ for(const part of parts)if(part.thing)appendThing(host,part.thing);
+}
+function harvestStudioThing():PlanThing|undefined{
+ const img=document.querySelector<HTMLImageElement>('#studio-result img');
+ const image=img?safeMediaPath(img.currentSrc||img.src):'';
+ if(image)return{type:'image',url:image,title:img?.alt||'Готовая картинка'};
+ const clip=document.querySelector<HTMLMediaElement>('#studio-result audio, #studio-result video');
+ const saved=clip?safeMediaPath(clip.currentSrc||clip.src):'';
+ if(saved&&clip instanceof HTMLAudioElement)return{type:'audio',url:saved,title:'Трек'};
+ if(clip?.src)return{type:'note',title:clip instanceof HTMLVideoElement?'Ролик собран на этом экране.':'Трек собран на этом экране.'};
+ return undefined;
+}
+function mountLiveClip(){
+ const clip=document.querySelector<HTMLMediaElement>('#studio-result audio, #studio-result video');
+ if(!clip?.src.startsWith('blob:'))return;
+ const copy=clip.cloneNode(true) as HTMLMediaElement;copy.controls=true;copy.src=clip.src;$('assignment-thing').append(copy);
+}
+function restoreStoredPlan(content:string){
+ try{
+  const stored=JSON.parse(content) as {parts?:Array<{worker?:string;text?:string;state?:string;ready?:string;thing?:PlanThing}>};
+  const parts=Array.isArray(stored.parts)?stored.parts:[];
+  if(!parts.length)return;
+  const host=$('assignment-live');host.hidden=false;host.dataset.kind='plan';
+  $('assignment-worker').textContent=`План · ${parts.length} ${parts.length===1?'часть':'части'}`;
+  $('assignment-now').textContent=parts.map(part=>part.worker||'').filter(Boolean).join(' · ');
+  $('assignment-ready').textContent=parts.map(part=>part.ready||'').join(' ');
+  $('assignment-next').textContent='Этот план сохранён в переписке.';
+  $('assignment-you').textContent='Можно продолжить с того же чата.';
+  const list=$('assignment-parts');list.replaceChildren();
+  for(const part of parts){
+   const item=document.createElement('li');
+   const place=part.state==='done'?'готово':part.state==='failed'?'не вышло':part.state==='running'?'идёт':'ждёт';
+   item.textContent=`${part.worker??'Часть'} — ${place} — ${part.text??''}`;
+   list.append(item);
+  }
+  paintThings(parts);
+ }catch{/* Старая запись плана просто не рисуется. */}
+}
+async function rememberWork(message:string,plan:WorkPlan,finished:boolean){
+ if(!account||local)return;
+ const thread=chatHistory.current();if(!thread)return;
+ const head=plan.parts[0];
+ const summary=finished&&head?(plan.parts.length>1?formatPlan(plan):formatAssignment(head)):'';
+ try{
+  await api('/api/conversations/plan',{method:'POST',body:JSON.stringify({conversationId:thread.id,userText:message.slice(0,4000),...(summary?{summary:summary.slice(0,4000)}:{}),plan:planRecord(plan)})});
+ }catch{/* Полоса остаётся на этом экране, даже если запись не дошла. */}
+}
 function showAssignment(plan:Assignment){
  const host=$('assignment-live');
  host.hidden=false;
@@ -819,6 +916,7 @@ function showAssignment(plan:Assignment){
  $('assignment-next').textContent=plan.next;
  $('assignment-you').textContent=plan.needsYou;
  $('assignment-parts').replaceChildren();
+ $('assignment-thing').replaceChildren();
 }
 function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
  const host=$('assignment-live');
@@ -830,6 +928,7 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
  $('assignment-ready').textContent=plan.parts.map(part=>part.ready).join(' ');
  $('assignment-next').textContent=plan.parallel?'Независимые части идут рядом. Следующая волна ждёт, пока предыдущая закончится.':'Части идут по очереди: следующая начинается после предыдущей.';
  $('assignment-you').textContent=needsYou;
+ paintThings(plan.parts);
  const list=$('assignment-parts');
  list.replaceChildren();
  for(const part of plan.parts){
@@ -865,19 +964,29 @@ async function runAssignment(plan:Assignment,message:string){
   if(!account&&plan.kind!=='music'){paint({...plan,needsYou:'Войди в аккаунт, и я начну это поручение.'});return;}
   if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
   paint(plan);
+  const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,id:'part-1',text:message,wave:0,dependsOn:[],state,thing}]});
   if(plan.studio&&plan.control){
    navigation.navigate({page:'studio',studio:plan.studio});
    const found=await waitForSelector(plan.control);
    if(!found){paint({...plan,needsYou:'Студия не открылась. Отправь фразу ещё раз.'},'failed');return;}
    prompt.value=message;
    missionSubmitting=false;
+   await rememberWork(message,one(),false);
    await runStudioRoom();
+   const thing=harvestStudioThing();
+   paintThings(thing?[ {thing} ]:[]) ;
+   mountLiveClip();
+   await rememberWork(message,one(thing,'done'),true);
    return;
   }
   missionSubmitting=false;
-  await runMission(message,{keepTurn:true});
+  await rememberWork(message,one(),false);
+  await runMission(message,{keepTurn:true,stay:true});
   const live=$('mission-status').textContent?.trim();
   if(live)$('assignment-now').textContent=live;
+  const thing:PlanThing={type:'note',title:live||'Ход задачи сохранён в этом чате.'};
+  paintThings([{thing}]);
+  await rememberWork(message,one(thing,'done'),true);
  }
  catch(e){
   const text=e instanceof Error?e.message:'Не удалось начать поручение.';
@@ -901,6 +1010,7 @@ async function runPlan(plan:WorkPlan,message:string){
  try{
   if(!account&&needsAccount){paint('Войди в аккаунт, и я начну части, которым нужен вход.');return;}
   if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
+  await rememberWork(message,plan,false);
   const waves=[...new Set(plan.parts.map(part=>part.wave))].sort((a,b)=>a-b);
   for(const wave of waves){
    const group=plan.parts.filter(part=>part.wave===wave);
@@ -926,7 +1036,9 @@ async function runPlan(plan:WorkPlan,message:string){
     else if(part.state==='running')part.state='done';
    });
    paint(plan.parts.some(part=>part.state==='failed')?'Часть плана не вышла. Остальные, которые уже шли рядом, не откатываю.':undefined);
+   mountLiveClip();
   }
+  await rememberWork(message,plan,true);
  }
  catch(e){
   const text=e instanceof Error?e.message:'Не удалось начать план.';
@@ -938,9 +1050,11 @@ async function runPlan(plan:WorkPlan,message:string){
 async function runPlanPart(part:PlanPart){
  if(part.kind==='image'){
   const signed=account;if(!signed)throw Error('Войдите, чтобы собрать изображение.');
-  const result=await requestImage(signed.id,{prompt:part.text,projectId:project||undefined,aspectRatio:'1:1',resolution:1024,style:'auto',seed:null,variations:1,operation:'generate'},api) as {items?:Array<{name?:string}>};
+  const result=await requestImage(signed.id,{prompt:part.text,projectId:project||undefined,aspectRatio:'1:1',resolution:1024,style:'auto',seed:null,variations:1,operation:'generate'},api) as {items?:Array<{name?:string;url?:string}>};
+  const url=safeMediaPath(String(result.items?.[0]?.url??''));
   part.state='done';
   part.ready=result.items?.[0]?.name?`Картинка «${result.items[0].name}» сохранена.`:'Картинка собрана.';
+  if(url)part.thing={type:'image',url,title:result.items?.[0]?.name||'Готовая картинка'};
   return;
  }
  if(part.kind==='video'){
@@ -949,12 +1063,15 @@ async function runPlanPart(part:PlanPart){
   const scenes=(result.scenes??[]).map(scene=>scene.text?.trim()).filter(Boolean).slice(0,4);
   part.state='done';
   part.ready=scenes.length?`Раскадровка: ${scenes.join(' · ')}`:'Раскадровка запрошена. Ролик из кадров собирается в Video Studio.';
+  if(scenes.length)part.thing={type:'storyboard',lines:scenes};
   return;
  }
  if(part.kind==='web'||part.kind==='build'){
   await runMission(part.text,{keepTurn:true,stay:true,nested:true});
   part.state='done';
-  part.ready=$('mission-status').textContent?.trim()||'Ход задачи открыт.';
+  const live=$('mission-status').textContent?.trim()||'Ход задачи открыт.';
+  part.ready=live;
+  part.thing={type:'note',title:live};
   return;
  }
  part.state='done';
@@ -969,6 +1086,8 @@ async function runPlanScreen(part:PlanPart){
  missionSubmitting=false;
  try{await runStudioRoom();}
  finally{missionSubmitting=held;}
+ const thing=harvestStudioThing();
+ if(thing)part.thing=thing;
  part.state='done';
 }
 async function runChat(){
@@ -1171,6 +1290,7 @@ async function loadProjects(){
 }
 for(const studio of studios.filter(item=>item.id!=='audio'&&item.id!=='als')){
  const el=document.createElement('a');el.className='card';el.dataset.studio=studio.id;el.dataset.icon=studio.icon;
+ if(expertStudios.has(studio.id))el.dataset.expert='';
  const small=document.createElement('small'),h=document.createElement('h3'),p=document.createElement('p'),action=document.createElement('span');
  small.textContent=studio.type;h.textContent=studio.title;p.textContent=studio.description;action.className='card-action';action.textContent=studio.action+' ↗';
  el.append(small,h,p,action);navigation.link(el,{page:'studio',studio:studio.id});$('studio-list').append(el);
@@ -1236,12 +1356,12 @@ const voiceInput=mountVoiceInput({button:$<HTMLButtonElement>('voice'),prompt,ap
 const commandPalette=mountCommandPalette(()=>[
  {id:'new-chat',label:'Новый чат',keywords:['new','chat'],run:newChat},
  {id:'open-create',label:'Open Chat',keywords:['chat','create','dialog'],run:()=>navigation.navigate({page:'create'})},
- {id:'open-mission',label:'Open Mission Control',keywords:['mission','azrail','control','goal'],run:()=>navigation.navigate({page:'mission'})},
+ {id:'open-mission',label:'Ход задачи',keywords:['mission','azrail','control','goal'],run:()=>navigation.navigate({page:'mission'})},
  {id:'open-projects',label:'Open Projects',keywords:['projects','project'],run:()=>navigation.navigate({page:'projects'})},
  {id:'open-metatron',label:'Open Metatron Lab',keywords:['metatron','agents','mission graph','operations'],run:()=>navigation.navigate({page:'metatron'})},
  {id:'open-connections',label:'Open Connections',keywords:['connectors','integrations'],run:()=>navigation.navigate({page:'connections'})},
  ...studios.filter(meta=>meta.id!=='audio'&&meta.id!=='als').map(meta=>({id:`studio-${meta.id}`,label:`Open ${meta.title}`,keywords:[meta.description,meta.id],run:()=>navigation.navigate({page:'studio',studio:meta.id})})),
- {id:'run-mission',label:'Start Mission Control',keywords:['run','mission','start'],disabled:()=>!prompt.value.trim(),run:()=>{if(composerPage!=='mission')navigation.navigate({page:'mission'});composer.dispatchEvent(new Event('submit',{cancelable:true}));}},
+ {id:'run-mission',label:'Начать ход задачи',keywords:['run','mission','start'],disabled:()=>!prompt.value.trim(),run:()=>{if(composerPage!=='mission')navigation.navigate({page:'mission'});composer.dispatchEvent(new Event('submit',{cancelable:true}));}},
  {id:'stop-mission',label:'Stop mission',keywords:['cancel','abort'],disabled:()=>!mission,run:()=>$( 'cancel' ).click()},
  {id:'history',label:'Open project history',keywords:['history','versions'],disabled:()=>!project||!account,run:()=>$( 'project-history' ).click()},
  {id:'asset-library',label:'Open Asset Intelligence Library',keywords:['assets','library','images','audio','documents'],disabled:()=>!account,run:()=>openAssetIntelligence().catch(failure)},

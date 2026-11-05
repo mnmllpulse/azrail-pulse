@@ -1,7 +1,7 @@
 import { readModelPolicy, setModelPolicy, modelBlockReason, FREE_MODEL_SLUGS, ModelPolicyError } from "./lib/model-policy";
 import { parseInput, queryObject, errorPayload } from "./lib/validation";
 import { BudgetError } from "./unified/ledger";
-import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, conversationPatchSchema, approvalListQuerySchema, approvalDecisionSchema, backupCreateSchema, backupQuerySchema, backupDeleteQuerySchema, backupRestoreSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
+import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, conversationPatchSchema, conversationPlanSchema, approvalListQuerySchema, approvalDecisionSchema, backupCreateSchema, backupQuerySchema, backupDeleteQuerySchema, backupRestoreSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
 import { readLiveCatalog } from "./lib/model-catalog";
 import { backupProject, deleteBackup, restoreBackup } from "./lib/backups";
 import { withProjectLock } from "./lib/project-control";
@@ -1207,6 +1207,20 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
          LIMIT 80`,
       ).bind(principal.role,principal.id).all();
       return json({ success: true, conversations: results }, env);
+    }
+
+    if (url.pathname === "/api/conversations/plan" && request.method === "POST") {
+      const body = parseInput(conversationPlanSchema, parsedBody);
+      await ensureConversation(env, body.conversationId);
+      if (body.userText) {
+        const prior = (await listMessages(env, body.conversationId, 40)) as Array<{ role?: string; content?: string }>;
+        if (!prior.some((row) => row.role === "user" && row.content === body.userText)) {
+          await addMessage(env, body.conversationId, "user", body.userText);
+        }
+      }
+      if (body.summary) await addMessage(env, body.conversationId, "assistant", body.summary);
+      await addMessage(env, body.conversationId, "plan", JSON.stringify(body.plan));
+      return json({ success: true, conversationId: body.conversationId }, env);
     }
 
     if (url.pathname === "/api/conversations" && request.method === "PATCH") {

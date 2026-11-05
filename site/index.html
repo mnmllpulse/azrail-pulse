@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="ru">
+<html lang="ru" data-expert="off">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="AZRAIL">
 <title>AZRAIL × MNMLL PULSE</title>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/assets/app.css?v=0624e4631a">
+<link rel="stylesheet" href="/assets/app.css?v=087e6601c8">
 </head>
 <body>
 <a class="skip" href="#main">К содержимому</a>
@@ -25,11 +25,11 @@
     </div>
     <button id="new-chat" type="button" class="new-chat"><span aria-hidden="true">＋</span> Новый чат <kbd>↵</kbd></button>
     <nav class="workspace-nav" aria-label="Главная навигация">
-      <a href="/" data-view="create" class="nav active" aria-current="page"><span aria-hidden="true">◇</span> Chat</a>
-      <a href="/mission" data-view="mission" class="nav"><span aria-hidden="true">◈</span> Mission Control</a>
+      <a href="/" data-view="create" class="nav active" aria-current="page"><span aria-hidden="true">◇</span> Чат</a>
+      <a href="/mission" data-view="mission" class="nav" data-expert><span aria-hidden="true">◈</span> Ход задачи</a>
       <a href="/projects" data-view="projects" class="nav"><span aria-hidden="true">▱</span> Проекты</a>
       <a href="/studios" data-view="studios" class="nav"><span aria-hidden="true">⊞</span> Студии <span class="nav-count">8</span></a>
-      <a href="/metatron" data-view="metatron" class="nav"><span aria-hidden="true">⌘</span> Metatron</a>
+      <a href="/metatron" data-view="metatron" class="nav" data-expert><span aria-hidden="true">⌘</span> Метратрон</a>
     </nav>
     <div class="history-heading"><h2>Ваши чаты</h2><span id="chat-count">0</span></div>
     <label class="sr-only" for="chat-search">Поиск чатов</label>
@@ -38,7 +38,8 @@
     <div class="history-scroll"><ul id="chat-list" class="chat-list" aria-label="История чатов"></ul><p id="chat-history-empty" class="history-empty">Здесь появятся ваши чаты.</p></div>
     <p class="history-scope">Чаты синхронизируются между устройствами</p>
     <div class="sidebar-footer">
-      <a id="connections-link" class="nav" href="/settings/connections" data-view="connections"><span aria-hidden="true">⊙</span> Подключения</a>
+      <button id="expert-mode" class="nav" type="button" aria-pressed="false">Эксперт</button>
+      <a id="connections-link" class="nav" href="/settings/connections" data-view="connections" data-expert><span aria-hidden="true">⊙</span> Подключения</a>
       <div class="sidebar-account"><span class="account-avatar" aria-hidden="true">A</span><button id="account" class="account" type="button">Войти <span>↗</span></button></div>
     </div>
   </aside>
@@ -62,15 +63,16 @@
         <dt>Ты</dt><dd id="assignment-you"></dd>
       </dl>
       <ol id="assignment-parts" class="assignment-parts"></ol>
+      <div id="assignment-thing" class="assignment-thing"></div>
     </div>
     </header>
     <main id="main" class="workspace-main" tabindex="-1">
-      <section id="create" class="view chat-view" aria-label="Chat · AZRAIL">
+      <section id="create" class="view chat-view" aria-label="Чат">
         <div id="chat-scroll" class="chat-scroll" tabindex="0" aria-label="Лента чата">
           <div class="chat-content">
             <div id="chat-welcome" class="chat-welcome chat-hero">
               <div class="welcome-emblem" aria-hidden="true"><svg viewBox="0 0 40 44" fill="none"><path d="M31.3 8.7A16 16 0 1 0 31.3 31.3M20 17V42" stroke="currentColor" stroke-width="1.5"/></svg></div>
-              <p class="kicker">CHAT</p>
+              <p class="kicker">Чат</p>
               <h1 tabindex="-1">AZRAIL</h1>
               <p class="intro">Опиши результат. Я сам открою инструмент и покажу, кто работает и что уже будет готово.</p>
             </div>
@@ -82,7 +84,7 @@
       </section>
 <section id="mission" class="view mission-control" hidden aria-label="AZRAIL Mission Control">
         <div class="page-title mission-control-hero">
-          <p class="kicker">MISSION CONTROL</p>
+          <p class="kicker">Ход задачи</p>
           <h1 tabindex="-1">AZRAIL</h1>
           <p class="intro">Напиши цель внизу и нажми Старт. Система сама составит план и выполнит шаги.</p>
         </div>
@@ -116,8 +118,8 @@
       </section>
 <section id="projects" class="view" hidden><div class="page-title"><p class="kicker">ВАША РАБОТА СОХРАНЯЕТСЯ</p><h1 tabindex="-1">Проекты <span class="title-accent">в одном месте.</span></h1><p class="intro">Поиск, статус, версии и последние результаты — без перегруженной панели управления.</p></div><div class="project-toolbar" aria-label="Фильтры проектов"><label class="project-search"><span>Поиск</span><input id="project-search" type="search" maxlength="120" placeholder="Название, описание или тег"></label><label><span>Статус</span><select id="project-status-filter"><option value="active">Активные</option><option value="archived">Архив</option><option value="deleted">Удалённые</option><option value="all">Все</option></select></label><label><span>Студия</span><select id="project-studio-filter"><option value="">Все студии</option><option value="web">Web Studio</option><option value="image">Image Studio</option><option value="music">Music Studio</option><option value="video">Video Studio</option><option value="audio">Audio Lab</option><option value="als">Ableton Lab</option><option value="data">Data Studio</option><option value="ledger">Ledger</option><option value="lab">Pulse Lab</option></select></label><label><span>Сортировка</span><select id="project-sort"><option value="updated_desc">Последняя активность</option><option value="name_asc">Название A–Я</option><option value="name_desc">Название Я–A</option><option value="created_desc">Сначала новые</option><option value="created_asc">Сначала старые</option><option value="updated_asc">Давно без активности</option></select></label><div class="project-toolbar-actions"><button id="refresh-projects" type="button">Обновить</button><button id="new-project" class="primary" type="button">Новый проект</button></div></div><p id="project-summary" class="muted" role="status"></p><div id="project-list" class="project-grid"></div><div class="section-heading project-files-heading"><h2>Последние файлы студий</h2><span class="muted">Сохранённые результаты</span></div><div id="artifact-list" class="artifact-list"></div></section>
 <section id="studios" class="view" hidden><div class="page-title"><p class="kicker">ОДНО ПРОСТРАНСТВО. РАЗНЫЕ ИНСТРУМЕНТЫ.</p><h1 tabindex="-1">Выберите <span class="title-accent">студию.</span></h1><p class="intro">Каждый инструмент открывается на своей странице.</p></div><div id="studio-list" class="cards"></div></section>
-<section id="metatron" class="view" hidden><div class="page-title"><p class="kicker">AGENT OPERATIONS CENTER</p><h1 tabindex="-1">Metatron <span class="title-accent">Lab 2.0.</span></h1><p class="intro">Граф миссии, агенты, checkpoints, traces, стоимость, approvals и recovery — единый control plane AZRAIL.</p></div><div id="metatron-page" class="work"></div></section>
-<section id="connections" class="view" hidden><div class="page-title"><a class="back-link" href="/" data-view="create">← AZRAIL</a><p class="kicker">SETTINGS / CONNECTIONS</p><h1 tabindex="-1">Подключения <span class="title-accent">под контролем.</span></h1><p class="intro">Статус, scopes, инструменты, история вызовов и credential lifecycle на отдельной странице.</p></div><div id="connections-page" class="work"></div></section>
+<section id="metatron" class="view" hidden><div class="page-title"><p class="kicker">Служебный пульт</p><h1 tabindex="-1">Метратрон</h1><p class="intro">Граф миссии, агенты, checkpoints, traces, стоимость, approvals и recovery — единый control plane AZRAIL.</p></div><div id="metatron-page" class="work"></div></section>
+<section id="connections" class="view" hidden><div class="page-title"><a class="back-link" href="/" data-view="create">← AZRAIL</a><p class="kicker">Подключения</p><h1 tabindex="-1">Подключения <span class="title-accent">под контролем.</span></h1><p class="intro">Статус, scopes, инструменты, история вызовов и credential lifecycle на отдельной странице.</p></div><div id="connections-page" class="work"></div></section>
 <section id="studio-page" class="view" hidden><div class="page-title"><a id="close-studio" class="back-link" href="/studios">← Все студии</a><p class="kicker" id="studio-type"></p><h1 id="studio-title" tabindex="-1"></h1><p id="studio-description" class="intro"></p></div><article id="studio-work" class="work" hidden><div id="studio-toolbar"></div><div id="studio-suggestions"></div><div id="studio-controls"></div><div id="studio-result" aria-live="polite"></div></article></section>
 <section id="not-found" class="view" hidden><div class="page-title"><p class="kicker">404</p><h1 tabindex="-1">Страница не найдена.</h1><p class="intro">Проверьте адрес или выберите инструмент в студиях.</p><a href="/studios" class="back-link" data-view="studios">Открыть студии ↗</a></div></section>
     </main>
@@ -149,9 +151,9 @@
         </div>
         <input type="file" id="attachments" multiple hidden>
       </form>
-      <div class="composer-footnote"><span id="mode"><span class="dot"></span> Сторонние модели выключены</span><button id="studio-talk-open" class="text-button" type="button" hidden>Разговор</button><button id="composer-open-chat" class="text-button" type="button" hidden>Открыть диалог</button><span id="composer-keyboard">Enter — отправить · Shift + Enter — новая строка</span></div>
+      <div class="composer-footnote"><button id="studio-talk-open" class="text-button" type="button" hidden>Разговор</button><button id="composer-open-chat" class="text-button" type="button" hidden>Открыть диалог</button><span id="composer-keyboard">Enter — отправить · Shift + Enter — новая строка</span></div>
     </div>
-    <footer class="workspace-footer"><span>AZRAIL × MNMLL PULSE · UNIFIED / 1.5.0-rc.63</span><button id="about" class="text-button" type="button">О системе ↗</button></footer>
+    <footer class="workspace-footer"><span>AZRAIL × MNMLL PULSE</span><!-- UNIFIED / 1.5.0-rc.63 --><button id="about" class="text-button" type="button">О системе ↗</button></footer>
   </div>
   <aside id="preview-panel" class="preview-panel" aria-labelledby="preview-heading" hidden>
     <div class="preview-heading">

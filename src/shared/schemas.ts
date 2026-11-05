@@ -51,6 +51,31 @@ export type ChatBody = z.infer<typeof chatSchema>;
 
 export const polishSchema = z.object({ text: trimmed(20_000, "text"), preferredModel: preferredModelSchema });
 
+const planThingSchema = z.object({
+  type: z.enum(["image", "audio", "page", "storyboard", "note"]),
+  url: z.string().max(300).regex(/^\/api\/studio\/artifacts\/[A-Za-z0-9._~-]+(?:\?inline=1)?$|^\/s\/[A-Za-z0-9_-]+\/?$/).optional(),
+  title: z.string().max(200).optional(),
+  lines: z.array(z.string().max(200)).max(8).optional(),
+});
+
+export const conversationPlanSchema = z.object({
+  conversationId: z.string().trim().min(1).max(128),
+  userText: z.string().trim().min(1).max(4000).optional(),
+  summary: z.string().trim().min(1).max(4000).optional(),
+  plan: z.object({
+    text: z.string().max(2000),
+    parts: z.array(z.object({
+      id: z.string().trim().min(1).max(32),
+      kind: z.enum(["image", "music", "video", "web", "build"]),
+      text: z.string().max(500),
+      worker: z.string().max(80),
+      state: z.enum(["waiting", "running", "done", "failed"]),
+      ready: z.string().max(500),
+      thing: planThingSchema.optional(),
+    })).max(4),
+  }),
+});
+
 export const conversationPatchSchema = z.object({
   id: z.string().trim().min(1).max(128),
   title: z.string().trim().min(1).max(90).optional(),
