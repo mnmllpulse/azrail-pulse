@@ -11,7 +11,7 @@ import { reconcileModelCall } from "./lib/billing";
 import { authenticate, authorizeRequest, createAccount, requireResource, activeAccount, administrator, AccessError, type Principal } from "./lib/accounts";
 import { getAgentByName } from "agents";
 import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
-import { cleanupSecurityState, reserveDailyQuota, positiveLimit } from "./lib/quota";
+import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, positiveLimit } from "./lib/quota";
 import { enforceOperationLimit } from "./lib/operation-limit";
 import { readBoundedBody, BodyLimitError, validateJsonObject } from "./lib/request-body";
 import { getCors } from "./lib/cors";
@@ -554,6 +554,13 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     }
 
     if(url.pathname === "/api/me" && request.method === "GET") return json({account:principal},env);
+
+    if (url.pathname === "/api/limits" && request.method === "GET") {
+      const chatLimit = positiveLimit(env.CHAT_DAILY_LIMIT, 200);
+      const chat = await readDailyQuota(env, auth.caller ?? "shared", chatLimit);
+      const generation = await readGenerationBudget(env);
+      return json({ success: true, chat, generation }, env);
+    }
     { const response=await webWorkbenchRoute(request,env,principal,trace); if(response) return new Response(response.body,{status:response.status,statusText:response.statusText,headers:getCors(env,response.headers)}); }
     { const response=await projectRoute(request,env,principal); if(response) return new Response(response.body,{status:response.status,statusText:response.statusText,headers:getCors(env,response.headers)}); }
     if(url.pathname === "/api/admin/accounts" && request.method === "POST") {

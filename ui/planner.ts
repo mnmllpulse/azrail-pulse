@@ -7,6 +7,7 @@ export type PlanThing = {
   url?: string;
   title?: string;
   lines?: string[];
+  alts?: string[];
 };
 
 export type PlanPart = Assignment & {
@@ -16,6 +17,8 @@ export type PlanPart = Assignment & {
   dependsOn: string[];
   state: PlanState;
   thing?: PlanThing;
+  versions?: PlanThing[];
+  seed?: number;
 };
 
 export type WorkPlan = {
@@ -111,6 +114,8 @@ export type StoredPart = {
   wave?: number;
   dependsOn?: string[];
   thing?: PlanThing;
+  versions?: PlanThing[];
+  seed?: number;
 };
 
 /** План из записи переписки. Идущая часть после закрытия вкладки снова ждёт. */
@@ -132,6 +137,8 @@ export function openStoredPlan(rows: StoredPart[]): WorkPlan | null {
       state,
       ready: (row.ready ?? '').slice(0, 500),
       ...(row.thing ? { thing: row.thing } : {}),
+      ...(Array.isArray(row.versions) && row.versions.length ? { versions: row.versions.slice(0, 3) } : {}),
+      ...(Number.isInteger(row.seed) && (row.seed ?? 0) >= 0 ? { seed: row.seed } : {}),
     });
   }
   if (!parts.length) return null;
@@ -147,7 +154,13 @@ export function wavesToRun(plan: WorkPlan, onlyId?: string): PlanPart[][] {
     .filter((group) => group.length > 0);
 }
 
-/** Меняет текст одной части и ставит её заново. Соседние части не трогает. */
+function keepVersion(part: PlanPart) {
+  if (!part.thing) return;
+  part.versions = [part.thing, ...(part.versions ?? [])].slice(0, 3);
+  delete part.thing;
+}
+
+/** Меняет текст одной части и ставит её заново. Прошлая вещь остаётся в истории. Соседей не трогает. */
 export function revisePart(plan: WorkPlan, id: string, text: string): boolean {
   const next = text.trim().slice(0, 500);
   const part = plan.parts.find((item) => item.id === id);
@@ -155,8 +168,31 @@ export function revisePart(plan: WorkPlan, id: string, text: string): boolean {
   part.text = next;
   part.state = 'waiting';
   part.ready = '';
-  delete part.thing;
+  keepVersion(part);
   return true;
+}
+
+/** Возвращает в работу только упавшую часть. Готовая соседняя часть остаётся готовой. */
+export function retryPart(plan: WorkPlan, id: string): boolean {
+  const part = plan.parts.find((item) => item.id === id);
+  if (!part || part.state !== 'failed') return false;
+  part.state = 'waiting';
+  part.ready = '';
+  keepVersion(part);
+  return true;
+}
+
+/** Часть, которая ждёт упавшую предыдущую, сама не идёт. Сосед без этой зависимости остаётся. */
+export function holdBlocked(plan: WorkPlan, group: PlanPart[]): PlanPart[] {
+  const blocked = group.filter((part) => plan.parts.some((dep) => part.dependsOn.includes(dep.id) && dep.state === 'failed'));
+  for (const part of blocked) part.state = 'failed';
+  return group.filter((part) => part.state !== 'failed' && part.state !== 'done');
+}
+
+/** Имя файла из фразы. Служебные знаки становятся чёрточкой. */
+export function fileNameFromPhrase(text: string, ext: string): string {
+  const stem = text.toLocaleLowerCase('ru').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+  return `${stem || 'файл'}.${ext.replace(/^\./, '')}`;
 }
 
 /** Делит поручение на части. Волна 0 идёт рядом, следующая ждёт предыдущую. */
@@ -207,15 +243,20 @@ export function formatPlan(plan: WorkPlan): string {
 const ARTIFACT_URL = /^\/api\/studio\/artifacts\/[A-Za-z0-9._~-]{1,180}(?:\?inline=1)?$/;
 const PAGE_URL = /^\/s\/[A-Za-z0-9_-]{1,80}\/?$/;
 
+function keptUrls(urls: Array<string | undefined>): string[] {
+  return urls.filter((url): url is string => Boolean(url && (ARTIFACT_URL.test(url) || PAGE_URL.test(url)))).slice(0, 3);
+}
+
 function cleanThing(thing: PlanThing | undefined): PlanThing | undefined {
   if (!thing) return undefined;
   const lines = thing.lines?.map((line) => line.slice(0, 200)).filter(Boolean).slice(0, 8);
   const title = thing.title?.slice(0, 200);
   const url = thing.url && (ARTIFACT_URL.test(thing.url) || PAGE_URL.test(thing.url)) ? thing.url : undefined;
+  const alts = keptUrls(thing.alts ?? []);
   if (thing.type === 'storyboard') return lines?.length ? { type: thing.type, lines } : undefined;
   if (thing.type === 'note') return title ? { type: thing.type, title } : undefined;
   if (!url || (thing.type !== 'image' && thing.type !== 'audio' && thing.type !== 'page')) return undefined;
-  return { type: thing.type, url, ...(title ? { title } : {}), ...(lines?.length ? { lines } : {}) };
+  return { type: thing.type, url, ...(title ? { title } : {}), ...(lines?.length ? { lines } : {}), ...(alts.length ? { alts } : {}) };
 }
 
 /** Снимок плана для уже существующей переписки. Чужой адрес в ссылку не проходит. */
@@ -224,6 +265,7 @@ export function planRecord(plan: WorkPlan) {
     text: plan.parts.map((part) => part.text).join(' · ').slice(0, 2000),
     parts: plan.parts.slice(0, 4).map((part) => {
       const thing = cleanThing(part.thing);
+      const versions = (part.versions ?? []).map((item) => cleanThing(item)).filter((item): item is PlanThing => Boolean(item)).slice(0, 3);
       return {
         id: part.id.slice(0, 32),
         kind: part.kind === 'talk' ? 'build' : part.kind,
@@ -234,6 +276,8 @@ export function planRecord(plan: WorkPlan) {
         wave: part.wave,
         ...(part.dependsOn.length ? { dependsOn: part.dependsOn.slice(0, 3) } : {}),
         ...(thing ? { thing } : {}),
+        ...(versions.length ? { versions } : {}),
+        ...(Number.isInteger(part.seed) ? { seed: part.seed } : {}),
       };
     }),
   };

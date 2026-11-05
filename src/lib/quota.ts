@@ -58,6 +58,38 @@ export async function reserveDailyQuota(env: Env, scope: string, cost = 1, limit
   }
 }
 
+/** Чтение дневного чата без списания. null — цифра сейчас неизвестна. */
+export async function readDailyQuota(env: Env, scope: string, limit: number) {
+  const dayScope = `chat-daily:${scope}`;
+  const bucket = Math.floor(Date.now() / 86_400_000);
+  try {
+    const current = await env.AZRAIL_D1.prepare(
+      "SELECT used FROM request_quotas WHERE scope = ? AND bucket = ?",
+    ).bind(dayScope, bucket).first<{ used: number }>();
+    const used = current?.used ?? 0;
+    return { used, limit, left: Math.max(0, limit - used) };
+  } catch {
+    return null;
+  }
+}
+
+/** Чтение дневной генерации без списания. null — цифра сейчас неизвестна. */
+export async function readGenerationBudget(env: Env) {
+  const limit = positiveLimit(env.DAILY_PROVIDER_CALLS, 500);
+  const scope = `platform:${new Date().toISOString().slice(0, 10)}`;
+  try {
+    const row = await env.AZRAIL_D1.prepare(
+      "SELECT committed_units, limit_units FROM resource_budgets WHERE scope = ? AND unit = 'request'",
+    ).bind(scope).first<{ committed_units: number; limit_units: number }>();
+    if (!row) return { used: 0, limit, left: limit };
+    const used = Number(row.committed_units ?? 0);
+    const cap = Number(row.limit_units ?? limit);
+    return { used, limit: cap, left: Math.max(0, cap - used) };
+  } catch {
+    return null;
+  }
+}
+
 export async function cleanupSecurityState(env: Env): Promise<void> {
   const now = Date.now();
   await env.AZRAIL_D1.batch([

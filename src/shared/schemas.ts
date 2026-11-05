@@ -56,11 +56,13 @@ export const planDraftSchema = z.object({
   memory: z.string().trim().max(1_000).optional(),
 });
 
+const planUrl = z.string().max(300).regex(/^\/api\/studio\/artifacts\/[A-Za-z0-9._~-]+(?:\?inline=1)?$|^\/s\/[A-Za-z0-9_-]+\/?$/);
 const planThingSchema = z.object({
   type: z.enum(["image", "audio", "page", "storyboard", "note"]),
-  url: z.string().max(300).regex(/^\/api\/studio\/artifacts\/[A-Za-z0-9._~-]+(?:\?inline=1)?$|^\/s\/[A-Za-z0-9_-]+\/?$/).optional(),
+  url: planUrl.optional(),
   title: z.string().max(200).optional(),
   lines: z.array(z.string().max(200)).max(8).optional(),
+  alts: z.array(planUrl).max(3).optional(),
 });
 
 export const conversationPlanSchema = z.object({
@@ -79,6 +81,8 @@ export const conversationPlanSchema = z.object({
       wave: z.number().int().min(0).max(3).optional(),
       dependsOn: z.array(z.string().trim().min(1).max(32)).max(3).optional(),
       thing: planThingSchema.optional(),
+      versions: z.array(planThingSchema).max(3).optional(),
+      seed: z.number().int().min(0).max(2147483647).optional(),
     })).max(4),
   }),
 });

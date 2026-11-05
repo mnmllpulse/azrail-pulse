@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPlan, openStoredPlan, planRecord, planWork, revisePart, wavesToRun, workPlanFromDraft } from '../ui/planner';
+import { formatPlan, fileNameFromPhrase, holdBlocked, openStoredPlan, planRecord, planWork, retryPart, revisePart, wavesToRun, workPlanFromDraft } from '../ui/planner';
 
 describe('Планировщик поручения', () => {
   it('одну картинку не дробит', () => {
@@ -93,5 +93,75 @@ describe('Планировщик поручения', () => {
     expect(plan.parts[0]?.state).toBe('done');
     expect(plan.parts[0]?.thing?.url).toBe('/api/studio/artifacts/poster-1?inline=1');
     expect(wavesToRun(plan, plan.parts[1].id).map((group) => group.map((part) => part.text))).toEqual([['тихий трек']]);
+  });
+
+  it('повтор поднимает только упавшую часть и оставляет прошлую вещь', () => {
+    const plan = planWork('Нарисуй постер и собери трек');
+    plan.parts[0].state = 'done';
+    plan.parts[0].thing = { type: 'image', url: '/api/studio/artifacts/poster-1?inline=1', title: 'Постер' };
+    plan.parts[1].state = 'failed';
+    plan.parts[1].thing = { type: 'audio', url: '/api/studio/artifacts/track-1?inline=1', title: 'Трек' };
+    expect(retryPart(plan, plan.parts[0].id)).toBe(false);
+    expect(retryPart(plan, plan.parts[1].id)).toBe(true);
+    expect(plan.parts[0]?.state).toBe('done');
+    expect(plan.parts[1]?.state).toBe('waiting');
+    expect(plan.parts[1]?.thing).toBeUndefined();
+    expect(plan.parts[1]?.versions?.[0]?.url).toBe('/api/studio/artifacts/track-1?inline=1');
+    expect(wavesToRun(plan, plan.parts[1].id).map((group) => group.map((part) => part.kind))).toEqual([['music']]);
+  });
+
+  it('упавшая зависимость держит только свою следующую часть', () => {
+    const plan = workPlanFromDraft([
+      { text: 'Постер', kind: 'image' },
+      { text: 'Трек', kind: 'music' },
+      { text: 'Сайт', kind: 'web', after: true },
+    ]);
+    expect(plan).not.toBeNull();
+    plan!.parts[0].state = 'done';
+    plan!.parts[1].state = 'failed';
+    const next = plan!.parts.filter((part) => part.wave === 1);
+    const runnable = holdBlocked(plan!, next);
+    expect(runnable).toEqual([]);
+    expect(plan!.parts[0]?.state).toBe('done');
+    expect(plan!.parts[2]?.state).toBe('failed');
+  });
+
+  it('два адреса картинки остаются, чужой адрес выпадает', () => {
+    const plan = planWork('Нарисуй постер и собери трек');
+    plan.parts[0].thing = {
+      type: 'image',
+      url: '/api/studio/artifacts/poster-1?inline=1',
+      title: 'Постер',
+      alts: ['/api/studio/artifacts/poster-2?inline=1', 'https://evil.example/x.png'],
+    };
+    plan.parts[0].versions = [{ type: 'image', url: '/api/studio/artifacts/poster-0?inline=1', title: 'Старый' }];
+    const record = planRecord(plan);
+    expect(record.parts[0]?.thing).toEqual({
+      type: 'image',
+      url: '/api/studio/artifacts/poster-1?inline=1',
+      title: 'Постер',
+      alts: ['/api/studio/artifacts/poster-2?inline=1'],
+    });
+    expect(record.parts[0]?.versions).toEqual([{ type: 'image', url: '/api/studio/artifacts/poster-0?inline=1', title: 'Старый' }]);
+    plan.parts[0].seed = 7;
+    expect(planRecord(plan).parts[0]?.seed).toBe(7);
+  });
+
+  it('сосед в той же волне без этой зависимости остаётся ждать', () => {
+    const plan = planWork('Нарисуй постер и собери трек');
+    plan.parts[0].state = 'failed';
+    plan.parts[1].wave = 1;
+    plan.parts[1].dependsOn = [];
+    plan.parts[1].state = 'waiting';
+    plan.parts.push({ ...plan.parts[1], id: 'part-3', text: 'Сайт', dependsOn: ['part-1'], state: 'waiting' });
+    const runnable = holdBlocked(plan, plan.parts.filter((part) => part.wave === 1));
+    expect(runnable.map((part) => part.id)).toEqual(['part-2']);
+    expect(plan.parts.find((part) => part.id === 'part-3')?.state).toBe('failed');
+    expect(plan.parts[0]?.state).toBe('failed');
+  });
+
+  it('имя файла берётся из фразы', () => {
+    expect(fileNameFromPhrase('Ночной постер бюро', 'png')).toBe('ночной-постер-бюро.png');
+    expect(fileNameFromPhrase('???', 'png')).toBe('файл.png');
   });
 });

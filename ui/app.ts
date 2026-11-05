@@ -26,7 +26,7 @@ import {appendAssistantActions,copyText,shareText,speakText} from './chat-action
 import {fillMarkdownContent} from './chat-markdown';
 import {formatAssignment,type Assignment} from './assignment';
 import {requestImage} from './image-request';
-import {formatPlan,openStoredPlan,planRecord,planWork,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {formatPlan,fileNameFromPhrase,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
 function reportGlobalError(source:string,reason:unknown){
@@ -53,7 +53,7 @@ const VOICES:Record<ChatVoice,{name:string;line:string}>={
  shade:{name:'Серый',line:'Мужской · серьёзный, короткий, собранный'},
  aria:{name:'Ария',line:'Женский · мягкий, добрый, ясный'},
 };
-let chatVoice:ChatVoice='lumen';
+let chatVoice:ChatVoice='shade';
 let stopEventStream=()=>{},streamProject='';
 let activeStudioModule:StudioModule|null=null,activeStudioContext:StudioModuleContext|null=null;
 let metatronCleanup=()=>{};
@@ -461,7 +461,7 @@ function syncContextPanel(){
  session.textContent=local?'Локальный просмотр. AI и проекты открываются после входа в развёрнутое приложение.':account?`Аккаунт · ${account.name}${account.role?` · ${account.role}`:''}`:'Вход не выполнен';
  $('context-page-label').textContent=`Страница · ${pageLabel(currentRoute)}`;
  $('context-model-label').textContent=`Модель · ${preferredModel?modelDisplayName(preferredModel):'автовыбор'}`;
- $('context-voice-label').textContent=`Голос · ${VOICES[chatVoice].name}`;
+ $('context-voice-label').textContent=`Голос · ${VOICES[chatVoice].name}. Ключ озвучки не поставлен.`;
  $('context-panel-project').textContent=project?(contextProjectTitle?`Проект · ${contextProjectTitle}`:'Проект · без названия'):'Проект не выбран. Откройте проекты или начните задачу.';
  const names=attachmentRefs.map(ref=>ref.fileName).filter(Boolean);
  $('context-attachment-label').textContent=names.length?names.join(', '):'Нет прикреплённых файлов';
@@ -668,6 +668,46 @@ bind('assignment-continue',()=>{
  const message=heldMessage||heldPlan.parts.map(part=>part.text).join(' · ');
  return runPlan(heldPlan,message,true);
 });
+let imageFrame:'1:1'|'16:9'|'9:16'='1:1';
+let imageCount:2|3|4=2;
+const upscaleOnce=new Set<string>();
+function markFrame(){
+ for(const button of $('assignment-frame').querySelectorAll<HTMLButtonElement>('[data-frame]'))button.setAttribute('aria-pressed',button.dataset.frame===imageFrame?'true':'false');
+ for(const button of $('assignment-frame').querySelectorAll<HTMLButtonElement>('[data-count]'))button.setAttribute('aria-pressed',button.dataset.count===String(imageCount)?'true':'false');
+}
+$('assignment-frame').addEventListener('click',event=>{
+ const button=(event.target as HTMLElement).closest<HTMLButtonElement>('[data-frame]');
+ const frame=button?.dataset.frame;
+ if(frame!=='1:1'&&frame!=='16:9'&&frame!=='9:16')return;
+ imageFrame=frame;
+ markFrame();
+});
+$('assignment-frame').addEventListener('click',event=>{
+ const button=(event.target as HTMLElement).closest<HTMLButtonElement>('[data-count]');
+ const count=Number(button?.dataset.count);
+ if(count!==2&&count!==3&&count!==4)return;
+ imageCount=count;
+ markFrame();
+});
+let imageReference='';
+$<HTMLInputElement>('assignment-reference').addEventListener('change',()=>{
+ const input=$<HTMLInputElement>('assignment-reference');
+ const file=input.files?.[0];
+ input.value='';
+ if(!file)return;
+ if(!account){notice('Войдите, чтобы взять свою картинку.');return;}
+ const send=async(withProject:boolean)=>{
+  const headers:Record<string,string>={'Content-Type':file.type||'image/png','X-Filename':file.name.slice(0,120),'X-Studio-Id':'image'};
+  if(withProject&&project)headers['X-Project-Id']=project;
+  return api('/api/studio/artifacts',{method:'POST',headers,body:file}) as Promise<{id?:string}>;
+ };
+ void send(true).catch(()=>send(false)).then(saved=>{
+  if(!saved?.id){notice('Картинка не сохранилась.');return;}
+  imageReference=saved.id;
+  notice('Своя картинка задаёт вид следующей сборки.');
+ }).catch(failure);
+});
+bind('assignment-login',()=>$('account').click());
 navigation.link($<HTMLAnchorElement>('close-studio'),{page:'studios'});
 for(const meta of studios){const link=document.createElement('a');link.textContent=meta.title;link.dataset.studio=meta.id;navigation.link(link,{page:'studio',studio:meta.id});$('context-studios').append(link);}
 document.addEventListener('azrail:open-studio',(event:Event)=>{const id=(event as CustomEvent<{studio?:string}>).detail?.studio;if(id&&studioById(id))navigation.navigate({page:'studio',studio:id as StudioId});});
@@ -851,22 +891,64 @@ function safeMediaPath(src:string){
  }catch{/* Чужой адрес в полосу не ставим. */}
  return '';
 }
-function appendThing(host:HTMLElement,thing:PlanThing){
+function downloadName(thing:PlanThing,ext:string){
+ return thing.title?.includes('.')?thing.title:fileNameFromPhrase(thing.title||'файл',ext);
+}
+function downloadLink(url:string,name:string){
+ const link=document.createElement('a');
+ link.href=url;
+ link.download=name;
+ link.textContent='Скачать';
+ return link;
+}
+function appendThing(host:HTMLElement,thing:PlanThing,earlier=false,poster=''){
  if(thing.type==='image'&&thing.url){
-  const img=document.createElement('img');img.src=thing.url;img.alt=thing.title||'Готовая картинка';host.append(img);return;
+  const row=document.createElement('div');
+  row.className=earlier?'assignment-versions':'assignment-pair';
+  const draw=(src:string)=>{const img=document.createElement('img');img.src=src;img.alt=thing.title||'Готовая картинка';row.append(img);};
+  draw(thing.url);
+  if(!earlier)for(const alt of thing.alts??[])draw(alt);
+  host.append(row);
+  if(!earlier)host.append(downloadLink(thing.url,downloadName(thing,'png')));
+  return;
  }
- if((thing.type==='audio')&&thing.url){const audio=document.createElement('audio');audio.controls=true;audio.src=thing.url;host.append(audio);return;}
- if(thing.type==='page'&&thing.url){const link=document.createElement('a');link.href=thing.url;link.target='_blank';link.rel='noopener';link.textContent=thing.title||'Открыть страницу';host.append(link);return;}
+ if(thing.type==='audio'&&thing.url){
+  const audio=document.createElement('audio');audio.controls=true;audio.src=thing.url;host.append(audio);
+  if(!earlier)host.append(downloadLink(thing.url,downloadName(thing,'webm')));
+  return;
+ }
+ if(thing.type==='page'&&thing.url){
+  const link=document.createElement('a');link.href=thing.url;link.target='_blank';link.rel='noopener';link.textContent=thing.title||'Открыть страницу';host.append(link);
+  const life=document.createElement('p');life.textContent='Страница живёт 90 дней.';host.append(life);return;
+ }
  if(thing.type==='storyboard'&&thing.lines?.length){
-  const list=document.createElement('ol');
-  for(const line of thing.lines){const item=document.createElement('li');item.textContent=line;list.append(item);}
-  host.append(list);return;
+  const row=document.createElement('div');
+  row.className='assignment-cards';
+  if(poster){
+   const card=document.createElement('article');
+   const label=document.createElement('p');label.className='kicker';label.textContent='Первый кадр';
+   const img=document.createElement('img');img.src=poster;img.alt='Первый кадр из готовой картинки';
+   card.append(label,img);row.append(card);
+  }
+  thing.lines.forEach((line,index)=>{
+   const card=document.createElement('article');
+   const label=document.createElement('p');label.className='kicker';label.textContent=`Кадр ${index+1}`;
+   const body=document.createElement('p');body.textContent=line;
+   card.append(label,body);row.append(card);
+  });
+  host.append(row);return;
  }
  if(thing.type==='note'&&thing.title){const note=document.createElement('p');note.textContent=thing.title;host.append(note);}
 }
-function paintThings(parts:Array<{thing?:PlanThing}>){
+function paintThings(parts:PlanPart[]){
  const host=$('assignment-thing');host.replaceChildren();
- for(const part of parts)if(part.thing)appendThing(host,part.thing);
+ const poster=parts.find(part=>part.state==='done'&&part.thing?.type==='image'&&part.thing.url)?.thing?.url??'';
+ let shown=0;
+ for(const part of parts){
+  if(part.thing){appendThing(host,part.thing,false,part.thing.type==='storyboard'?poster:'');shown+=1;}
+  for(const older of part.versions??[]){appendThing(host,older,true);shown+=1;}
+ }
+ if(!shown){const note=document.createElement('p');note.textContent='Пока ничего нет.';host.append(note);}
 }
 function harvestStudioThing():PlanThing|undefined{
  const img=document.querySelector<HTMLImageElement>('#studio-result img');
@@ -913,6 +995,63 @@ async function keepPage():Promise<PlanThing|undefined>{
   return url?{type:'page',url,title:'Открыть страницу'}:undefined;
  }catch{return undefined;}
 }
+async function pageSource(){
+ if(!account||!project)return null;
+ const overview=await api(`/api/projects/${encodeURIComponent(project)}/workbench`) as {files?:Array<{path:string}>};
+ const files=overview.files??[];
+ if(!files.some(file=>file.path==='index.html'))return null;
+ const opened=await api(`/api/projects/${encodeURIComponent(project)}/workbench/file?path=${encodeURIComponent('index.html')}`) as {content?:string;sha256?:string};
+ if(!opened.content)return null;
+ let css='body{margin:0;font-family:sans-serif}';
+ if(files.some(file=>file.path==='styles.css')){
+  const style=await api(`/api/projects/${encodeURIComponent(project)}/workbench/file?path=${encodeURIComponent('styles.css')}`) as {content?:string};
+  if(style.content)css=style.content;
+ }
+ return {html:opened.content,css,sha:opened.sha256??''};
+}
+async function phoneFit(html:string,css:string){
+ const frame=document.createElement('iframe');
+ frame.setAttribute('sandbox','allow-same-origin');
+ frame.style.cssText='position:absolute;left:-9999px;width:390px;height:700px;border:0';
+ document.body.append(frame);
+ const doc=frame.contentDocument;
+ if(!doc){frame.remove();return 'Ширину телефона сейчас не измерить.';}
+ doc.open();
+ doc.write(`<!doctype html><html><head><meta charset="utf-8"><style>${css}</style></head><body>${html}</body></html>`);
+ doc.close();
+ await new Promise(resolve=>setTimeout(resolve,40));
+ const wide=doc.documentElement.scrollWidth>394;
+ frame.remove();
+ return wide?'На ширине 390 px текст вылезает.':'На ширине 390 px помещается.';
+}
+async function downloadProject(){
+ if(!account){notice('Войдите, чтобы скачать проект.');return;}
+ if(!project){notice('Сначала нужен проект.');return;}
+ const {download}=await import('./media');
+ download(await blobAPI(`/api/studio/project-zip?projectId=${encodeURIComponent(project)}`),'azrail-project.zip');
+}
+async function copyProject(){
+ if(!account||account.role==='viewer'){notice('Копию снимает владелец проекта.');return;}
+ if(!project){notice('Сначала нужен проект.');return;}
+ const result=await api(`/api/projects/${encodeURIComponent(project)}/duplicate`,{method:'POST',body:'{}'}) as {project?:{name?:string};copiedFiles?:number};
+ notice(`Копия «${result.project?.name||'проект'}» снята. Файлов: ${result.copiedFiles??0}.`);
+}
+async function editPageText(){
+ if(!account){notice('Войдите, чтобы править текст страницы.');return;}
+ if(!project){notice('Сначала нужен проект.');return;}
+ const source=await pageSource();
+ if(!source){notice('Текста страницы пока нет.');return;}
+ const root=dialog('Текст страницы','<label for="page-text">Файл страницы</label><textarea id="page-text" rows="12"></textarea><button id="page-text-save" class="primary" type="button">Сохранить</button>');
+ const field=root.querySelector<HTMLTextAreaElement>('#page-text');
+ if(field)field.value=source.html;
+ root.querySelector<HTMLButtonElement>('#page-text-save')?.addEventListener('click',()=>{
+  const content=field?.value??'';
+  void api(`/api/projects/${encodeURIComponent(project)}/workbench/files`,{method:'POST',body:JSON.stringify({action:'update',path:'index.html',content,expectedSha256:source.sha})}).then(()=>{
+   notice('Текст страницы сохранён.');
+   $<HTMLDialogElement>('dialog').close();
+  }).catch(error=>{notice(error instanceof APIError&&error.status===409?'Файл изменился. Откройте его ещё раз.':'Текст страницы не сохранился.');});
+ });
+}
 function mountLiveClip(){
  const clip=document.querySelector<HTMLMediaElement>('#studio-result audio, #studio-result video');
  if(!clip?.src.startsWith('blob:'))return;
@@ -936,6 +1075,8 @@ function clearHeldPlan(){
  $('assignment-parts').replaceChildren();
  $('assignment-thing').replaceChildren();
  $<HTMLButtonElement>('assignment-continue').hidden=true;
+ $('assignment-login').hidden=true;
+ $('assignment-frame').hidden=true;
 }
 function showContinue(plan:WorkPlan|null){
  heldPlan=plan;
@@ -969,6 +1110,8 @@ function showAssignment(plan:Assignment){
  $('assignment-thing').replaceChildren();
  heldPlan=null;
  $<HTMLButtonElement>('assignment-continue').hidden=true;
+ $('assignment-login').hidden=true;
+ $('assignment-frame').hidden=true;
 }
 function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
  const host=$('assignment-live');
@@ -976,11 +1119,16 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
  host.dataset.kind='plan';
  const ready=plan.parts.filter(part=>part.wave===0);
  $('assignment-worker').textContent=plan.parallel?`План · ${plan.parts.length} части, рядом ${ready.length}`:`План · ${plan.parts.length} части`;
- $('assignment-now').textContent=ready.map(part=>part.worker).join(' · ');
+ const running=plan.parts.filter(part=>part.state==='running');
+ $('assignment-now').textContent=running.length?running.map(part=>`${part.worker}: ${part.text}`).join(' · '):ready.map(part=>part.worker).join(' · ');
  $('assignment-ready').textContent=plan.parts.map(part=>part.ready).join(' ');
- $('assignment-next').textContent=plan.parallel?'Независимые части идут рядом. Следующая волна ждёт, пока предыдущая закончится.':'Части идут по очереди: следующая начинается после предыдущей.';
+ const video=plan.parts.some(part=>part.kind==='video');
+ $('assignment-next').textContent=`${plan.parallel?'Независимые части идут рядом. Следующая волна ждёт, пока предыдущая закончится.':'Части идут по очереди: следующая начинается после предыдущей.'}${video?' Ролик в этом плане — раскадровка, не снятый клип. Черновик WebM собирается в Video Studio.':''} Прозрачный фон закрыт. Платная съёмка и увеличение ролика не включаются.`;
  $('assignment-you').textContent=needsYou;
  paintThings(plan.parts);
+ const frame=$('assignment-frame');
+ frame.hidden=!plan.parts.some(part=>part.kind==='image'&&part.state!=='done');
+ markFrame();
  const list=$('assignment-parts');
  list.replaceChildren();
  for(const part of plan.parts){
@@ -995,9 +1143,77 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
   edit.dataset.part=part.id;
   edit.onclick=()=>openPartEdit(plan,part.id);
   item.append(line,edit);
+  if(part.state==='done'&&part.kind==='image'&&part.thing?.url){
+   const grow=document.createElement('button');
+   grow.type='button';
+   grow.className='part-edit';
+   grow.textContent='Увеличить';
+   grow.onclick=()=>{
+    if(missionSubmitting)return;
+    upscaleOnce.add(part.id);
+    part.state='waiting';
+    part.ready='';
+    if(part.thing)part.versions=[part.thing,...(part.versions??[])].slice(0,3);
+    delete part.thing;
+    const message=heldMessage||plan.parts.map(row=>row.text).join(' · ');
+    void runPlan(plan,message,true,part.id).catch(failure);
+   };
+   item.append(grow);
+  }
+  if(part.kind==='web'&&part.thing?.type!=='page'){
+   const publish=document.createElement('button');
+   publish.type='button';
+   publish.className='part-edit';
+   publish.textContent='Опубликовать';
+   publish.onclick=()=>{
+    void (async()=>{
+     const files=await pageSource();
+     const fit=files?await phoneFit(files.html,files.css):'Ширину телефона сейчас не измерить.';
+     notice(fit);
+     const page=await keepPage();
+     if(!page){notice(`Страницу пока не из чего опубликовать. ${fit}`);return;}
+     part.thing=page;
+     part.ready=`Страница опубликована. Она живёт 90 дней. ${fit}`;
+     paintPlan(plan,needsYou);
+    })().catch(failure);
+   };
+   item.append(publish);
+   const zip=document.createElement('button');
+   zip.type='button';
+   zip.className='part-edit';
+   zip.textContent='Скачать проект';
+   zip.onclick=()=>{void downloadProject().catch(failure);};
+   const copy=document.createElement('button');
+   copy.type='button';
+   copy.className='part-edit';
+   copy.textContent='Копия проекта';
+   copy.onclick=()=>{void copyProject().catch(failure);};
+   const rewrite=document.createElement('button');
+   rewrite.type='button';
+   rewrite.className='part-edit';
+   rewrite.textContent='Править текст';
+   rewrite.onclick=()=>{void editPageText().catch(failure);};
+   item.append(zip,rewrite);
+   if(account?.role!=='viewer')item.append(copy);
+  }
+  if(part.state==='failed'){
+   const retry=document.createElement('button');
+   retry.type='button';
+   retry.className='part-edit';
+   retry.textContent='Повторить';
+   retry.dataset.retry=part.id;
+   retry.onclick=()=>{
+    if(missionSubmitting||!retryPart(plan,part.id))return;
+    const message=heldMessage||plan.parts.map(row=>row.text).join(' · ');
+    void runPlan(plan,message,true,part.id).catch(failure);
+   };
+   item.append(retry);
+  }
   list.append(item);
  }
  showContinue(plan);
+ const login=$<HTMLButtonElement>('assignment-login');
+ login.hidden=!needsYou.includes('Войди');
 }
 function openPartEdit(plan:WorkPlan,id:string){
  const part=plan.parts.find(item=>item.id===id);
@@ -1081,6 +1297,18 @@ async function runAssignment(plan:Assignment,message:string){
  }
  finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
 }
+async function todayNote(plan:WorkPlan){
+ const video=plan.parts.some(part=>part.kind==='video')?'Ролик будет раскадровкой, внешняя съёмка не вызывается.':'';
+ if(!account||local)return ['После входа будет виден остаток на сегодня.',video].filter(Boolean).join(' ');
+ try{
+  const read=await api('/api/limits') as {chat?:{left:number;limit:number}|null;generation?:{left:number;limit:number}|null};
+  const chat=read.chat?`Чат: осталось ${read.chat.left} из ${read.chat.limit}.`:'Остаток чата сейчас не прочитан. Потолок 200.';
+  const generation=read.generation?`Генерация: осталось ${read.generation.left} из ${read.generation.limit}.`:'Остаток генерации сейчас не прочитан. Потолок 500.';
+  return [chat,generation,video].filter(Boolean).join(' ');
+ }catch{
+  return ['Остаток на сегодня сейчас не прочитан. Потолок чата 200, генерации 500.',video].filter(Boolean).join(' ');
+ }
+}
 async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
  if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
  if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
@@ -1094,7 +1322,8 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
   chatHistory.accepted(requestKey,message,project,'');
   if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
  }
- const paint=(needsYou?:string)=>{paintPlan(plan,needsYou);if(!resume)chatHistory.report(requestKey,[formatPlan(plan),needsYou].filter(Boolean).join('\n\n'),plan.parts.some(part=>part.state==='failed')?'failed':'completed');syncChatUI();workspace.toLatest();};
+ const estimate=await todayNote(plan);
+ const paint=(needsYou?:string)=>{paintPlan(plan,[estimate,needsYou].filter(Boolean).join(' '));if(!resume)chatHistory.report(requestKey,[formatPlan(plan),needsYou].filter(Boolean).join('\n\n'),plan.parts.some(part=>part.state==='failed')?'failed':'completed');syncChatUI();workspace.toLatest();};
  const aimed=onlyId?plan.parts.filter(part=>part.id===onlyId):plan.parts;
  const needsAccount=aimed.some(part=>part.kind!=='music'&&part.state!=='done');
  try{
@@ -1104,23 +1333,24 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
   if(!groups.length){paint('Все части уже собраны.');return;}
   await rememberWork(message,plan,false);
   for(const group of groups){
-   if(group.some(part=>plan.parts.some(dep=>part.dependsOn.includes(dep.id)&&dep.state==='failed'))){
-    for(const part of group)part.state='failed';
+   const runnable=holdBlocked(plan,group);
+   if(!runnable.length){
     paint('Следующая часть остановлена: предыдущая не вышла.');
     continue;
    }
-   for(const part of group)part.state='running';
+   for(const part of runnable)part.state='running';
    paint();
-   const screen=group.find(part=>part.kind==='music')??group.find(part=>part.kind==='video')??null;
+   const screen=runnable.find(part=>part.kind==='music')??runnable.find(part=>part.kind==='video')??null;
    const jobs:Array<Promise<void>>=[];
-   for(const part of group){
+   for(const part of runnable){
     if(part===screen)continue;
     jobs.push(runPlanPart(part));
    }
    if(screen)jobs.push(runPlanScreen(screen));
    const results=await Promise.allSettled(jobs);
+   const order=runnable.filter(item=>item!==screen).concat(screen?[screen]:[]);
    results.forEach((result,index)=>{
-    const part=group.filter(item=>item!==screen).concat(screen? [screen]:[])[index];
+    const part=order[index];
     if(!part)return;
     if(result.status==='rejected'){part.state='failed';part.needsYou=result.reason instanceof Error?result.reason.message:'Эта часть не вышла.';}
     else if(part.state==='running')part.state='done';
@@ -1137,14 +1367,28 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
  }
  finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;if(heldPlan)showContinue(heldPlan);}
 }
+function artifactId(url:string){
+ const match=/\/api\/studio\/artifacts\/([A-Za-z0-9._~-]+)/.exec(url);
+ return match?.[1]??'';
+}
 async function runPlanPart(part:PlanPart){
  if(part.kind==='image'){
   const signed=account;if(!signed)throw Error('Войдите, чтобы собрать изображение.');
-  const result=await requestImage(signed.id,{prompt:part.text,projectId:project||undefined,aspectRatio:'1:1',resolution:1024,style:'auto',seed:null,variations:1,operation:'generate'},api) as {items?:Array<{name?:string;url?:string}>};
-  const url=safeMediaPath(String(result.items?.[0]?.url??''));
+  const previous=part.versions?.[0]?.url??'';
+  const earlier=artifactId(previous);
+  const chosen=imageReference;
+  const grow=upscaleOnce.has(part.id);
+  upscaleOnce.delete(part.id);
+  const reference=grow?earlier:chosen||earlier;
+  const operation=grow?'upscale':earlier&&!chosen?'edit':'generate';
+  const result=await requestImage(signed.id,{prompt:part.text,projectId:project||undefined,aspectRatio:imageFrame,resolution:1024,style:'auto',seed:part.seed??null,variations:grow?1:imageCount,operation,...(reference?{referenceArtifactId:reference}:{})},api) as {items?:Array<{name?:string;url?:string;seed?:number|null}>};
+  const urls=(result.items??[]).map(item=>safeMediaPath(String(item.url??''))).filter(Boolean);
+  const name=fileNameFromPhrase(part.text,'png');
+  const seed=result.items?.find(item=>Number.isInteger(item.seed))?.seed;
+  if(typeof seed==='number')part.seed=seed;
   part.state='done';
-  part.ready=result.items?.[0]?.name?`Картинка «${result.items[0].name}» сохранена.`:'Картинка собрана.';
-  if(url)part.thing={type:'image',url,title:result.items?.[0]?.name||'Готовая картинка'};
+  part.ready=grow?`Детализация «${name}» сохранена.`:urls.length>1?`${urls.length} варианта «${name}».`:`Картинка «${name}» сохранена.`;
+  if(urls[0])part.thing={type:'image',url:urls[0],title:name,...(urls.length>1?{alts:urls.slice(1,3)}:{})};
   return;
  }
  if(part.kind==='video'){
@@ -1178,6 +1422,7 @@ async function runPlanScreen(part:PlanPart){
  finally{missionSubmitting=held;}
  const thing=harvestStudioThing();
  const stored=part.kind==='music'&&thing?.type!=='audio'?await keepPlayer()??thing:thing;
+ if(stored?.type==='audio')stored.title=fileNameFromPhrase(part.text,'webm');
  if(stored)part.thing=stored;
  part.state='done';
 }

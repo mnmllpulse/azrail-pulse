@@ -1,5 +1,6 @@
 import type {StudioModuleContext} from './studio-types';
 import {composeProse,PROSE_HANDOFF_KEY,proseHandoff,proseLongLines,type ProseDraft,type ProseMode,type ProseSection,type ProseTone} from '../src/lib/prose-compose';
+import {fileNameFromPhrase} from './planner';
 
 export type {ProseDraft,ProseMode,ProseSection,ProseTone};
 export {composeProse,proseHandoff,proseLongLines,readProseHandoff,shapeProseRequest,PROSE_HANDOFF_KEY} from '../src/lib/prose-compose';
@@ -63,7 +64,8 @@ export function mountProseStudio(context:StudioModuleContext){
    const rhythm=doc.createElement('button');rhythm.type='button';rhythm.textContent='Проверить ритм';rhythm.onclick=()=>{const long=proseLongLines(draft.text);context.notice(long.length?long.map(row=>`Строка ${row.index}: ${row.syllables} слогов.`).join(' '):'Длинных строк нет.');};
    const hand=doc.createElement('button');hand.type='button';hand.textContent='В Music Studio';hand.onclick=()=>{giveToMusic(draft);context.notice(`«${draft.title}» теперь в Music Studio. Студия эти слова не поёт.`);};
    const open=doc.createElement('a');open.href='/studios/music';open.textContent='Открыть Music Studio';
-   bar.append(copy,save,rhythm,hand,open);
+   const file=document.createElement('button');file.type='button';file.textContent='Скачать txt';file.onclick=()=>{const blob=new Blob([draft.text],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const link=document.createElement('a');link.href=url;link.download=fileNameFromPhrase(draft.title||'текст','txt');link.click();URL.revokeObjectURL(url);};
+   bar.append(copy,file,save,rhythm,hand,open);
    card.append(bar);results.append(card);
   }
  };

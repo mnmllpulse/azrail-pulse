@@ -21,8 +21,8 @@
   "cloudflare": {
     "production": {
       "worker_name": "azrail-pulse",
-      "deployment_id": "8788de7d-9bbc-4984-8c7e-48987cf1ae68",
-      "version_id": "9f0df389-84e9-4b8a-8f7f-0e136ba34c0c",
+      "deployment_id": "55e6ad43-4540-47f3-93d1-95b215805fab",
+      "version_id": "698d574d-47ee-4320-80e1-eeecd5ad4293",
       "compatibility_date": "2026-09-29",
       "d1_database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f",
       "d1_bookmark": "00000915-00000000-00005113-0a4f8c084a616139e714b6cd621c2a64",

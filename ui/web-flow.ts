@@ -1,5 +1,5 @@
 import type {StudioModuleContext} from './studio-types';
-import {BLOCK_LABEL,applyBlock,applyPlan,blankSite,blockSnapshot,designFiles,nextFiles,previewDocument,proposeSite,reasonSite,siteFiles,siteText,slugPage,variantSites,zipStore,SITE_BLOCKS,type SiteBlock,type SiteFlow,type SiteFont,type SiteGoal,type SitePage,type SitePalette,type SiteRead,type SiteStyle,type SiteTemplate} from './web-site';
+import {BLOCK_LABEL,applyBlock,applyPlan,blankSite,blockSnapshot,designFiles,nextFiles,nextTemplate,previewDocument,proposeSite,reasonSite,siteFiles,siteText,slugPage,zipStore,SITE_BLOCKS,type SiteBlock,type SiteFlow,type SiteFont,type SiteGoal,type SitePage,type SitePalette,type SiteRead,type SiteStyle,type SiteTemplate} from './web-site';
 
 const KEY='pulse.web.flow.v1';
 const LIBRARY='pulse.web.projects.v1';
@@ -204,7 +204,7 @@ export function mountWebFlow(context:StudioModuleContext){
  function paintPreview(main:HTMLElement){
   const doc=main.ownerDocument;
   const title=doc.createElement('h2');title.textContent='Превью';
-  const note=doc.createElement('p');note.className='muted';note.textContent='Кликни текст в макете и поправь его здесь. Блоки двигаются и прячутся без возврата назад. HTML и Next скачиваются отдельно. Ссылка публикации открывается на этом адресе.';
+  const note=doc.createElement('p');note.className='muted';note.textContent='Кликни текст в макете и поправь его здесь. На экране один вид. «Другой вид» меняет только его. Mobile проверяет ширину 390 px.';
   const tools=doc.createElement('div');tools.className='toolbar';
   const desktop=button(doc,'Desktop');desktop.setAttribute('aria-pressed',String(device==='desktop'));desktop.onclick=()=>{device='desktop';paint();};
   const mobile=button(doc,'Mobile');mobile.setAttribute('aria-pressed',String(device==='mobile'));mobile.onclick=()=>{device='mobile';paint();};
@@ -213,9 +213,9 @@ export function mountWebFlow(context:StudioModuleContext){
   const publish=button(doc,'Опубликовать');publish.id='web-flow-publish';publish.onclick=()=>{void publishLink(flow).catch(context.failure);};
   const intoProject=button(doc,'В проект');intoProject.onclick=()=>{void publishSite().catch(context.failure);};
   const handoff=button(doc,'Макет');handoff.onclick=()=>saveZip(designFiles(flow),'site-design.zip','Макет для дизайнера скачан: токены, кадры и SVG. В Figma сам не попадает.');
-  const variants=button(doc,'Три варианта');variants.onclick=()=>{choices=variantSites(flow);paint();};
+  const another=button(doc,'Другой вид');another.onclick=()=>{flow=nextTemplate(flow);paint();};
   const linksForClient=button(doc,'Ссылки клиенту');linksForClient.onclick=()=>{void publishChoices().catch(context.failure);};
-  tools.append(desktop,mobile,download,nextZip,handoff,publish,intoProject,variants,linksForClient);
+  tools.append(desktop,mobile,download,nextZip,handoff,publish,intoProject,another,linksForClient);
   const colors=doc.createElement('div');colors.className='web-choice';
   for(const [id,label] of PALETTES){const el=button(doc,label);el.setAttribute('aria-pressed',String(flow.palette===id));el.onclick=()=>{flow={...flow,palette:id,paletteTouched:true};paint();};colors.append(el);}
   const blocks=doc.createElement('div');blocks.className='web-block-edit';
@@ -243,7 +243,7 @@ export function mountWebFlow(context:StudioModuleContext){
  }
  async function publishChoices(){
   if(!context.account)throw Error('Войди, чтобы отправить клиенту ссылки. Код можно скачать без входа.');
-  const set=[flow,...variantSites(flow).slice(0,2)];
+  const set=[flow];
   const urls:string[]=[];
   for(const item of set){
    const result=await context.api('/api/studio/web/publish',{method:'POST',body:JSON.stringify({name:item.name,files:siteFiles(item)})}) as {url?:string};
@@ -251,7 +251,7 @@ export function mountWebFlow(context:StudioModuleContext){
   }
   published=urls;
   flow=saveLibrary(flow);
-  context.notice('Три ссылки готовы. Комментарий клиент пишет на странице комментариев у каждой.');
+  context.notice('Ссылка текущего вида готова.');
   paint();
  }
  async function loadInsight(url:string){

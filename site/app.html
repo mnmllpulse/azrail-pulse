@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="AZRAIL">
 <title>AZRAIL × MNMLL PULSE</title>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/assets/app.css?v=36c24f2333">
+<link rel="stylesheet" href="/assets/app.css?v=a615cbb497">
 </head>
 <body>
 <a class="skip" href="#main">К содержимому</a>
@@ -64,6 +64,18 @@
       </dl>
       <ol id="assignment-parts" class="assignment-parts"></ol>
       <button id="assignment-continue" class="assignment-continue" type="button" hidden>Продолжить</button>
+      <button id="assignment-login" class="assignment-continue" type="button" hidden>Войти</button>
+      <div id="assignment-frame" class="assignment-frame" hidden>
+        <span>Размер картинки</span>
+        <button type="button" data-frame="1:1" aria-pressed="true">Квадрат</button>
+        <button type="button" data-frame="16:9" aria-pressed="false">Широкий</button>
+        <button type="button" data-frame="9:16" aria-pressed="false">Вертикальный</button>
+        <span>Варианты</span>
+        <button type="button" data-count="2" aria-pressed="true">2</button>
+        <button type="button" data-count="3" aria-pressed="false">3</button>
+        <button type="button" data-count="4" aria-pressed="false">4</button>
+        <label>Своя картинка<input id="assignment-reference" type="file" accept="image/png,image/jpeg,image/webp" hidden></label>
+      </div>
       <div id="assignment-thing" class="assignment-thing"></div>
     </div>
     </header>
@@ -152,7 +164,7 @@
         </div>
         <input type="file" id="attachments" multiple hidden>
       </form>
-      <div class="composer-footnote"><button id="studio-talk-open" class="text-button" type="button" hidden>Разговор</button><button id="composer-open-chat" class="text-button" type="button" hidden>Открыть диалог</button><span id="composer-keyboard">Enter — отправить · Shift + Enter — новая строка</span></div>
+      <div class="composer-footnote"><button id="studio-talk-open" class="text-button" type="button" hidden>Разговор</button><button id="composer-open-chat" class="text-button" type="button" hidden>Открыть диалог</button><span id="composer-limits">Чат 200 · генерация 500 в сутки</span><span id="composer-keyboard">Enter — отправить · Shift + Enter — новая строка</span></div>
     </div>
     <footer class="workspace-footer"><span>AZRAIL × MNMLL PULSE</span><!-- UNIFIED / 1.5.0-rc.63 --><button id="about" class="text-button" type="button">О системе ↗</button></footer>
   </div>
@@ -184,7 +196,7 @@
         <p id="context-session" class="muted">Локальный просмотр</p>
         <p id="context-page-label" class="muted">Страница · Чат</p>
         <p id="context-model-label" class="muted">Модель · автовыбор</p>
-        <p id="context-voice-label" class="muted">Голос · Люмен</p>
+        <p id="context-voice-label" class="muted">Голос · Серый. Ключ озвучки не поставлен.</p>
       </section>
       <section class="context-section">
         <h3>Проект</h3>

@@ -158,6 +158,15 @@ export function applyReference(flow:SiteFlow,report:ReferenceRead):SiteFlow{
  const template=TEMPLATE_SET.has(report.template)?report.template:flow.template;
  return {...flow,template,pages,name:flow.name.trim()||clean(report.title,80),styleNote:`По ссылке тон ${report.tone==='dark'?'тёмный':'светлый'}. Разделов: ${nav.length||report.headings.length}. Тексты ссылки в сайт не копируются.`,paletteTouched:false,edits:{}};
 }
+export function nextTemplate(flow:SiteFlow):SiteFlow{
+ const order:SiteTemplate[]=['dark','clean','bold','corporate','creative'];
+ const index=order.indexOf(flow.template);
+ const template=order[(index<0?0:index+1)%order.length];
+ const palette:SitePalette=template==='bold'?'bolt':template==='corporate'||template==='clean'?'sand':template==='dark'?'ink':'wine';
+ const font:SiteFont=template==='corporate'||template==='clean'||template==='bold'?'grotesk':'serif';
+ return {...flow,template,palette:flow.paletteTouched?flow.palette:palette,font};
+}
+
 export function variantSites(flow:SiteFlow):SiteFlow[]{
  const templates=(['dark','clean','bold','corporate','creative'] as SiteTemplate[]).filter(template=>template!==flow.template).slice(0,3);
  return templates.map(template=>{

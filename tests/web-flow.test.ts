@@ -1,7 +1,7 @@
 import {afterEach,describe,expect,it,vi} from 'vitest';
 import {Window} from 'happy-dom';
 import type {StudioModuleContext} from '../ui/studio-types';
-import {blankSite,designFiles,nextFiles,proposeSite,reasonSite,siteFiles,siteText,zipStore} from '../ui/web-site';
+import {blankSite,designFiles,nextFiles,nextTemplate,proposeSite,reasonSite,siteFiles,siteText,zipStore} from '../ui/web-site';
 import {readWeakness,referenceFromHtml,summarizeReference} from '../src/lib/web-sites';
 
 const windows:Window[]=[];
@@ -114,5 +114,13 @@ describe('web studio flow',()=>{
   expect(frame?.getAttribute('srcdoc')).toContain('Ателье Север');
   expect(controls.querySelector('#web-flow-download')?.textContent).toBe('Скачать код');
   expect(controls.querySelector('#web-flow-publish')?.textContent).toBe('Опубликовать');
+ });
+
+ it('меняет один шаблон за раз', () => {
+  const first = nextTemplate({ ...blankSite(), template: 'creative' });
+  const second = nextTemplate(first);
+  expect(first.template).toBe('dark');
+  expect(second.template).not.toBe(first.template);
+  expect(second.pages).toEqual(first.pages);
  });
 });
