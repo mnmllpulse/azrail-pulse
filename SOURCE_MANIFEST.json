@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-06T21:11:45.136Z",
+  "generated_at": "2026-11-06T21:23:34.782Z",
   "excludes_self": true,
   "file_count": 1309,
   "files": [
@@ -203,7 +203,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 2431,
-      "sha256": "cf68ea691f7f128b930bad40ef574d667bbbb1de311aaf214e76bca00d3e46a5"
+      "sha256": "e8d83d7c420b96c79a6fb948bd9bfd682985f674d931095f4f60a5b2cd8ddd04"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -237,8 +237,8 @@
     },
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
-      "bytes": 20542,
-      "sha256": "c9cd233b9f28bd489aeb079a1dd05629f5ce67f830334068656ad9ae32a99d5d"
+      "bytes": 20665,
+      "sha256": "2161b4d8e7bfcbb98dd692927eab9e5602151406afdff4d286e2edec162fa80e"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1067,8 +1067,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
-      "bytes": 5477,
-      "sha256": "7e23ca85ebfef725d3f555875071b3e975e24f34465a96ca503055a91048c371"
+      "bytes": 5600,
+      "sha256": "f9762852f677e7dca48913c17603b0ec860359fd5aa2af43b30d0dc9aa24c895"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1208,12 +1208,12 @@
     {
       "path": "docs/runbooks/PRODUCTION_APPROVAL_RU.md",
       "bytes": 3659,
-      "sha256": "7f111074d1a301fb487ef08cd8caf64b0c1adbd4c756d41d00b5fbcae5727464"
+      "sha256": "f18010c44f8c0879e85252e7e571cd12a9b0ab3de51c51dabfc65e6274615093"
     },
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6658,
-      "sha256": "cc888274432aa723ba5e9e12504b0758792f383f93c4e66d43ab93f112049074"
+      "sha256": "b39dff33ab51f4df6ef4331171a13487f06e40638dbfdfa5e01a68eef0c3ab25"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -1257,8 +1257,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1156165,
-      "sha256": "ea582433ed2f58aa55bafde753e7b3657e6aa3b3b6f57e19e69aee9d04f2217c"
+      "bytes": 1156197,
+      "sha256": "3a0d3ff9f9ab14501bab918e7179819f15bf74af768f2384380ef5b54da9d0d9"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3922,8 +3922,8 @@
     },
     {
       "path": "site/app.html",
-      "bytes": 22827,
-      "sha256": "4d1155bf239367620b0939cb10b11fb989b7e990052a6ee981a0ffeea7d307ee"
+      "bytes": 22859,
+      "sha256": "d911334b5872f70c7458f94878dbb15770f6b75f669bac351074a260b4852f3f"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -4197,8 +4197,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 22827,
-      "sha256": "4d1155bf239367620b0939cb10b11fb989b7e990052a6ee981a0ffeea7d307ee"
+      "bytes": 22859,
+      "sha256": "d911334b5872f70c7458f94878dbb15770f6b75f669bac351074a260b4852f3f"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5717,8 +5717,8 @@
     },
     {
       "path": "ui/app.html",
-      "bytes": 22814,
-      "sha256": "f66d4cbf1611b4cbc4fdcc1f14409d3643dd07d305a11163cfcc80442b7f7cb8"
+      "bytes": 22846,
+      "sha256": "dca21cdf5743aff2c1107e8b98df8b78ee2c743c1fbd19a14fae1f6889efdfd1"
     },
     {
       "path": "ui/app.ts",
@@ -6453,12 +6453,12 @@
     {
       "path": "verification/production-approval-contract.json",
       "bytes": 3152,
-      "sha256": "76c63b54e9eb9ec9fccb38cad7e5a6c4b7d0a786743bf137e99e8cc2c61ba020"
+      "sha256": "d92a3bbb8380a914684539266906e20515b107c1250fde1e00074976d2ae52c7"
     },
     {
       "path": "verification/production-approval-readonly-snapshot.json",
       "bytes": 2864,
-      "sha256": "cf5dccb7072b660b1f874cc0a061797ce5774b49bf51937655a5a64e19820f00"
+      "sha256": "1463941c518e4c5955976e0deb4bec87493ea5a04f73957278eb986052fadbf9"
     },
     {
       "path": "verification/production-drift-contract.json",
@@ -6478,7 +6478,7 @@
     {
       "path": "verification/production-release-readonly-snapshot.json",
       "bytes": 2007,
-      "sha256": "7ada3fa022c61dd850a438fb6f0e26d3383e90eff28aba44516fcdacdcd1b60a"
+      "sha256": "dec21673caa58ce292cd8265a3f1fc5a3aeb05a4ab05f675b04632a5442f77ba"
     },
     {
       "path": "verification/sbom.spdx.json",
