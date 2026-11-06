@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-05T23:53:50.505Z",
+  "generated_at": "2026-11-05T23:59:22.335Z",
   "excludes_self": true,
   "file_count": 1309,
   "files": [
@@ -203,7 +203,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 2288,
-      "sha256": "a53a627bf35094c7c7b2dcb4a778c1615c4388b7cccfa8712685f903b828b3ff"
+      "sha256": "6f9480efad60158829f5c024b13b8d2b935c45dfaeb703d3fef87901109b5021"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -238,7 +238,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20195,
-      "sha256": "0e42e7585f3a0957e69aec89587da9f35c5bd1a57e93876d7bbac66bf97e56cd"
+      "sha256": "4932978d9466337ee08743dc6cc6fc40146eb0d7629bce707f3fcdbf1411cb9b"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1067,8 +1067,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
-      "bytes": 5176,
-      "sha256": "b75730e267267ecc9e653673a954ff918de2f28964a72b4407bf2bb3c690be0e"
+      "bytes": 5354,
+      "sha256": "e198a955c5b160511ee705b96acbe0a63e61c459c556b109a670247d435a581f"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1208,12 +1208,12 @@
     {
       "path": "docs/runbooks/PRODUCTION_APPROVAL_RU.md",
       "bytes": 3659,
-      "sha256": "3d8cef6f8ed848b0e938fe203ddde0d52ea4df9422976496c373a952c4bd7e8a"
+      "sha256": "87c692bc66a3f6df9acae79fba1cabc788d82f0365734d281480a1808d075304"
     },
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6658,
-      "sha256": "7a25c83cefb98c658310798e535598d69b662d06ab6f7b15e6b50345726e2948"
+      "sha256": "65530fd87173b6903f8923227e95fbf6c5729866d2b4a99e6543ca795429c6f0"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -6453,12 +6453,12 @@
     {
       "path": "verification/production-approval-contract.json",
       "bytes": 3152,
-      "sha256": "9220b61471a9c1b8e4c35e183ca1a93657127556868f0d6ae1a6d9813fe379fd"
+      "sha256": "502336d25c4c2c7124b693bcb05440fc8477fdc80c5a169beca779acca923e2f"
     },
     {
       "path": "verification/production-approval-readonly-snapshot.json",
       "bytes": 2864,
-      "sha256": "52097a2330764802628f5cf88fc853a9cc80e9c8dd5f28e760f446c3da926404"
+      "sha256": "78f748e5130708fa9df49593f1fa3412a83fca8c82a97d74e60951f86484af10"
     },
     {
       "path": "verification/production-drift-contract.json",
@@ -6478,7 +6478,7 @@
     {
       "path": "verification/production-release-readonly-snapshot.json",
       "bytes": 2007,
-      "sha256": "172789a52f958f619787ec43ea13ee273ae37be4a9ca62a45ab6ab111b9774ec"
+      "sha256": "9fa3c2512becf97fd80a53610409dac8aedef66493e0478f198743465479b095"
     },
     {
       "path": "verification/sbom.spdx.json",
