@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-05T23:59:22.335Z",
+  "generated_at": "2026-11-06T10:53:19.594Z",
   "excludes_self": true,
   "file_count": 1309,
   "files": [
@@ -203,7 +203,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 2288,
-      "sha256": "6f9480efad60158829f5c024b13b8d2b935c45dfaeb703d3fef87901109b5021"
+      "sha256": "0a470d13e26afd5185fd0bce4c556f247df75ed861d3b8fea852b3ce35266e34"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -237,8 +237,8 @@
     },
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
-      "bytes": 20195,
-      "sha256": "4932978d9466337ee08743dc6cc6fc40146eb0d7629bce707f3fcdbf1411cb9b"
+      "bytes": 20399,
+      "sha256": "1396741dca39d76177c84f5b6cc33e952e211eb54b0911d4d6c84be0e5abfd2d"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1042,8 +1042,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_ACCEPTANCE_CRITERIA.md",
-      "bytes": 5244,
-      "sha256": "fdbcaec41ef874f84825f46bb62271a47645502ade18f3483de0e03fedfa8fd4"
+      "bytes": 5942,
+      "sha256": "70ff53cfc727edbe3e1bdca7a6e2307e96cebafad760de78b5a3311f8c491854"
     },
     {
       "path": "docs/product/AZRAIL_2_DATA_MODEL.md",
@@ -1052,8 +1052,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_FEATURE_CAPABILITY_MATRIX.md",
-      "bytes": 5799,
-      "sha256": "49ed80a799d1e6f0b3c717bc460912ac95beb6e5227bcbda5e7aa3b8c5257b1d"
+      "bytes": 6160,
+      "sha256": "949704bb0436d8bc723b39e99d2afd7946da53f23b0dabe43858f9a2d4b2a19f"
     },
     {
       "path": "docs/product/AZRAIL_2_MASTER_ARCHITECTURE.md",
@@ -1067,8 +1067,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
-      "bytes": 5354,
-      "sha256": "e198a955c5b160511ee705b96acbe0a63e61c459c556b109a670247d435a581f"
+      "bytes": 5182,
+      "sha256": "90bfbc18445001ae9875bdccde8680539e97f2c159b19b8ead051785543ea2b1"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1208,12 +1208,12 @@
     {
       "path": "docs/runbooks/PRODUCTION_APPROVAL_RU.md",
       "bytes": 3659,
-      "sha256": "87c692bc66a3f6df9acae79fba1cabc788d82f0365734d281480a1808d075304"
+      "sha256": "7f111074d1a301fb487ef08cd8caf64b0c1adbd4c756d41d00b5fbcae5727464"
     },
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6658,
-      "sha256": "65530fd87173b6903f8923227e95fbf6c5729866d2b4a99e6543ca795429c6f0"
+      "sha256": "cc888274432aa723ba5e9e12504b0758792f383f93c4e66d43ab93f112049074"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -1257,8 +1257,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1154260,
-      "sha256": "e181f60cb21b07a631efc0b0c0cb69f3e00bd080319b3dfc5a722d9f2cfce433"
+      "bytes": 1156165,
+      "sha256": "ea582433ed2f58aa55bafde753e7b3657e6aa3b3b6f57e19e69aee9d04f2217c"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3938,7 +3938,7 @@
     {
       "path": "site/assets/app.js",
       "bytes": 290548,
-      "sha256": "2a3de0708b005aff829bc3f8594b6c9a7c2ba84c1c1cddbefe326f1b039773d3"
+      "sha256": "f4afeb44a3ddc043b90bb1fa874ee12f3717d5dbc70567563158f2b219e5a506"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4031,9 +4031,9 @@
       "sha256": "9097b37f3df0607e46ddb7950668eb9001f55e3c1418e60133f3568ee82b49b8"
     },
     {
-      "path": "site/assets/chunk-XZJEYY7D.js",
-      "bytes": 20164,
-      "sha256": "00e0a8b2380a7eb03dd048b7b5b19d7e29e40aebb954919e0c12689ab0453ce5"
+      "path": "site/assets/chunk-X67K6EVO.js",
+      "bytes": 22059,
+      "sha256": "d3689d429a43d1c0102446111a14bc42552b62b9614addccf4fd083ab781a0ce"
     },
     {
       "path": "site/assets/connectors-Y25HYE2L.js",
@@ -4096,9 +4096,9 @@
       "sha256": "73a8b1b3502438fca318d5199f7abd816bd84a6837a041e8524f601d0bf75f16"
     },
     {
-      "path": "site/assets/prose-ETPAPYWF.js",
+      "path": "site/assets/prose-I5P6D3PE.js",
       "bytes": 12187,
-      "sha256": "c09c107fe157fc291923e1fd7c5b54107877ac683a500cd9b3dc190dd4928884"
+      "sha256": "38b3bac30536498ba4f0f534c66b1969b0931a90a2079b3e202888d53e549202"
     },
     {
       "path": "site/assets/video-JIKU7VIN.js",
@@ -4587,8 +4587,8 @@
     },
     {
       "path": "src/lib/intent-contract.ts",
-      "bytes": 3465,
-      "sha256": "0be01c1d53c7c99046d46ed80d3183b0ada501aa68225381ba540edff78579b8"
+      "bytes": 5356,
+      "sha256": "16d8200678615b1b8fbc79d63e9d1fa07f8a072a9b636de42f53918522ba74c4"
     },
     {
       "path": "src/lib/kill-switch.ts",
@@ -5252,8 +5252,8 @@
     },
     {
       "path": "tests/intent-contract.test.ts",
-      "bytes": 4890,
-      "sha256": "0bca182211c5457a80452077dcd60639fd23e7b0dbad86cc9829281f005904be"
+      "bytes": 7166,
+      "sha256": "ab4f0d294f571f5ee1c9908a39888bb93d3682f6f7f5a5426ada25f1d3021aa5"
     },
     {
       "path": "tests/intent.test.ts",
@@ -5282,8 +5282,8 @@
     },
     {
       "path": "tests/memory-recall.test.ts",
-      "bytes": 6488,
-      "sha256": "66ebcf89bd60b2a23e25fb09b20177e7cc78c454d788b3d1528b540ba1a4ee7c"
+      "bytes": 7876,
+      "sha256": "93053cba4a334b541c7808f453f50d3273b048b55e07050cdd7f0df36519598f"
     },
     {
       "path": "tests/migration-ledger.test.ts",
@@ -6453,12 +6453,12 @@
     {
       "path": "verification/production-approval-contract.json",
       "bytes": 3152,
-      "sha256": "502336d25c4c2c7124b693bcb05440fc8477fdc80c5a169beca779acca923e2f"
+      "sha256": "76c63b54e9eb9ec9fccb38cad7e5a6c4b7d0a786743bf137e99e8cc2c61ba020"
     },
     {
       "path": "verification/production-approval-readonly-snapshot.json",
       "bytes": 2864,
-      "sha256": "78f748e5130708fa9df49593f1fa3412a83fca8c82a97d74e60951f86484af10"
+      "sha256": "cf5dccb7072b660b1f874cc0a061797ce5774b49bf51937655a5a64e19820f00"
     },
     {
       "path": "verification/production-drift-contract.json",
@@ -6478,7 +6478,7 @@
     {
       "path": "verification/production-release-readonly-snapshot.json",
       "bytes": 2007,
-      "sha256": "9fa3c2512becf97fd80a53610409dac8aedef66493e0478f198743465479b095"
+      "sha256": "7ada3fa022c61dd850a438fb6f0e26d3383e90eff28aba44516fcdacdcd1b60a"
     },
     {
       "path": "verification/sbom.spdx.json",

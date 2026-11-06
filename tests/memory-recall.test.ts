@@ -73,6 +73,46 @@ describe("Вспоминание фактов", () => {
     }
   });
 
+  it("чужой проект не попадает в ответ", async () => {
+    const rows = [
+      { project_id: "alpha", category: "tech_choice", key: "palette", value: "графит альфы" },
+      { project_id: "beta", category: "tech_choice", key: "palette", value: "мел беты" },
+    ];
+    let sql = "";
+    let bound = "";
+    const db = {
+      prepare(query: string) {
+        sql = query;
+        const stmt = {
+          bind(...args: unknown[]) {
+            bound = String(args[0]);
+            return stmt;
+          },
+          async all() {
+            return {
+              results: rows
+                .filter((row) => row.project_id === bound)
+                .map((row, index) => ({
+                  id: String(index),
+                  category: row.category,
+                  key: row.key,
+                  value: row.value,
+                  source_agent: null,
+                  updated_at: "2026-09-16T00:00:00.000Z",
+                })),
+            };
+          },
+        };
+        return stmt;
+      },
+    };
+    const text = await recallContext(envWith(db as unknown as ReturnType<typeof fakeD1>), "alpha", 30, { query: "palette" });
+    expect(sql).toContain("WHERE project_id = ?");
+    expect(bound).toBe("alpha");
+    expect(text).toContain("графит альфы");
+    expect(text).not.toContain("мел беты");
+  });
+
   it("огромный единственный факт не выдаётся обрезком", async () => {
     const text = await recallContext(
       envWith(fakeD1([{ category: "known_issue", key: "k", value: "о".repeat(9000) }])),

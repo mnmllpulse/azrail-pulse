@@ -26,6 +26,50 @@ describe('Контракт намерения', () => {
     expect(intent.riskLevel).toBe('high');
   });
 
+  it('обычная фраза собирает решение без подтверждения', () => {
+    const intent = intentFromParts('Нарисуй постер бюро', [
+      { kind: 'image', text: 'постер бюро', wave: 0, dependsOn: [], worker: 'Image Studio' },
+    ]);
+    expect(intent.shape).toBe('ordinary');
+    expect(intent.goal).toBe('Нарисуй постер бюро');
+    expect(intent.outputs).toEqual(['картинка']);
+    expect(intent.capabilities).toEqual(['image']);
+    expect(intent.riskLevel).toBe('low');
+    expect(intent.requiresApproval).toBe(false);
+    expect(intent.confidence).toBeGreaterThan(0.5);
+  });
+
+  it('короткая фраза не обрастает частями', () => {
+    const intent = intentFromParts('лого', [
+      { kind: 'image', text: 'лого', wave: 0, dependsOn: [], worker: 'Image Studio' },
+    ]);
+    expect(intent.shape).toBe('short');
+    expect(intent.outputs).toEqual(['картинка']);
+    expect(intent.confidence).toBeLessThan(0.5);
+    expect(explainIntent(intent)).toContain('короткая');
+  });
+
+  it('противоречивая фраза не выбирает сторону', () => {
+    const intent = intentFromParts('Выложи сайт и не публикуй', [
+      { kind: 'web', text: 'сайт', wave: 0, dependsOn: [], worker: 'Миссия · сайт' },
+    ]);
+    expect(intent.shape).toBe('contradictory');
+    expect(intent.requiresApproval).toBe(true);
+    expect(intent.riskLevel).toBe('high');
+    expect(intent.constraints[0]).toBe('Ни одна сторона не выбирается сама.');
+    expect(explainIntent(intent)).toContain('противоположное');
+  });
+
+  it('проектная фраза держит границу памяти', () => {
+    const intent = intentFromParts('В проекте бюро собери страницу', [
+      { kind: 'web', text: 'страница', wave: 0, dependsOn: [], worker: 'Миссия · сайт' },
+    ]);
+    expect(intent.shape).toBe('project');
+    expect(intent.riskLevel).toBe('medium');
+    expect(intent.requiresApproval).toBe(false);
+    expect(explainIntent(intent)).toContain('только у этого проекта');
+  });
+
   it('страница без выкладки остаётся средней', () => {
     const intent = intentFromParts('Собери сайт бюро', [
       { kind: 'web', text: 'сайт', wave: 0, dependsOn: [], worker: 'Миссия · сайт' },
