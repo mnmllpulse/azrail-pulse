@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-06T21:23:34.782Z",
+  "generated_at": "2026-11-06T21:26:58.750Z",
   "excludes_self": true,
   "file_count": 1309,
   "files": [
@@ -202,8 +202,8 @@
     },
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
-      "bytes": 2431,
-      "sha256": "e8d83d7c420b96c79a6fb948bd9bfd682985f674d931095f4f60a5b2cd8ddd04"
+      "bytes": 2907,
+      "sha256": "60a4347c77fc264561f801f2fa4042030c473415c14f0d9d5889826b43806918"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -237,8 +237,8 @@
     },
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
-      "bytes": 20665,
-      "sha256": "2161b4d8e7bfcbb98dd692927eab9e5602151406afdff4d286e2edec162fa80e"
+      "bytes": 20850,
+      "sha256": "c70cb0b024330d2ee64ed3ce6630835bf7fb3a067a687d74731de817bfbfd538"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1042,8 +1042,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_ACCEPTANCE_CRITERIA.md",
-      "bytes": 5942,
-      "sha256": "70ff53cfc727edbe3e1bdca7a6e2307e96cebafad760de78b5a3311f8c491854"
+      "bytes": 6612,
+      "sha256": "137612b6ba262e83b0d08e0587fdb85e5c68821f3729dc98ee5395b1d1e0dfbc"
     },
     {
       "path": "docs/product/AZRAIL_2_DATA_MODEL.md",
@@ -1067,8 +1067,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
-      "bytes": 5600,
-      "sha256": "f9762852f677e7dca48913c17603b0ec860359fd5aa2af43b30d0dc9aa24c895"
+      "bytes": 7108,
+      "sha256": "c7333e4e95fc1e4dc5f5f982834130e85020b983f142de4744bdbbd6237be643"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
