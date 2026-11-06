@@ -13,7 +13,7 @@ import { getAgentByName } from "agents";
 import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
 import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, positiveLimit } from "./lib/quota";
 import { enforceOperationLimit } from "./lib/operation-limit";
-import { speakRemote } from "./lib/speech-remote";
+import { speakRemote, spokenVoice } from "./lib/speech-remote";
 import { readBoundedBody, BodyLimitError, validateJsonObject } from "./lib/request-body";
 import { getCors } from "./lib/cors";
 import { Orchestrator } from "./agents/orchestrator";
@@ -655,7 +655,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       if (!spoken) return json({ error: "Нужен текст." }, env, 400);
       if (spoken.length > 2000) return json({ error: "Текст для озвучки длиннее 2000 знаков." }, env, 400);
       await enforceOperationLimit(env, "generation", caller);
-      const audio = await speakRemote(env, spoken);
+      const audio = await speakRemote(env, spoken, spokenVoice(parsedBody.voice));
       const headers = getCors(env, new Headers({ "Content-Type": audio.mime }));
       return new Response(audio.bytes, { headers });
     }

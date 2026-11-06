@@ -1,14 +1,25 @@
 import type { Env } from '../types';
 import { AccessError } from './accounts';
 
-const VOICE_ID = '21m00Tcm4TlvDq8ikWAM';
+export type SpokenVoice = 'shade' | 'lumen' | 'aria';
 
-export async function speakRemote(env: Env, text: string): Promise<{ bytes: Uint8Array; mime: string }> {
+const SPEAKERS: Record<SpokenVoice, { id: string; stability: number; similarity_boost: number; style: number }> = {
+  shade: { id: 'pNInz6obpgDQGcFmaJgB', stability: 0.7, similarity_boost: 0.8, style: 0 },
+  lumen: { id: 'TxGEqnHWrfWFTfGW9XjX', stability: 0.32, similarity_boost: 0.72, style: 0.55 },
+  aria: { id: 'EXAVITQu4vr4xnSDxMaL', stability: 0.4, similarity_boost: 0.86, style: 0.35 },
+};
+
+export function spokenVoice(value: unknown): SpokenVoice {
+  return value === 'lumen' || value === 'shade' || value === 'aria' ? value : 'shade';
+}
+
+export async function speakRemote(env: Env, text: string, voice: SpokenVoice = 'shade'): Promise<{ bytes: Uint8Array; mime: string }> {
   const key = env.ELEVENLABS_API_KEY?.trim();
   if (!key) throw new AccessError('Ключ озвучки не поставлен. Его кладут секретом воркера, не в чат.', 503);
+  const speaker = SPEAKERS[voice];
   let response: Response;
   try {
-    response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${VOICE_ID}/stream`, {
+    response = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${speaker.id}/stream`, {
       method: 'POST',
       headers: {
         Accept: 'audio/mpeg',
@@ -18,7 +29,7 @@ export async function speakRemote(env: Env, text: string): Promise<{ bytes: Uint
       body: JSON.stringify({
         text,
         model_id: 'eleven_multilingual_v2',
-        voice_settings: { stability: 0.4, similarity_boost: 0.85, style: 0.2 },
+        voice_settings: { stability: speaker.stability, similarity_boost: speaker.similarity_boost, style: speaker.style },
       }),
     });
   } catch {

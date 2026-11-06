@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { AccessError } from '../src/lib/accounts';
-import { speakRemote } from '../src/lib/speech-remote';
+import { speakRemote, spokenVoice } from '../src/lib/speech-remote';
 import { operationOf } from '../src/lib/operation-limit';
 import type { Env } from '../src/types';
 
@@ -15,5 +15,12 @@ describe('speech remote', () => {
 
   it('counts spoken replies as generation', () => {
     expect(operationOf('/api/tts', 'POST')).toBe('generation');
+  });
+
+  it('keeps the three named voices distinct', () => {
+    expect(spokenVoice('shade')).toBe('shade');
+    expect(spokenVoice('lumen')).toBe('lumen');
+    expect(spokenVoice('aria')).toBe('aria');
+    expect(spokenVoice('bot')).toBe('shade');
   });
 });

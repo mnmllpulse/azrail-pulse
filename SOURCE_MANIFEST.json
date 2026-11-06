@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-06T22:16:12.797Z",
+  "generated_at": "2026-11-06T22:26:42.983Z",
   "excludes_self": true,
   "file_count": 1314,
   "files": [
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3212,
-      "sha256": "1f73b4d16682b803f607c66034b93c8fcc6e9d4d23b91dd71a90cd1651533416"
+      "sha256": "02b47e2ac104749048796d8c432eac7a560e88a45f212d7e3624f9f5784f3650"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20884,
-      "sha256": "ce7243fb3737ea98680305fea060f41cdd018adc33584b74bab16109dd27c57c"
+      "sha256": "c6bb8f977beb14644e64b40b23a0cb8e54b3d4f22684512be4a7d9cdd9f2c4cd"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1082,8 +1082,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
-      "bytes": 7161,
-      "sha256": "4277899a3029b0aa14e87169731926a1ec03713f423ad79b8eb64d6fc8ed9796"
+      "bytes": 7314,
+      "sha256": "559b7c843dec068fdb8bf5b392f12e04614b408d836b2c55a8789ebd95c9125d"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1223,12 +1223,12 @@
     {
       "path": "docs/runbooks/PRODUCTION_APPROVAL_RU.md",
       "bytes": 3659,
-      "sha256": "f18010c44f8c0879e85252e7e571cd12a9b0ab3de51c51dabfc65e6274615093"
+      "sha256": "6fda58d2a5221a4d1bd78a0a3b4f4468a7de1c734ac66fcaa9e556b86a2fd5af"
     },
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6658,
-      "sha256": "b39dff33ab51f4df6ef4331171a13487f06e40638dbfdfa5e01a68eef0c3ab25"
+      "sha256": "3b5e178b67c1ae28c8ca2186164d6668a58c4dfd579c74c96a04a8d3aa1ea6ca"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -1272,8 +1272,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1157401,
-      "sha256": "3e36d391a66a393e876f5c7e2e809849603a8f13c7e4f34b420a10fc8ac148a7"
+      "bytes": 1158380,
+      "sha256": "d8a3fa46489c3119edf843df8c4b590983aee4b8fd6ba31aa9dd5f42942a3d87"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3937,8 +3937,8 @@
     },
     {
       "path": "site/app.html",
-      "bytes": 22901,
-      "sha256": "315fa96d14b8a1de54481914deae5698719bdf89747b252c94f8d5e6d809dc0b"
+      "bytes": 22873,
+      "sha256": "1a3a07e56a9517042d0a1463e00b1846a43a65ac7236a2c0ec7f3d49cb5961c6"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -3952,8 +3952,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 291710,
-      "sha256": "9cd7ac72aac039f24425670288018463c3069e373b22a6f524f5f855a9a654ff"
+      "bytes": 292717,
+      "sha256": "38e0dabcf75d136a624073ed34da0fc17b82429226d33aaca3141540c84ac739"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4212,8 +4212,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 22901,
-      "sha256": "315fa96d14b8a1de54481914deae5698719bdf89747b252c94f8d5e6d809dc0b"
+      "bytes": 22873,
+      "sha256": "1a3a07e56a9517042d0a1463e00b1846a43a65ac7236a2c0ec7f3d49cb5961c6"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4427,8 +4427,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 97680,
-      "sha256": "597bdb1ac38d573fdddb6e31da9c94601dbf3e5ec80d69a9b09cc3fef2e92cd9"
+      "bytes": 97724,
+      "sha256": "e20128c42bec3981f6b20fc32f350c4fe2403e533f45e48f60fa20dc86f74b61"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4837,8 +4837,8 @@
     },
     {
       "path": "src/lib/speech-remote.ts",
-      "bytes": 1441,
-      "sha256": "ca2590f3c3e7424d019bd96366cf504a8d67421b7b8f8a64b6c07a147c965a67"
+      "bytes": 2112,
+      "sha256": "5e12a48cba3caf3459230aaa0d48027a8fd426e6e66d070aeaa27db52cfe92c7"
     },
     {
       "path": "src/lib/tool-errors.ts",
@@ -5612,8 +5612,8 @@
     },
     {
       "path": "tests/speech-remote.test.ts",
-      "bytes": 745,
-      "sha256": "de40ba5ee7ea4435c3d50633b2be9cce99f5fba4fd3a891804b26bfc91308fe6"
+      "bytes": 1007,
+      "sha256": "2da5621bbdf8ffa14441d094bce5f032dee3e74ac115112215397a7ffdbda841"
     },
     {
       "path": "tests/stubs/cloudflare-workers.ts",
@@ -5742,13 +5742,13 @@
     },
     {
       "path": "ui/app.html",
-      "bytes": 22888,
-      "sha256": "b564849af9e7db172791d9d8bbea2ceaa5481ec64c0f47134758879c4f165527"
+      "bytes": 22860,
+      "sha256": "3a369f5bbdf045d60f14094e8010693da501771e780e73bc0df94ac27091cfc1"
     },
     {
       "path": "ui/app.ts",
-      "bytes": 152142,
-      "sha256": "4102124e16d854d9ebcc19ce2011c6fa7d97ce9546c6cd73a557e391ed7cb708"
+      "bytes": 152129,
+      "sha256": "12db51ee33c0e938ebc7b0d9edbbabebafd12d5df08f5b2740693ad056172e58"
     },
     {
       "path": "ui/assignment.ts",
@@ -5772,8 +5772,8 @@
     },
     {
       "path": "ui/chat-actions.ts",
-      "bytes": 6410,
-      "sha256": "ad9c256cf1081e5671535b212673be0e91a7a85f1e645fb5aa6c510bce8b7b07"
+      "bytes": 8530,
+      "sha256": "de563673dc2f7ee017e6daededb2be0e261e68576e08d28725dbb810531ed43a"
     },
     {
       "path": "ui/chat-history.ts",
@@ -6478,12 +6478,12 @@
     {
       "path": "verification/production-approval-contract.json",
       "bytes": 3152,
-      "sha256": "d92a3bbb8380a914684539266906e20515b107c1250fde1e00074976d2ae52c7"
+      "sha256": "d6673174f1a3ab3212e1b53daf21ab9bef4375efa83382ad0ff923458035d92d"
     },
     {
       "path": "verification/production-approval-readonly-snapshot.json",
       "bytes": 2864,
-      "sha256": "1463941c518e4c5955976e0deb4bec87493ea5a04f73957278eb986052fadbf9"
+      "sha256": "972628b072e2eb9c810e443270d3511a34898eb6403ebe3af947f90b9b9450c2"
     },
     {
       "path": "verification/production-drift-contract.json",
@@ -6503,7 +6503,7 @@
     {
       "path": "verification/production-release-readonly-snapshot.json",
       "bytes": 2007,
-      "sha256": "dec21673caa58ce292cd8265a3f1fc5a3aeb05a4ab05f675b04632a5442f77ba"
+      "sha256": "72514b23612de9963c4195cc80aa2855fbf21521a1e4b6c19810c646c97d0a68"
     },
     {
       "path": "verification/sbom.spdx.json",

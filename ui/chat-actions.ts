@@ -23,6 +23,45 @@ const ICONS = {
   more: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="6" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="18" r="1.4" fill="currentColor"/></svg>',
 };
 
+type SpokenVoice = 'shade' | 'lumen' | 'aria';
+const LOCAL_VOICE: Record<SpokenVoice, { pitch: number; rate: number; match: RegExp }> = {
+  shade: { pitch: 0.7, rate: 0.84, match: /pavel|dmitry|dmitri|male|муж/i },
+  lumen: { pitch: 1.14, rate: 1.08, match: /pavel|dmitry|dmitri/i },
+  aria: { pitch: 1.32, rate: 0.94, match: /irina|elena|zira|female|жен|aria/i },
+};
+
+function selectedVoice(): SpokenVoice {
+  try {
+    const saved = sessionStorage.getItem('pulse.voice');
+    if (saved === 'lumen' || saved === 'shade' || saved === 'aria') return saved;
+  } catch { /* default shade */ }
+  return 'shade';
+}
+
+function chooseSystemVoice(voice: SpokenVoice, list: SpeechSynthesisVoice[]): SpeechSynthesisVoice | null {
+  const russian = list.filter((item) => item.lang.toLowerCase().startsWith('ru'));
+  const pool = russian.length ? russian : list;
+  const wanted = pool.find((item) => LOCAL_VOICE[voice].match.test(`${item.name} ${item.voiceURI}`));
+  if (wanted) return wanted;
+  if (voice === 'aria') return pool.at(-1) ?? null;
+  if (voice === 'lumen') return pool[Math.min(1, Math.max(pool.length - 1, 0))] ?? null;
+  return pool[0] ?? null;
+}
+
+function voicesReady(): Promise<SpeechSynthesisVoice[]> {
+  if (typeof speechSynthesis === 'undefined') return Promise.resolve([]);
+  const current = speechSynthesis.getVoices();
+  if (current.length) return Promise.resolve(current);
+  return new Promise((resolve) => {
+    const finish = () => resolve(speechSynthesis.getVoices());
+    const timer = window.setTimeout(finish, 350);
+    speechSynthesis.addEventListener('voiceschanged', () => {
+      window.clearTimeout(timer);
+      finish();
+    }, { once: true });
+  });
+}
+
 let speaking: SpeechSynthesisUtterance | null = null;
 let stopLive: (() => void) | null = null;
 let speakTurn = 0;
@@ -59,8 +98,9 @@ function playBuffer(buffer: AudioBuffer, turn: number) {
   source.start(0);
 }
 
-async function speakFromWorker(text: string, turn: number): Promise<boolean> {
-  const cached = heard.get(text);
+async function speakFromWorker(text: string, voice: SpokenVoice, turn: number): Promise<boolean> {
+  const cacheKey = `${voice}\n${text}`;
+  const cached = heard.get(cacheKey);
   if (cached) {
     playBuffer(cached, turn);
     return true;
@@ -74,13 +114,13 @@ async function speakFromWorker(text: string, turn: number): Promise<boolean> {
     method: 'POST',
     credentials: 'same-origin',
     headers,
-    body: JSON.stringify({ text }),
+    body: JSON.stringify({ text, voice }),
   });
   if (!response.ok || turn !== speakTurn) return false;
   const ctx = audioContext();
   if (!ctx) return false;
   const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
-  remember(text, buffer);
+  remember(cacheKey, buffer);
   playBuffer(buffer, turn);
   return true;
 }
@@ -106,10 +146,17 @@ export async function shareText(text: string, title = 'AZRAIL'): Promise<boolean
   return copyText(text);
 }
 
-function speakLocal(text: string) {
-  if (typeof speechSynthesis === 'undefined') return;
-  const utter = new SpeechSynthesisUtterance(text.slice(0, 2000));
-  utter.lang = /[а-яё]/i.test(text) ? 'ru-RU' : 'en-US';
+async function speakLocal(text: string, voice: SpokenVoice, turn: number) {
+  if (typeof speechSynthesis === 'undefined' || turn !== speakTurn) return;
+  const list = await voicesReady();
+  if (turn !== speakTurn) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  const profile = LOCAL_VOICE[voice];
+  const picked = chooseSystemVoice(voice, list);
+  if (picked) utter.voice = picked;
+  utter.lang = picked?.lang || 'ru-RU';
+  utter.pitch = profile.pitch;
+  utter.rate = profile.rate;
   speaking = utter;
   utter.onend = () => { speaking = null; };
   utter.onerror = () => { speaking = null; };
@@ -127,12 +174,13 @@ export function speakText(text: string): void {
   }
   const slice = text.trim().slice(0, 2000);
   if (!slice) return;
+  const voice = selectedVoice();
   const turn = ++speakTurn;
-  void speakFromWorker(slice, turn).then((played) => {
+  void speakFromWorker(slice, voice, turn).then((played) => {
     if (turn !== speakTurn || played) return;
-    speakLocal(slice);
+    return speakLocal(slice, voice, turn);
   }).catch(() => {
-    if (turn === speakTurn) speakLocal(slice);
+    if (turn === speakTurn) return speakLocal(slice, voice, turn);
   });
 }
 

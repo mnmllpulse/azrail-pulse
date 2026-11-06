@@ -90,7 +90,7 @@ function applyExpert(on:boolean){
 }
 applyExpert(deviceValue('pulse.expert')==='on');
 function setPreferredModel(model:string){preferredModel=model;try{if(model)sessionStorage.setItem('pulse.preferredModel',model);else sessionStorage.removeItem('pulse.preferredModel');}catch{}const select=$<HTMLSelectElement>('composer-model');if(model&&!Array.from(select.options).some(o=>o.value===model)){const option=document.createElement('option');option.value=model;option.textContent=modelDisplayName(model);option.title=model;select.append(option);}select.value=model;if(typeof syncModelsButton==='function')syncModelsButton();syncContextPanel();}
-function setChatVoice(voice:ChatVoice){chatVoice=voice;try{sessionStorage.setItem('pulse.voice',voice);}catch{}syncChatUI();notice(`Голос: ${VOICES[voice].name}. Следующий ответ будет в этом тоне.`);}
+function setChatVoice(voice:ChatVoice){chatVoice=voice;try{sessionStorage.setItem('pulse.voice',voice);}catch{}syncChatUI();notice(`Голос: ${VOICES[voice].name}. Серый говорит ниже, Люмен выше, Ария мягче.`);}
 
 let chatStorage:Storage|undefined;
 try{chatStorage={getItem:key=>deviceValue(key),setItem:(key,value)=>{deviceWrite(key,value);},removeItem:key=>deviceWrite(key,null),key:()=>null,length:0,clear(){}} as Storage;}catch{}
@@ -464,7 +464,7 @@ function syncContextPanel(){
  const modelLine=$('context-model-label');
  modelLine.hidden=!preferredModel;
  modelLine.textContent=preferredModel?`Модель · ${modelDisplayName(preferredModel)}`:'';
- $('context-voice-label').textContent=`Голос · ${VOICES[chatVoice].name}. Озвучка идёт через воркер, если секрет поставлен.`;
+ $('context-voice-label').textContent=`Голос · ${VOICES[chatVoice].name}. Серый ниже, Люмен выше, Ария мягче.`;
  $('context-panel-project').textContent=project?(contextProjectTitle?`Проект · ${contextProjectTitle}`:'Проект · без названия'):'Проект не выбран. Откройте проекты или начните задачу.';
  const names=attachmentRefs.map(ref=>ref.fileName).filter(Boolean);
  $('context-attachment-label').textContent=names.length?names.join(', '):'Нет прикреплённых файлов';
