@@ -66,7 +66,7 @@
       "--remote",
       "--apply",
       "--config",
-      "wrangler.production.json"
+      "wrangler.jsonc"
     ],
     "backup_before_schema_write": true,
     "required_start_for_observed_legacy_production": "002",

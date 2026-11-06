@@ -1,4 +1,4 @@
-# Production Release — AZRAIL 1.5.0-rc.51
+# Production Release — AZRAIL 1.5.0-rc.63
 
 Stage D #38 — **только потом production release**. Этот runbook готовит релиз, но сам по себе не разрешает production mutation. `+` не является production approval.
 
@@ -11,11 +11,11 @@ Stage D #38 — **только потом production release**. Этот runbook
 5. Exact GitHub release PR опубликован, fresh Verify CI успешен, diff проверен и PR merged.
 6. Непосредственно перед mutation создаётся **read-only live lease**: текущий GitHub `main` SHA, current production deployment/version и свежий D1 Time Travel bookmark.
 7. Canonical Wrangler production dry-run.
-8. Production D1 migration через `scripts/migrate.mjs --remote --apply --config wrangler.production.json`. Скрипт обязан экспортировать D1 и скопировать backup в private production R2 **до первой schema write**. Для текущей observed legacy production путь начинается с migration `002` и идёт до `030`.
-9. Worker deploy только после успешной migration. Production OIDC issuer/client передаются как explicit Wrangler `--var`; `--keep-vars` запрещён, чтобы не сохранять legacy `CORS_ORIGIN=*`.
-10. После deploy — новый deployment/version ID, exact `/health.version == 1.5.0-rc.51`, authenticated production smoke, security verification, затем fresh production drift reconciliation = `ALIGNED`.
+8. Миграция рабочей базы идёт через `scripts/migrate.mjs --remote --apply --config wrangler.jsonc`, воркер `azrail-pulse`. Файл `wrangler.production.json` называет удалённый воркер и в эту последовательность не входит. Скрипт обязан экспортировать D1 и скопировать backup в private production R2 **до первой schema write**.
+9. Worker deploy только после успешной migration, тем же `wrangler.jsonc`. OIDC issuer/client передаются как explicit Wrangler `--var`; `--keep-vars` запрещён, чтобы не сохранять legacy `CORS_ORIGIN=*`.
+10. После deploy — новый deployment/version ID, exact `/health.version == 1.5.0-rc.63`, authenticated production smoke, security verification, затем fresh production drift reconciliation = `ALIGNED`.
 11. Legacy `AZRAIL_TOKEN` разрешается revoke/rotate только после доказанного OIDC cutover.
-12. Только после всего этого создаётся `.work/production-release-verified.json` со статусом `VERIFIED_RELEASED`.
+12. Только после всего этого создаётся `.work/production-release-verified.json` со статусом `VERIFIED_RELEASED`. Карточка `docs/current/PRODUCTION_READINESS.md` от этого файла не меняется и остаётся `Status: CONDITIONAL`.
 
 ## Безопасные команды подготовки
 
