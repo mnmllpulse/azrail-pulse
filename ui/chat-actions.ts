@@ -24,6 +24,66 @@ const ICONS = {
 };
 
 let speaking: SpeechSynthesisUtterance | null = null;
+let stopLive: (() => void) | null = null;
+let speakTurn = 0;
+const heard = new Map<string, AudioBuffer>();
+let audioCtx: AudioContext | null = null;
+
+function audioContext(): AudioContext | null {
+  const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+  if (!Ctx) return null;
+  if (!audioCtx) audioCtx = new Ctx();
+  return audioCtx;
+}
+
+function remember(text: string, buffer: AudioBuffer) {
+  heard.set(text, buffer);
+  if (heard.size > 12) {
+    const oldest = heard.keys().next().value;
+    if (oldest) heard.delete(oldest);
+  }
+}
+
+function playBuffer(buffer: AudioBuffer, turn: number) {
+  const ctx = audioContext();
+  if (!ctx || turn !== speakTurn) return;
+  const source = ctx.createBufferSource();
+  source.buffer = buffer;
+  source.connect(ctx.destination);
+  stopLive = () => {
+    try { source.stop(); } catch { /* already ended */ }
+  };
+  source.onended = () => {
+    if (stopLive) stopLive = null;
+  };
+  source.start(0);
+}
+
+async function speakFromWorker(text: string, turn: number): Promise<boolean> {
+  const cached = heard.get(text);
+  if (cached) {
+    playBuffer(cached, turn);
+    return true;
+  }
+  const headers = new Headers({ 'Content-Type': 'application/json' });
+  try {
+    const token = sessionStorage.getItem('pulse.token');
+    if (token) headers.set('Authorization', 'Bearer ' + token);
+  } catch { /* private mode keeps the cookie session */ }
+  const response = await fetch('/api/tts', {
+    method: 'POST',
+    credentials: 'same-origin',
+    headers,
+    body: JSON.stringify({ text }),
+  });
+  if (!response.ok || turn !== speakTurn) return false;
+  const ctx = audioContext();
+  if (!ctx) return false;
+  const buffer = await ctx.decodeAudioData(await response.arrayBuffer());
+  remember(text, buffer);
+  playBuffer(buffer, turn);
+  return true;
+}
 
 export async function copyText(text: string): Promise<boolean> {
   try {
@@ -46,23 +106,34 @@ export async function shareText(text: string, title = 'AZRAIL'): Promise<boolean
   return copyText(text);
 }
 
-export function speakText(text: string): void {
+function speakLocal(text: string) {
   if (typeof speechSynthesis === 'undefined') return;
-  if (speaking) {
-    speechSynthesis.cancel();
-    speaking = null;
-    return;
-  }
-  const utter = new SpeechSynthesisUtterance(text.slice(0, 4000));
+  const utter = new SpeechSynthesisUtterance(text.slice(0, 2000));
   utter.lang = /[а-яё]/i.test(text) ? 'ru-RU' : 'en-US';
   speaking = utter;
-  utter.onend = () => {
-    speaking = null;
-  };
-  utter.onerror = () => {
-    speaking = null;
-  };
+  utter.onend = () => { speaking = null; };
+  utter.onerror = () => { speaking = null; };
   speechSynthesis.speak(utter);
+}
+
+export function speakText(text: string): void {
+  if (stopLive || speaking) {
+    stopLive?.();
+    stopLive = null;
+    if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+    speaking = null;
+    speakTurn += 1;
+    return;
+  }
+  const slice = text.trim().slice(0, 2000);
+  if (!slice) return;
+  const turn = ++speakTurn;
+  void speakFromWorker(slice, turn).then((played) => {
+    if (turn !== speakTurn || played) return;
+    speakLocal(slice);
+  }).catch(() => {
+    if (turn === speakTurn) speakLocal(slice);
+  });
 }
 
 export function appendAssistantActions(

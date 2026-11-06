@@ -17,6 +17,7 @@ const generationPaths = new Set([
   '/api/studio/music/generate',
   '/api/studio/image',
   '/api/studio/voice',
+  '/api/tts',
   '/api/studio/video/plan',
   '/api/studio/web/generate',
   '/api/studio/prose',

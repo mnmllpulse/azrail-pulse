@@ -13,6 +13,7 @@ import { getAgentByName } from "agents";
 import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
 import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, positiveLimit } from "./lib/quota";
 import { enforceOperationLimit } from "./lib/operation-limit";
+import { speakRemote } from "./lib/speech-remote";
 import { readBoundedBody, BodyLimitError, validateJsonObject } from "./lib/request-body";
 import { getCors } from "./lib/cors";
 import { Orchestrator } from "./agents/orchestrator";
@@ -301,6 +302,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       url.pathname === "/api/models" ||
       url.pathname === "/api/tools" ||
       url.pathname === "/api/chat" ||
+      url.pathname === "/api/tts" ||
       url.pathname === "/api/mission" ||
       url.pathname === "/api/conversations" ||
       url.pathname === "/api/polish" ||
@@ -643,6 +645,19 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       // Что AZRAIL умеет прямо сейчас. `available` здесь означает «есть
       // рабочий адаптер», а не «запланировано» — см. lib/tool-registry.ts.
       return json({ success: true, tools: describeTools(env) }, env);
+    }
+
+    if (url.pathname === "/api/tts" && request.method === "POST") {
+      if (principal.role !== "admin" && !principal.operator) {
+        return json({ error: "Озвучка пока открыта только владельцу.", code: "tts_owner_only" }, env, 403);
+      }
+      const spoken = typeof parsedBody.text === "string" ? parsedBody.text.trim() : "";
+      if (!spoken) return json({ error: "Нужен текст." }, env, 400);
+      if (spoken.length > 2000) return json({ error: "Текст для озвучки длиннее 2000 знаков." }, env, 400);
+      await enforceOperationLimit(env, "generation", caller);
+      const audio = await speakRemote(env, spoken);
+      const headers = getCors(env, new Headers({ "Content-Type": audio.mime }));
+      return new Response(audio.bytes, { headers });
     }
 
     if (url.pathname === "/api/chat" && request.method === "POST") {

@@ -464,7 +464,7 @@ function syncContextPanel(){
  const modelLine=$('context-model-label');
  modelLine.hidden=!preferredModel;
  modelLine.textContent=preferredModel?`Модель · ${modelDisplayName(preferredModel)}`:'';
- $('context-voice-label').textContent=`Голос · ${VOICES[chatVoice].name}. Ключ озвучки не поставлен.`;
+ $('context-voice-label').textContent=`Голос · ${VOICES[chatVoice].name}. Озвучка идёт через воркер, если секрет поставлен.`;
  $('context-panel-project').textContent=project?(contextProjectTitle?`Проект · ${contextProjectTitle}`:'Проект · без названия'):'Проект не выбран. Откройте проекты или начните задачу.';
  const names=attachmentRefs.map(ref=>ref.fileName).filter(Boolean);
  $('context-attachment-label').textContent=names.length?names.join(', '):'Нет прикреплённых файлов';

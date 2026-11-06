@@ -1,0 +1,12 @@
+---
+description: Stack, dark face, and key handling for AZRAIL
+alwaysApply: true
+---
+
+# AZRAIL OS Code Generation Standard
+
+- Stack: vanilla JS (ESNext), HTML5, CSS3, Cloudflare Workers, D1, Durable Objects. Do not add React, Vue, or Angular unless the task asks for it.
+- Design: dark minimal noir, background near #050508, glass where the current shell already uses it.
+- Keep scripts modular. Do not rewrite a whole file when a small edit is enough.
+- Never place raw API keys (OpenAI, ElevenLabs, Anthropic) in client-side JS or HTML. Provider calls go through the worker.
+- Working site is the Cloudflare worker `azrail-pulse`. Do not recreate the deleted worker `azrail-os`.
