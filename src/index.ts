@@ -1231,6 +1231,19 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       return json({ success: true, runs: await listRuns(env) }, env);
     }
 
+    if (url.pathname === "/api/uploads/file" && request.method === "GET") {
+      const projectId = url.searchParams.get("projectId") ?? "";
+      const key = url.searchParams.get("key") ?? "";
+      if (!uploadKeyForProject(key, projectId) || !key.toLowerCase().endsWith(".zip")) {
+        return json({ error: "Этот архив чужой." }, env, 404);
+      }
+      await requireResource(env, principal, "project", projectId);
+      const obj = await env.AZRAIL_R2.get(key);
+      if (!obj) return json({ error: "Архив уже не лежит в хранилище." }, env, 404);
+      if (obj.size > 50 * 1024 * 1024) return json({ error: "Архив больше 50 МБ." }, env, 413);
+      return new Response(obj.body, { headers: getCors(env, { "Content-Type": "application/zip" }) });
+    }
+
     if (url.pathname === "/api/conversations" && request.method === "GET") {
       // Cross-device sidebar: pinned first, then newest activity; preview = first user line.
       const { results } = await env.AZRAIL_D1.prepare(

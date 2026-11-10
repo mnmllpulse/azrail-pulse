@@ -28,7 +28,7 @@ import {formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,openStoredPlan,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
-import {activePath,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
+import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
 import {diagramLines,diagramModel} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
@@ -291,8 +291,24 @@ async function hydrateChat(id:string){
   let earlier='';
   for(let i=planAt-1;i>=0;i--){const text=list[i]?.content;if(list[i]?.role==='user'&&typeof text==='string'){earlier=text;break;}}
   if(content)restoreStoredPlan(content,earlier);
+  await reopenHeldZip(list);
   syncChatUI();workspace.toLatest();
  }catch{/* Offline or missing conversation — keep local cache. */}
+}
+async function reopenHeldZip(messages:Array<{role?:string;content?:string}>){
+ if(sourceIsHeld()||!project)return;
+ const raw=messages.filter(row=>row.role==='user'&&typeof row.content==='string').map(row=>String(row.content)).join('\n');
+ const mark=archiveMarks(raw).filter(item=>item.r2Key.startsWith(`uploads/${project}/`)&&!item.r2Key.includes('..')).at(-1);
+ if(!mark)return;
+ try{
+  const blob=await blobAPI(`/api/uploads/file?projectId=${encodeURIComponent(project)}&key=${encodeURIComponent(mark.r2Key)}`);
+  const buf=await blob.arrayBuffer();
+  const paths=await holdArchive(buf,mark.fileName);
+  if(paths.length)document.dispatchEvent(new CustomEvent('azrail:zip-catalog',{detail:paths}));
+  const html=await siteFromZip(buf)??'';
+  if(html.trim()){document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:html}));workspace.setPreview(true);}
+  else if(paths[0]){document.dispatchEvent(new CustomEvent('azrail:zip-open',{detail:paths[0]}));workspace.setPreview(true);}
+ }catch{/* Сервер по-прежнему откроет названный файл из этого архива. */}
 }
 async function syncServerChats(){
  if(!account||local)return;
@@ -1681,6 +1697,16 @@ async function runChat(){
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
+ if(/^верни\s+файл[.!?]?$/iu.test(message)){
+  const field=document.querySelector<HTMLTextAreaElement>('#home-code');
+  const back=restoreFileShot(activePath(),field?.value??'');
+  if(!back){noteLocal(message,'Прошлой правки файла на экране нет.');return;}
+  document.dispatchEvent(new CustomEvent('azrail:file-shown',{detail:back}));
+  noteLocal(message,`На экране снова ${back.path}.`);
+  return;
+ }
+ if(/^(?:запусти|выполни|прогони)\s+(?:тесты|npm|сборку|сервер|dev|команд\p{L}*)[.!?]?$/iu.test(message)){noteLocal(message,'Команды, npm и тесты здесь не исполняются: контейнера нет. Прогон через GitHub Actions включится, когда в воркере будет секрет GITHUB_TOKEN.');return;}
+ if(/^(?:выложи|задеплой|сделай\s+push|отправь\s+в\s+github)[.!?]?$/iu.test(message)){noteLocal(message,'Выкладка из чата и push в GitHub не запускаются. Секреты GITHUB_TOKEN и GITHUB_REPO ставятся в воркер, не в чат.');return;}
  const skills=skillsReply(message);
  if(wantsPageRestore(message)){
   const restored=takeBackPage(heldPlan);

@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { zipStore } from "../src/lib/zip-store";
-import { fileNamesInQuestion } from "../src/lib/attachments";
+import { archivesFromText, fileNamesInQuestion } from "../src/lib/attachments";
 import { listZip, readEntry } from "../src/lib/zip-reader";
-import { askedPaths, bytesForArchive, catalogPaths, holdArchive, holdPlain, matchHeldPath, openHeld, openOnlyPath, siteFromZip } from "../ui/zip-site";
+import { archiveMarks, askedPaths, bytesForArchive, catalogPaths, fileShotReady, holdArchive, holdPlain, matchHeldPath, openHeld, openOnlyPath, restoreFileShot, siteFromZip, snapFile } from "../ui/zip-site";
 
 const utf8 = (value: string) => new TextEncoder().encode(value);
 
@@ -41,6 +41,12 @@ describe("Сайт из ZIP на живом экране", () => {
     expect(askedPaths("открой src/app.ts")).toEqual(fileNamesInQuestion("открой src/app.ts"));
     expect(openOnlyPath("Открой src/app.ts.")).toBe("src/app.ts");
     expect(openOnlyPath("прочитай src/app.ts и скажи, что не так")).toBeNull();
+    const mark = "[АРХИВ r2=uploads/p1/abc-site.zip name=site.zip]";
+    expect(archiveMarks(`вопрос\n${mark}`)).toEqual(archivesFromText(`вопрос\n${mark}`));
+    snapFile("src/app.ts", "export const n = 1;");
+    expect(fileShotReady()).toBe(true);
+    expect(restoreFileShot("src/app.ts", "export const n = 2;")).toEqual({ path: "src/app.ts", text: "export const n = 1;" });
+    expect(restoreFileShot("src/app.ts", "export const n = 1;")?.text).toBe("export const n = 2;");
   });
 
   it("кладёт правку в архив и оставляет служебные файлы за бортом", async () => {

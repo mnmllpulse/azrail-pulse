@@ -71,15 +71,20 @@ function extOf(path: string) {
 const NAMED_FILE = /(?:^|[\s`'"(])((?:[\w.-]+\/)+[\w.-]+\.[\w]+|[\w.-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|md|txt|css|html|yml|yaml|toml|sql|py|rs|go|xml|svg|csv))/giu;
 const OPEN_LINE = /^(?:открой|покажи|выведи)(?:\s+файл)?\s+\S+[.!?]?$/iu;
 
-const PACK_FILES = 80;
-const PACK_ONE = 256_000;
-const PACK_TOTAL = 2 * 1024 * 1024;
+const PACK_FILES = 200;
+const PACK_ONE = 512_000;
+const PACK_TOTAL = 8 * 1024 * 1024;
 
 let held: ArrayBuffer | null = null;
 let known: string[] = [];
 let plain: Array<{ path: string; data: Uint8Array }> | null = null;
 let downloadName = 'проект.zip';
 let openPath = '';
+let shots: Array<{ path: string; text: string }> = [];
+
+function clearShots() {
+  shots = [];
+}
 
 async function textPaths(buf: ArrayBuffer, limit: number): Promise<string[]> {
   let listing;
@@ -99,6 +104,7 @@ export async function catalogPaths(buf: ArrayBuffer): Promise<string[]> {
 export async function holdArchive(buf: ArrayBuffer, name = 'архив.zip'): Promise<string[]> {
   held = buf;
   plain = null;
+  clearShots();
   downloadName = name.toLowerCase().endsWith('.zip') ? name : `${name}.zip`;
   known = await textPaths(buf, 2000);
   openPath = known[0] ?? '';
@@ -108,6 +114,7 @@ export async function holdArchive(buf: ArrayBuffer, name = 'архив.zip'): Pr
 /** Страница из чата или один HTML. Архив ZIP при этом отпускается. */
 export function holdPlain(files: Array<{ path: string; text: string }>, name = 'проект.zip'): string[] {
   held = null;
+  clearShots();
   downloadName = name.toLowerCase().endsWith('.zip') ? name : `${name}.zip`;
   const list = files.filter((file) => file.path && !file.path.includes('..')).slice(0, PACK_FILES);
   plain = list.map((file) => ({ path: file.path, data: new TextEncoder().encode(file.text) }));
@@ -130,6 +137,35 @@ export function activePath(): string {
 
 export function rememberPath(path: string) {
   if (path && !path.includes('..')) openPath = path;
+}
+
+const ARCHIVE_MARK = /\[АРХИВ r2=(\S+) name=([^\]]+)\]/g;
+
+/** Метки уже сохранённого ZIP. После перезагрузки экран берёт архив по ним. */
+export function archiveMarks(text: string): Array<{ r2Key: string; fileName: string }> {
+  return [...text.matchAll(ARCHIVE_MARK)].map((item) => ({ r2Key: item[1], fileName: item[2].trim() }));
+}
+
+/** Запоминает текст файла до правки. Хранит три последних снимка. */
+export function snapFile(path: string, text: string) {
+  const name = path || openPath;
+  if (!name || name.includes('..') || text.length > PACK_TOTAL) return;
+  if (shots[0]?.path === name && shots[0].text === text) return;
+  shots = [{ path: name, text }, ...shots].slice(0, 3);
+}
+
+export function fileShotReady(): boolean {
+  return shots.length > 0;
+}
+
+/** Ставит прошлый текст файла текущим. Текущий текст остаётся в снимках. */
+export function restoreFileShot(path: string, text: string): { path: string; text: string } | null {
+  const shot = shots[0];
+  if (!shot) return null;
+  const name = path || openPath || 'index.html';
+  shots = [{ path: name, text }, ...shots.slice(1)].slice(0, 3);
+  rememberPath(shot.path);
+  return shot;
 }
 
 /** Имена из новой фразы. Совпадает с тем, как сервер узнаёт файл в вопросе. */

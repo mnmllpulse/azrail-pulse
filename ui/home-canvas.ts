@@ -1,4 +1,4 @@
-import { activePath, bytesForArchive, bytesForFile, openHeld, rememberPath, saveBytes, sourceIsHeld } from './zip-site';
+import { activePath, bytesForArchive, bytesForFile, fileShotReady, openHeld, rememberPath, restoreFileShot, saveBytes, snapFile, sourceIsHeld } from './zip-site';
 
 const STORAGE_KEY='pulse.home-code';
 const STARTER=`<!doctype html>
@@ -45,10 +45,12 @@ export function mountHomeCanvas(){
  const filePick=document.querySelector<HTMLSelectElement>('#home-files');
  const saveFile=document.querySelector<HTMLButtonElement>('#home-save-file');
  const saveZip=document.querySelector<HTMLButtonElement>('#home-save-zip');
+ const restoreFile=document.querySelector<HTMLButtonElement>('#home-restore-file');
  const markSource=()=>{
   const on=sourceIsHeld();
   if(saveFile)saveFile.hidden=!on;
   if(saveZip)saveZip.hidden=!on;
+  if(restoreFile)restoreFile.hidden=!fileShotReady();
  };
  const save=(kind:'file'|'zip')=>{
   const path=activePath();
@@ -79,6 +81,14 @@ export function mountHomeCanvas(){
   screenTab.classList.toggle('active',preview);
   paint();
  };
+ let armed:{path:string;text:string}|null=null;
+ code.addEventListener('focus',()=>{armed={path:activePath(),text:code.value};});
+ code.addEventListener('blur',()=>{
+  if(!armed||armed.text===code.value)return;
+  snapFile(armed.path||activePath()||'index.html',armed.text);
+  armed=null;
+  markSource();
+ });
  code.addEventListener('input',()=>{
   try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
   paint();
@@ -129,6 +139,30 @@ export function mountHomeCanvas(){
    try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
    show(/\.html?$/i.test(path)?'screen':'code');
   });
+ });
+ document.addEventListener('azrail:file-shown',(event)=>{
+  const detail=(event as CustomEvent<{path?:string;text?:string}>).detail;
+  if(!detail||typeof detail.text!=='string'||typeof detail.path!=='string')return;
+  code.value=detail.text;
+  rememberPath(detail.path);
+  if(filePick){
+   if(![...filePick.options].some(option=>option.value===detail.path)){
+    const option=document.createElement('option');
+    option.value=detail.path;
+    option.textContent=detail.path;
+    filePick.append(option);
+   }
+   filePick.value=detail.path;
+   if(fileLabel)fileLabel.hidden=false;
+  }
+  try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
+  show(/\.html?$/i.test(detail.path)?'screen':'code');
+  markSource();
+ });
+ restoreFile?.addEventListener('click',()=>{
+  const back=restoreFileShot(activePath(),code.value);
+  if(!back)return;
+  document.dispatchEvent(new CustomEvent('azrail:file-shown',{detail:back}));
  });
  saveFile?.addEventListener('click',()=>save('file'));
  saveZip?.addEventListener('click',()=>save('zip'));
