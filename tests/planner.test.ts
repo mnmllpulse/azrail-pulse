@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPlan, fileNameFromPhrase, holdBlocked, openStoredPlan, planRecord, planWork, retryPart, revisePart, wavesToRun, workPlanFromDraft } from '../ui/planner';
+import { formatPlan, fileNameFromPhrase, followUpPlan, holdBlocked, openStoredPlan, planRecord, planWork, retryPart, revisePart, wavesToRun, workPlanFromDraft } from '../ui/planner';
 
 describe('Планировщик поручения', () => {
   it('одну картинку не дробит', () => {
@@ -79,6 +79,29 @@ describe('Планировщик поручения', () => {
     expect(plan?.parts.map((part) => part.state)).toEqual(['done', 'failed', 'waiting']);
     expect(plan?.parts[2]?.dependsOn).toEqual(['part-2']);
     expect(wavesToRun(plan!).map((group) => group.map((part) => part.kind))).toEqual([['music'], ['web']]);
+  });
+
+  it('короткая правка продолжает прошлую картинку, а новая задача не притворяется правкой', () => {
+    const plan = planWork('Нарисуй постер для бюро');
+    plan.parts[0].state = 'done';
+    plan.parts[0].thing = { type: 'image', url: '/api/studio/artifacts/poster-1?inline=1', title: 'Постер' };
+    const darker = followUpPlan('сделай темнее', plan);
+    expect(darker?.parts[0]?.kind).toBe('image');
+    expect(darker?.parts[0]?.versions?.[0]?.url).toBe('/api/studio/artifacts/poster-1?inline=1');
+    expect(darker?.parts[0]?.text).toContain('сделай темнее');
+    expect(followUpPlan('нарисуй другой постер', plan)).toBeNull();
+    const site = planWork('Собери сайт для бюро');
+    site.parts[0].state = 'done';
+    site.parts[0].thing = { type: 'page', url: '/s/bureau', title: 'Страница' };
+    const recolor = followUpPlan('измени цвет кнопки на фиолетовый', site);
+    expect(recolor?.parts[0]?.kind).toBe('web');
+    expect(recolor?.parts[0]?.versions?.[0]?.url).toBe('/s/bureau');
+    expect(followUpPlan('сделай темнее', site)).toBeNull();
+    const wider = followUpPlan('Сделай чат шире и добавь эффект живого фиолетового импульса.', site);
+    expect(wider?.parts[0]?.kind).toBe('web');
+    expect(wider?.parts[0]?.text).toContain('чат шире');
+    expect(followUpPlan('нарисуй постер', site)).toBeNull();
+    expect(followUpPlan('Бро, наш сайт выглядит дешево', site)?.parts[0]?.kind).toBe('web');
   });
 
   it('правка одной части не трогает соседнюю', () => {

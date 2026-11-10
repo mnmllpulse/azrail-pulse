@@ -161,6 +161,50 @@ function keepVersion(part: PlanPart) {
   delete part.thing;
 }
 
+const FOLLOW_UP = /темнее|светлее|контраст|ярче|измени|поправь|переделай|ещё вариант|другую версию|верни предыдущ/iu;
+const PAGE_CHANGE = /шире|уже|сузь|добав|анимац|эффект|импульс|пульс|фиолет|кнопк|цвет|фон|шрифт|исправ|поменя|обнов|чат|д[её]шев|скучн|бедно|сложн|упрост/iu;
+const IMAGE_FOLLOW = /картинк|изображен|постер|темнее|светлее|контраст|ярче/iu;
+const OTHER_MEDIA = /(?<![\p{L}])(?:картинк|постер|иллюстрац|обложк|изображен|логотип|нарисуй|музык|песн|мелод|трек|видео|ролик|клип)(?![\p{L}])/iu;
+
+/** Короткая правка продолжает последнюю картинку или страницу этой ленты. Новая задача сюда не попадает. */
+export function followUpPlan(message: string, plan: WorkPlan | null): WorkPlan | null {
+  const source = message.trim();
+  if (!plan || !source) return null;
+  const image = [...plan.parts].reverse().find((part) => part.thing?.type === 'image' && part.thing.url);
+  const page = [...plan.parts].reverse().find((part) => part.thing?.type === 'page' && part.thing.url);
+  const freshSite = /(?<![\p{L}])(?:созда(?:й|ть)|собери)\b/iu.test(source) && /(?<![\p{L}])сайт(?![\p{L}])/iu.test(source);
+  if (page?.thing?.url && PAGE_CHANGE.test(source) && !OTHER_MEDIA.test(source) && !freshSite) {
+    return {
+      parallel: false,
+      parts: [{
+        ...assignmentForKind('web'),
+        id: 'part-1',
+        text: source.slice(0, 500),
+        wave: 0,
+        dependsOn: [],
+        state: 'waiting',
+        versions: [page.thing],
+      }],
+    };
+  }
+  if (!FOLLOW_UP.test(source) || OTHER_MEDIA.test(source)) return null;
+  const thing = image?.thing;
+  if (!thing?.url || (PAGE_CHANGE.test(source) && !IMAGE_FOLLOW.test(source))) return null;
+  const base = image?.text.trim() ?? '';
+  return {
+    parallel: false,
+    parts: [{
+      ...assignmentForKind('image'),
+      id: 'part-1',
+      text: `${base}. ${source}`.replace(/^\.\s*/, '').slice(0, 500),
+      wave: 0,
+      dependsOn: [],
+      state: 'waiting',
+      versions: [thing],
+    }],
+  };
+}
+
 /** Меняет текст одной части и ставит её заново. Прошлая вещь остаётся в истории. Соседей не трогает. */
 export function revisePart(plan: WorkPlan, id: string, text: string): boolean {
   const next = text.trim().slice(0, 500);

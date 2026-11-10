@@ -27,7 +27,8 @@ import {fillMarkdownContent} from './chat-markdown';
 import {formatAssignment,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
-import {formatPlan,fileNameFromPhrase,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {formatPlan,fileNameFromPhrase,followUpPlan,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft} from './chat-site';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
 function reportGlobalError(source:string,reason:unknown){
@@ -904,7 +905,10 @@ function downloadLink(url:string,name:string){
  link.textContent='Скачать';
  return link;
 }
-function appendThing(host:HTMLElement,thing:PlanThing,earlier=false,poster=''){
+function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster=''){
+ const host=document.createElement('div');
+ host.className='thing-card';
+ host.dataset.key=`${earlier?'old:':''}${thing.type}:${thing.url||thing.lines?.[0]?.slice(0,80)||thing.title||''}`;
  if(thing.type==='image'&&thing.url){
   const row=document.createElement('div');
   row.className=earlier?'assignment-versions':'assignment-pair';
@@ -913,18 +917,20 @@ function appendThing(host:HTMLElement,thing:PlanThing,earlier=false,poster=''){
   if(!earlier)for(const alt of thing.alts??[])draw(alt);
   host.append(row);
   if(!earlier)host.append(downloadLink(thing.url,downloadName(thing,'png')));
-  return;
+  parent.append(host);return;
  }
  if(thing.type==='audio'&&thing.url){
   const audio=document.createElement('audio');audio.controls=true;audio.src=thing.url;host.append(audio);
   if(!earlier)host.append(downloadLink(thing.url,downloadName(thing,'webm')));
-  return;
+  parent.append(host);return;
  }
  if(thing.type==='page'&&thing.url){
+  const frame=document.createElement('iframe');frame.className='chat-preview';frame.src=thing.url;frame.title=thing.title||'Просмотр страницы';frame.setAttribute('sandbox','allow-scripts');host.append(frame);
   const link=document.createElement('a');link.href=thing.url;link.target='_blank';link.rel='noopener';link.textContent=thing.title||'Открыть страницу';host.append(link);
   const life=document.createElement('p');life.textContent='Страница живёт 90 дней.';host.append(life);
-  if(thing.lines?.length){const pre=document.createElement('pre');pre.textContent=thing.lines.join('\n').slice(0,6000);host.append(pre);}
-  return;
+  const code=thing.lines?.filter(line=>!line.startsWith('azrail-site\t'));
+  if(code?.length){const pre=document.createElement('pre');pre.textContent=code.join('\n').slice(0,6000);host.append(pre);}
+  parent.append(host);return;
  }
  if(thing.type==='storyboard'&&thing.lines?.length){
   const row=document.createElement('div');
@@ -941,9 +947,9 @@ function appendThing(host:HTMLElement,thing:PlanThing,earlier=false,poster=''){
    const body=document.createElement('p');body.textContent=line;
    card.append(label,body);row.append(card);
   });
-  host.append(row);return;
+  host.append(row);parent.append(host);return;
  }
- if(thing.type==='note'&&thing.title){const note=document.createElement('p');note.textContent=thing.title;host.append(note);}
+ if(thing.type==='note'&&thing.title){const note=document.createElement('p');note.textContent=thing.title;host.append(note);parent.append(host);}
 }
 function paintThings(parts:Array<{thing?:PlanThing;state?:PlanPart['state'];versions?:PlanThing[]}>){
  const host=$('assignment-thing');host.replaceChildren();
@@ -960,13 +966,12 @@ function pinThingInChat(){
  const source=$('assignment-thing');
  const host=document.getElementById('chat-messages');
  if(!host)return;
- let slot=host.querySelector<HTMLElement>(':scope > [data-chat-thing]');
- if(!source.childElementCount||source.textContent==='Пока ничего нет.'){slot?.remove();return;}
- if(!slot){slot=document.createElement('div');slot.dataset.chatThing='';slot.className='chat-thing';host.append(slot);}
- slot.replaceChildren();
- for(const node of Array.from(source.childNodes)){
-  if(node.textContent==='Пока ничего нет.')continue;
-  slot.append(node.cloneNode(true));
+ const seen=new Set([...host.querySelectorAll<HTMLElement>(':scope > [data-chat-thing] [data-key]')].map(node=>node.dataset.key||''));
+ for(const card of source.querySelectorAll<HTMLElement>(':scope > .thing-card')){
+  const key=card.dataset.key||'';
+  if(!key||seen.has(key))continue;
+  const slot=document.createElement('div');slot.dataset.chatThing='';slot.className='chat-thing';slot.append(card.cloneNode(true));host.append(slot);
+  seen.add(key);
  }
 }
 function harvestStudioThing():PlanThing|undefined{
@@ -1268,7 +1273,7 @@ function waitForSelector(selector:string,ms=8000){
   tick();
  });
 }
-async function runAssignment(plan:Assignment,message:string){
+async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number|null;text?:string},message:string){
  if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
  if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
  const thread=chatHistory.current()??chatHistory.create();
@@ -1283,14 +1288,16 @@ async function runAssignment(plan:Assignment,message:string){
   if(!account&&plan.kind!=='music'){paint({...plan,needsYou:'Войди в аккаунт, и я начну это поручение.'});return;}
   if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
   paint(plan);
-  const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,id:'part-1',text:message,wave:0,dependsOn:[],state,thing}]});
-  const part:PlanPart={...plan,id:'part-1',text:message,wave:0,dependsOn:[],state:'running'};
+  const text=plan.versions?.length&&plan.text?plan.text:message;
+  const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,id:'part-1',text,wave:0,dependsOn:[],state,thing,versions:plan.versions,seed:plan.seed??undefined}]});
+  const part:PlanPart={...plan,id:'part-1',text,wave:0,dependsOn:[],state:'running',versions:plan.versions,seed:plan.seed??undefined};
   missionSubmitting=false;
   await rememberWork(message,one(),false);
   await runPlanPart(part);
   paintThings(part.thing?[{thing:part.thing,state:'done',versions:part.versions}]:[]);
   await rememberWork(message,one(part.thing,'done'),true);
   if(part.ready)paint({...plan,ready:part.ready});
+  showContinue(one(part.thing,'done'));
  }
  catch(e){
   const text=e instanceof Error?e.message:'Не удалось начать поручение.';
@@ -1378,6 +1385,39 @@ async function settleMission(){
  }
  throw Error('Страница ещё собирается. Нажми «Повторить», когда ход задачи закончится.');
 }
+async function publishChatPage(part:PlanPart){
+ const previous=part.versions?.find(item=>item.type==='page');
+ const saved=draftFromLine(previous?.lines?.find(line=>line.startsWith('azrail-site\t')));
+ const draft=saved?applySiteNote(saved,part.text):draftFromPhrase(part.text);
+ if(!draft)throw Error('Эту правку страница не применила. Она умеет сделать чат шире, добавить импульс, усилить слабый вид и оставить одну страницу.');
+ const files=filesForDraft(draft);
+ const stored=project?await storeSiteFiles(files):false;
+ const published=await api('/api/studio/web/publish',{method:'POST',body:JSON.stringify({name:draft.name,files})}) as {url?:string};
+ const url=safeMediaPath(String(published.url??''));
+ if(!url)throw Error('Страница собрана, но ссылка просмотра не вернулась.');
+ const html=files.find(file=>file.path==='index.html')?.text??'';
+ part.state='done';
+ part.ready=stored?`Страница «${draft.name}» в чате. Файлы записаны в проект, папка site.`:`Страница «${draft.name}» в чате.`;
+ part.thing={type:'page',url,title:draft.name,lines:[draftLine(draft),html.slice(0,4000)]};
+}
+async function storeSiteFiles(files:Array<{path:string;text:string}>){
+ let written=0;
+ for(const file of files){
+  const path=`site/${file.path}`;
+  try{
+   await api(`/api/projects/${encodeURIComponent(project)}/workbench/files`,{method:'POST',body:JSON.stringify({action:'create',path,content:file.text})});
+   written+=1;
+  }catch(error){
+   if(!(error instanceof APIError)||error.status!==409)continue;
+   try{
+    const opened=await api(`/api/projects/${encodeURIComponent(project)}/workbench/file?path=${encodeURIComponent(path)}`) as {sha256?:string};
+    await api(`/api/projects/${encodeURIComponent(project)}/workbench/files`,{method:'POST',body:JSON.stringify({action:'update',path,content:file.text,expectedSha256:opened.sha256??''})});
+    written+=1;
+   }catch{/* Этот файл не записался. Публикация всё равно покажет страницу. */}
+  }
+ }
+ return written===files.length&&written>0;
+}
 function artifactId(url:string){
  const match=/\/api\/studio\/artifacts\/([A-Za-z0-9._~-]+)/.exec(url);
  return match?.[1]??'';
@@ -1436,13 +1476,16 @@ async function runPlanPart(part:PlanPart){
   if(scenes.length)part.thing={type:'storyboard',lines:scenes};
   return;
  }
- if(part.kind==='web'||part.kind==='build'){
+ if(part.kind==='web'){
+  await publishChatPage(part);
+  return;
+ }
+ if(part.kind==='build'){
   await runMission(part.text,{keepTurn:true,stay:true,nested:true});
   const live=await settleMission();
-  const page=part.kind==='web'?await keepPage():undefined;
   part.state='done';
-  part.ready=page?'Страница в проекте.':live;
-  part.thing=page??{type:'note',title:part.ready};
+  part.ready=live;
+  part.thing={type:'note',title:part.ready};
   return;
  }
  part.state='done';
@@ -1479,7 +1522,7 @@ async function runChat(){
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  let handed=false;
  try{
- const planned=await chosenPlan(message);
+ const planned=followUpPlan(message,heldPlan)??await chosenPlan(message);
  if(planned&&planned.parts.length>1){handed=true;await runPlan(planned,message);return;}
  if(planned&&planned.parts.length===1){handed=true;await runAssignment(planned.parts[0],message);return;}
  if(!account)throw Error('Войдите в аккаунт, чтобы писать в Chat.');
