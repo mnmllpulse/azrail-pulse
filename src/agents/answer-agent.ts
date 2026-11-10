@@ -61,20 +61,32 @@ export function withFallbackNotice(text: string, attempts: number, model?: strin
 const SHADE_WINDOW = 24_000;
 const PROMPT_CAP = 72_000;
 
-export function promptBudget(text: string): { text: string; tokens: number; long: boolean } {
+export function promptBudget(text: string, earlier = ""): { text: string; tokens: number; long: boolean } {
   let body = text;
   let trimmed = false;
   if (body.length > PROMPT_CAP) {
     body = `${body.slice(0, 48_000)}\n\n[Середина вложения пропущена: файл длиннее окна модели.]\n\n${body.slice(-16_000)}`;
     trimmed = true;
   }
-  const tokens = Math.ceil(body.length / 3) + 4_096;
+  const tokens = Math.ceil((earlier.length + body.length) / 3) + 4_096;
   return { text: body, tokens, long: trimmed || tokens > SHADE_WINDOW };
 }
 
-function contextMiss(err: unknown): boolean {
+/** В истории остаётся реплика и уже сделанный разбор. Полный архив второй раз в модель не кладётся. */
+export function rememberTurn(role: string, content: string): string {
+  const marker = "\n\nПРИЛОЖЕННЫЕ ФАЙЛЫ";
+  const at = content.indexOf(marker);
+  if (role === "user" && at >= 0 && content.length > 1_500) {
+    const words = content.slice(0, at).trim().slice(0, 1_500);
+    return `${words}\n\n[К этой реплике был приложен файл. Его разбор уже в ответе, архив повторно не вкладывается.]`;
+  }
+  if (content.length <= 8_000) return content;
+  return `${content.slice(0, 5_000)}\n\n[Середина реплики пропущена.]\n\n${content.slice(-2_000)}`;
+}
+
+export function contextMiss(err: unknown): boolean {
   const raw = err instanceof Error ? err.message : String(err);
-  return /context length|input_tokens|maximum context/i.test(raw);
+  return /context length|context window|input_tokens|maximum context|exceeded this model/i.test(raw);
 }
 
 export class AnswerAgent extends Agent<Env, AnswerAgentState> {
@@ -139,7 +151,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
 
     const voice = request.voice === "shade" || request.voice === "aria" ? request.voice : "lumen";
     const voiceLine = voice === "shade"
-      ? "АКТИВНЫЙ ГОЛОС: Серый. Пиши как собранный мужчина, без шуток, без восклицаний, без тепла и без пафоса. На «привет» ответь ровно: «Привет. Слушаю.» Короткий предел в несколько фраз только для приветствия. Код, разбор, таблицу и документ отдавай целиком."
+      ? "АКТИВНЫЙ ГОЛОС: Серый. Пиши как собранный мужчина, без шуток, без восклицаний, без тепла и без пафоса. На «привет» и только на него ответь ровно: «Привет. Слушаю.» Разбор, код и ответ по делу с приветствия не начинай. Код, разбор, таблицу и документ отдавай целиком."
       : voice === "aria"
         ? "АКТИВНЫЙ ГОЛОС: Ария. Пиши как мягкая женщина: тепло, ясно, доброжелательно, без сюсюканья. На «привет» ответь: «Привет. Я рядом, говори.»"
         : "АКТИВНЫЙ ГОЛОС: Люмен. Пиши как живой доброжелательный мужчина: тепло, умно, с лёгкой радостью. На «привет» ответь: «Привет. Рад тебя слышать.»";
@@ -177,9 +189,9 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
     const priorTurns = (request.conversationHistory ?? [])
       .filter((m) => m.role === "user" || m.role === "assistant")
       .slice(-10)
-      .map((m) => ({ role: m.role, content: m.content }));
+      .map((m) => ({ role: m.role, content: rememberTurn(m.role, m.content) }));
 
-    const budget = promptBudget(question);
+    const budget = promptBudget(question, priorTurns.map((turn) => turn.content).join("\n"));
     const voiceNote = voice === "lumen" ? "" : `\n\nОтветь только голосом ${voice === "shade" ? "Серый" : "Ария"}. Тон прошлых ответов не копируй.`;
     const shadePin = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
     const preferred = request.preferredModel || (voice === "lumen" || budget.long ? undefined : shadePin);

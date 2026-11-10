@@ -11,6 +11,7 @@ import { ensureProject } from "../lib/project";
 import type { EventEnvelope } from "../lib/event-stream";
 import { taskTrace, traceLog } from "../lib/observability-context";
 import { addMessage, ensureConversation, listMessages } from "../lib/chat-store";
+import { rememberTurn } from "./answer-agent";
 import { checkTaskSufficiency, classifyTaskIntent } from "./orchestrator-intent";
 import { commitGeneratedFiles, invokeAgentCapability } from "./orchestrator-capabilities";
 import { listTaskHistory, recordTaskHistory } from "./orchestrator-history";
@@ -179,7 +180,7 @@ export class Orchestrator extends Agent<Env, OrchestratorState> {
         payload: userText,
         projectId: session.project,
         preferredModel: parsed.preferredModel,
-        conversationHistory: history.slice(-10),
+        conversationHistory: history.slice(-10).map((turn) => ({ role: turn.role, content: rememberTurn(turn.role, turn.content) })),
         intent: "answer",
       });
 

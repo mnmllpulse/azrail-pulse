@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { promptBudget, withFallbackNotice } from "../src/agents/answer-agent";
+import { contextMiss, promptBudget, rememberTurn, withFallbackNotice } from "../src/agents/answer-agent";
 
 describe("spoken model fallback", () => {
   it("leaves a first-try answer unmarked", () => {
@@ -23,5 +23,25 @@ describe("spoken model fallback", () => {
     expect(zip.long).toBe(true);
     expect(zip.text).toContain("Середина вложения пропущена");
     expect(zip.tokens).toBeGreaterThan(24_000);
+  });
+
+  it("короткая следующая фраза с длинной историей не остаётся в окне Серого", () => {
+    const follow = promptBudget("какие там ошибки", "а".repeat(80_000));
+    expect(follow.long).toBe(true);
+    expect(follow.text).toBe("какие там ошибки");
+  });
+
+  it("в истории остаётся разбор, а не повторный архив", () => {
+    const kept = rememberTurn("user", `сделай анализ\n\nПРИЛОЖЕННЫЕ ФАЙЛЫ (42):\n${"x".repeat(80_000)}`);
+    expect(kept).toContain("сделай анализ");
+    expect(kept).toContain("архив повторно не вкладывается");
+    expect(kept.length).toBeLessThan(2_000);
+    const answer = "Общая картография репозитория. Ошибок в списке нет.";
+    expect(rememberTurn("assistant", answer)).toBe(answer);
+  });
+
+  it("отказ по окну контекста узнаётся и в формулировке провайдера 5021", () => {
+    expect(contextMiss(new Error("5021: The estimated number of input and maximum output tokens (45956) exceeded this model context window limit (24000)."))).toBe(true);
+    expect(contextMiss(new Error("Модель не ответила"))).toBe(false);
   });
 });

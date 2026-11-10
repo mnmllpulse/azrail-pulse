@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-10T20:31:03.921Z",
+  "generated_at": "2026-11-10T20:49:12.493Z",
   "excludes_self": true,
   "file_count": 1328,
   "files": [
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3174,
-      "sha256": "7f5fe49b3a72142deee3684d68bd0ba2c68ed762c50a14fef6d92ae69e7f3cac"
+      "sha256": "e9572dc0eb3052829725796f4542126003b0e723a56d1ea176637173e67e4669"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20581,
-      "sha256": "fa707fc8048dbfd0528809f35361bb9d367a7839e01d594e27a7f7431a48de9f"
+      "sha256": "68057f8c492915682d78c2eee731fab0e8b0555840240be6269c58c39ba6a880"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1083,7 +1083,7 @@
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
       "bytes": 7238,
-      "sha256": "7479e0f7d7811fc676c79f650d9f92d5863db13782eb8a484fcbe54a6bdb8c72"
+      "sha256": "e0bf455e94cbc29a5a7de121c9d84e6e59e81945e7050052a1f0a457fa6b49b3"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1228,7 +1228,7 @@
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6597,
-      "sha256": "11aee167995e16f1fffa8faba2807501ac64d1f4aa55d883811c29e68b3b5053"
+      "sha256": "de0ef17f2e8f2029cad9058686fb8a9dae9e871ba462f70788f722713f80b1a9"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -4227,8 +4227,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 17568,
-      "sha256": "2ae95b79d009a256660380047a913c537d5d7eef13695acb3466ec0b9e395b51"
+      "bytes": 18581,
+      "sha256": "ccf19eff568f9e0528137c1a5079ba2d07f322ccf37c3a68aa5f58b2f72c0982"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -4282,8 +4282,8 @@
     },
     {
       "path": "src/agents/orchestrator.ts",
-      "bytes": 26244,
-      "sha256": "e446e3a73e86e74921d9d5e874b9286955312dbc626556b3b0609526925b0297"
+      "bytes": 26376,
+      "sha256": "3d603c56928bfc6cd7ded1860199faacfc45b806983f46b1859f0abfdda21827"
     },
     {
       "path": "src/agents/qa-agent.ts",
@@ -4432,8 +4432,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 97914,
-      "sha256": "41ad0f6a90017236404aadd53f0d0d77a027d7f2f04aae90126640ba4d8bf952"
+      "bytes": 98093,
+      "sha256": "ab8e98fd406933fc7165836306d1fdda42c5bd8899acf326ba0c4ddd2e9baf99"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -5122,8 +5122,8 @@
     },
     {
       "path": "tests/answer-fallback.test.ts",
-      "bytes": 1253,
-      "sha256": "c16679d4febcfd014b508416a4f42e5f15b12ab87a4ce45b270b9d36ba44b55e"
+      "bytes": 2629,
+      "sha256": "69644e640cb4d24cabece700bcf2a5864d5064e3abbeb2336e5a13590d05ab1c"
     },
     {
       "path": "tests/api-contract.test.ts",

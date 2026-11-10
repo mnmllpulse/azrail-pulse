@@ -17,6 +17,7 @@ import { speakRemote, spokenVoice } from "./lib/speech-remote";
 import { readBoundedBody, BodyLimitError, validateJsonObject } from "./lib/request-body";
 import { getCors } from "./lib/cors";
 import { Orchestrator } from "./agents/orchestrator";
+import { rememberTurn } from "./agents/answer-agent";
 import { forgetFact, listFacts, type MemoryCategory } from "./lib/memory-agent";
 import { listVersions, restoreVersion } from "./lib/versions";
 import { handleUpload } from "./lib/upload";
@@ -679,11 +680,11 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       // sees the same thread memory a person expects in a real chat.
       // Drop platform/error lines so a failed Whisper pick or budget miss
       // cannot poison the next greeting into a "can't talk" refusal.
-      const errorish=/лимит ресурсов|не найдена в реестре|Ни одна модель|Модель недоступна|технические ограничения|не могу поддерживать диалог|Попытки:|Дневная квота|пустой ответ|семёрки Workers Paid|10 000 нейронов/i;
+      const errorish=/лимит ресурсов|не найдена в реестре|Ни одна модель|Модель недоступна|технические ограничения|не могу поддерживать диалог|Попытки:|Дневная квота|пустой ответ|семёрки Workers Paid|10 000 нейронов|context window|maximum context|input_tokens|exceeded this model/i;
       const prior = ((await listMessages(env, cid, 40)) as Array<{ role?: string; content?: string }>)
         .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.trim())
         .filter((m) => !(m.role === "assistant" && errorish.test(String(m.content))))
-        .map((m) => ({ role: String(m.role), content: String(m.content) }))
+        .map((m) => ({ role: String(m.role), content: rememberTurn(String(m.role), String(m.content)) }))
         .slice(-20);
       await addMessage(env, cid, "user", message, body.parentMessageId);
 
@@ -723,7 +724,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         env,
         cid,
         "assistant",
-        result.error ?? result.summary,
+        result.summary || result.error || "Пустой ответ.",
         body.parentMessageId,
       );
       // Persist-then-reply: keep HTTP 200 when the turn was stored so the UI
