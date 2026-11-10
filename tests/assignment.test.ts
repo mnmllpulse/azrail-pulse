@@ -9,6 +9,8 @@ describe('Поручение из чата', () => {
     expect(readAssignment('привет').kind).toBe('talk');
     expect(skillsReply('что ты умеешь')).toContain('нарисуй');
     expect(skillsReply('что ты умеешь')).toContain('сайт');
+    expect(skillsReply('ты умеешь писать код или читать зип файл')).toContain('ZIP');
+    expect(skillsReply('ты умеешь писать код или читать зип файл')).toContain('код');
     expect(skillsReply('нарисуй город')).toBeNull();
   });
 

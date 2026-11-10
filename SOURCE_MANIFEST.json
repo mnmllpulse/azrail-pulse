@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-10T19:28:53.648Z",
+  "generated_at": "2026-11-10T19:36:30.547Z",
   "excludes_self": true,
   "file_count": 1318,
   "files": [
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3183,
-      "sha256": "53b10d322891c5c97563b692fbb9441b77c5154dd5900bb74dbef990b6d60c90"
+      "sha256": "258f65c3e44b0d045940f78ab1d717e7acebe06d6241dfd58026ac3dfa995a78"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20590,
-      "sha256": "cfcd0b6ee81b2e8d11a309c8ba50b5f6a029ee3b4595759264b75a51e8832887"
+      "sha256": "fb531acbaf19148ed4f3b63c36b63962ddec696c0e05988f73e5748da4de3ed5"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1083,7 +1083,7 @@
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
       "bytes": 7377,
-      "sha256": "5ca670ffb377b569dfef2352b3b886706e0c9f40a93e48684125cb852af2e5ae"
+      "sha256": "7b12fc39249ab28bbde82f0c86bfb625e36b56aabe449829ca639214281cfa30"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1228,7 +1228,7 @@
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6597,
-      "sha256": "6bf1a0ed4296f03c1cb6d9effab817bb010c7492963f6213e4ef28b72ab6cb97"
+      "sha256": "863af4bd3bc5a82a100956d2c017dd50de4b0bfe17c49432b20a4320c317dc70"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -1272,8 +1272,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1167869,
-      "sha256": "2c16d2bb1cfc3ae0ba07bbe57ec98a1add2a966a79974a0856eb19c3b7794dae"
+      "bytes": 1168513,
+      "sha256": "6bf359f2ad9f19c7a6da0a63124b449510284e975c4f95f7fcafdd17db660c0a"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3938,7 +3938,7 @@
     {
       "path": "site/app.html",
       "bytes": 22869,
-      "sha256": "01145d5038a2debcaf3d396ece6a1b7c3f9a9086a0bb134a07201fb5b03648d9"
+      "sha256": "47f33e323f9a0c8da87cddf1eced2d8ce15b71d4495f83c8058af00e4936d7af"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -3953,7 +3953,7 @@
     {
       "path": "site/assets/app.js",
       "bytes": 299407,
-      "sha256": "50401c876fbc73885b14b47ff86f7f617091f7455b935d06f1ea21b764de61ec"
+      "sha256": "321cad2c4d2b17987b4bf144dac340d386f899f57c8ae7511f6753334375b28a"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4001,11 +4001,6 @@
       "sha256": "7fe042f2f8f422bd3f0699ab5a0fe725e945865bfcdd5dab5140be43db3e0b68"
     },
     {
-      "path": "site/assets/chunk-7FIV7XEX.js",
-      "bytes": 24455,
-      "sha256": "38428995d0fe8165fa13b50b19ad85eeb5a0050dea1b8284fbbbb25884bdc743"
-    },
-    {
       "path": "site/assets/chunk-7RVOD5ZW.js",
       "bytes": 835,
       "sha256": "4214ac259ecfdffadcc9d6ad5a30262fdbb24753a5b6a8a043ead6a9b7828832"
@@ -4034,6 +4029,11 @@
       "path": "site/assets/chunk-J6WWJ7FO.js",
       "bytes": 8101,
       "sha256": "fee8e6ac543e5189ac51f86dbfef115320aa5f4da7a21df1eb3469dcb553c60e"
+    },
+    {
+      "path": "site/assets/chunk-JVPXQ3LE.js",
+      "bytes": 25099,
+      "sha256": "cc080a7702e486ed021c73f6e20588e024478eb0f21894eefb8de6b138bed4b6"
     },
     {
       "path": "site/assets/chunk-KRXCXUVX.js",
@@ -4116,9 +4116,9 @@
       "sha256": "73a8b1b3502438fca318d5199f7abd816bd84a6837a041e8524f601d0bf75f16"
     },
     {
-      "path": "site/assets/prose-MK33ZOXQ.js",
+      "path": "site/assets/prose-B4VB7PQR.js",
       "bytes": 12187,
-      "sha256": "bb807adb044b7e5651d0ba98444a7a09b4c1dc1616c2e6a27186351cbb6ed316"
+      "sha256": "c24dcbbcd67fc5f1d40b0e657f5815685c0bba185d3a83ef2d9b94e7fd522e1a"
     },
     {
       "path": "site/assets/video-VO6EA3NO.js",
@@ -4218,7 +4218,7 @@
     {
       "path": "site/index.html",
       "bytes": 22869,
-      "sha256": "01145d5038a2debcaf3d396ece6a1b7c3f9a9086a0bb134a07201fb5b03648d9"
+      "sha256": "47f33e323f9a0c8da87cddf1eced2d8ce15b71d4495f83c8058af00e4936d7af"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4227,8 +4227,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 14476,
-      "sha256": "9a02b781c4bccbc5f84617441f883caccbc39106cdc6207caa6dfabb0ab0a9ca"
+      "bytes": 14839,
+      "sha256": "b4c400b7b18c406ed01493b9ccec1d0138ed87dfd55dbf93efcd67a9b5ce21ef"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -5117,8 +5117,8 @@
     },
     {
       "path": "tests/assignment.test.ts",
-      "bytes": 2912,
-      "sha256": "99b3022efae360a6ec9dace2e49a1af020a4793d8528c26c4a0cdbfd8c59eb43"
+      "bytes": 3155,
+      "sha256": "ca4833e0acb8a26796bc25f6687781e03b2f683c59cf86e805808039b0c3f60a"
     },
     {
       "path": "tests/attachments.test.ts",
@@ -5767,8 +5767,8 @@
     },
     {
       "path": "ui/assignment.ts",
-      "bytes": 8481,
-      "sha256": "314cdec7e7e2a88272816ef729e47f36f55ef52cedb0c2570ebe209249c9f24d"
+      "bytes": 8869,
+      "sha256": "7842bf61fa8cca02c90ecee2bd7e3a9a2c7ee510fb1dad396c72dea2f7242baa"
     },
     {
       "path": "ui/attachment-manager.ts",
