@@ -1532,7 +1532,8 @@ async function runChat(){
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  let handed=false;
  try{
- const planned=followUpPlan(message,heldPlan)??await chosenPlan(message);
+ let planned=followUpPlan(message,heldPlan)??await chosenPlan(message);
+ if(planned&&planned.parts.length===1&&planned.parts[0].kind==='build')planned=null;
  if(planned&&planned.parts.length>1){handed=true;await runPlan(planned,message);return;}
  if(planned&&planned.parts.length===1){handed=true;await runAssignment(planned.parts[0],message);return;}
  if(!account)throw Error('Войдите в аккаунт, чтобы писать в Chat.');

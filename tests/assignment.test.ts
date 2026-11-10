@@ -10,7 +10,7 @@ describe('Поручение из чата', () => {
     expect(skillsReply('что ты умеешь')).toContain('нарисуй');
     expect(skillsReply('что ты умеешь')).toContain('сайт');
     expect(skillsReply('ты умеешь писать код или читать зип файл')).toContain('ZIP');
-    expect(skillsReply('ты умеешь писать код или читать зип файл')).toContain('код');
+    expect(skillsReply('ты умеешь писать код или читать зип файл')).toContain('Python');
     expect(skillsReply('нарисуй город')).toBeNull();
   });
 
@@ -25,7 +25,7 @@ describe('Поручение из чата', () => {
     expect(readAssignment('Сделай ролик из четырёх кадров').kind).toBe('video');
     expect(readAssignment('Создай сайт для архитектурного бюро').kind).toBe('web');
     expect(readAssignment('Сделай страницу-визитку: имя и три ссылки').kind).toBe('web');
-    expect(readAssignment('Напиши скрипт для разбора логов').kind).toBe('build');
+    expect(readAssignment('Напиши скрипт для разбора логов').kind).toBe('talk');
     expect(readAssignment('дай изображение ночного города').kind).toBe('image');
     expect(readAssignment('хочу сайт для бюро').kind).toBe('web');
     expect(readAssignment('дай изображение').studio).toBeNull();

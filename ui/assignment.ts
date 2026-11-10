@@ -92,7 +92,14 @@ const SKILLS = /(?<![\p{L}])(?:что\s+(?:ты\s+)?(?:умеешь|можешь
 export function skillsReply(text: string): string | null {
   const source = (text ?? '').trim();
   if (!source || !SKILLS.test(source)) return null;
-  return 'Умею писать код в этом чате: скажи, что собрать. ZIP прикрепи скрепкой — прочитаю оглавление и текстовые файлы внутри. Так же читаю txt, md, json, html, css, js, ts и соседние текстовые форматы. Картинку даёт «нарисуй …», страницу — «сделай сайт …». Ролик будет раскадровкой. Трек появится, если генератор вернёт звук. PDF, rar и 7z как текст не читаю. Коммит в GitHub и выкладку на Cloudflare из одной фразы сам не запускаю.';
+  return [
+    'Я твой архитектор, разработчик, аналитик и дизайнер в этом чате. Укажи задачу и входные данные.',
+    'Программирование: пишу, правлю и разбираю JS, TS, Python, SQL, HTML, CSS и Cloudflare Workers.',
+    'Анализ: дроблю задачу, сравниваю варианты, считаю CSV и JSON, пишу технические и художественные тексты.',
+    'Файлы: скрепка читает ZIP и текст (txt, md, json, html, css, js, ts и соседние). Картинка — «нарисуй …». Страница — «сделай сайт …».',
+    'Интеграции готовлю в коде и плане: Cloudflare D1, KV, R2, Workers, GitHub. Сам push, деплой, Figma, Canva, Gmail и Google Drive из чата не нажимаю и не пишу, что они уже выполнены.',
+    'PDF, XLSX, DOCX и PPTX как файл не разбираю, если внутри сообщения нет их текста. Нет расписаний, нет управления браузером, нет доступа к твоему компьютеру. Ролик — раскадровка. Трек — только если генератор вернул звук.',
+  ].join('\n');
 }
 
 /** Фраза → поручение. Вопрос остаётся разговором. Спорные слова (деплой, тесты, аудит) тоже. */
@@ -159,16 +166,7 @@ export function readAssignment(text: string): Assignment {
   });
   hits.sort((a, b) => a.at - b.at);
   if (hits[0]) return hits[0].plan;
-  if (!CREATE.test(source)) return TALK;
-  return card({
-    kind: 'build',
-    studio: null,
-    control: null,
-    worker: 'Код',
-    now: 'Разбираю поручение.',
-    ready: 'Результат появится в проекте по шагам.',
-    next: 'На экране будет, кто работает и что уже сделано.',
-  });
+  return TALK;
 }
 
 export function formatAssignment(plan: Assignment): string {
