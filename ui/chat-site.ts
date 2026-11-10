@@ -1,3 +1,4 @@
+import { zipStore } from '../src/lib/zip-store';
 import { blankSite, proposeSite, siteFiles, type SiteFile, type SiteStyle } from './web-site';
 
 /** Короткий паспорт страницы, который переживает запись плана. По нему следующая фраза правит тот же сайт. */
@@ -80,6 +81,11 @@ export function draftFromLine(line: string | undefined): ChatSiteDraft | null {
     simple: match[8] === '1',
     business: match[9] || '',
   };
+}
+
+/** Настоящий ZIP собранных файлов. Секретов внутри нет: это только страница из чата. */
+export function siteZip(files: SiteFile[]): Uint8Array {
+  return zipStore(files.map((file) => ({ path: file.path, data: new TextEncoder().encode(file.text) })));
 }
 
 export function filesForDraft(draft: ChatSiteDraft): SiteFile[] {

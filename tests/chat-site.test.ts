@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { applySiteNote, draftFromLine, draftFromPhrase, draftLine, filesForDraft } from '../ui/chat-site';
+import { listZip, readEntry } from '../src/lib/zip-reader';
+import { applySiteNote, draftFromLine, draftFromPhrase, draftLine, filesForDraft, siteZip } from '../ui/chat-site';
 
 describe('Страница из чата', () => {
   it('собирает тёмный сайт с чатом и принимает следующую правку ширины и импульса', () => {
@@ -31,5 +32,14 @@ describe('Страница из чата', () => {
     const simpler = applySiteNote(richer!, 'Наш проект слишком сложный');
     expect(simpler?.simple).toBe(true);
     expect(filesForDraft(simpler!).filter((file) => file.path.endsWith('.html'))).toHaveLength(1);
+  });
+
+  it('ZIP страницы содержит собранный index.html', async () => {
+    const files = filesForDraft(draftFromPhrase('Собери сайт для бюро'));
+    const packed = siteZip(files);
+    const buf = packed.buffer.slice(packed.byteOffset, packed.byteOffset + packed.byteLength);
+    const page = listZip(buf).entries.find((entry) => entry.path === 'index.html');
+    expect(page).toBeTruthy();
+    expect(new TextDecoder().decode(await readEntry(buf, page!))).toContain('<style>');
   });
 });

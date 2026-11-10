@@ -29,7 +29,7 @@ import {readPendingImage,requestImage,type ImageRequestBody} from './image-reque
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {siteFromZip} from './zip-site';
-import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft} from './chat-site';
+import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteZip} from './chat-site';
 import {diagramLines,diagramModel} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
 export {};
@@ -943,7 +943,9 @@ function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster='')
   const frame=document.createElement('iframe');frame.className='chat-preview';frame.src=thing.url;frame.title=thing.title||'Просмотр страницы';frame.setAttribute('sandbox','allow-scripts');host.append(frame);
   const link=document.createElement('a');link.href=thing.url;link.target='_blank';link.rel='noopener';link.textContent=thing.title||'Открыть страницу';host.append(link);
   const life=document.createElement('p');life.textContent='Страница живёт 90 дней.';host.append(life);
-  const code=thing.lines?.filter(line=>!line.startsWith('azrail-site\t'));
+  const zip=thing.lines?.find(line=>line.startsWith('azrail-zip\t'))?.slice('azrail-zip\t'.length);
+  if(zip)host.append(downloadLink(zip,downloadName(thing,'zip')));
+  const code=thing.lines?.filter(line=>!line.startsWith('azrail-site\t')&&!line.startsWith('azrail-zip\t')&&!line.startsWith('<!'));
   if(code?.length){const pre=document.createElement('pre');pre.textContent=code.join('\n').slice(0,6000);host.append(pre);}
   parent.append(host);return;
  }
@@ -1443,9 +1445,18 @@ async function publishChatPage(part:PlanPart){
  const url=safeMediaPath(String(published.url??''));
  if(!url)throw Error('Страница собрана, но ссылка просмотра не вернулась.');
  const html=files.find(file=>file.path==='index.html')?.text??'';
+ if(html.trim()){document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:html}));workspace.setPreview(true);}
+ let zipUrl='';
+ if(account){
+  try{
+   const packed=siteZip(files);
+   const saved=await api('/api/studio/artifacts',{method:'POST',headers:{'Content-Type':'application/zip','X-Filename':encodeURIComponent(fileNameFromPhrase(draft.name,'zip')),'X-Studio-Id':'web'},body:packed.buffer.slice(packed.byteOffset,packed.byteOffset+packed.byteLength) as ArrayBuffer}) as {url?:string};
+   zipUrl=safeMediaPath(String(saved.url??''));
+  }catch{zipUrl='';}
+ }
  part.state='done';
- part.ready=stored?`Страница «${draft.name}» в чате. Файлы записаны в проект, папка site.`:`Страница «${draft.name}» в чате.`;
- part.thing={type:'page',url,title:draft.name,lines:[draftLine(draft),html.slice(0,4000)]};
+ part.ready=zipUrl?`Страница «${draft.name}» на экране. ZIP проекта в чате.`:(stored?`Страница «${draft.name}» на экране. Файлы записаны в проект, папка site.`:`Страница «${draft.name}» на экране.`);
+ part.thing={type:'page',url,title:draft.name,lines:[draftLine(draft),...(zipUrl?[`azrail-zip\t${zipUrl}`]:[])]};
 }
 async function storeSiteFiles(files:Array<{path:string;text:string}>){
  let written=0;

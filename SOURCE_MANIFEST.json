@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-10T21:01:43.787Z",
+  "generated_at": "2026-11-10T21:09:47.262Z",
   "excludes_self": true,
   "file_count": 1328,
   "files": [
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3174,
-      "sha256": "eb02a5de240f687fd375b8c81777cffc39e192e0be991cd0baddc7261d09f3eb"
+      "sha256": "5b8bbf57b3daa57377ccc4250041cb7851a771b50c1e3ff1302966b1e36f7c2e"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20581,
-      "sha256": "623ba6f1469812e760b2a3d240600288aa648b9af7f9ccc1d42a193ecbb513eb"
+      "sha256": "c90949f4e5713ba0c42370476f07c5b60cb56cc9c632d61b311e29149881ba12"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1083,7 +1083,7 @@
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
       "bytes": 7238,
-      "sha256": "6dd59737789dc190fb73a16b9115666749f25e732fed1c16a00248220a48b30f"
+      "sha256": "e8d06ef452f7852e30074fffa068c7baa4e55f9c7f6eeb1f7318b76f6b1c3b9d"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1228,7 +1228,7 @@
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6597,
-      "sha256": "bea5b732533f81e5d6e760e57a1c10a79692452e65bfc96c990618cb92e92584"
+      "sha256": "0bd0191a32cae3f2ffbcfa4ebbfc26300c3df40fe36a32a005f02f9d4e1b1389"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -1272,8 +1272,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1198331,
-      "sha256": "aea00eceaa150c8445b65b3ec72fe520b82f0eb6e88e08721b0f112ecca5907f"
+      "bytes": 1199212,
+      "sha256": "b43d9f544e6a2c7ae0eff2620e2bfcb0d11617469413722559335f5d70c20304"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3938,7 +3938,7 @@
     {
       "path": "site/app.html",
       "bytes": 22869,
-      "sha256": "17b8dcc1ea00ea3584c404f6abe8bf04216816171aeadcf7ea1380b7dc2915a2"
+      "sha256": "cfff00e2c2e0ad7f812f88a07bab892af03f385298d6e5544852508f6935de42"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -3952,8 +3952,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 325251,
-      "sha256": "09e09947580760aa5f552c1aef1190bf1877d7731c86c1410b875aac14c5d65f"
+      "bytes": 326130,
+      "sha256": "1f36b6e3a34561b0b92e3e2ecbc2ed95531e867138fc23eb0faaed377c5b062c"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4218,7 +4218,7 @@
     {
       "path": "site/index.html",
       "bytes": 22869,
-      "sha256": "17b8dcc1ea00ea3584c404f6abe8bf04216816171aeadcf7ea1380b7dc2915a2"
+      "sha256": "cfff00e2c2e0ad7f812f88a07bab892af03f385298d6e5544852508f6935de42"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5207,8 +5207,8 @@
     },
     {
       "path": "tests/chat-site.test.ts",
-      "bytes": 2247,
-      "sha256": "2619ba63987c556ba0ecb96efe9ce60ae2098a7b62cc5b9b1a2f96230a44fda4"
+      "bytes": 2837,
+      "sha256": "94cba52444fe8e5197ecdbc850ecbce1ecb929255ef5f419ddae27d4ea9554a2"
     },
     {
       "path": "tests/connector-oauth-design.test.ts",
@@ -5802,8 +5802,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 160476,
-      "sha256": "03b4b80372cf8c6898f0adcff7f51caa7026b02f75a985174af47b46dc6d9402"
+      "bytes": 161427,
+      "sha256": "2a0717e4b5436591c85ecbd7c7c886da1390bda41c44dd4424ca445822c518a7"
     },
     {
       "path": "ui/assignment.ts",
@@ -5842,8 +5842,8 @@
     },
     {
       "path": "ui/chat-site.ts",
-      "bytes": 6827,
-      "sha256": "f36cf44f2772642c3520cb814069aee4ba5cc2b28831bd304138271313d8cc5a"
+      "bytes": 7195,
+      "sha256": "59c8536a6eecc15a52155c065ece064e5ce766caa44ca5f11c58deeba744e40e"
     },
     {
       "path": "ui/components/command-palette.ts",
