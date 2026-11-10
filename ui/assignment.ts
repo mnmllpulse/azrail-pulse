@@ -55,31 +55,31 @@ function card(partial: Omit<Assignment, 'needsYou'> & { needsYou?: string }): As
 /** Карточка части, которую назвала модель. Слова фразы здесь не угадываются. */
 export function assignmentForKind(kind: Exclude<AssignmentKind, 'talk'>): Assignment {
   if (kind === 'image') return card({
-    kind: 'image', studio: 'image', control: '#studio-run', worker: 'Image Studio',
+    kind: 'image', studio: null, control: null, worker: 'Картинка',
     now: 'Собираю изображение по этой фразе.',
-    ready: 'Картинка появится в полосе.',
+    ready: 'Картинка появится в этом чате.',
     next: 'Правку можно написать следующим сообщением.',
   });
   if (kind === 'video') return card({
-    kind: 'video', studio: 'video', control: '#video-build-scenes', worker: 'Video Studio',
-    now: 'Собираю раскадровку и ролик из кадров на экране.',
-    ready: 'Раскадровка появится в полосе.',
-    next: 'Это сборка кадров на экране. Внешняя видеомодель не вызывается.',
+    kind: 'video', studio: null, control: null, worker: 'Ролик',
+    now: 'Собираю раскадровку.',
+    ready: 'Кадры появятся в этом чате. Это не съёмка внешней моделью.',
+    next: 'Внешняя видеомодель не вызывается.',
   });
   if (kind === 'music') return card({
-    kind: 'music', studio: 'music', control: '#music-listen-build', worker: 'Music Studio',
+    kind: 'music', studio: null, control: null, worker: 'Трек',
     now: 'Собираю трек.',
-    ready: 'Трек появится в плеере полосы, когда файл сохранится.',
-    next: 'Длина и темп берутся из настроек студии.',
+    ready: 'Трек появится в этом чате, если генератор отвечает.',
+    next: 'Если секрета музыки нет, чат так и скажет.',
   });
   if (kind === 'web') return card({
-    kind: 'web', studio: null, control: null, worker: 'Миссия · сайт',
+    kind: 'web', studio: null, control: null, worker: 'Сайт',
     now: 'Собираю страницу.',
-    ready: 'Страница появится ссылкой в полосе.',
+    ready: 'Код и ссылка появятся в этом чате.',
     next: 'Ссылка живёт 90 дней.',
   });
   return card({
-    kind: 'build', studio: null, control: null, worker: 'Миссия AZRAIL',
+    kind: 'build', studio: null, control: null, worker: 'Код',
     now: 'Разбираю поручение.',
     ready: 'Результат появится в проекте по шагам.',
     next: 'На экране будет, кто работает и что уже сделано.',
@@ -99,11 +99,11 @@ export function readAssignment(text: string): Assignment {
     at: imageAt,
     plan: card({
       kind: 'image',
-      studio: 'image',
-      control: '#studio-run',
-      worker: 'Image Studio',
+      studio: null,
+      control: null,
+      worker: 'Картинка',
       now: 'Собираю изображение по этой фразе.',
-      ready: 'Картинка появится в Image Studio.',
+      ready: 'Картинка появится в этом чате.',
       next: 'Правку можно написать следующим сообщением.',
     }),
   });
@@ -112,12 +112,12 @@ export function readAssignment(text: string): Assignment {
     at: videoAt,
     plan: card({
       kind: 'video',
-      studio: 'video',
-      control: '#video-build-scenes',
-      worker: 'Video Studio',
-      now: 'Собираю раскадровку и ролик из кадров на экране.',
-      ready: 'Ролик появится в Video Studio.',
-      next: 'Это сборка кадров на экране. Внешняя видеомодель не вызывается.',
+      studio: null,
+      control: null,
+      worker: 'Ролик',
+      now: 'Собираю раскадровку.',
+      ready: 'Кадры появятся в этом чате. Это не съёмка внешней моделью.',
+      next: 'Внешняя видеомодель не вызывается.',
     }),
   });
   const musicAt = at(MUSIC, source);
@@ -125,12 +125,12 @@ export function readAssignment(text: string): Assignment {
     at: musicAt,
     plan: card({
       kind: 'music',
-      studio: 'music',
-      control: '#music-listen-build',
-      worker: 'Music Studio',
-      now: 'Собираю трек на этом устройстве.',
-      ready: 'Файл появится в плеере Music Studio.',
-      next: 'Длина и темп берутся из настроек студии.',
+      studio: null,
+      control: null,
+      worker: 'Трек',
+      now: 'Собираю трек.',
+      ready: 'Трек появится в этом чате, если генератор отвечает.',
+      next: 'Если секрета музыки нет, чат так и скажет.',
     }),
   });
   const webAt = at(WEB, source);
@@ -142,10 +142,10 @@ export function readAssignment(text: string): Assignment {
       kind: 'web',
       studio: null,
       control: null,
-      worker: 'Миссия · сайт',
-      now: 'Принимаю цель и открываю ход задачи.',
-      ready: 'Файлы сайта появятся в проекте, когда шаги закончатся.',
-      next: 'На экране будет статус, шаг и что уже сделано.',
+      worker: 'Сайт',
+      now: 'Собираю страницу.',
+      ready: 'Код и ссылка появятся в этом чате.',
+      next: 'Ссылка живёт 90 дней.',
     }),
   });
   hits.sort((a, b) => a.at - b.at);
@@ -155,8 +155,8 @@ export function readAssignment(text: string): Assignment {
     kind: 'build',
     studio: null,
     control: null,
-    worker: 'Миссия AZRAIL',
-    now: 'Разбираю поручение и открываю ход задачи.',
+    worker: 'Код',
+    now: 'Разбираю поручение.',
     ready: 'Результат появится в проекте по шагам.',
     next: 'На экране будет, кто работает и что уже сделано.',
   });

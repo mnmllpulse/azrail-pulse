@@ -34,7 +34,7 @@ describe('Планировщик поручения', () => {
   it('карточка называет, что идёт рядом', () => {
     const text = formatPlan(planWork('Нарисуй постер и собери трек'));
     expect(text).toContain('План из 2 частей');
-    expect(text).toContain('Рядом: Image Studio и Music Studio');
+    expect(text).toContain('Рядом: Картинка и Трек');
   });
 
   it('в запись плана попадает только своя ссылка на файл', () => {

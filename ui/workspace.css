@@ -66,6 +66,10 @@ html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: hidden; }
 .app-shell .assignment-thing img,
 .app-shell .assignment-thing video { width: min(100%, 420px); max-height: 280px; object-fit: contain; border-radius: 8px; }
 .app-shell .assignment-thing audio { width: min(100%, 420px); }
+.app-shell .chat-thing { display: grid; gap: 8px; margin: 12px 0 4px; }
+.app-shell .chat-thing img,
+.app-shell .chat-thing video { width: min(100%, 420px); max-height: 280px; object-fit: contain; border-radius: 8px; }
+.app-shell .chat-thing pre { margin: 0; max-height: 240px; overflow: auto; white-space: pre-wrap; font: 12px/1.45 ui-monospace, monospace; color: #e6dcf2; }
 .app-shell .assignment-thing a { color: #d7c4ea; }
 .app-shell .assignment-thing p { margin: 0; color: #d9d0e2; }
 html[data-expert="off"] [data-expert] { display: none; }

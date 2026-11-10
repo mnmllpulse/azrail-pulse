@@ -922,7 +922,9 @@ function appendThing(host:HTMLElement,thing:PlanThing,earlier=false,poster=''){
  }
  if(thing.type==='page'&&thing.url){
   const link=document.createElement('a');link.href=thing.url;link.target='_blank';link.rel='noopener';link.textContent=thing.title||'Открыть страницу';host.append(link);
-  const life=document.createElement('p');life.textContent='Страница живёт 90 дней.';host.append(life);return;
+  const life=document.createElement('p');life.textContent='Страница живёт 90 дней.';host.append(life);
+  if(thing.lines?.length){const pre=document.createElement('pre');pre.textContent=thing.lines.join('\n').slice(0,6000);host.append(pre);}
+  return;
  }
  if(thing.type==='storyboard'&&thing.lines?.length){
   const row=document.createElement('div');
@@ -952,6 +954,20 @@ function paintThings(parts:Array<{thing?:PlanThing;state?:PlanPart['state'];vers
   for(const older of part.versions??[]){appendThing(host,older,true);shown+=1;}
  }
  if(!shown){const note=document.createElement('p');note.textContent='Пока ничего нет.';host.append(note);}
+ pinThingInChat();
+}
+function pinThingInChat(){
+ const source=$('assignment-thing');
+ const host=document.getElementById('chat-messages');
+ if(!host)return;
+ let slot=host.querySelector<HTMLElement>(':scope > [data-chat-thing]');
+ if(!source.childElementCount||source.textContent==='Пока ничего нет.'){slot?.remove();return;}
+ if(!slot){slot=document.createElement('div');slot.dataset.chatThing='';slot.className='chat-thing';host.append(slot);}
+ slot.replaceChildren();
+ for(const node of Array.from(source.childNodes)){
+  if(node.textContent==='Пока ничего нет.')continue;
+  slot.append(node.cloneNode(true));
+ }
 }
 function harvestStudioThing():PlanThing|undefined{
  const img=document.querySelector<HTMLImageElement>('#studio-result img');
@@ -995,7 +1011,7 @@ async function keepPage():Promise<PlanThing|undefined>{
   }
   const published=await api('/api/studio/web/publish',{method:'POST',body:JSON.stringify({name:'Страница',files:[{path:'index.html',text:opened.content},{path:'styles.css',text:style}]})}) as {url?:string};
   const url=safeMediaPath(String(published.url??''));
-  return url?{type:'page',url,title:'Открыть страницу'}:undefined;
+  return url?{type:'page',url,title:'Открыть страницу',lines:[opened.content.slice(0,4000)]}:undefined;
  }catch{return undefined;}
 }
 async function pageSource(){
@@ -1268,30 +1284,13 @@ async function runAssignment(plan:Assignment,message:string){
   if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
   paint(plan);
   const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,id:'part-1',text:message,wave:0,dependsOn:[],state,thing}]});
-  if(plan.studio&&plan.control){
-   navigation.navigate({page:'studio',studio:plan.studio});
-   const found=await waitForSelector(plan.control);
-   if(!found){paint({...plan,needsYou:'Студия не открылась. Отправь фразу ещё раз.'},'failed');return;}
-   prompt.value=message;
-   missionSubmitting=false;
-   await rememberWork(message,one(),false);
-   await runStudioRoom();
-   const harvested=harvestStudioThing();
-   const thing=plan.kind==='music'&&harvested?.type!=='audio'?await keepPlayer()??harvested:harvested;
-   paintThings(thing?[ {thing} ]:[]) ;
-   mountLiveClip();
-   await rememberWork(message,one(thing,'done'),true);
-   return;
-  }
+  const part:PlanPart={...plan,id:'part-1',text:message,wave:0,dependsOn:[],state:'running'};
   missionSubmitting=false;
   await rememberWork(message,one(),false);
-  await runMission(message,{keepTurn:true,stay:true});
-  const live=$('mission-status').textContent?.trim();
-  if(live)$('assignment-now').textContent=live;
-  const page=plan.kind==='web'?await keepPage():undefined;
-  const thing:PlanThing=page??{type:'note',title:live||'Ход задачи сохранён в этом чате.'};
-  paintThings([{thing}]);
-  await rememberWork(message,one(thing,'done'),true);
+  await runPlanPart(part);
+  paintThings(part.thing?[{thing:part.thing,state:'done',versions:part.versions}]:[]);
+  await rememberWork(message,one(part.thing,'done'),true);
+  if(part.ready)paint({...plan,ready:part.ready});
  }
  catch(e){
   const text=e instanceof Error?e.message:'Не удалось начать поручение.';
@@ -1343,15 +1342,10 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
    }
    for(const part of runnable)part.state='running';
    paint();
-   const screen=runnable.find(part=>part.kind==='music')??runnable.find(part=>part.kind==='video')??null;
    const jobs:Array<Promise<void>>=[];
-   for(const part of runnable){
-    if(part===screen)continue;
-    jobs.push(runPlanPart(part));
-   }
-   if(screen)jobs.push(runPlanScreen(screen));
+   for(const part of runnable)jobs.push(runPlanPart(part));
    const results=await Promise.allSettled(jobs);
-   const order=runnable.filter(item=>item!==screen).concat(screen?[screen]:[]);
+   const order=runnable;
    results.forEach((result,index)=>{
     const part=order[index];
     if(!part)return;
@@ -1418,12 +1412,27 @@ async function runPlanPart(part:PlanPart){
   if(urls[0])part.thing={type:'image',url:urls[0],title:name,...(urls.length>1?{alts:urls.slice(1,3)}:{})};
   return;
  }
+ if(part.kind==='music'){
+  if(!account)throw Error('Войдите, чтобы собрать трек.');
+  const result=await api('/api/studio/music/generate',{method:'POST',body:JSON.stringify({prompt:part.text,instrumental:true})}) as {audioBase64?:string;mime?:string};
+  if(typeof result.audioBase64!=='string'||!result.audioBase64)throw Error('Генератор вернул пустой файл.');
+  const binary=atob(result.audioBase64);
+  const bytes=new Uint8Array(binary.length);
+  for(let index=0;index<binary.length;index++)bytes[index]=binary.charCodeAt(index);
+  const blob=new Blob([bytes],{type:result.mime||'audio/mpeg'});
+  const saved=await api('/api/studio/artifacts',{method:'POST',headers:{'Content-Type':blob.type,'X-Filename':fileNameFromPhrase(part.text,'mp3'),'X-Studio-Id':'music',...(project?{'X-Project-Id':project}:{})},body:blob}) as {url?:string};
+  const url=safeMediaPath(saved.url?`${saved.url}${saved.url.includes('?')?'':'?inline=1'}`:'');
+  part.state='done';
+  part.ready=url?'Трек в чате.':'Трек собран, ссылка не сохранилась.';
+  if(url)part.thing={type:'audio',url,title:fileNameFromPhrase(part.text,'mp3')};
+  return;
+ }
  if(part.kind==='video'){
   if(!account)throw Error('Войдите, чтобы собрать раскадровку.');
   const result=await api('/api/studio/video/plan',{method:'POST',headers:{'Content-Type':'application/json','Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({prompt:part.text,sceneCount:4,transition:'fade',motion:'pan'})}) as {scenes?:Array<{text?:string}>};
   const scenes=(result.scenes??[]).flatMap(scene=>{const line=scene.text?.trim()??'';return line? [line] : [];}).slice(0,4);
   part.state='done';
-  part.ready=scenes.length?`Раскадровка: ${scenes.join(' · ')}`:'Раскадровка запрошена. Ролик из кадров собирается в Video Studio.';
+  part.ready=scenes.length?`Раскадровка: ${scenes.join(' · ')}`:'Раскадровка запрошена. Внешняя съёмка не вызывается.';
   if(scenes.length)part.thing={type:'storyboard',lines:scenes};
   return;
  }
@@ -1738,7 +1747,7 @@ const commandPalette=mountCommandPalette(()=>[
  {id:'open-projects',label:'Open Projects',keywords:['projects','project'],run:()=>navigation.navigate({page:'projects'})},
  {id:'open-metatron',label:'Open Metatron Lab',keywords:['metatron','agents','mission graph','operations'],run:()=>navigation.navigate({page:'metatron'})},
  {id:'open-connections',label:'Open Connections',keywords:['connectors','integrations'],run:()=>navigation.navigate({page:'connections'})},
- ...studios.filter(meta=>meta.id!=='audio'&&meta.id!=='als').map(meta=>({id:`studio-${meta.id}`,label:`Open ${meta.title}`,keywords:[meta.description,meta.id],run:()=>navigation.navigate({page:'studio',studio:meta.id})})),
+ ...(expertOn()?studios.filter(meta=>meta.id!=='audio'&&meta.id!=='als').map(meta=>({id:`studio-${meta.id}`,label:`Open ${meta.title}`,keywords:[meta.description,meta.id],run:()=>navigation.navigate({page:'studio',studio:meta.id})})):[]),
  {id:'run-mission',label:'Начать ход задачи',keywords:['run','mission','start'],disabled:()=>!prompt.value.trim(),run:()=>{if(composerPage!=='mission')navigation.navigate({page:'mission'});composer.dispatchEvent(new Event('submit',{cancelable:true}));}},
  {id:'stop-mission',label:'Stop mission',keywords:['cancel','abort'],disabled:()=>!mission,run:()=>$( 'cancel' ).click()},
  {id:'history',label:'Open project history',keywords:['history','versions'],disabled:()=>!project||!account,run:()=>$( 'project-history' ).click()},

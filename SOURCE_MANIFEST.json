@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-10T18:48:42.772Z",
+  "generated_at": "2026-11-10T18:57:50.777Z",
   "excludes_self": true,
   "file_count": 1315,
   "files": [
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3154,
-      "sha256": "61d06b8784f2a0c3af7f13d9132de020b94aa901c7d1d6839fe847cffa001ce4"
+      "sha256": "40bbc94fc332b5c15cafeabe4901d519d31671e520b69264cab09eb6f79075e0"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20561,
-      "sha256": "18c3c70a637b1d3652d3ffc906a56e7c9097adffaa48ec2836e35ff78fba3e1c"
+      "sha256": "dd742f1da30952a238d744dcb36ea62125880f5842e22909d03a4e4cc7e80140"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1083,7 +1083,7 @@
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
       "bytes": 7282,
-      "sha256": "dfe8af9c1f10620a03d5ed5d2daf6347b405111df88bf34f976d30ee601d21ee"
+      "sha256": "a14dc9cec7635488583799fa322774ef326d1b98bdc89c9990a104e5d05b4a04"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1228,7 +1228,7 @@
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6597,
-      "sha256": "bb2cddea95c75f9c34d0c5856b28b8e4043e033f1b93e4bf06c07c895537cbc9"
+      "sha256": "0d6f741ff50fa88ad286e8dba475fe09552b737f9a4663502d77d1b45111fb5b"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -1272,8 +1272,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1158389,
-      "sha256": "b1d2f4f2109d441e7ff89a8a7d2112d9d41713cec0b1fc862e7ce44d473617b7"
+      "bytes": 1156811,
+      "sha256": "c1c41ad81e58ac338dc326f837345f2803c1acd7615d720d64f94b85e0b7e25a"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3937,8 +3937,8 @@
     },
     {
       "path": "site/app.html",
-      "bytes": 22873,
-      "sha256": "1a3a07e56a9517042d0a1463e00b1846a43a65ac7236a2c0ec7f3d49cb5961c6"
+      "bytes": 22856,
+      "sha256": "1a3b4ed7adf9aa1f891351e482c5c6069d13788aac2a4b4ed0434450e1a19cef"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -3947,13 +3947,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 126582,
-      "sha256": "a615cbb497739498106a6c2e59941d9b98d13493c318a566972f506c3c92064d"
+      "bytes": 126916,
+      "sha256": "ec5f3c6986f90bd7077532dd36c1cd65dd26746668f3136a15c89fcad7e6e854"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 292718,
-      "sha256": "66c284babf09b0da30c01ab72c590965a41ccc059b4964316026333bf3f9730d"
+      "bytes": 291560,
+      "sha256": "d995297724c7c7c100842f8e68698ab41c1388e9e052b39829d3bb2122f80a1b"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4046,9 +4046,9 @@
       "sha256": "9097b37f3df0607e46ddb7950668eb9001f55e3c1418e60133f3568ee82b49b8"
     },
     {
-      "path": "site/assets/chunk-X67K6EVO.js",
-      "bytes": 22059,
-      "sha256": "d3689d429a43d1c0102446111a14bc42552b62b9614addccf4fd083ab781a0ce"
+      "path": "site/assets/chunk-P2CPTRY6.js",
+      "bytes": 21326,
+      "sha256": "ced7577cdc2c30f94940bba2d606a819775968a33cb9d5b98011c3166c2b3fcc"
     },
     {
       "path": "site/assets/connectors-Y25HYE2L.js",
@@ -4111,9 +4111,9 @@
       "sha256": "73a8b1b3502438fca318d5199f7abd816bd84a6837a041e8524f601d0bf75f16"
     },
     {
-      "path": "site/assets/prose-I5P6D3PE.js",
+      "path": "site/assets/prose-N6Y6WNEA.js",
       "bytes": 12187,
-      "sha256": "38b3bac30536498ba4f0f534c66b1969b0931a90a2079b3e202888d53e549202"
+      "sha256": "2ca65ebdaedd6535aa16e4fa48e2c3bbd8283504407a19bf72858299de18338d"
     },
     {
       "path": "site/assets/video-VO6EA3NO.js",
@@ -4212,8 +4212,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 22873,
-      "sha256": "1a3a07e56a9517042d0a1463e00b1846a43a65ac7236a2c0ec7f3d49cb5961c6"
+      "bytes": 22856,
+      "sha256": "1a3b4ed7adf9aa1f891351e482c5c6069d13788aac2a4b4ed0434450e1a19cef"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5112,8 +5112,8 @@
     },
     {
       "path": "tests/assignment.test.ts",
-      "bytes": 2331,
-      "sha256": "c5907e27cb22c341d0a046b179f95d640f46702c7d2e1402e3954118c92099bd"
+      "bytes": 2675,
+      "sha256": "db2a993d0650d4d72a8d1301a6be8fc7b83f3090bfbf14e738eb7780c9a08ebd"
     },
     {
       "path": "tests/attachments.test.ts",
@@ -5423,7 +5423,7 @@
     {
       "path": "tests/planner.test.ts",
       "bytes": 9221,
-      "sha256": "9e7493e76ab368f3017141db7a5634c9f017fd528fc5c9ad16ab15875e98a6e0"
+      "sha256": "7cab6398e850685d5c2516c533b08718c8805dc0b0580087870290ec8a016a82"
     },
     {
       "path": "tests/platform-http.test.ts",
@@ -5747,18 +5747,18 @@
     },
     {
       "path": "ui/app.html",
-      "bytes": 22860,
-      "sha256": "3a369f5bbdf045d60f14094e8010693da501771e780e73bc0df94ac27091cfc1"
+      "bytes": 22843,
+      "sha256": "cd43c25a90fcfacd0e988a4434e922fefbd162a39a821f70af25284e2fbd53ea"
     },
     {
       "path": "ui/app.ts",
-      "bytes": 152129,
-      "sha256": "12db51ee33c0e938ebc7b0d9edbbabebafd12d5df08f5b2740693ad056172e58"
+      "bytes": 153143,
+      "sha256": "049ec8fcba1720b55bf74c85816d373215cbfc0c8f85495d1f01fe1722f37548"
     },
     {
       "path": "ui/assignment.ts",
-      "bytes": 7920,
-      "sha256": "6f1684ccfcfeaec8b350a45fe57b750efc2930f5307abde6850ed6fadc390ffc"
+      "bytes": 7511,
+      "sha256": "b98d673078d1c8dceedd841eb225fc4e01953e610efb07e33a3bfc334074c566"
     },
     {
       "path": "ui/attachment-manager.ts",
@@ -6112,8 +6112,8 @@
     },
     {
       "path": "ui/workspace.css",
-      "bytes": 29220,
-      "sha256": "ccb73047dca76a0430ea06aad9818478a3f9d8b0595d794c1267378303285fa1"
+      "bytes": 29599,
+      "sha256": "3f875e3d0780314568ca54a22a53727f2db268039f9fe5929b64546a32609f26"
     },
     {
       "path": "verification/GITHUB_PR_TEMPLATE.md",

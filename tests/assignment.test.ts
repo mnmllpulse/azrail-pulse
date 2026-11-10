@@ -21,6 +21,10 @@ describe('Поручение из чата', () => {
     expect(readAssignment('Создай сайт для архитектурного бюро').kind).toBe('web');
     expect(readAssignment('Сделай страницу-визитку: имя и три ссылки').kind).toBe('web');
     expect(readAssignment('Напиши скрипт для разбора логов').kind).toBe('build');
+    expect(readAssignment('дай изображение ночного города').kind).toBe('image');
+    expect(readAssignment('хочу сайт для бюро').kind).toBe('web');
+    expect(readAssignment('дай изображение').studio).toBeNull();
+    expect(readAssignment('хочу сайт').studio).toBeNull();
   });
 
   it('если в фразе два результата, берёт тот, что назван раньше', () => {
@@ -30,7 +34,7 @@ describe('Поручение из чата', () => {
 
   it('карточка называет, кто работает', () => {
     const text = formatAssignment(readAssignment('Нарисуй постер'));
-    expect(text).toContain('Image Studio');
+    expect(text).toContain('Картинка');
     expect(text).toContain('Кто работает');
     expect(text).toContain('Нужно ли тебе вмешаться');
   });

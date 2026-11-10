@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="AZRAIL">
 <title>AZRAIL × MNMLL PULSE</title>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/assets/app.css?v=a615cbb497">
+<link rel="stylesheet" href="/assets/app.css?v=ec5f3c6986">
 </head>
 <body>
 <a class="skip" href="#main">К содержимому</a>
@@ -28,7 +28,7 @@
       <a href="/" data-view="create" class="nav active" aria-current="page"><span aria-hidden="true">◇</span> Чат</a>
       <a href="/mission" data-view="mission" class="nav" data-expert><span aria-hidden="true">◈</span> Ход задачи</a>
       <a href="/projects" data-view="projects" class="nav"><span aria-hidden="true">▱</span> Проекты</a>
-      <a href="/studios" data-view="studios" class="nav"><span aria-hidden="true">⊞</span> Студии <span class="nav-count">8</span></a>
+      <a href="/studios" data-view="studios" class="nav" data-expert><span aria-hidden="true">⊞</span> Студии <span class="nav-count">8</span></a>
       <a href="/metatron" data-view="metatron" class="nav" data-expert><span aria-hidden="true">⌘</span> Метратрон</a>
     </nav>
     <div class="history-heading"><h2>Ваши чаты</h2><span id="chat-count">0</span></div>
@@ -87,7 +87,7 @@
               <div class="welcome-emblem" aria-hidden="true"><svg viewBox="0 0 40 44" fill="none"><path d="M31.3 8.7A16 16 0 1 0 31.3 31.3M20 17V42" stroke="currentColor" stroke-width="1.5"/></svg></div>
               <p class="kicker">Чат</p>
               <h1 tabindex="-1">AZRAIL</h1>
-              <p class="intro">Опиши результат. Я сам открою инструмент и покажу, кто работает и что уже будет готово.</p>
+              <p class="intro">Напиши, что нужно. Картинка, страница и код появятся в этом чате.</p>
             </div>
             <div id="chat-messages" class="chat-messages" role="log" aria-label="Сообщения" aria-live="polite" aria-relevant="additions text"></div>
             <p id="local-notice" class="context-note" role="status" hidden></p>
@@ -209,7 +209,7 @@
         </div>
         <div id="context-panel-files" class="context-files" aria-live="polite"></div>
       </section>
-      <section class="context-section">
+      <section class="context-section" data-expert>
         <h3>Студии</h3>
         <div id="context-studios" class="context-studios"></div>
       </section>
