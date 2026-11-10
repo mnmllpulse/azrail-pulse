@@ -59,6 +59,46 @@ async function inlineAssets(buf: ArrayBuffer, html: string, folder: string, file
   return html;
 }
 
+const TEXT_EXT = new Set(['ts', 'tsx', 'js', 'jsx', 'mjs', 'cjs', 'json', 'md', 'txt', 'css', 'html', 'htm', 'yml', 'yaml', 'toml', 'sql', 'py', 'rs', 'go', 'xml', 'svg', 'csv']);
+const NOISE = /(^|\/)(node_modules|dist|coverage|\.git|__MACOSX)(\/|$)/;
+
+function extOf(path: string) {
+  const dot = path.lastIndexOf('.');
+  return dot === -1 ? '' : path.slice(dot + 1).toLowerCase();
+}
+
+let held: ArrayBuffer | null = null;
+
+/** Пути текстовых файлов. index.html идёт первым, список короткий. */
+export async function catalogPaths(buf: ArrayBuffer): Promise<string[]> {
+  let listing;
+  try { listing = listZip(buf, 2000); } catch { return []; }
+  return listing.entries
+    .filter((entry) => !entry.skipped && TEXT_EXT.has(extOf(entry.path)) && !NOISE.test(entry.path))
+    .sort((a, b) => rank(a.path) - rank(b.path) || a.path.localeCompare(b.path))
+    .slice(0, 200)
+    .map((entry) => entry.path);
+}
+
+export async function holdArchive(buf: ArrayBuffer): Promise<string[]> {
+  held = buf;
+  return catalogPaths(buf);
+}
+
+/** Текст одного файла из последнего архива. Главная HTML-страница приходит со своими стилями. */
+export async function openHeld(path: string): Promise<string | null> {
+  if (!held || !path) return null;
+  let listing;
+  try { listing = listZip(held, 2000); } catch { return null; }
+  const page = listing.entries
+    .filter((entry) => !entry.skipped && /\.html?$/i.test(entry.path) && !NOISE.test(entry.path))
+    .sort((a, b) => rank(a.path) - rank(b.path))[0];
+  if (page && page.path === path) return siteFromZip(held);
+  const entry = listing.entries.find((item) => item.path === path && !item.skipped);
+  if (!entry || entry.size > 256_000) return null;
+  try { return text.decode(await readEntry(held, entry, 256_000)); } catch { return null; }
+}
+
 /** Главная страница архива: index.html, его CSS и картинки рядом. */
 export async function siteFromZip(buf: ArrayBuffer): Promise<string | null> {
   let listing;

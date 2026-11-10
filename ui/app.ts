@@ -28,7 +28,7 @@ import {formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
-import {siteFromZip} from './zip-site';
+import {holdArchive,siteFromZip} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteZip} from './chat-site';
 import {diagramLines,diagramModel} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
@@ -108,7 +108,12 @@ async function previewAttachedSite(files:File[]){
  const page=files.find(file=>/\.html?$/i.test(file.name));
  let html='';
  try{
-  if(zip)html=await siteFromZip(await zip.arrayBuffer())??'';
+  if(zip){
+   const buf=await zip.arrayBuffer();
+   const paths=await holdArchive(buf);
+   if(paths.length)document.dispatchEvent(new CustomEvent('azrail:zip-catalog',{detail:paths}));
+   html=await siteFromZip(buf)??'';
+  }
   else if(page)html=await page.text();
  }catch{return;}
  if(!html.trim())return;

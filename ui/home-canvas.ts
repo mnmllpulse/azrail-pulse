@@ -1,3 +1,5 @@
+import { openHeld } from './zip-site';
+
 const STORAGE_KEY='pulse.home-code';
 const STARTER=`<!doctype html>
 <html lang="ru">
@@ -39,6 +41,8 @@ export function mountHomeCanvas(){
  const kind=document.querySelector<HTMLElement>('#home-canvas-kind');
  const codeTab=document.querySelector<HTMLButtonElement>('#home-mode-code');
  const screenTab=document.querySelector<HTMLButtonElement>('#home-mode-screen');
+ const fileLabel=document.querySelector<HTMLElement>('#home-files-label');
+ const filePick=document.querySelector<HTMLSelectElement>('#home-files');
  if(!code||!screen||!kind||!codeTab||!screenTab)return;
  let saved='';
  try{saved=localStorage.getItem(STORAGE_KEY)??'';}catch{saved='';}
@@ -75,6 +79,27 @@ export function mountHomeCanvas(){
   code.value=html;
   try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
   show('screen');
+ });
+ document.addEventListener('azrail:zip-catalog',(event)=>{
+  const paths=(event as CustomEvent<string[]>).detail;
+  if(!fileLabel||!filePick||!Array.isArray(paths)||!paths.length)return;
+  filePick.replaceChildren();
+  for(const path of paths){
+   const option=document.createElement('option');
+   option.value=path;
+   option.textContent=path;
+   filePick.append(option);
+  }
+  fileLabel.hidden=false;
+ });
+ filePick?.addEventListener('change',()=>{
+  const path=filePick.value;
+  void openHeld(path).then(body=>{
+   if(!body)return;
+   code.value=body;
+   try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
+   show(/\.html?$/i.test(path)?'screen':'code');
+  });
  });
  show('code');
 }
