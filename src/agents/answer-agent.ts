@@ -57,6 +57,26 @@ export function withFallbackNotice(text: string, attempts: number, model?: strin
   return `${text}\n\nПервая модель не ответила. Ответ дала ${leaf || "запасная модель"}.`;
 }
 
+/** Серый закреплён за Llama 3.3 70B. Провайдер отказал на 24 000 токенах. */
+const SHADE_WINDOW = 24_000;
+const PROMPT_CAP = 72_000;
+
+export function promptBudget(text: string): { text: string; tokens: number; long: boolean } {
+  let body = text;
+  let trimmed = false;
+  if (body.length > PROMPT_CAP) {
+    body = `${body.slice(0, 48_000)}\n\n[Середина вложения пропущена: файл длиннее окна модели.]\n\n${body.slice(-16_000)}`;
+    trimmed = true;
+  }
+  const tokens = Math.ceil(body.length / 3) + 4_096;
+  return { text: body, tokens, long: trimmed || tokens > SHADE_WINDOW };
+}
+
+function contextMiss(err: unknown): boolean {
+  const raw = err instanceof Error ? err.message : String(err);
+  return /context length|input_tokens|maximum context/i.test(raw);
+}
+
 export class AnswerAgent extends Agent<Env, AnswerAgentState> {
   initialState: AnswerAgentState = { lastAnsweredAt: null, answerCount: 0 };
 
@@ -159,31 +179,47 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
       .slice(-10)
       .map((m) => ({ role: m.role, content: m.content }));
 
+    const budget = promptBudget(question);
+    const voiceNote = voice === "lumen" ? "" : `\n\nОтветь только голосом ${voice === "shade" ? "Серый" : "Ария"}. Тон прошлых ответов не копируй.`;
+    const shadePin = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+    const preferred = request.preferredModel || (voice === "lumen" || budget.long ? undefined : shadePin);
+    const ask = (preferredModel: string | undefined, maxTokens?: number) => runModel<{ response?: string }>(
+      this.env,
+      "answer",
+      {
+        messages: [
+          { role: "system", content: system.join("\n\n") },
+          ...priorTurns,
+          { role: "user", content: `${budget.text}${voiceNote}` },
+        ],
+        ...(maxTokens ? { max_tokens: maxTokens } : {}),
+      },
+      { preferredModel, estimatedTokens: budget.tokens, trace: taskTrace(request) },
+    );
+
     let text: string;
     let usedModel: string | undefined;
     let attempts = 1;
     try {
-      const routed = await runModel<{ response?: string }>(
-        this.env,
-        "answer",
-        {
-          messages: [
-            { role: "system", content: system.join("\n\n") },
-            ...priorTurns,
-            { role: "user", content: voice === "lumen" ? question : `${question}\n\nОтветь только голосом ${voice === "shade" ? "Серый" : "Ария"}. Тон прошлых ответов не копируй.` },
-          ],
-        },
-        { preferredModel: request.preferredModel || (voice === "lumen" ? undefined : "@cf/meta/llama-3.3-70b-instruct-fp8-fast"), trace: taskTrace(request) },
-      );
+      let routed: Awaited<ReturnType<typeof ask>>;
+      try {
+        routed = await ask(preferred);
+      } catch (err) {
+        if (request.preferredModel || !contextMiss(err)) throw err;
+        routed = await ask(undefined, 1_200);
+      }
       attempts = routed.attempts;
       text = withFallbackNotice(extractText(routed.output).trim(), attempts, routed.model);
       usedModel = routed.model;
     } catch (err) {
+      const raw = err instanceof Error ? err.message : String(err);
       return {
         status: "failed",
         agent: "answer-agent",
-        summary: "Модель недоступна.",
-        error: err instanceof Error ? err.message : String(err),
+        summary: contextMiss(err)
+          ? "Файл длиннее окна модели. Серый держит 24 тысячи токенов, архив с запасом ответа за них вышел."
+          : "Модель недоступна.",
+        error: raw,
       };
     }
 

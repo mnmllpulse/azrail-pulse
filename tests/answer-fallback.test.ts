@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { withFallbackNotice } from "../src/agents/answer-agent";
+import { promptBudget, withFallbackNotice } from "../src/agents/answer-agent";
 
 describe("spoken model fallback", () => {
   it("leaves a first-try answer unmarked", () => {
@@ -14,5 +14,14 @@ describe("spoken model fallback", () => {
 
   it("does not invent a name when the slug is missing", () => {
     expect(withFallbackNotice("На связи.", 2)).toContain("запасная модель");
+  });
+
+  it("отправляет длинный архив мимо окна Серого", () => {
+    const short = promptBudget("сделай анализ");
+    expect(short.long).toBe(false);
+    const zip = promptBudget(`сделай анализ\n${"a".repeat(80_000)}`);
+    expect(zip.long).toBe(true);
+    expect(zip.text).toContain("Середина вложения пропущена");
+    expect(zip.tokens).toBeGreaterThan(24_000);
   });
 });

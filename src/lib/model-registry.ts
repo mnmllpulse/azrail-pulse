@@ -306,8 +306,9 @@ export const MODEL_REGISTRY: ModelEntry[] = [
     provider: "Meta",
     tier: "balanced",
     capabilities: ["text_generation", "tool_calling"],
+    contextWindow: 24_000,
     requiresGateway: false,
-    source: "Каталог Workers AI: function calling, batch. Окно НЕ ПРОВЕРЕНО.",
+    source: "Провайдер 2026-11-10: maximum context length is 24000 tokens. Раньше окно не было проверено, и длинный ZIP упирался в отказ.",
   },
 
   // ─── Сторонние модели: только через AI Gateway, оплата с баланса ─────

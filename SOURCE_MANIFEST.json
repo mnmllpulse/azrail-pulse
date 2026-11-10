@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-10T20:05:19.476Z",
+  "generated_at": "2026-11-10T20:16:30.997Z",
   "excludes_self": true,
   "file_count": 1326,
   "files": [
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3174,
-      "sha256": "86931ea1c86f7264ac1809618aa3b386b6e4dd3f7d8b80d9b0899b2137df3c27"
+      "sha256": "363835220dab3b75c212ce0e4e15853b3262618c37e24ede8746d61e1b99c663"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20581,
-      "sha256": "dd3b497a3a8611ba758a2869c57bf5d48a71589a5b67c76d8c2d959e69a15419"
+      "sha256": "d86daf73fbb1f56cd989b1fac4b544ffaa9fd63d7797e13566119a9812225dce"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1083,7 +1083,7 @@
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
       "bytes": 7238,
-      "sha256": "3634d1d5fdd2b88fc26c6f8fcc53cf0aaaf8e33d13470cc5f83ee1c252fc36e8"
+      "sha256": "5b5dfd40bdd9a6f6defd6702d09d4229481fa4ceae5a0f9048c85d9b63bf2a06"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1228,7 +1228,7 @@
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6597,
-      "sha256": "4c57e35d1a5519b365ea20429909e5c61a56ead68574e97ab4dafe35016c3624"
+      "sha256": "cc27c604a0172ec3399bc53d16c8b1836073d56ce66a3cc768d695d47cc3a15c"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -4227,8 +4227,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 15974,
-      "sha256": "fab772e59bda2f2c49d3e6a9ec2848017445f9fb53f5a9d1637ca02c73324396"
+      "bytes": 17568,
+      "sha256": "2ae95b79d009a256660380047a913c537d5d7eef13695acb3466ec0b9e395b51"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -4712,8 +4712,8 @@
     },
     {
       "path": "src/lib/model-registry.ts",
-      "bytes": 25556,
-      "sha256": "7514aaea55f173d8a7ccf4b4f604097bf0d95ce96290f29b2af5221ff40b9488"
+      "bytes": 25678,
+      "sha256": "91062d3387e49a6d1fe5abb2120a38cac4deb1c5c62159b26b36bc84630f4e70"
     },
     {
       "path": "src/lib/model-router.ts",
@@ -5122,8 +5122,8 @@
     },
     {
       "path": "tests/answer-fallback.test.ts",
-      "bytes": 790,
-      "sha256": "73738d696622cdde2ef3149301cd8ca70d2ac88f3683872437f4f6ec138798e6"
+      "bytes": 1253,
+      "sha256": "c16679d4febcfd014b508416a4f42e5f15b12ab87a4ce45b270b9d36ba44b55e"
     },
     {
       "path": "tests/api-contract.test.ts",
