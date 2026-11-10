@@ -92,6 +92,26 @@ export function mountHomeCanvas(){
   }
   fileLabel.hidden=false;
  });
+ document.addEventListener('azrail:zip-open',(event)=>{
+  const path=(event as CustomEvent<string>).detail;
+  if(typeof path!=='string'||!path)return;
+  if(filePick){
+   if(![...filePick.options].some(option=>option.value===path)){
+    const option=document.createElement('option');
+    option.value=path;
+    option.textContent=path;
+    filePick.append(option);
+   }
+   filePick.value=path;
+   if(fileLabel)fileLabel.hidden=false;
+  }
+  void openHeld(path).then(body=>{
+   if(body==null)return;
+   code.value=body;
+   try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
+   show(/\.html?$/i.test(path)?'screen':'code');
+  });
+ });
  filePick?.addEventListener('change',()=>{
   const path=filePick.value;
   void openHeld(path).then(body=>{

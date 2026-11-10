@@ -67,22 +67,64 @@ function extOf(path: string) {
   return dot === -1 ? '' : path.slice(dot + 1).toLowerCase();
 }
 
-let held: ArrayBuffer | null = null;
+const NAMED_FILE = /(?:^|[\s`'"(])((?:[\w.-]+\/)+[\w.-]+\.[\w]+|[\w.-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|md|txt|css|html|yml|yaml|toml|sql|py|rs|go|xml|svg|csv))/giu;
+const OPEN_LINE = /^(?:открой|покажи|выведи)(?:\s+файл)?\s+\S+[.!?]?$/iu;
 
-/** Пути текстовых файлов. index.html идёт первым, список короткий. */
-export async function catalogPaths(buf: ArrayBuffer): Promise<string[]> {
+let held: ArrayBuffer | null = null;
+let known: string[] = [];
+
+async function textPaths(buf: ArrayBuffer, limit: number): Promise<string[]> {
   let listing;
   try { listing = listZip(buf, 2000); } catch { return []; }
   return listing.entries
     .filter((entry) => !entry.skipped && TEXT_EXT.has(extOf(entry.path)) && !NOISE.test(entry.path))
     .sort((a, b) => rank(a.path) - rank(b.path) || a.path.localeCompare(b.path))
-    .slice(0, 200)
+    .slice(0, limit)
     .map((entry) => entry.path);
+}
+
+/** Пути текстовых файлов. index.html идёт первым, список короткий. */
+export async function catalogPaths(buf: ArrayBuffer): Promise<string[]> {
+  return textPaths(buf, 200);
 }
 
 export async function holdArchive(buf: ArrayBuffer): Promise<string[]> {
   held = buf;
-  return catalogPaths(buf);
+  known = await textPaths(buf, 2000);
+  return known.slice(0, 200);
+}
+
+export function archiveIsHeld(): boolean {
+  return held !== null;
+}
+
+/** Имена из новой фразы. Совпадает с тем, как сервер узнаёт файл в вопросе. */
+export function askedPaths(text: string): string[] {
+  const found: string[] = [];
+  for (const item of text.matchAll(NAMED_FILE)) {
+    const path = item[1].replace(/^\.?\//, '');
+    if (path.length > 180 || path.includes('..') || found.includes(path)) continue;
+    found.push(path);
+    if (found.length >= 3) break;
+  }
+  return found;
+}
+
+/** Фраза только открывает один файл, без другого вопроса. */
+export function openOnlyPath(text: string): string | null {
+  const source = text.trim();
+  if (!OPEN_LINE.test(source)) return null;
+  const names = askedPaths(source);
+  return names.length === 1 ? names[0] : null;
+}
+
+/** Точный путь, иначе самый короткий хвост. Чужой путь с .. не берётся. */
+export function matchHeldPath(needle: string): string | null {
+  const want = needle.replace(/^\.?\//, '').toLowerCase();
+  if (!want || want.includes('..') || want.length > 180) return null;
+  const exact = known.find((path) => path.toLowerCase() === want);
+  if (exact) return exact;
+  return known.filter((path) => path.toLowerCase().endsWith(`/${want}`)).sort((a, b) => a.length - b.length)[0] ?? null;
 }
 
 /** Текст одного файла из последнего архива. Главная HTML-страница приходит со своими стилями. */

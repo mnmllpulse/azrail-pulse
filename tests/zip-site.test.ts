@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { zipStore } from "../src/lib/zip-store";
-import { catalogPaths, holdArchive, openHeld, siteFromZip } from "../ui/zip-site";
+import { fileNamesInQuestion } from "../src/lib/attachments";
+import { askedPaths, catalogPaths, holdArchive, matchHeldPath, openHeld, openOnlyPath, siteFromZip } from "../ui/zip-site";
 
 const utf8 = (value: string) => new TextEncoder().encode(value);
 
@@ -32,6 +33,13 @@ describe("Сайт из ZIP на живом экране", () => {
     await holdArchive(buf);
     expect(await openHeld("src/app.ts")).toContain("export const n");
     expect(await openHeld("index.html")).toContain("Дом");
+    expect(matchHeldPath("src/app.ts")).toBe("src/app.ts");
+    expect(matchHeldPath("app.ts")).toBe("src/app.ts");
+    expect(matchHeldPath("../secret.ts")).toBeNull();
+    expect(matchHeldPath("нет-такого.ts")).toBeNull();
+    expect(askedPaths("открой src/app.ts")).toEqual(fileNamesInQuestion("открой src/app.ts"));
+    expect(openOnlyPath("Открой src/app.ts.")).toBe("src/app.ts");
+    expect(openOnlyPath("прочитай src/app.ts и скажи, что не так")).toBeNull();
   });
 
   it("архив без html не открывает экран", async () => {

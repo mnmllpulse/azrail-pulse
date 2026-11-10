@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-10T21:19:18.839Z",
+  "generated_at": "2026-11-10T21:23:08.911Z",
   "excludes_self": true,
   "file_count": 1328,
   "files": [
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3174,
-      "sha256": "a07479bb96a15cd3ae3fb179f3d27fc6922b242fb7d12d84f59b39d98759204c"
+      "sha256": "73db47bcfa84f58ef1b3d2742ed38dcc7246c4341dc1e5119162d36d2422b0e0"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20581,
-      "sha256": "7c9edceed89637aec926d3c06ce18bbad3d07f66223bd2331eea0b41f3e3885f"
+      "sha256": "cfad1820d4a07d62d2b976619c22171fd584623b9d779837b7aa512ed6a4b688"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1083,7 +1083,7 @@
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
       "bytes": 7238,
-      "sha256": "ad89bbbcd59a0290c3c28d159195bedd5702ea7a914c5c267f6f77c61153633a"
+      "sha256": "301c216819dde471420f44007a288378ce95d14b378d586fed32c5fe0b7f08d4"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1228,7 +1228,7 @@
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6597,
-      "sha256": "7704cf3186b5652c5c3f0bb98214d87238d3a65215f7c6f41a55bf41080530d8"
+      "sha256": "98723d574c6bee7555fcdbff27c276b4aa141bb3fe4ffa5a2f9d0199c0de1dea"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -1272,8 +1272,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1204449,
-      "sha256": "857649e9edb62c8ae1049665aa92c8aefb64ba78490eb9399c6d310064472030"
+      "bytes": 1206382,
+      "sha256": "08dfa911355c56b4116488e3f526b99c37b664f5e2b955130d4e09673886f251"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3938,7 +3938,7 @@
     {
       "path": "site/app.html",
       "bytes": 23029,
-      "sha256": "daf4affd21aa223bf4b20925c618805861460a79f10116023c5d1ca291af56da"
+      "sha256": "9d125a2559709dfaa5537eefab7598c600fb2762df39372ec2b8d8e74f0ec872"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -3952,8 +3952,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 330103,
-      "sha256": "b70685067963a29bf23393d53a1fece6d47032feb907afae7dd0c7538c64c488"
+      "bytes": 332027,
+      "sha256": "08221ac7f9865684400ae42df53f993ff12e5b608c0059c894f5e08e5c02a20d"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4218,7 +4218,7 @@
     {
       "path": "site/index.html",
       "bytes": 23029,
-      "sha256": "daf4affd21aa223bf4b20925c618805861460a79f10116023c5d1ca291af56da"
+      "sha256": "9d125a2559709dfaa5537eefab7598c600fb2762df39372ec2b8d8e74f0ec872"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5767,8 +5767,8 @@
     },
     {
       "path": "tests/zip-site.test.ts",
-      "bytes": 2200,
-      "sha256": "4de305ad7da69032aee5fb5384433c92709f70e9242295b6c86b8d142865fdd9"
+      "bytes": 2819,
+      "sha256": "b139a6c5e0749db853b4cda81694c6d722688383321e7d1fe3ee12fc091c70d7"
     },
     {
       "path": "tests/zip.test.ts",
@@ -5802,8 +5802,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 164439,
-      "sha256": "54471b4b52fd74549142eda1719d018724f38ddbc7206bc771167760b5b3d6ee"
+      "bytes": 165589,
+      "sha256": "0b20a0a033db9afd6277814c022c1c6e18eca208658481a082fbd3f53166f72a"
     },
     {
       "path": "ui/assignment.ts",
@@ -5947,8 +5947,8 @@
     },
     {
       "path": "ui/home-canvas.ts",
-      "bytes": 4278,
-      "sha256": "e84dd5447db39a9c29ff2bb8ec127e28e99200fc9378e6cbe970e39274648542"
+      "bytes": 4934,
+      "sha256": "213193340b3cbb1b68f27c8f916f57cd6effe59f04f7d5bcd51edacb968a6d74"
     },
     {
       "path": "ui/image-request.ts",
@@ -6177,8 +6177,8 @@
     },
     {
       "path": "ui/zip-site.ts",
-      "bytes": 5092,
-      "sha256": "2cb407d803724fff8a47e3e5bcdec396e519d2423de832e1ff3fbc7379bd90c4"
+      "bytes": 6950,
+      "sha256": "9557de5e47420823ea9b7a26870c1c7648f104a39e512a3db748b63e8038be22"
     },
     {
       "path": "verification/GITHUB_PR_TEMPLATE.md",

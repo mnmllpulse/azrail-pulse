@@ -28,7 +28,7 @@ import {formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,openStoredPlan,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
-import {holdArchive,siteFromZip} from './zip-site';
+import {archiveIsHeld,askedPaths,holdArchive,matchHeldPath,openOnlyPath,siteFromZip} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteZip} from './chat-site';
 import {diagramLines,diagramModel} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
@@ -1635,9 +1635,29 @@ async function chosenPlan(message:string):Promise<WorkPlan|null>{
   return groundWorkPlan(message,workPlanFromDraft(drafted.parts??[])??planWork(message));
  }catch{return planWork(message);}
 }
+function noteLocal(message:string,reply:string){
+ const thread=chatHistory.current()??chatHistory.create();
+ const requestKey=crypto.randomUUID();
+ project=thread.projectId||project||crypto.randomUUID();
+ chatHistory.accepted(requestKey,message,project,thread.id);
+ chatHistory.report(requestKey,reply,'completed');
+ prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();syncChatUI();workspace.toLatest();
+}
+function revealHeld(message:string){
+ if(!/открой|покажи|выведи|прочитай|посмотри|глянь/iu.test(message))return '';
+ const path=askedPaths(message).map(matchHeldPath).find((item):item is string=>Boolean(item))??'';
+ if(!path)return '';
+ document.dispatchEvent(new CustomEvent('azrail:zip-open',{detail:path}));
+ workspace.setPreview(true);
+ return path;
+}
 async function runChat(){
  if(missionSubmitting)return;
  const message=prompt.value.trim();if(!message)return;
+ const opened=revealHeld(message);
+ const only=openOnlyPath(message);
+ if(only&&opened){noteLocal(message,`Открыл ${opened}.`);return;}
+ if(only&&archiveIsHeld()&&!opened){noteLocal(message,`В загруженном архиве нет ${only}.`);return;}
  const skills=skillsReply(message);
  if(wantsPageRestore(message)){
   const restored=takeBackPage(heldPlan);
