@@ -36,7 +36,7 @@ import { UsageLedger } from "./lib/usage";
 import { checkRateLimit } from "./lib/auth";
 import { chargeWrites, estimateMissionWrites } from "./lib/write-budget";
 import { validateAgainstCanon, summarizeCanon } from "./lib/canon-check";
-import { loadAttachments, attachmentsToText } from "./lib/attachments";
+import { loadAttachments, attachmentsToText, zipArchiveNote, archivesFromText, fileNamesInQuestion, zipNamesInHistory, censusLine, uploadKeyForProject, readNamedFromZip, findOwnedZip } from "./lib/attachments";
 import { chatSupplements } from "./lib/chat-context";
 import { log } from "./lib/resilience";
 import {
@@ -681,12 +681,21 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       // Drop platform/error lines so a failed Whisper pick or budget miss
       // cannot poison the next greeting into a "can't talk" refusal.
       const errorish=/лимит ресурсов|не найдена в реестре|Ни одна модель|Модель недоступна|технические ограничения|не могу поддерживать диалог|Попытки:|Дневная квота|пустой ответ|семёрки Workers Paid|10 000 нейронов|context window|maximum context|input_tokens|exceeded this model/i;
-      const prior = ((await listMessages(env, cid, 40)) as Array<{ role?: string; content?: string }>)
+      const rows = (await listMessages(env, cid, 40)) as Array<{ role?: string; content?: string }>;
+      const prior = rows
         .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.trim())
         .filter((m) => !(m.role === "assistant" && errorish.test(String(m.content))))
         .map((m) => ({ role: String(m.role), content: rememberTurn(String(m.role), String(m.content)) }))
         .slice(-20);
-      await addMessage(env, cid, "user", message, body.parentMessageId);
+      if (!body.attachments?.length) {
+        const wants = fileNamesInQuestion(body.message);
+        const raw = rows.filter((m) => m.role === "user" && typeof m.content === "string").map((m) => String(m.content)).join("\n");
+        const marked = archivesFromText(raw).filter((archive) => uploadKeyForProject(archive.r2Key, body.projectId));
+        const archive = marked.at(-1) ?? (wants.length && body.projectId ? await findOwnedZip(env, body.projectId, zipNamesInHistory(raw)) : null);
+        if (wants.length && archive) message += attachmentsToText(await readNamedFromZip(env, archive, wants));
+      }
+      const note = zipArchiveNote(body.attachments as AttachmentRef[] | undefined);
+      await addMessage(env, cid, "user", note ? `${message}\n${note}` : message, body.parentMessageId);
 
       // Chat only accepts registered text models. Invalid sticky picks (Whisper,
       // image, unknown slug) fall back to Auto instead of hard-failing the turn.
@@ -720,6 +729,8 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         _traceId: trace.traceId,
       });
 
+      const seen = censusLine(message);
+      if (seen && result.summary && !result.summary.includes(seen)) result.summary = `${seen}\n\n${result.summary}`;
       const assistantId = await addMessage(
         env,
         cid,

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { listZip, readEntry, ZipError } from "../src/lib/zip-reader";
-import { loadAttachments, attachmentsToText } from "../src/lib/attachments";
+import { loadAttachments, attachmentsToText, fileNamesInQuestion, readNamedFromZip, findOwnedZip, censusLine } from "../src/lib/attachments";
 import { makeZip } from "./stubs/make-zip";
 
 /** R2 понарошку, отдающий архив байтами. */
@@ -114,6 +114,8 @@ describe("ZIP как вложение задачи", () => {
     const out = await loadAttachments(r2zip("u/p.zip", zip), zipRef());
 
     expect(out[0].fileName).toContain("оглавление");
+    expect(out[0].text).toContain("Прочитано 40 из 60.");
+    expect(censusLine(out[0].text ?? "")).toBe("Прочитано 40 из 60.");
     expect(out[0].text).toContain("Файлов: 60");
     expect(out[0].text, "перечень обязан быть полным").toContain("src/f59.ts");
   });
@@ -171,6 +173,34 @@ describe("ZIP как вложение задачи", () => {
     const junk = new TextEncoder().encode("не архив").buffer;
     const out = await loadAttachments(r2zip("u/p.zip", junk), zipRef());
     expect(out[0].skipped).toContain("не ZIP");
+  });
+
+  it("названный файл читается из уже загруженного архива", async () => {
+    const zip = makeZip([
+      { path: "src/index.ts", content: "export const live = 1;" },
+      { path: "notes.txt", content: "заметка" },
+    ]);
+    const out = await readNamedFromZip(
+      r2zip("uploads/proj/id-project.zip", zip),
+      { r2Key: "uploads/proj/id-project.zip", fileName: "project.zip" },
+      fileNamesInQuestion("прочитай src/index.ts"),
+    );
+    expect(out[0]?.text).toContain("export const live");
+    expect(attachmentsToText(out)).not.toContain("заметка");
+  });
+
+  it("старый диалог находит свой ZIP по имени", async () => {
+    const env = {
+      AZRAIL_R2: {
+        list: async () => ({
+          objects: [{ key: "uploads/proj/abc-project.zip" }, { key: "uploads/proj/abc-other.zip" }],
+          truncated: false,
+        }),
+      },
+    } as never;
+    const found = await findOwnedZip(env, "proj", ["project.zip"]);
+    expect(found).toEqual({ r2Key: "uploads/proj/abc-project.zip", fileName: "project.zip" });
+    expect(fileNamesInQuestion("сделай анализ")).toEqual([]);
   });
 
   it("пропавший архив назван по имени", async () => {

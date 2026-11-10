@@ -38,6 +38,9 @@ describe("spoken model fallback", () => {
     expect(kept.length).toBeLessThan(2_000);
     const answer = "Общая картография репозитория. Ошибок в списке нет.";
     expect(rememberTurn("assistant", answer)).toBe(answer);
+    const marked = rememberTurn("user", `сделай анализ\n\nПРИЛОЖЕННЫЕ ФАЙЛЫ (1):\n${"x".repeat(80_000)}\n[АРХИВ r2=uploads/proj/a-site.zip name=site.zip]`);
+    expect(marked).toContain("[АРХИВ r2=uploads/proj/a-site.zip name=site.zip]");
+    expect(marked).not.toContain("xxxxx");
   });
 
   it("отказ по окну контекста узнаётся и в формулировке провайдера 5021", () => {

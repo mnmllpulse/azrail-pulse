@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-10T20:49:12.493Z",
+  "generated_at": "2026-11-10T21:01:43.787Z",
   "excludes_self": true,
   "file_count": 1328,
   "files": [
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3174,
-      "sha256": "e9572dc0eb3052829725796f4542126003b0e723a56d1ea176637173e67e4669"
+      "sha256": "eb02a5de240f687fd375b8c81777cffc39e192e0be991cd0baddc7261d09f3eb"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20581,
-      "sha256": "68057f8c492915682d78c2eee731fab0e8b0555840240be6269c58c39ba6a880"
+      "sha256": "623ba6f1469812e760b2a3d240600288aa648b9af7f9ccc1d42a193ecbb513eb"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1083,7 +1083,7 @@
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
       "bytes": 7238,
-      "sha256": "e0bf455e94cbc29a5a7de121c9d84e6e59e81945e7050052a1f0a457fa6b49b3"
+      "sha256": "6dd59737789dc190fb73a16b9115666749f25e732fed1c16a00248220a48b30f"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1228,7 +1228,7 @@
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6597,
-      "sha256": "de0ef17f2e8f2029cad9058686fb8a9dae9e871ba462f70788f722713f80b1a9"
+      "sha256": "bea5b732533f81e5d6e760e57a1c10a79692452e65bfc96c990618cb92e92584"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -4227,8 +4227,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 18581,
-      "sha256": "ccf19eff568f9e0528137c1a5079ba2d07f322ccf37c3a68aa5f58b2f72c0982"
+      "bytes": 19068,
+      "sha256": "6b0885d146105e02801d4f464ad53c923190fc9ac394cb183183e0afbc0a3089"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -4432,8 +4432,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 98093,
-      "sha256": "ab8e98fd406933fc7165836306d1fdda42c5bd8899acf326ba0c4ddd2e9baf99"
+      "bytes": 99153,
+      "sha256": "d750101dadd973cd41646dd74a734722baef36d9b47bd684b5d9b2a7cf8b2969"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4477,8 +4477,8 @@
     },
     {
       "path": "src/lib/attachments.ts",
-      "bytes": 14415,
-      "sha256": "ce51b209a9295e53884802f21c4dd87cbdcff9e1ebb84217f5c6bcceef4e256c"
+      "bytes": 20114,
+      "sha256": "8d6eea532770aeabb92ebed3c5dc69e457b406a7e06a5ac40632d28f893b2170"
     },
     {
       "path": "src/lib/auth.ts",
@@ -5122,8 +5122,8 @@
     },
     {
       "path": "tests/answer-fallback.test.ts",
-      "bytes": 2629,
-      "sha256": "69644e640cb4d24cabece700bcf2a5864d5064e3abbeb2336e5a13590d05ab1c"
+      "bytes": 2949,
+      "sha256": "eb0cb9a31b626e5e1a0d2d4ecc8cf0ce0506f0338c252a43d6264e1ebd15955e"
     },
     {
       "path": "tests/api-contract.test.ts",
@@ -5772,8 +5772,8 @@
     },
     {
       "path": "tests/zip.test.ts",
-      "bytes": 9047,
-      "sha256": "13d7a6aab18a166f0e9a20f70e316d1a02d1ac08e0832b0cbae41790b397827c"
+      "bytes": 10466,
+      "sha256": "826e6e4de66009479172ab710db699215bff860afae7ad9c7c978cb4260b66a8"
     },
     {
       "path": "tsconfig.json",

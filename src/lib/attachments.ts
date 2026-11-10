@@ -112,7 +112,7 @@ async function readZip(buf: ArrayBuffer, archiveName: string): Promise<LoadedAtt
 
   const out: LoadedAttachment[] = [{
     fileName: `${archiveName} — оглавление`,
-    text: `Файлов: ${total}. Показано: ${visible.length}.\n\n${listing}${hiddenNote}`,
+    text: "",
   }];
 
   const readable = visible.filter((e) => !e.skipped && TEXT_EXT.has(extOf(e.path)));
@@ -142,6 +142,8 @@ async function readZip(buf: ArrayBuffer, archiveName: string): Promise<LoadedAtt
       });
     }
   }
+
+  out[0].text = `Прочитано ${read} из ${total}.\nФайлов: ${total}. Показано: ${visible.length}.\n\n${listing}${hiddenNote}`;
 
   const left = readable.length - read;
   if (left > 0) {
@@ -311,4 +313,127 @@ export function attachmentsToText(loaded: LoadedAttachment[]): string {
   });
 
   return `\n\nПРИЛОЖЕННЫЕ ФАЙЛЫ (${loaded.length}):\n\n${parts.join("\n\n")}`;
+}
+
+const ARCHIVE_MARK = /\[АРХИВ r2=(\S+) name=([^\]]+)\]/g;
+const NAMED_FILE = /(?:^|[\s`'"(])((?:[\w.-]+\/)+[\w.-]+\.[\w]+|[\w.-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|md|txt|css|html|yml|yaml|toml|sql|py|rs|go|xml|svg|csv))/giu;
+
+/** Строка для сохранённой реплики: следующий вопрос сможет открыть этот же архив. */
+export function zipArchiveNote(refs: AttachmentRef[] | undefined): string {
+  if (!Array.isArray(refs)) return "";
+  return refs
+    .filter((ref) => ref.r2Key && ref.fileName.toLowerCase().endsWith(".zip") && !/[\r\n\]]/.test(ref.r2Key))
+    .map((ref) => `[АРХИВ r2=${ref.r2Key} name=${ref.fileName.replace(/[\[\]]/g, "").trim()}]`)
+    .join("\n");
+}
+
+export function archivesFromText(text: string): Array<{ r2Key: string; fileName: string }> {
+  return [...text.matchAll(ARCHIVE_MARK)].map((item) => ({ r2Key: item[1], fileName: item[2].trim() }));
+}
+
+/** Имена из новой фразы, не из старого оглавления. */
+export function fileNamesInQuestion(text: string): string[] {
+  const found: string[] = [];
+  for (const item of text.matchAll(NAMED_FILE)) {
+    const path = item[1].replace(/^\.?\//, "");
+    if (path.length > 180 || path.includes("..") || found.includes(path)) continue;
+    found.push(path);
+    if (found.length >= 3) break;
+  }
+  return found;
+}
+
+export function zipNamesInHistory(text: string): string[] {
+  const names: string[] = [];
+  for (const item of text.matchAll(/ФАЙЛ: ([^/\n]+?\.zip)/gi)) {
+    const name = item[1].trim();
+    if (name && !names.includes(name)) names.push(name);
+  }
+  return names.slice(0, 4);
+}
+
+export function censusLine(text: string): string | null {
+  const found = text.match(/Прочитано (\d+) из (\d+)\./);
+  if (!found || Number(found[1]) >= Number(found[2])) return null;
+  return `Прочитано ${found[1]} из ${found[2]}.`;
+}
+
+export function uploadKeyForProject(key: string, projectId: string | undefined): boolean {
+  if (!projectId || !/^[A-Za-z0-9_-]{1,128}$/.test(projectId)) return false;
+  return key.startsWith(`uploads/${projectId}/`) && !key.includes("..");
+}
+
+/** Дочитывает названные пути из уже загруженного ZIP. */
+export async function readNamedFromZip(
+  env: Env,
+  archive: { r2Key: string; fileName: string },
+  paths: string[],
+): Promise<LoadedAttachment[]> {
+  if (!env.AZRAIL_R2 || paths.length === 0) return [];
+  try {
+    const obj = await env.AZRAIL_R2.get(archive.r2Key);
+    if (!obj) return [{ fileName: archive.fileName, skipped: "архив уже не лежит в хранилище" }];
+    if (obj.size > 50 * 1024 * 1024) return [{ fileName: archive.fileName, skipped: "архив превышает 50 МБ" }];
+    const buf = await obj.arrayBuffer();
+    const { entries } = listZip(buf, 8000);
+    const out: LoadedAttachment[] = [];
+    for (const want of paths) {
+      const needle = want.toLowerCase();
+      const exact = entries.find((entry) => entry.path.toLowerCase() === needle);
+      const tail = entries
+        .filter((entry) => entry.path.toLowerCase().endsWith(`/${needle}`))
+        .sort((a, b) => a.path.length - b.path.length)[0];
+      const entry = exact ?? tail;
+      if (!entry) {
+        out.push({ fileName: `${archive.fileName} → ${want}`, skipped: "в архиве нет такого пути" });
+        continue;
+      }
+      if (entry.skipped || !TEXT_EXT.has(extOf(entry.path))) {
+        out.push({ fileName: `${archive.fileName} → ${entry.path}`, skipped: entry.skipped ?? "этот тип из архива не читается как текст" });
+        continue;
+      }
+      if (entry.size > MAX_TEXT_BYTES) {
+        out.push({ fileName: `${archive.fileName} → ${entry.path}`, skipped: `файл больше ${Math.round(MAX_TEXT_BYTES / 1024)} КБ` });
+        continue;
+      }
+      const bytes = await readEntry(buf, entry, MAX_TEXT_BYTES);
+      out.push({
+        fileName: `${archive.fileName} → ${entry.path}`,
+        text: new TextDecoder("utf-8").decode(bytes),
+        bytes: bytes.byteLength,
+      });
+    }
+    return out;
+  } catch (err) {
+    return [{ fileName: archive.fileName, skipped: err instanceof Error ? err.message : String(err) }];
+  }
+}
+
+/** Старый диалог без метки: ищем ZIP этого проекта по имени из переписки. */
+export async function findOwnedZip(
+  env: Env,
+  projectId: string,
+  names: string[],
+): Promise<{ r2Key: string; fileName: string } | null> {
+  if (!env.AZRAIL_R2 || !uploadKeyForProject(`uploads/${projectId}/x`, projectId) || names.length === 0) return null;
+  const wanted = new Set(names.map((name) => sanitizeZipName(name)));
+  let cursor: string | undefined;
+  for (let page = 0; page < 3; page++) {
+    const listed = await env.AZRAIL_R2.list({ prefix: `uploads/${projectId}/`, limit: 100, cursor });
+    for (const object of listed.objects ?? []) {
+      const key = object.key;
+      if (!key.toLowerCase().endsWith(".zip") || !uploadKeyForProject(key, projectId)) continue;
+      const leaf = key.slice(key.lastIndexOf("/") + 1);
+      for (const name of wanted) {
+        if (leaf.endsWith(`-${name}`) || leaf === name) return { r2Key: key, fileName: names.find((item) => sanitizeZipName(item) === name) ?? name };
+      }
+    }
+    if (!listed.truncated || !listed.cursor) break;
+    cursor = listed.cursor;
+  }
+  return null;
+}
+
+function sanitizeZipName(name: string): string {
+  return name.replace(/\.{2,}/g, ".").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120) || "file";
 }
