@@ -74,6 +74,7 @@ html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: hidden; }
 .app-shell .assignment-thing a { color: #d7c4ea; }
 .app-shell .assignment-thing p { margin: 0; color: #d9d0e2; }
 html[data-expert="off"] [data-expert] { display: none !important; }
+html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .assignment-live .kicker { margin: 0; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: #91809f; }
 .app-shell .assignment-live h2 { margin: 0; font-size: 15px; font-weight: 500; color: #f3eef8; }
 .app-shell .assignment-facts { display: grid; grid-template-columns: 88px minmax(0,1fr); gap: 3px 10px; margin: 2px 0 0; font-size: 12px; line-height: 1.45; }

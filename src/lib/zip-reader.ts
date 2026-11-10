@@ -144,7 +144,7 @@ export function listZip(buf: ArrayBuffer, maxEntries = 2000): ZipListing {
 async function inflateRaw(data: Uint8Array, limit: number): Promise<Uint8Array> {
   // Blob принимает Uint8Array; приведение — обход конфликта версий
   // workers-types в этой связке зависимостей, тот же, что описан в upload.ts.
-  const stream = (new Blob([data as unknown as ArrayBufferView]) as unknown as { stream(): ReadableStream })
+  const stream = (new Blob([data as unknown as ArrayBuffer]) as unknown as { stream(): ReadableStream })
     .stream()
     .pipeThrough(new DecompressionStream("deflate-raw"));
   const reader = stream.getReader();

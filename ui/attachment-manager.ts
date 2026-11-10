@@ -12,6 +12,7 @@ type Deps={
  getProjectId:()=>string;
  api:(path:string,options?:RequestInit)=>Promise<any>;
  onChange?:(refs:AttachmentRef[])=>void;
+ onAdded?:(files:File[])=>void;
  failure:(e:unknown)=>void;
 };
 
@@ -60,6 +61,7 @@ export function createAttachmentManager(deps:Deps){
   try{
    if(items.length+files.length>MAX_FILES)throw Error(`Можно прикрепить до ${MAX_FILES} файлов за один запрос.`);
    for(const file of files){validate(file);items.push({id:id(),file,state:'queued',progress:0});}
+   deps.onAdded?.(files);
    render();
    for(const item of items.filter(i=>i.state==='queued'))await upload(item);
   }catch(e){deps.failure(e);}

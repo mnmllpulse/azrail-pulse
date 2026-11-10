@@ -69,5 +69,12 @@ export function mountHomeCanvas(){
  codeTab.addEventListener('click',()=>show('code'));
  screenTab.addEventListener('click',()=>show('screen'));
  document.addEventListener('azrail:preview-open',()=>paint());
+ document.addEventListener('azrail:site-preview',(event)=>{
+  const html=(event as CustomEvent<string>).detail;
+  if(typeof html!=='string'||!html.trim())return;
+  code.value=html;
+  try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
+  show('screen');
+ });
  show('code');
 }

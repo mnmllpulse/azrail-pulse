@@ -106,6 +106,16 @@ export function workPlanFromDraft(rows: Array<{ text?: string; kind?: string; af
   return { parts, parallel };
 }
 
+/** Файл и схема берутся только из слов самого сообщения. Модель не превращает разбор архива в сборку файла. */
+export function groundWorkPlan(message: string, plan: WorkPlan | null): WorkPlan | null {
+  if (!plan) return null;
+  const asked = readAssignment(message).kind;
+  const parts = plan.parts.filter((part) => (part.kind !== 'file' && part.kind !== 'diagram') || asked === part.kind);
+  if (!parts.length) return null;
+  if (parts.length === plan.parts.length) return plan;
+  return { ...plan, parts, parallel: parts.some((part) => parts.filter((other) => other.wave === part.wave).length > 1) };
+}
+
 export type StoredPart = {
   id?: string;
   kind?: string;

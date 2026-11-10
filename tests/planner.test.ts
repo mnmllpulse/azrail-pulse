@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPlan, fileNameFromPhrase, followUpPlan, holdBlocked, openStoredPlan, planRecord, planWork, retryPart, revisePart, wavesToRun, workPlanFromDraft } from '../ui/planner';
+import { formatPlan, fileNameFromPhrase, followUpPlan, groundWorkPlan, holdBlocked, openStoredPlan, planRecord, planWork, retryPart, revisePart, wavesToRun, workPlanFromDraft } from '../ui/planner';
 
 describe('Планировщик поручения', () => {
   it('одну картинку не дробит', () => {
@@ -63,6 +63,13 @@ describe('Планировщик поручения', () => {
     ]);
     expect(plan?.parts[1]?.wave).toBe(1);
     expect(plan?.parts[1]?.dependsOn).toEqual(['part-1']);
+  });
+
+  it('разбор архива не становится сборкой файла', () => {
+    const drafted = workPlanFromDraft([{ text: 'сделай анализ', kind: 'file' }]);
+    expect(groundWorkPlan('сделай анализ', drafted)).toBeNull();
+    const kept = workPlanFromDraft([{ text: 'Сделай pdf отчёт', kind: 'file' }]);
+    expect(groundWorkPlan('Сделай pdf отчёт', kept)?.parts[0]?.kind).toBe('file');
   });
 
   it('неизвестный вид отменяет ответ модели', () => {

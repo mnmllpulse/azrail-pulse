@@ -27,7 +27,8 @@ import {fillMarkdownContent} from './chat-markdown';
 import {formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
-import {formatPlan,fileNameFromPhrase,followUpPlan,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {siteFromZip} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft} from './chat-site';
 import {diagramLines,diagramModel} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
@@ -74,7 +75,7 @@ const composerHome=document.createComment('composer-home'),missionHome=document.
 composer.before(composerHome);missionPanel.before(missionHome);
 const navigation=createNavigation(renderRoute);
 let attachmentRefs:any[]=[],pending:{key:string;body:string}|null=null;
-const attachmentManager=createAttachmentManager({root:$('attachment-manager'),input:$<HTMLInputElement>('attachments'),getProjectId:()=>project,api,failure,onChange:refs=>{attachmentRefs=refs;$('attachment-names').textContent=refs.length?`${refs.length} файл(ов) готово`:'';syncContextPanel();}});
+const attachmentManager=createAttachmentManager({root:$('attachment-manager'),input:$<HTMLInputElement>('attachments'),getProjectId:()=>project,api,failure,onAdded:files=>{void previewAttachedSite(files);},onChange:refs=>{attachmentRefs=refs;$('attachment-names').textContent=refs.length?`${refs.length} файл(ов) готово`:'';syncContextPanel();}});
 function clearAttachments(){attachmentRefs=[];attachmentManager.clear();$('attachment-names').textContent='';}
 function deviceValue(key:string){try{return localStorage.getItem(key)??sessionStorage.getItem(key);}catch{try{return sessionStorage.getItem(key);}catch{return null;}}}
 function deviceWrite(key:string,value:string|null){for(const store of [localStorage,sessionStorage])try{if(value===null)store.removeItem(key);else store.setItem(key,value);}catch{/* private mode */}}
@@ -102,6 +103,18 @@ const studioRooms=createStudioRooms(chatStorage);
 chatHistory.setScope(local?'local':'guest');
 let openContextPanel=()=>{};
 const workspace=mountWorkspaceShell(()=>openContextPanel());
+async function previewAttachedSite(files:File[]){
+ const zip=files.find(file=>file.name.toLowerCase().endsWith('.zip'));
+ const page=files.find(file=>/\.html?$/i.test(file.name));
+ let html='';
+ try{
+  if(zip)html=await siteFromZip(await zip.arrayBuffer())??'';
+  else if(page)html=await page.text();
+ }catch{return;}
+ if(!html.trim())return;
+ document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:html}));
+ workspace.setPreview(true);
+}
 let contextGeneration=0;
 let currentRoute:Route={page:'create'};
 async function persistChatMeta(id:string,patch:{title?:string;pinned?:boolean;archived?:boolean;projectId?:string|null}){
@@ -1567,7 +1580,7 @@ async function chosenPlan(message:string):Promise<WorkPlan|null>{
   const drafted=await api('/api/plan',{method:'POST',body:JSON.stringify({message,...(memory?{memory}:{})})}) as {fallback?:boolean;parts?:Array<{text?:string;kind?:string;after?:boolean}>};
   if(drafted.fallback)return planWork(message);
   if(Array.isArray(drafted.parts)&&drafted.parts.length===0)return null;
-  return workPlanFromDraft(drafted.parts??[])??planWork(message);
+  return groundWorkPlan(message,workPlanFromDraft(drafted.parts??[])??planWork(message));
  }catch{return planWork(message);}
 }
 async function runChat(){
