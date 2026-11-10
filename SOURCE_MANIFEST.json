@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-07T07:43:21.619Z",
+  "generated_at": "2026-11-10T18:33:15.774Z",
   "excludes_self": true,
   "file_count": 1314,
   "files": [
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3154,
-      "sha256": "5dd9fa16d5618c82a4ee4497cea059c51b5da4ebf8e0afe1d88b13a43d0b7732"
+      "sha256": "2cdab8eaf08e275d202e69b8e1aba28f092c25fbc1c516ddd055e086a7704cef"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20561,
-      "sha256": "0e92ffc425be73f9c71e87e0c1a4448b44b5e296801e81a4bb885c484d316a8b"
+      "sha256": "03adafcad1e3f0110bb51accc2cf5f071299e2db6ab22ba646227b804338c603"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1082,8 +1082,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
-      "bytes": 7314,
-      "sha256": "559b7c843dec068fdb8bf5b392f12e04614b408d836b2c55a8789ebd95c9125d"
+      "bytes": 7282,
+      "sha256": "286f5c8337cceab5f78697df08e0c371d48372d60687b72aa05681dbc139561d"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1227,8 +1227,8 @@
     },
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
-      "bytes": 6541,
-      "sha256": "896dfe6d2a7c12cc1b78451ef73b075eb2a9bd0ce6d6328ee124c821ce236846"
+      "bytes": 6597,
+      "sha256": "dbd65304c05c2e8ea86523ecd4912ad389fae61f2721c70e23378dec4f52c6a6"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
