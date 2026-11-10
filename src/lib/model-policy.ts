@@ -17,6 +17,23 @@ export const FREE_MODEL_SLUGS = new Set([
   "@cf/baai/bge-m3",
 ]);
 
+// Картинки и расшифровка идут мимо чатового списка, но воркер их вызывает.
+const STUDIO_RUN_SLUGS = new Set([
+  "@cf/black-forest-labs/flux-2-klein-4b",
+  "@cf/black-forest-labs/flux-2-klein-9b",
+  "@cf/openai/whisper-large-v3-turbo",
+]);
+
+export function freeWorkerCanRun(slug: string): boolean {
+  return FREE_MODEL_SLUGS.has(slug) || STUDIO_RUN_SLUGS.has(slug);
+}
+
+export function catalogAvailability(slug: string, env: Pick<Env, "AZRAIL_WORKERS_PLAN" | "AZRAIL_FORCE_FREE">): "available" | "unavailable" {
+  const paid = env.AZRAIL_WORKERS_PLAN === "paid" && env.AZRAIL_FORCE_FREE !== "true";
+  if (paid) return "available";
+  return freeWorkerCanRun(slug) ? "available" : "unavailable";
+}
+
 export interface ModelPolicy {
   allowThirdPartyModels: boolean;
   monthlyBudgetUsd: number;

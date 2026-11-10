@@ -80,7 +80,7 @@ export async function readSource(env: Env, request: TaskRequest, maxChars = MAX_
       // Раньше owner/repo брались простым split без единой проверки:
       // payload "../../user" давал owner=".." и уводил запрос с эндпоинта.
       const { owner, repo } = splitRepo(request.payload, "payload (owner/name)");
-      const headers = {"User-Agent":"azrail-os",...(env.GITHUB_TOKEN?{Authorization:`Bearer ${env.GITHUB_TOKEN}`}:{})};
+      const headers = {"User-Agent":"azrail-pulse",...(env.GITHUB_TOKEN?{Authorization:`Bearer ${env.GITHUB_TOKEN}`}:{})};
       const treeRes=await fetch(`https://api.github.com/repos/${owner}/${repo}/git/trees/HEAD?recursive=1`,
         {headers,redirect:"error",signal:AbortSignal.timeout(20_000)});
       if(!treeRes.ok)throw new Error(`GitHub API вернул ${treeRes.status} при чтении дерева ${owner}/${repo}`);

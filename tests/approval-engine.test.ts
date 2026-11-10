@@ -18,12 +18,12 @@ function fixture() {
 describe("Unified Approval Engine", () => {
   it("binds a human decision to the exact payload and consumes it once", async () => {
     const { env, sqlite } = fixture();
-    const digest = await approvalDigest({ repo: "mnmllpulse/azrail-os", head: "feature/x", base: "main" });
+    const digest = await approvalDigest({ repo: "mnmllpulse/azrail-pulse", head: "feature/x", base: "main" });
     const req = await requestApproval(env, {
       actionType: "github_pr",
       risk: "critical",
       scopeType: "github_pr",
-      scopeId: "mnmllpulse/azrail-os:feature/x->main",
+      scopeId: "mnmllpulse/azrail-pulse:feature/x->main",
       payloadDigest: digest,
       summary: "Open PR",
       requestedBy: "account:a",
@@ -35,12 +35,12 @@ describe("Unified Approval Engine", () => {
       id: req.id,
       actionType: "github_pr",
       scopeType: "github_pr",
-      scopeId: "mnmllpulse/azrail-os:feature/x->main",
-      payloadDigest: await approvalDigest({ repo: "mnmllpulse/azrail-os", head: "changed", base: "main" }),
+      scopeId: "mnmllpulse/azrail-pulse:feature/x->main",
+      payloadDigest: await approvalDigest({ repo: "mnmllpulse/azrail-pulse", head: "changed", base: "main" }),
       actor: "git:a",
     })).rejects.toThrow(/точным параметрам/);
-    await claimApproval(env, { id: req.id, actionType: "github_pr", scopeType: "github_pr", scopeId: "mnmllpulse/azrail-os:feature/x->main", payloadDigest: digest, actor: "git:a" });
-    await expect(claimApproval(env, { id: req.id, actionType: "github_pr", scopeType: "github_pr", scopeId: "mnmllpulse/azrail-os:feature/x->main", payloadDigest: digest, actor: "git:a" })).rejects.toThrow();
+    await claimApproval(env, { id: req.id, actionType: "github_pr", scopeType: "github_pr", scopeId: "mnmllpulse/azrail-pulse:feature/x->main", payloadDigest: digest, actor: "git:a" });
+    await expect(claimApproval(env, { id: req.id, actionType: "github_pr", scopeType: "github_pr", scopeId: "mnmllpulse/azrail-pulse:feature/x->main", payloadDigest: digest, actor: "git:a" })).rejects.toThrow();
     await completeApproval(env, { id: req.id, actor: "git:a", outcome: "executed", detail: { pr: 1 } });
     expect((await getApproval(env, req.id))?.status).toBe("executed");
     expect(sqlite.prepare("SELECT COUNT(*) n FROM approval_receipts WHERE approval_id=?").get(req.id)?.n).toBe(4);

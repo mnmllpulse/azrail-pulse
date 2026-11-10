@@ -1,5 +1,5 @@
 import type { Env } from "../types";
-import { FREE_MODEL_SLUGS } from "./model-policy";
+import { catalogAvailability, FREE_MODEL_SLUGS } from "./model-policy";
 import { findModel, providerIcon } from "./model-registry";
 import staticRegistry from "../data/ai-model-registry.json";
 
@@ -17,7 +17,7 @@ export type LiveModelCatalogItem={
   contextWindow:number|null;
   speedProfile:"fast"|"balanced"|"quality"|"unknown";
   costProfile:"free-allowlisted"|"policy-gated"|"unknown";
-  availability:"available";
+  availability:"available"|"unavailable";
   description?:string;
 };
 
@@ -128,7 +128,7 @@ export async function readLiveCatalog(env: Env) {
     complete = false;
   }
 
-  const models = [...bySlug.values()].sort((a, b) =>
+  const models = [...bySlug.values()].map(model => ({...model, availability: catalogAvailability(model.slug, env)})).sort((a, b) =>
     a.provider.localeCompare(b.provider) || a.slug.localeCompare(b.slug),
   );
   return {

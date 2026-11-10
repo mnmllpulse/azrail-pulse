@@ -31,7 +31,7 @@ describe("Вложения доезжают до задачи", () => {
     // Осталось то, что не изменилось: если архива нет в хранилище,
     // человек должен прочесть причину, а не «не найдено исходных модулей».
     const out = await loadAttachments(r2({}), [
-      { r2Key: "u/p.zip", fileName: "azrail-os.zip", inputType: "zip" },
+      { r2Key: "u/p.zip", fileName: "azrail-pulse.zip", inputType: "zip" },
     ]);
     expect(out[0].text).toBeUndefined();
     expect(out[0].skipped).toContain("не найден");

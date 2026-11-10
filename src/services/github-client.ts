@@ -26,7 +26,7 @@ export async function githubRequest(token: string, path: string, init: GitHubReq
     headers: {
       Authorization: `Bearer ${token}`,
       Accept: "application/vnd.github+json",
-      "User-Agent": "azrail-os",
+      "User-Agent": "azrail-pulse",
       "Content-Type": "application/json",
       ...(requestInit.headers ?? {}),
     },

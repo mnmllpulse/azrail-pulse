@@ -9,4 +9,4 @@ alwaysApply: true
 - Design: dark minimal noir, background near #050508, glass where the current shell already uses it.
 - Keep scripts modular. Do not rewrite a whole file when a small edit is enough.
 - Never place raw API keys (OpenAI, ElevenLabs, Anthropic) in client-side JS or HTML. Provider calls go through the worker.
-- Working site is the Cloudflare worker `azrail-pulse`. Do not recreate the deleted worker `azrail-os`.
+- Working site is the Cloudflare worker `azrail-pulse`. Deploy only `wrangler.jsonc`. Do not deploy `wrangler.production.json`.

@@ -27,10 +27,10 @@
       "d1_database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f",
       "d1_bookmark": "00000915-00000000-00005113-0a4f8c084a616139e714b6cd621c2a64",
       "known_drift": [
-        "Retargeted 2026-10-29 from the deleted worker azrail-os to the working site azrail-pulse.",
+        "The working site is azrail-pulse via wrangler.jsonc.",
         "Preview URLs are disabled on the working site.",
         "The AZRAIL_TOKEN secret was removed on 2026-11-03. Email login remains the only sign-in.",
-        "The deleted GitHub repository mnmllpulse/azrail-os is not the release target."
+        "The release repository is mnmllpulse/azrail-pulse."
       ]
     },
     "staging": {

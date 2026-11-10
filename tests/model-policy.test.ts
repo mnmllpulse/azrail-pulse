@@ -83,5 +83,9 @@ describe("server model policy", () => {
     const live=c.models.find(m=>m.slug==="external/new");
     expect(live?.reviewed).toBe(false);
     expect(live?.freeAllowlisted).toBe(false);
+    expect(live?.availability).toBe("unavailable");
+    expect(c.models.find(m=>m.slug==="@cf/meta/llama-3.2-3b-instruct")?.availability).toBe("available");
+    expect(c.models.find(m=>m.slug==="@cf/black-forest-labs/flux-2-klein-4b")?.availability).toBe("available");
+    expect(c.models.filter(m=>m.availability==="available").every(m=>m.freeAllowlisted||m.slug.startsWith("@cf/black-forest-labs/flux-2-klein")||m.slug==="@cf/openai/whisper-large-v3-turbo")).toBe(true);
   });
 });

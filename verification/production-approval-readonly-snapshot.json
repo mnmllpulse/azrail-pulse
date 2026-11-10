@@ -82,8 +82,8 @@
   },
   "notes": [
     "Snapshot contains identifiers and binding names only; no Cloudflare secret values are stored.",
-    "Production was re-read on 2026-10-29. The working site is azrail-pulse. The deleted worker azrail-os is not this lease.",
+    "Production was re-read on 2026-10-29. The working site is azrail-pulse.",
     "The staging deployment in this file stays the older reviewed baseline so a newer smoke can prove movement.",
-    "GitHub repository mnmllpulse/azrail-os was deleted by the owner. The release repository is mnmllpulse/azrail-pulse."
+    "The release repository is mnmllpulse/azrail-pulse."
   ]
 }

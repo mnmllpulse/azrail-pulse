@@ -27,9 +27,7 @@ npm run production:drift:plan
 
 ## Read-only snapshot 2026-10-10
 
-Этот снимок снят 10 октября 2026. Его статус был **RECONCILIATION_REQUIRED**. Воркер `azrail-os` удалён 29 октября 2026 и рабочим сайтом не является. Цифры ниже описывают тот старый снимок.
-
-Прежний Worker снимка: `azrail-os`.
+Этот снимок снят 10 октября 2026. Его статус был **RECONCILIATION_REQUIRED**. Цифры ниже описывают тот снимок и в рабочий сайт `azrail-pulse` не входят.
 
 Активный deployment: `473850a1-df43-47fb-b05e-0211ef9f7bae`, Worker version `476a3e6d-c066-484c-a0f8-d986bc630119` (version number 209), исторический source=`wrangler`.
 

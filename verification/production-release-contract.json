@@ -86,7 +86,7 @@
     ],
     "oidc_vars_injected_at_runtime": true,
     "keep_vars_forbidden": true,
-    "reason": "The working site is azrail-pulse via wrangler.jsonc. wrangler.production.json names the deleted worker azrail-os and must not be deployed."
+    "reason": "The working site is azrail-pulse via wrangler.jsonc. wrangler.production.json must not be deployed."
   },
   "finalization": {
     "requires_new_deployment_id": true,

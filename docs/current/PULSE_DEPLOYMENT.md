@@ -3,7 +3,7 @@
 The root `wrangler.jsonc` is generated from the `pulse` environment in
 `config/environments.json`. It deploys the free backend and `site/` assets to
 `azrail-pulse`, with dedicated D1, KV and R2 resources. Existing staging and
-`azrail-os` production resources are not shared or modified.
+The paid production config resources are not shared or modified.
 
 Cloudflare Workers Builds settings:
 

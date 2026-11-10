@@ -4,7 +4,7 @@ import { isAllowedHost, findDisallowedHosts, ALLOWED_HOSTS } from "../src/core/s
 describe("политика сети песочницы действует", () => {
   it("разрешает то, что нужно для установки зависимостей", () => {
     expect(findDisallowedHosts("npm install --registry https://registry.npmjs.org")).toEqual([]);
-    expect(findDisallowedHosts("git clone https://github.com/mnmllpulse/azrail-os")).toEqual([]);
+    expect(findDisallowedHosts("git clone https://github.com/mnmllpulse/azrail-pulse")).toEqual([]);
     expect(findDisallowedHosts("pip install -i https://pypi.org/simple requests")).toEqual([]);
   });
 

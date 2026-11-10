@@ -6,4 +6,4 @@
   2. Skip polite conversational fillers. Go straight to code patches and structural explanation.
   3. Keep JavaScript modular and execution-lean. Avoid heavy bundlers unless specified.
 - Security: NEVER place raw API keys inside frontend JS or HTML files.
-- Working site is the Cloudflare worker azrail-pulse. Do not recreate the deleted worker azrail-os.
+- Working site is the Cloudflare worker azrail-pulse. Deploy only wrangler.jsonc. Do not deploy wrangler.production.json.
