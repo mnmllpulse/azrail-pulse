@@ -47,6 +47,14 @@ export interface AnswerData {
   calculations?: CalcStep[];
   usedMemory: boolean;
   model?: string;
+  attempts?: number;
+}
+
+/** Запасная модель той же задачи. Первая попытка остаётся без приписки. */
+export function withFallbackNotice(text: string, attempts: number, model?: string): string {
+  if (attempts <= 1 || !text) return text;
+  const leaf = model?.split("/").pop()?.replace(/[-_]+/g, " ").trim();
+  return `${text}\n\nПервая модель не ответила. Ответ дала ${leaf || "запасная модель"}.`;
 }
 
 export class AnswerAgent extends Agent<Env, AnswerAgentState> {
@@ -149,6 +157,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
 
     let text: string;
     let usedModel: string | undefined;
+    let attempts = 1;
     try {
       const routed = await runModel<{ response?: string }>(
         this.env,
@@ -162,7 +171,8 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
         },
         { preferredModel: request.preferredModel || (voice === "lumen" ? undefined : "@cf/meta/llama-3.3-70b-instruct-fp8-fast"), trace: taskTrace(request) },
       );
-      text = extractText(routed.output).trim();
+      attempts = routed.attempts;
+      text = withFallbackNotice(extractText(routed.output).trim(), attempts, routed.model);
       usedModel = routed.model;
     } catch (err) {
       return {
@@ -192,6 +202,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
       calculations,
       usedMemory: Boolean(memory),
       model: usedModel,
+      attempts,
     };
 
     return { status: "done", agent: "answer-agent", summary: text, data };

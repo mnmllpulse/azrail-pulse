@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-10T18:33:15.774Z",
+  "generated_at": "2026-11-10T18:48:42.772Z",
   "excludes_self": true,
-  "file_count": 1314,
+  "file_count": 1315,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -218,7 +218,7 @@
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
       "bytes": 3154,
-      "sha256": "2cdab8eaf08e275d202e69b8e1aba28f092c25fbc1c516ddd055e086a7704cef"
+      "sha256": "61d06b8784f2a0c3af7f13d9132de020b94aa901c7d1d6839fe847cffa001ce4"
     },
     {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
@@ -253,7 +253,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 20561,
-      "sha256": "03adafcad1e3f0110bb51accc2cf5f071299e2db6ab22ba646227b804338c603"
+      "sha256": "18c3c70a637b1d3652d3ffc906a56e7c9097adffaa48ec2836e35ff78fba3e1c"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -1083,7 +1083,7 @@
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
       "bytes": 7282,
-      "sha256": "286f5c8337cceab5f78697df08e0c371d48372d60687b72aa05681dbc139561d"
+      "sha256": "dfe8af9c1f10620a03d5ed5d2daf6347b405111df88bf34f976d30ee601d21ee"
     },
     {
       "path": "docs/product/AZRAIL_2_SECURITY_MODEL.md",
@@ -1228,7 +1228,7 @@
     {
       "path": "docs/runbooks/PRODUCTION_DRIFT_RECONCILIATION_RU.md",
       "bytes": 6597,
-      "sha256": "dbd65304c05c2e8ea86523ecd4912ad389fae61f2721c70e23378dec4f52c6a6"
+      "sha256": "bb2cddea95c75f9c34d0c5856b28b8e4043e033f1b93e4bf06c07c895537cbc9"
     },
     {
       "path": "docs/runbooks/PRODUCTION_RELEASE_RU.md",
@@ -4222,8 +4222,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 13342,
-      "sha256": "9fbf998103c32593204f9e28bfa354abac4e2b7923e88bb78d62400f93245d9d"
+      "bytes": 13958,
+      "sha256": "2357fb745193e06c0350445030b391e25ef6e0a0b78c83e8326e71436782189e"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -5084,6 +5084,11 @@
       "path": "tests/als-music-parser.test.ts",
       "bytes": 1054,
       "sha256": "f1b3bf9243ad8a2892aa7a9a923dc010e5f428d28df43c9c40239457cd5b8b63"
+    },
+    {
+      "path": "tests/answer-fallback.test.ts",
+      "bytes": 790,
+      "sha256": "73738d696622cdde2ef3149301cd8ca70d2ac88f3683872437f4f6ec138798e6"
     },
     {
       "path": "tests/api-contract.test.ts",
