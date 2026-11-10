@@ -1,6 +1,6 @@
-export type DraftPart = { text: string; kind: 'image' | 'music' | 'video' | 'web' | 'build'; after: boolean };
+export type DraftPart = { text: string; kind: 'image' | 'music' | 'video' | 'web' | 'file' | 'diagram' | 'build'; after: boolean };
 
-const KINDS = new Set(['image', 'music', 'video', 'web', 'build']);
+const KINDS = new Set(['image', 'music', 'video', 'web', 'file', 'diagram', 'build']);
 
 /** Достаёт части из ответа модели. Пустой список — разговор. null — ответ нельзя использовать. */
 export function parsePlanDraft(raw: string): DraftPart[] | null {

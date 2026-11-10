@@ -58,7 +58,7 @@ export const planDraftSchema = z.object({
 
 const planUrl = z.string().max(300).regex(/^\/api\/studio\/artifacts\/[A-Za-z0-9._~-]+(?:\?inline=1)?$|^\/s\/[A-Za-z0-9_-]+\/?$/);
 const planThingSchema = z.object({
-  type: z.enum(["image", "audio", "page", "storyboard", "note"]),
+  type: z.enum(["image", "audio", "page", "storyboard", "note", "file", "diagram"]),
   url: planUrl.optional(),
   title: z.string().max(200).optional(),
   lines: z.array(z.string().max(200)).max(8).optional(),
@@ -73,7 +73,7 @@ export const conversationPlanSchema = z.object({
     text: z.string().max(2000),
     parts: z.array(z.object({
       id: z.string().trim().min(1).max(32),
-      kind: z.enum(["image", "music", "video", "web", "build"]),
+      kind: z.enum(["image", "music", "video", "web", "file", "diagram", "build"]),
       text: z.string().max(500),
       worker: z.string().max(80),
       state: z.enum(["waiting", "running", "done", "failed"]),

@@ -30,6 +30,8 @@ const OUTPUT: Record<string, string> = {
   music: 'трек',
   video: 'раскадровка',
   web: 'страница',
+  file: 'файл',
+  diagram: 'схема',
   build: 'шаги миссии',
 };
 

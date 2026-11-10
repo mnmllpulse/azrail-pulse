@@ -21,6 +21,9 @@ describe('Поручение из чата', () => {
 
   it('называет инструмент по результату', () => {
     expect(readAssignment('Нарисуй премиальный постер для бюро').kind).toBe('image');
+    expect(readAssignment('Сделай pdf отчёт').kind).toBe('file');
+    expect(readAssignment('Нарисуй схему входа').kind).toBe('diagram');
+    expect(readAssignment('Что такое pdf?').kind).toBe('talk');
     expect(readAssignment('Собери тёмный трек без вокала').kind).toBe('music');
     expect(readAssignment('Сделай ролик из четырёх кадров').kind).toBe('video');
     expect(readAssignment('Создай сайт для архитектурного бюро').kind).toBe('web');

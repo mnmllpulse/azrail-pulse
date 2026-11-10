@@ -1,4 +1,5 @@
 import type { Env, AttachmentRef } from "../types";
+import { officePlain } from "./office-text";
 import { listZip, readEntry, ZipError } from "./zip-reader";
 
 /**
@@ -51,6 +52,26 @@ const TEXT_EXT = new Set([
 
 /** Архивы: распознаём, чтобы сказать правду, а не молчать. */
 const ARCHIVE_EXT = new Set(["zip", "tar", "gz", "tgz", "rar", "7z", "bz2", "xz"]);
+
+/** Офисные пакеты — это ZIP с XML. PDF и картинки идут через Workers AI. */
+const OFFICE_EXT = new Set(["docx", "xlsx", "pptx"]);
+const MARKDOWN_EXT = new Set(["pdf", "png", "jpg", "jpeg", "webp", "gif", "bmp", "svg", "xls", "xlsm", "xlsb", "ods", "odt"]);
+const MARKDOWN_MIME: Record<string, string> = {
+  pdf: "application/pdf",
+  png: "image/png",
+  jpg: "image/jpeg",
+  jpeg: "image/jpeg",
+  webp: "image/webp",
+  gif: "image/gif",
+  bmp: "image/bmp",
+  svg: "image/svg+xml",
+  xls: "application/vnd.ms-excel",
+  xlsm: "application/vnd.ms-excel.sheet.macroenabled.12",
+  xlsb: "application/vnd.ms-excel.sheet.binary.macroenabled.12",
+  ods: "application/vnd.oasis.opendocument.spreadsheet",
+  odt: "application/vnd.oasis.opendocument.text",
+};
+const RICH_MAX_BYTES = 10 * 1024 * 1024;
 
 function extOf(name: string): string {
   const i = name.lastIndexOf(".");
@@ -192,6 +213,37 @@ export async function loadAttachments(
       const obj = await env.AZRAIL_R2.get(ref.r2Key);
       if (!obj) {
         out.push({ fileName: name, skipped: "файл не найден в хранилище" });
+        continue;
+      }
+
+      if (obj.size > RICH_MAX_BYTES && (OFFICE_EXT.has(ext) || MARKDOWN_EXT.has(ext))) {
+        out.push({ fileName: name, skipped: "файл больше 10 МБ" });
+        continue;
+      }
+
+      if (OFFICE_EXT.has(ext)) {
+        const text = await officePlain(await obj.arrayBuffer(), ext);
+        if (!text) out.push({ fileName: name, skipped: "в файле нет текста" });
+        else out.push({ fileName: name, text, bytes: obj.size });
+        continue;
+      }
+
+      if (MARKDOWN_EXT.has(ext)) {
+        if (!env.AI?.toMarkdown) {
+          out.push({ fileName: name, skipped: "разбор этого типа сейчас недоступен" });
+          continue;
+        }
+        const converted = (await env.AI.toMarkdown([{
+          name,
+          blob: new Blob([await obj.arrayBuffer()], { type: MARKDOWN_MIME[ext] ?? "application/octet-stream" }),
+        }])) as Array<{ data?: string; error?: string; format?: string }>;
+        const row = converted[0];
+        const text = row?.data?.trim() ?? "";
+        if (!text || row?.format === "error") {
+          out.push({ fileName: name, skipped: row?.error || "разбор не вернул текст" });
+          continue;
+        }
+        out.push({ fileName: name, text: text.slice(0, 80_000), bytes: obj.size });
         continue;
       }
 

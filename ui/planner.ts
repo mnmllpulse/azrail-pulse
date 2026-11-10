@@ -4,7 +4,7 @@ import { assignmentForKind, readAssignment, type Assignment, type AssignmentKind
 export type PlanState = 'waiting' | 'running' | 'done' | 'failed';
 
 export type PlanThing = {
-  type: 'image' | 'audio' | 'page' | 'storyboard' | 'note';
+  type: 'image' | 'audio' | 'page' | 'storyboard' | 'note' | 'file' | 'diagram';
   url?: string;
   title?: string;
   lines?: string[];
@@ -37,7 +37,7 @@ function realKind(text: string): AssignmentKind {
 
 function deliverable(text: string): boolean {
   const kind = realKind(text);
-  return kind === 'image' || kind === 'music' || kind === 'video' || kind === 'web';
+  return kind === 'image' || kind === 'music' || kind === 'video' || kind === 'web' || kind === 'file' || kind === 'diagram';
 }
 
 function loosePieces(text: string): string[] | null {
@@ -84,7 +84,7 @@ export function workPlanFromDraft(rows: Array<{ text?: string; kind?: string; af
   let wave = 0;
   for (const row of rows.slice(0, 4)) {
     const kind = row.kind;
-    if (kind !== 'image' && kind !== 'music' && kind !== 'video' && kind !== 'web' && kind !== 'build') return null;
+    if (kind !== 'image' && kind !== 'music' && kind !== 'video' && kind !== 'web' && kind !== 'file' && kind !== 'diagram' && kind !== 'build') return null;
     const text = (row.text ?? '').trim().slice(0, 500);
     if (!text) return null;
     if (row.after && drafted.length) wave += 1;
@@ -124,7 +124,7 @@ export function openStoredPlan(rows: StoredPart[]): WorkPlan | null {
   const parts: PlanPart[] = [];
   for (const row of rows.slice(0, 4)) {
     const kind = row.kind;
-    if (kind !== 'image' && kind !== 'music' && kind !== 'video' && kind !== 'web' && kind !== 'build') return null;
+    if (kind !== 'image' && kind !== 'music' && kind !== 'video' && kind !== 'web' && kind !== 'file' && kind !== 'diagram' && kind !== 'build') return null;
     const text = (row.text ?? '').trim().slice(0, 500);
     if (!text) return null;
     const state = row.state === 'done' || row.state === 'failed' || row.state === 'waiting' ? row.state : 'waiting';
@@ -300,9 +300,9 @@ function cleanThing(thing: PlanThing | undefined): PlanThing | undefined {
   const title = thing.title?.slice(0, 200);
   const url = thing.url && (ARTIFACT_URL.test(thing.url) || PAGE_URL.test(thing.url)) ? thing.url : undefined;
   const alts = keptUrls(thing.alts ?? []);
-  if (thing.type === 'storyboard') return lines?.length ? { type: thing.type, lines } : undefined;
+  if (thing.type === 'storyboard' || thing.type === 'diagram') return lines?.length ? { type: thing.type, lines } : undefined;
   if (thing.type === 'note') return title ? { type: thing.type, title } : undefined;
-  if (!url || (thing.type !== 'image' && thing.type !== 'audio' && thing.type !== 'page')) return undefined;
+  if (!url || (thing.type !== 'image' && thing.type !== 'audio' && thing.type !== 'page' && thing.type !== 'file')) return undefined;
   return { type: thing.type, url, ...(title ? { title } : {}), ...(lines?.length ? { lines } : {}), ...(alts.length ? { alts } : {}) };
 }
 

@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { loadAttachments, attachmentsToText } from "../src/lib/attachments";
+import { buildOffice } from "../src/lib/office-file";
 
 /** R2 понарошку: отдаёт то, что в него положили. */
 function r2(files: Record<string, string>) {
@@ -37,12 +38,27 @@ describe("Вложения доезжают до задачи", () => {
     expect(out[0].skipped).toContain("не найден");
   });
 
+  it("docx из чата читается обратно", async () => {
+    const made = buildOffice("Сделай docx\nПривет из файла");
+    const env = {
+      AZRAIL_R2: {
+        get: async () => ({
+          size: made.bytes.byteLength,
+          arrayBuffer: async () => made.bytes.buffer.slice(made.bytes.byteOffset, made.bytes.byteOffset + made.bytes.byteLength),
+          text: async () => "",
+        }),
+      },
+    } as never;
+    const out = await loadAttachments(env, [{ r2Key: "u/a.docx", fileName: "a.docx", inputType: "text" }]);
+    expect(out[0].text).toContain("Привет из файла");
+  });
+
   it("двоичный файл не выдаётся за текст", async () => {
     const out = await loadAttachments(r2({ "u/i.png": "\u0000PNG" }), [
       { r2Key: "u/i.png", fileName: "i.png", inputType: "image" },
     ]);
     expect(out[0].text).toBeUndefined();
-    expect(out[0].skipped).toContain("не читается как текст");
+    expect(out[0].skipped).toContain("разбор этого типа сейчас недоступен");
   });
 
   it("пропавший файл не роняет задачу", async () => {

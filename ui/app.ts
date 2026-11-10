@@ -29,6 +29,8 @@ import {readPendingImage,requestImage,type ImageRequestBody} from './image-reque
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {formatPlan,fileNameFromPhrase,followUpPlan,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft} from './chat-site';
+import {diagramLines,diagramModel} from './diagram';
+import {buildOffice} from '../src/lib/office-file';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
 function reportGlobalError(source:string,reason:unknown){
@@ -949,6 +951,38 @@ function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster='')
   });
   host.append(row);parent.append(host);return;
  }
+ if(thing.type==='file'&&thing.url){
+  host.append(downloadLink(thing.url,thing.title||downloadName(thing,'bin')));
+  parent.append(host);return;
+ }
+ if(thing.type==='diagram'&&thing.lines?.length){
+  const model=diagramModel(thing.lines.join('\n'));
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.setAttribute('viewBox','0 0 640 160');
+  svg.setAttribute('width','100%');
+  svg.setAttribute('role','img');
+  const count=Math.max(model.nodes.length,1);
+  const place=new Map(model.nodes.map((name,index)=>[name,{x:count===1?250:24+index*(520/Math.max(count-1,1)),y:62}]));
+  for(const [from,to] of model.edges){
+   const start=place.get(from);const end=place.get(to);if(!start||!end)continue;
+   const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+   line.setAttribute('x1',String(start.x+88));line.setAttribute('y1',String(start.y+16));
+   line.setAttribute('x2',String(end.x));line.setAttribute('y2',String(end.y+16));
+   line.setAttribute('stroke','#8b7cff');line.setAttribute('stroke-width','2');svg.append(line);
+  }
+  for(const name of model.nodes){
+   const point=place.get(name);if(!point)continue;
+   const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
+   rect.setAttribute('x',String(point.x));rect.setAttribute('y',String(point.y));
+   rect.setAttribute('width','112');rect.setAttribute('height','32');rect.setAttribute('rx','6');
+   rect.setAttribute('fill','#12121a');rect.setAttribute('stroke','#8b7cff');
+   const label=document.createElementNS('http://www.w3.org/2000/svg','text');
+   label.textContent=name;label.setAttribute('x',String(point.x+8));label.setAttribute('y',String(point.y+21));
+   label.setAttribute('fill','#f4f1ea');label.setAttribute('font-size','12');
+   svg.append(rect,label);
+  }
+  host.append(svg);parent.append(host);return;
+ }
  if(thing.type==='note'&&thing.title){const note=document.createElement('p');note.textContent=thing.title;host.append(note);parent.append(host);}
 }
 function paintThings(parts:Array<{thing?:PlanThing;state?:PlanPart['state'];versions?:PlanThing[]}>){
@@ -1480,6 +1514,24 @@ async function runPlanPart(part:PlanPart){
   await publishChatPage(part);
   return;
  }
+ if(part.kind==='diagram'){
+  const model=diagramModel(part.text);
+  part.state='done';
+  part.ready='Схема в чате.';
+  part.thing={type:'diagram',title:'Схема',lines:diagramLines(model)};
+  return;
+ }
+ if(part.kind==='file'){
+  if(!account)throw Error('Войдите, чтобы собрать файл.');
+  const made=buildOffice(part.text);
+  const saved=await api('/api/studio/artifacts',{method:'POST',headers:{'Content-Type':made.mime,'X-Filename':encodeURIComponent(made.name),'X-Studio-Id':'data'},body:made.bytes.buffer.slice(made.bytes.byteOffset,made.bytes.byteOffset+made.bytes.byteLength) as ArrayBuffer}) as {url?:string};
+  const url=safeMediaPath(String(saved.url??''));
+  if(!url)throw Error('Файл собран, но ссылка не сохранилась.');
+  part.state='done';
+  part.ready=`Файл «${made.name}» в чате.`;
+  part.thing={type:'file',url,title:made.name};
+  return;
+ }
  if(part.kind==='build'){
   await runMission(part.text,{keepTurn:true,stay:true,nested:true});
   const live=await settleMission();
@@ -1507,7 +1559,9 @@ async function runPlanScreen(part:PlanPart){
  part.state='done';
 }
 async function chosenPlan(message:string):Promise<WorkPlan|null>{
- if(local||!account||(account.role!=='admin'&&!account.operator))return planWork(message);
+ const localPlan=planWork(message);
+ if(localPlan?.parts.some(part=>part.kind==='file'||part.kind==='diagram'))return localPlan;
+ if(local||!account||(account.role!=='admin'&&!account.operator))return localPlan;
  try{
   const memory=finishedMemory();
   const drafted=await api('/api/plan',{method:'POST',body:JSON.stringify({message,...(memory?{memory}:{})})}) as {fallback?:boolean;parts?:Array<{text?:string;kind?:string;after?:boolean}>};

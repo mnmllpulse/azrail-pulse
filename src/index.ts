@@ -36,6 +36,7 @@ import { checkRateLimit } from "./lib/auth";
 import { chargeWrites, estimateMissionWrites } from "./lib/write-budget";
 import { validateAgainstCanon, summarizeCanon } from "./lib/canon-check";
 import { loadAttachments, attachmentsToText } from "./lib/attachments";
+import { chatSupplements } from "./lib/chat-context";
 import { log } from "./lib/resilience";
 import {
   MAX_PENDING_HINTS,
@@ -670,6 +671,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       if (body.attachments?.length) {
         message += attachmentsToText(await loadAttachments(env, body.attachments as AttachmentRef[]));
       }
+      message += await chatSupplements(env, body.message);
 
       const cid = body.conversationId ?? body.projectId ?? crypto.randomUUID();
       await ensureConversation(env, cid, body.projectId);
@@ -1274,7 +1276,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       const body = parseInput(planDraftSchema, parsedBody);
       const routed = await runModel<unknown>(env, "chat", {
         messages: [
-          { role: "system", content: "Разбери поручение на части. Верни только JSON {\"parts\":[{\"text\":\"короткая задача\",\"kind\":\"image|music|video|web|build\",\"after\":false}]}. after true ставит часть после предыдущей. image — картинка, music — трек, video — раскадровка, web — сайт, build — другое дело. Вопрос без готовой вещи: {\"parts\":[]}. Не больше 4 частей. Не выдумывай темп, деньги и ссылки. Если сказано, что часть уже собрана, не заказывай её снова, пока новая фраза прямо не просит переделать." },
+          { role: "system", content: "Разбери поручение на части. Верни только JSON {\"parts\":[{\"text\":\"короткая задача\",\"kind\":\"image|music|video|web|file|diagram|build\",\"after\":false}]}. after true ставит часть после предыдущей. image — картинка, music — трек, video — раскадровка, web — сайт, file — pdf, docx, xlsx или pptx, diagram — схема, build — другое дело. Вопрос без готовой вещи: {\"parts\":[]}. Не больше 4 частей. Не выдумывай темп, деньги и ссылки. Если сказано, что часть уже собрана, не заказывай её снова, пока новая фраза прямо не просит переделать." },
           ...(body.memory ? [{ role: "user" as const, content: `Уже собрано: ${body.memory}` }] : []),
           { role: "user", content: body.message },
         ],

@@ -1,7 +1,7 @@
 import type { StudioId } from './studio-types';
 
 /** Куда чат отдаёт фразу. talk остаётся разговором. */
-export type AssignmentKind = 'talk' | 'image' | 'music' | 'video' | 'web' | 'build';
+export type AssignmentKind = 'talk' | 'image' | 'music' | 'video' | 'web' | 'file' | 'diagram' | 'build';
 
 export type Assignment = {
   kind: AssignmentKind;
@@ -31,6 +31,8 @@ const MUSIC = new RegExp(NB + '(музык|песн|мелод|саундтре�
 const VIDEO = new RegExp(NB + '(видео|раскадров|ролик' + NA + '|клип' + NA + ')', 'iu');
 const WEB = new RegExp(NB + '(сайт|лендинг|визитк|интерфейс)', 'iu');
 const PAGE = new RegExp(NB + '(страниц|вёрстк|верстк|html)', 'iu');
+const FILE = new RegExp(NB + '(pdf|docx|xlsx|pptx|документ(?:а|ы)?|таблиц\\p{L}*|презентац\\p{L}*)' + NA, 'iu');
+const DIAGRAM = new RegExp(NB + '(диаграмм\\p{L}*|схем\\p{L}*|график)' + NA, 'iu');
 
 const TALK: Assignment = {
   kind: 'talk',
@@ -72,6 +74,18 @@ export function assignmentForKind(kind: Exclude<AssignmentKind, 'talk'>): Assign
     ready: 'Трек появится в этом чате, если генератор отвечает.',
     next: 'Если секрета музыки нет, чат так и скажет.',
   });
+  if (kind === 'file') return card({
+    kind: 'file', studio: null, control: null, worker: 'Файл',
+    now: 'Собираю файл.',
+    ready: 'Файл появится в этом чате.',
+    next: 'PDF, DOCX, XLSX и PPTX скачиваются из чата.',
+  });
+  if (kind === 'diagram') return card({
+    kind: 'diagram', studio: null, control: null, worker: 'Схема',
+    now: 'Собираю схему.',
+    ready: 'Схема появится в этом чате.',
+    next: 'Стрелки можно написать как «А -> Б».',
+  });
   if (kind === 'web') return card({
     kind: 'web', studio: null, control: null, worker: 'Сайт',
     now: 'Собираю страницу.',
@@ -96,9 +110,9 @@ export function skillsReply(text: string): string | null {
     'Я твой архитектор, разработчик, аналитик и дизайнер в этом чате. Укажи задачу и входные данные.',
     'Программирование: пишу, правлю и разбираю JS, TS, Python, SQL, HTML, CSS и Cloudflare Workers.',
     'Анализ: дроблю задачу, сравниваю варианты, считаю CSV и JSON, пишу технические и художественные тексты.',
-    'Файлы: скрепка читает ZIP и текст (txt, md, json, html, css, js, ts и соседние). Картинка — «нарисуй …». Страница — «сделай сайт …».',
-    'Интеграции готовлю в коде и плане: Cloudflare D1, KV, R2, Workers, GitHub. Сам push, деплой, Figma, Canva, Gmail и Google Drive из чата не нажимаю и не пишу, что они уже выполнены.',
-    'PDF, XLSX, DOCX и PPTX как файл не разбираю, если внутри сообщения нет их текста. Нет расписаний, нет управления браузером, нет доступа к твоему компьютеру. Ролик — раскадровка. Трек — только если генератор вернул звук.',
+    'Файлы: скрепка читает ZIP, текст, DOCX, XLSX, PPTX, PDF и картинку. «Сделай pdf», «docx», «xlsx» или «pptx» отдаёт файл в чат. «Схема» рисует схему. Картинка — «нарисуй …». Страница — «сделай сайт …».',
+    'Поиск по фразе «найди» прикладывает источники Википедии и DuckDuckGo. Ссылка github.com на публичный репозиторий читает README.',
+    'Push в GitHub, выкладку Cloudflare, Figma, Canva, Gmail и Google Drive фраза сама не нажимает: в ответе будет состояние связи. Нет расписаний, нет управления браузером, нет доступа к твоему компьютеру. Ролик — раскадровка. Трек — только если генератор вернул звук.',
   ].join('\n');
 }
 
@@ -110,7 +124,33 @@ export function readAssignment(text: string): Assignment {
   if (asks || HOLD.test(source)) return TALK;
 
   const hits: Array<{ at: number; plan: Assignment }> = [];
-  const imageAt = at(IMAGE, source);
+  const diagramAt = at(DIAGRAM, source);
+  if (diagramAt >= 0) hits.push({
+    at: diagramAt,
+    plan: card({
+      kind: 'diagram',
+      studio: null,
+      control: null,
+      worker: 'Схема',
+      now: 'Собираю схему.',
+      ready: 'Схема появится в этом чате.',
+      next: 'Стрелки можно написать как «А -> Б».',
+    }),
+  });
+  const fileAt = at(FILE, source);
+  if (fileAt >= 0) hits.push({
+    at: fileAt,
+    plan: card({
+      kind: 'file',
+      studio: null,
+      control: null,
+      worker: 'Файл',
+      now: 'Собираю файл.',
+      ready: 'Файл появится в этом чате.',
+      next: 'PDF, DOCX, XLSX и PPTX скачиваются из чата.',
+    }),
+  });
+  const imageAt = diagramAt >= 0 ? -1 : at(IMAGE, source);
   if (imageAt >= 0) hits.push({
     at: imageAt,
     plan: card({
