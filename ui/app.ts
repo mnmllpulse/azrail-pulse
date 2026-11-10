@@ -27,7 +27,7 @@ import {fillMarkdownContent} from './chat-markdown';
 import {formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
-import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,openStoredPlan,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {holdArchive,siteFromZip} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteZip} from './chat-site';
 import {diagramLines,diagramModel} from './diagram';
@@ -947,6 +947,9 @@ function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster='')
  if(thing.type==='page'&&thing.url){
   const frame=document.createElement('iframe');frame.className='chat-preview';frame.src=thing.url;frame.title=thing.title||'Просмотр страницы';frame.setAttribute('sandbox','allow-scripts');host.append(frame);
   const link=document.createElement('a');link.href=thing.url;link.target='_blank';link.rel='noopener';link.textContent=thing.title||'Открыть страницу';host.append(link);
+  if(earlier&&thing.url&&thing.lines?.some(line=>line.startsWith('azrail-site\t'))){
+   const back=document.createElement('button');back.type='button';back.className='text-button';back.textContent='Вернуть';back.dataset.restore=thing.url;host.append(back);
+  }
   const life=document.createElement('p');life.textContent='Страница живёт 90 дней.';host.append(life);
   const zip=thing.lines?.find(line=>line.startsWith('azrail-zip\t'))?.slice('azrail-zip\t'.length);
   if(zip)host.append(downloadLink(zip,downloadName(thing,'zip')));
@@ -1165,6 +1168,39 @@ function showContinue(plan:WorkPlan|null){
 function finishedMemory(){
  if(!heldPlan)return '';
  return heldPlan.parts.filter(part=>part.state==='done').map(part=>`${part.kind}: ${part.text}`).join('; ').slice(0,1000);
+}
+function showRestoredPage(thing:PlanThing){
+ const draft=draftFromLine(thing.lines?.find(line=>line.startsWith('azrail-site\t')));
+ if(!draft)return false;
+ const html=filesForDraft(draft).find(file=>file.path==='index.html')?.text??'';
+ if(!html.trim())return false;
+ document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:html}));
+ workspace.setPreview(true);
+ return true;
+}
+async function restoreHeldPage(url:string){
+ if(!url||!heldPlan||missionSubmitting)return;
+ const part=[...heldPlan.parts].reverse().find(item=>item.thing?.url===url||item.versions?.some(version=>version.url===url));
+ if(!part){notice('Эту страницу в текущем плане уже не найти.');return;}
+ if(part.thing?.type==='page'&&part.thing.url===url){
+  if(!showRestoredPage(part.thing))notice('Эту страницу не из чего открыть.');
+  return;
+ }
+ const index=part.versions?.findIndex(version=>version.type==='page'&&version.url===url)??-1;
+ if(index<0)return;
+ const restored=restorePageVersion(part,index);
+ if(!restored||!showRestoredPage(restored)){notice('Эту страницу не из чего вернуть.');return;}
+ part.ready=`На экране снова «${restored.title||'страница'}».`;
+ paintPlan(heldPlan);
+ await rememberWork(heldMessage||part.text,heldPlan,true);
+}
+if(typeof document!=='undefined'){
+ document.addEventListener('click',(event)=>{
+  const button=event.target instanceof Element?event.target.closest('button[data-restore]'):null;
+  if(!(button instanceof HTMLButtonElement))return;
+  event.preventDefault();
+  void restoreHeldPage(button.dataset.restore??'');
+ });
 }
 async function rememberWork(message:string,plan:WorkPlan,finished:boolean){
  if(!account||local)return;
@@ -1603,6 +1639,23 @@ async function runChat(){
  if(missionSubmitting)return;
  const message=prompt.value.trim();if(!message)return;
  const skills=skillsReply(message);
+ if(wantsPageRestore(message)){
+  const restored=takeBackPage(heldPlan);
+  if(restored){
+   const shown=showRestoredPage(restored);
+   const thread=chatHistory.current()??chatHistory.create();
+   const requestKey=crypto.randomUUID();
+   project=thread.projectId||project||crypto.randomUUID();
+   const name=restored.title||'страница';
+   const reply=shown?`На экране снова «${name}».`:'Эту страницу не из чего открыть.';
+   chatHistory.accepted(requestKey,message,project,thread.id);
+   chatHistory.report(requestKey,reply,'completed');
+   prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
+   if(heldPlan){paintPlan(heldPlan);void rememberWork(heldMessage||message,heldPlan,true);}
+   syncChatUI();workspace.toLatest();
+   return;
+  }
+ }
  if(skills){
   const thread=chatHistory.current()??chatHistory.create();
   const requestKey=crypto.randomUUID();

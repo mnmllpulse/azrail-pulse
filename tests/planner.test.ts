@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatPlan, fileNameFromPhrase, followUpPlan, groundWorkPlan, holdBlocked, openStoredPlan, planRecord, planWork, retryPart, revisePart, wavesToRun, workPlanFromDraft } from '../ui/planner';
+import { formatPlan, fileNameFromPhrase, followUpPlan, groundWorkPlan, holdBlocked, openStoredPlan, planRecord, planWork, restorePageVersion, retryPart, revisePart, takeBackPage, wantsPageRestore, wavesToRun, workPlanFromDraft } from '../ui/planner';
 
 describe('Планировщик поручения', () => {
   it('одну картинку не дробит', () => {
@@ -109,6 +109,27 @@ describe('Планировщик поручения', () => {
     expect(wider?.parts[0]?.text).toContain('чат шире');
     expect(followUpPlan('нарисуй постер', site)).toBeNull();
     expect(followUpPlan('Бро, наш сайт выглядит дешево', site)?.parts[0]?.kind).toBe('web');
+  });
+
+  it('возвращает прошлую страницу на место и держит смещённую в истории', () => {
+    const plan = planWork('Собери сайт для бюро');
+    const part = plan.parts[0];
+    part.state = 'done';
+    part.thing = { type: 'page', url: '/s/now', title: 'Сейчас', lines: ['azrail-site\tБюро\tdark\t0\t1\t1\t1\t0\t0\tбюро'] };
+    part.versions = [
+      { type: 'page', url: '/s/then', title: 'Раньше', lines: ['azrail-site\tБюро\tdark\t0\t0\t0\t1\t0\t0\tбюро'] },
+      { type: 'page', url: '/s/first', title: 'Первая' },
+    ];
+    expect(wantsPageRestore('верни предыдущую')).toBe(true);
+    expect(wantsPageRestore('верни предыдущую картинку')).toBe(false);
+    expect(restorePageVersion(part, 1)).toBeNull();
+    const back = takeBackPage(plan);
+    expect(back?.url).toBe('/s/then');
+    expect(part.thing?.url).toBe('/s/then');
+    expect(part.versions?.[0]?.url).toBe('/s/now');
+    expect(part.versions?.some((item) => item.url === '/s/then')).toBe(false);
+    const kept = followUpPlan('сделай чат шире', plan);
+    expect(kept?.parts[0]?.versions?.map((item) => item.url)).toEqual(['/s/then', '/s/now', '/s/first']);
   });
 
   it('правка одной части не трогает соседнюю', () => {

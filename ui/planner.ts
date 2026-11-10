@@ -193,7 +193,7 @@ export function followUpPlan(message: string, plan: WorkPlan | null): WorkPlan |
         wave: 0,
         dependsOn: [],
         state: 'waiting',
-        versions: [page.thing],
+        versions: [page.thing, ...(page.versions ?? [])].filter((item) => item.type === 'page' && item.url).slice(0, 3),
       }],
     };
   }
@@ -213,6 +213,39 @@ export function followUpPlan(message: string, plan: WorkPlan | null): WorkPlan |
       versions: [thing],
     }],
   };
+}
+
+function pagePassport(thing: PlanThing | undefined): thing is PlanThing {
+  return thing?.type === 'page' && Boolean(thing.url) && Boolean(thing.lines?.some((line) => line.startsWith('azrail-site\t')));
+}
+
+/** Ставит выбранную прошлую страницу текущей. Смещённая страница остаётся в истории, не больше трёх. */
+export function restorePageVersion(part: PlanPart, index: number): PlanThing | null {
+  const older = part.versions?.[index];
+  if (!pagePassport(older)) return null;
+  const current = part.thing;
+  const rest = (part.versions ?? []).filter((_, place) => place !== index);
+  part.thing = older;
+  part.versions = current?.url ? [current, ...rest].slice(0, 3) : rest.slice(0, 3);
+  part.state = 'done';
+  return older;
+}
+
+/** Берёт последнюю прошлую страницу этой ленты. Без паспорта страницы план не меняется. */
+export function takeBackPage(plan: WorkPlan | null): PlanThing | null {
+  if (!plan) return null;
+  for (const part of [...plan.parts].reverse()) {
+    const index = part.versions?.findIndex((item) => pagePassport(item)) ?? -1;
+    if (index >= 0) return restorePageVersion(part, index);
+  }
+  return null;
+}
+
+const PAGE_RESTORE = /верни\s+(?:предыдущ|прошл|как\s+было)/iu;
+const IMAGE_WORD = /(?<![\p{L}])(?:картинк|постер|изображен)/iu;
+
+export function wantsPageRestore(message: string): boolean {
+  return PAGE_RESTORE.test(message.trim()) && !IMAGE_WORD.test(message);
 }
 
 /** Меняет текст одной части и ставит её заново. Прошлая вещь остаётся в истории. Соседей не трогает. */
