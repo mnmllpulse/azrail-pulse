@@ -9,8 +9,10 @@ const result=await build({entryPoints:{app:'ui/app.ts'},outdir:'site/assets',bun
 await build({entryPoints:['ui/app.css'],outfile:'site/assets/app.css',bundle:true,minify:true});
 const html=await readFile('ui/app.html','utf8');
 const cssBytes=await readFile('site/assets/app.css');
+const jsBytes=await readFile('site/assets/app.js');
 const cssStamp=createHash('sha256').update(cssBytes).digest('hex').slice(0,10);
-const hosted=html.replace('href="/assets/app.css"',`href="/assets/app.css?v=${cssStamp}"`);
+const jsStamp=createHash('sha256').update(jsBytes).digest('hex').slice(0,10);
+const hosted=html.replace('href="/assets/app.css"',`href="/assets/app.css?v=${cssStamp}"`).replace('src="/assets/app.js"',`src="/assets/app.js?v=${jsStamp}"`);
 await writeFile('site/app.html',hosted);await writeFile('site/index.html',hosted);
 const offline=await build({entryPoints:['ui/app.ts'],bundle:true,format:'iife',minify:true,write:false,target:'es2022'});
 const js=offline.outputFiles[0].text.replace(/<\/script/gi,'<\\/script');

@@ -24,7 +24,7 @@ import {openUniversalCompareCenter} from './components/universal-compare';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
-import {formatAssignment,type Assignment} from './assignment';
+import {formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {formatPlan,fileNameFromPhrase,followUpPlan,holdBlocked,openStoredPlan,planRecord,planWork,retryPart,revisePart,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
@@ -89,7 +89,7 @@ function applyExpert(on:boolean){
  const count=document.querySelector('.nav-count');
  if(count)count.textContent=on?'8':'6';
 }
-applyExpert(deviceValue('pulse.expert')==='on');
+applyExpert(false);
 function setPreferredModel(model:string){preferredModel=model;try{if(model)sessionStorage.setItem('pulse.preferredModel',model);else sessionStorage.removeItem('pulse.preferredModel');}catch{}const select=$<HTMLSelectElement>('composer-model');if(model&&!Array.from(select.options).some(o=>o.value===model)){const option=document.createElement('option');option.value=model;option.textContent=modelDisplayName(model);option.title=model;select.append(option);}select.value=model;if(typeof syncModelsButton==='function')syncModelsButton();syncContextPanel();}
 function setChatVoice(voice:ChatVoice){chatVoice=voice;try{sessionStorage.setItem('pulse.voice',voice);}catch{}syncChatUI();notice(`Голос: ${VOICES[voice].name}. Серый говорит ниже, Люмен выше, Ария мягче.`);}
 
@@ -1519,6 +1519,16 @@ async function chosenPlan(message:string):Promise<WorkPlan|null>{
 async function runChat(){
  if(missionSubmitting)return;
  const message=prompt.value.trim();if(!message)return;
+ const skills=skillsReply(message);
+ if(skills){
+  const thread=chatHistory.current()??chatHistory.create();
+  const requestKey=crypto.randomUUID();
+  project=thread.projectId||project||crypto.randomUUID();
+  chatHistory.accepted(requestKey,message,project,thread.id);
+  chatHistory.report(requestKey,skills,'completed');
+  prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();syncChatUI();workspace.toLatest();
+  return;
+ }
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  let handed=false;
  try{

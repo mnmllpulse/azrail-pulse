@@ -86,6 +86,15 @@ export function assignmentForKind(kind: Exclude<AssignmentKind, 'talk'>): Assign
   });
 }
 
+const SKILLS = /(?<![\p{L}])(?:что\s+(?:ты\s+)?(?:умеешь|можешь)|твои\s+возможност|что\s+умеет)(?![\p{L}])/iu;
+
+/** Короткий ответ о реальных действиях чата. Модель этот список не выдумывает. */
+export function skillsReply(text: string): string | null {
+  const source = (text ?? '').trim();
+  if (!source || !SKILLS.test(source)) return null;
+  return 'В этом чате я делаю вещь. Напиши «нарисуй …» — картинка появится здесь. Напиши «сделай сайт …» — соберу страницу и открою просмотр. Следующей фразой можно сделать картинку темнее или поправить страницу. Ролик будет раскадровкой. Трек появится, если генератор вернёт звук.';
+}
+
 /** Фраза → поручение. Вопрос остаётся разговором. Спорные слова (деплой, тесты, аудит) тоже. */
 export function readAssignment(text: string): Assignment {
   const source = (text ?? '').trim();

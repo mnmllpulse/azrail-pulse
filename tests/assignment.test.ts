@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatAssignment, readAssignment } from '../ui/assignment';
+import { formatAssignment, readAssignment, skillsReply } from '../ui/assignment';
 
 describe('Поручение из чата', () => {
   it('вопрос остаётся разговором', () => {
@@ -7,6 +7,9 @@ describe('Поручение из чата', () => {
     expect(readAssignment('Как сделать сайт для бюро').kind).toBe('talk');
     expect(readAssignment('Объясни, как собрать трек').kind).toBe('talk');
     expect(readAssignment('привет').kind).toBe('talk');
+    expect(skillsReply('что ты умеешь')).toContain('нарисуй');
+    expect(skillsReply('что ты умеешь')).toContain('сайт');
+    expect(skillsReply('нарисуй город')).toBeNull();
   });
 
   it('спорные слова не забирает у чата', () => {
