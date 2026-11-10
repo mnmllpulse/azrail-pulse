@@ -134,6 +134,8 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .preview-heading h2 { margin: 0; font-size: 15px; font-weight: 500; }
 .app-shell .home-canvas { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; width: 100%; margin: 0; padding: 14px 16px 16px; }
 .app-shell .home-canvas-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 10px; flex: 0 0 auto; }
+.app-shell .home-actions { display: flex; align-items: center; gap: 12px; }
+.app-shell .home-actions .text-button { min-height: 32px; padding: 0; font-size: 12px; color: #c4add8; }
 .app-shell .home-files { display: grid; gap: 4px; margin: 0 0 8px; color: #8d849c; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; }
 .app-shell .home-files select { width: 100%; background: #121018; color: #f4f2f8; border: 1px solid #302b3d; border-radius: 8px; padding: 6px 8px; text-transform: none; letter-spacing: 0; font-size: 13px; }
 .app-shell .home-canvas .segmented button { min-height: 32px; padding: 4px 14px; }

@@ -66,6 +66,23 @@ export function draftLine(draft: ChatSiteDraft): string {
   return ['azrail-site', draft.name.slice(0, 80), draft.style, bit(draft.chat), bit(draft.wide), bit(draft.pulse), bit(draft.violet), bit(draft.rich), bit(draft.simple), draft.business.slice(0, 80)].join('\t');
 }
 
+/** Чем текущая страница отличается от предыдущей. Пусто, если паспорта нет. */
+export function siteDelta(before: string | undefined, after: string | undefined): string {
+  const old = draftFromLine(before);
+  const next = draftFromLine(after);
+  if (!old || !next) return '';
+  const bits: string[] = [];
+  if (old.name !== next.name) bits.push(`имя «${next.name}»`);
+  if (old.style !== next.style) bits.push(`стиль ${next.style}`);
+  if (old.chat !== next.chat) bits.push(next.chat ? 'чат добавлен' : 'чат убран');
+  if (old.wide !== next.wide) bits.push(next.wide ? 'чат стал шире' : 'чат стал уже');
+  if (old.pulse !== next.pulse) bits.push(next.pulse ? 'появился импульс' : 'импульс убран');
+  if (old.violet !== next.violet) bits.push(next.violet ? 'фиолетовый акцент' : 'акцент снят');
+  if (old.rich !== next.rich) bits.push(next.rich ? 'вид плотнее' : 'вид проще');
+  if (old.simple !== next.simple) bits.push(next.simple ? 'одна страница' : 'разделы вернулись');
+  return bits.length ? `Дальше: ${bits.join(', ')}.` : 'Дальше эти переключатели не менялись.';
+}
+
 export function draftFromLine(line: string | undefined): ChatSiteDraft | null {
   const match = DRAFT.exec((line ?? '').slice(0, 200));
   if (!match) return null;

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { listZip, readEntry } from '../src/lib/zip-reader';
-import { applySiteNote, draftFromLine, draftFromPhrase, draftLine, filesForDraft, siteZip } from '../ui/chat-site';
+import { applySiteNote, draftFromLine, draftFromPhrase, draftLine, filesForDraft, siteDelta, siteZip } from '../ui/chat-site';
 
 describe('Страница из чата', () => {
   it('собирает тёмный сайт с чатом и принимает следующую правку ширины и импульса', () => {
@@ -32,6 +32,9 @@ describe('Страница из чата', () => {
     const simpler = applySiteNote(richer!, 'Наш проект слишком сложный');
     expect(simpler?.simple).toBe(true);
     expect(filesForDraft(simpler!).filter((file) => file.path.endsWith('.html'))).toHaveLength(1);
+    expect(siteDelta(draftLine(first), draftLine(next!))).toContain('чат стал шире');
+    expect(siteDelta(draftLine(first), draftLine(next!))).toContain('появился импульс');
+    expect(siteDelta(draftLine(first), draftLine(first))).toBe('Дальше эти переключатели не менялись.');
   });
 
   it('ZIP страницы содержит собранный index.html', async () => {

@@ -1,4 +1,5 @@
 import { listZip, readEntry, type ZipEntry } from '../src/lib/zip-reader';
+import { zipStore } from '../src/lib/zip-store';
 
 const text = new TextDecoder();
 
@@ -70,8 +71,15 @@ function extOf(path: string) {
 const NAMED_FILE = /(?:^|[\s`'"(])((?:[\w.-]+\/)+[\w.-]+\.[\w]+|[\w.-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|md|txt|css|html|yml|yaml|toml|sql|py|rs|go|xml|svg|csv))/giu;
 const OPEN_LINE = /^(?:открой|покажи|выведи)(?:\s+файл)?\s+\S+[.!?]?$/iu;
 
+const PACK_FILES = 80;
+const PACK_ONE = 256_000;
+const PACK_TOTAL = 2 * 1024 * 1024;
+
 let held: ArrayBuffer | null = null;
 let known: string[] = [];
+let plain: Array<{ path: string; data: Uint8Array }> | null = null;
+let downloadName = 'проект.zip';
+let openPath = '';
 
 async function textPaths(buf: ArrayBuffer, limit: number): Promise<string[]> {
   let listing;
@@ -88,14 +96,40 @@ export async function catalogPaths(buf: ArrayBuffer): Promise<string[]> {
   return textPaths(buf, 200);
 }
 
-export async function holdArchive(buf: ArrayBuffer): Promise<string[]> {
+export async function holdArchive(buf: ArrayBuffer, name = 'архив.zip'): Promise<string[]> {
   held = buf;
+  plain = null;
+  downloadName = name.toLowerCase().endsWith('.zip') ? name : `${name}.zip`;
   known = await textPaths(buf, 2000);
+  openPath = known[0] ?? '';
   return known.slice(0, 200);
+}
+
+/** Страница из чата или один HTML. Архив ZIP при этом отпускается. */
+export function holdPlain(files: Array<{ path: string; text: string }>, name = 'проект.zip'): string[] {
+  held = null;
+  downloadName = name.toLowerCase().endsWith('.zip') ? name : `${name}.zip`;
+  const list = files.filter((file) => file.path && !file.path.includes('..')).slice(0, PACK_FILES);
+  plain = list.map((file) => ({ path: file.path, data: new TextEncoder().encode(file.text) }));
+  known = list.map((file) => file.path);
+  openPath = known[0] ?? '';
+  return known;
 }
 
 export function archiveIsHeld(): boolean {
   return held !== null;
+}
+
+export function sourceIsHeld(): boolean {
+  return held !== null || Boolean(plain?.length);
+}
+
+export function activePath(): string {
+  return openPath;
+}
+
+export function rememberPath(path: string) {
+  if (path && !path.includes('..')) openPath = path;
 }
 
 /** Имена из новой фразы. Совпадает с тем, как сервер узнаёт файл в вопросе. */
@@ -127,9 +161,77 @@ export function matchHeldPath(needle: string): string | null {
   return known.filter((path) => path.toLowerCase().endsWith(`/${want}`)).sort((a, b) => a.length - b.length)[0] ?? null;
 }
 
+export type PackedFile = { name: string; bytes: Uint8Array; packed: number; total: number; note: string };
+
+function packNote(packed: number, total: number) {
+  const line = `Собрано ${packed} из ${total}.`;
+  return packed < total ? `${line} Служебные папки и файлы больше лимита не вошли.` : line;
+}
+
+function fileTitle(path: string) {
+  return path.split('/').pop() || 'файл.txt';
+}
+
+/** Текущий текст редактора как один файл. */
+export function bytesForFile(path: string, text: string): PackedFile | null {
+  if (!sourceIsHeld() || text.length > PACK_TOTAL) return null;
+  const name = fileTitle(path || openPath);
+  return { name, bytes: new TextEncoder().encode(text), packed: 1, total: 1, note: `Файл ${name}.` };
+}
+
+/** Архив с правкой открытого файла. Остальные читаемые файлы копируются, лимит называется вслух. */
+export async function bytesForArchive(path: string, text: string): Promise<PackedFile | null> {
+  const edited = new TextEncoder().encode(text);
+  if (edited.length > PACK_ONE) return null;
+  if (plain) {
+    const files = plain.map((file) => file.path === path ? { path, data: edited } : file);
+    if (path && !files.some((file) => file.path === path)) files.push({ path, data: edited });
+    return { name: downloadName, bytes: zipStore(files), packed: files.length, total: files.length, note: packNote(files.length, files.length) };
+  }
+  if (!held) return null;
+  let listing;
+  try { listing = listZip(held, 2000); } catch { return null; }
+  const files: Array<{ path: string; data: Uint8Array }> = [];
+  let totalBytes = 0;
+  for (const entry of listing.entries) {
+    if (files.length >= PACK_FILES || totalBytes >= PACK_TOTAL) break;
+    if (entry.skipped || NOISE.test(entry.path) || entry.size > PACK_ONE) continue;
+    try {
+      const data = entry.path === path ? edited : await readEntry(held, entry, PACK_ONE);
+      if (totalBytes + data.length > PACK_TOTAL) break;
+      files.push({ path: entry.path, data });
+      totalBytes += data.length;
+    } catch { /* Этот файл не вошёл. */ }
+  }
+  if (path && !files.some((file) => file.path === path) && totalBytes + edited.length <= PACK_TOTAL) {
+    files.push({ path, data: edited });
+  }
+  if (!files.length) return null;
+  const name = downloadName.replace(/\.zip$/i, '') + '-правка.zip';
+  return { name, bytes: zipStore(files), packed: files.length, total: listing.total, note: packNote(files.length, listing.total) };
+}
+
+export function saveBytes(name: string, bytes: Uint8Array) {
+  const copy = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer;
+  const blob = new Blob([copy]);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = name;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1500);
+}
+
 /** Текст одного файла из последнего архива. Главная HTML-страница приходит со своими стилями. */
 export async function openHeld(path: string): Promise<string | null> {
-  if (!held || !path) return null;
+  if (!path) return null;
+  if (plain) {
+    const file = plain.find((item) => item.path === path);
+    return file ? text.decode(file.data) : null;
+  }
+  if (!held) return null;
   let listing;
   try { listing = listZip(held, 2000); } catch { return null; }
   const page = listing.entries

@@ -28,8 +28,8 @@ import {formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,openStoredPlan,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
-import {archiveIsHeld,askedPaths,holdArchive,matchHeldPath,openOnlyPath,siteFromZip} from './zip-site';
-import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteZip} from './chat-site';
+import {activePath,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
+import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
 import {diagramLines,diagramModel} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
 export {};
@@ -110,11 +110,14 @@ async function previewAttachedSite(files:File[]){
  try{
   if(zip){
    const buf=await zip.arrayBuffer();
-   const paths=await holdArchive(buf);
+   const paths=await holdArchive(buf,zip.name);
    if(paths.length)document.dispatchEvent(new CustomEvent('azrail:zip-catalog',{detail:paths}));
    html=await siteFromZip(buf)??'';
   }
-  else if(page)html=await page.text();
+  else if(page){
+   html=await page.text();
+   stageFiles([{path:page.name,text:html}],page.name.replace(/\.html?$/i,'')+'.zip');
+  }
  }catch{return;}
  if(!html.trim())return;
  document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:html}));
@@ -925,7 +928,11 @@ function downloadLink(url:string,name:string){
  link.textContent='Скачать';
  return link;
 }
-function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster=''){
+function stageFiles(files:Array<{path:string;text:string}>,name?:string){
+ const paths=holdPlain(files,name);
+ if(paths.length)document.dispatchEvent(new CustomEvent('azrail:zip-catalog',{detail:paths}));
+}
+function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster='',against=''){
  const host=document.createElement('div');
  host.className='thing-card';
  host.dataset.key=`${earlier?'old:':''}${thing.type}:${thing.url||thing.lines?.[0]?.slice(0,80)||thing.title||''}`;
@@ -949,6 +956,8 @@ function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster='')
   const link=document.createElement('a');link.href=thing.url;link.target='_blank';link.rel='noopener';link.textContent=thing.title||'Открыть страницу';host.append(link);
   if(earlier&&thing.url&&thing.lines?.some(line=>line.startsWith('azrail-site\t'))){
    const back=document.createElement('button');back.type='button';back.className='text-button';back.textContent='Вернуть';back.dataset.restore=thing.url;host.append(back);
+   const delta=siteDelta(thing.lines?.find(line=>line.startsWith('azrail-site\t')),against);
+   if(delta){const diff=document.createElement('p');diff.textContent=delta;host.append(diff);}
   }
   const life=document.createElement('p');life.textContent='Страница живёт 90 дней.';host.append(life);
   const zip=thing.lines?.find(line=>line.startsWith('azrail-zip\t'))?.slice('azrail-zip\t'.length);
@@ -1014,7 +1023,8 @@ function paintThings(parts:Array<{thing?:PlanThing;state?:PlanPart['state'];vers
  let shown=0;
  for(const part of parts){
   if(part.thing){appendThing(host,part.thing,false,part.thing.type==='storyboard'?poster:'');shown+=1;}
-  for(const older of part.versions??[]){appendThing(host,older,true);shown+=1;}
+  const against=part.thing?.lines?.find(line=>line.startsWith('azrail-site\t'))??'';
+  for(const older of part.versions??[]){appendThing(host,older,true,'',against);shown+=1;}
  }
  if(!shown){const note=document.createElement('p');note.textContent='Пока ничего нет.';host.append(note);}
  pinThingInChat();
@@ -1172,7 +1182,9 @@ function finishedMemory(){
 function showRestoredPage(thing:PlanThing){
  const draft=draftFromLine(thing.lines?.find(line=>line.startsWith('azrail-site\t')));
  if(!draft)return false;
- const html=filesForDraft(draft).find(file=>file.path==='index.html')?.text??'';
+ const files=filesForDraft(draft);
+ stageFiles(files,fileNameFromPhrase(draft.name,'zip'));
+ const html=files.find(file=>file.path==='index.html')?.text??'';
  if(!html.trim())return false;
  document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:html}));
  workspace.setPreview(true);
@@ -1485,6 +1497,7 @@ async function publishChatPage(part:PlanPart){
  const published=await api('/api/studio/web/publish',{method:'POST',body:JSON.stringify({name:draft.name,files})}) as {url?:string};
  const url=safeMediaPath(String(published.url??''));
  if(!url)throw Error('Страница собрана, но ссылка просмотра не вернулась.');
+ stageFiles(files,fileNameFromPhrase(draft.name,'zip'));
  const html=files.find(file=>file.path==='index.html')?.text??'';
  if(html.trim()){document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:html}));workspace.setPreview(true);}
  let zipUrl='';
@@ -1643,6 +1656,14 @@ function noteLocal(message:string,reply:string){
  chatHistory.report(requestKey,reply,'completed');
  prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();syncChatUI();workspace.toLatest();
 }
+async function saveFromScreen(kind:'file'|'zip',message:string){
+ const path=activePath();
+ const text=document.querySelector<HTMLTextAreaElement>('#home-code')?.value??'';
+ const packed=kind==='zip'?await bytesForArchive(path,text):bytesForFile(path,text);
+ if(!packed){noteLocal(message,'Сначала открой файл из архива или собери страницу.');return;}
+ saveBytes(packed.name,packed.bytes);
+ noteLocal(message,`Скачал ${packed.name}. ${packed.note}`);
+}
 function revealHeld(message:string){
  if(!/открой|покажи|выведи|прочитай|посмотри|глянь/iu.test(message))return '';
  const path=askedPaths(message).map(matchHeldPath).find((item):item is string=>Boolean(item))??'';
@@ -1657,7 +1678,9 @@ async function runChat(){
  const opened=revealHeld(message);
  const only=openOnlyPath(message);
  if(only&&opened){noteLocal(message,`Открыл ${opened}.`);return;}
- if(only&&archiveIsHeld()&&!opened){noteLocal(message,`В загруженном архиве нет ${only}.`);return;}
+ if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
+ if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
+ if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
  const skills=skillsReply(message);
  if(wantsPageRestore(message)){
   const restored=takeBackPage(heldPlan);

@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { zipStore } from "../src/lib/zip-store";
 import { fileNamesInQuestion } from "../src/lib/attachments";
-import { askedPaths, catalogPaths, holdArchive, matchHeldPath, openHeld, openOnlyPath, siteFromZip } from "../ui/zip-site";
+import { listZip, readEntry } from "../src/lib/zip-reader";
+import { askedPaths, bytesForArchive, catalogPaths, holdArchive, holdPlain, matchHeldPath, openHeld, openOnlyPath, siteFromZip } from "../ui/zip-site";
 
 const utf8 = (value: string) => new TextEncoder().encode(value);
 
@@ -40,6 +41,31 @@ describe("Сайт из ZIP на живом экране", () => {
     expect(askedPaths("открой src/app.ts")).toEqual(fileNamesInQuestion("открой src/app.ts"));
     expect(openOnlyPath("Открой src/app.ts.")).toBe("src/app.ts");
     expect(openOnlyPath("прочитай src/app.ts и скажи, что не так")).toBeNull();
+  });
+
+  it("кладёт правку в архив и оставляет служебные файлы за бортом", async () => {
+    const packed = zipStore([
+      { path: "src/app.ts", data: utf8("export const n = 1;") },
+      { path: "readme.md", data: utf8("заметка") },
+      { path: "node_modules/left/index.js", data: utf8("skip") },
+    ]);
+    const buf = packed.buffer.slice(packed.byteOffset, packed.byteOffset + packed.byteLength);
+    await holdArchive(buf, "проект.zip");
+    const revised = await bytesForArchive("src/app.ts", "export const n = 2;");
+    expect(revised?.note).toContain("Собрано 2 из 3.");
+    expect(revised?.name).toBe("проект-правка.zip");
+    const again = revised!.bytes.buffer.slice(revised!.bytes.byteOffset, revised!.bytes.byteOffset + revised!.bytes.byteLength);
+    const listing = listZip(again, 20);
+    expect(listing.entries.map((entry) => entry.path).sort()).toEqual(["readme.md", "src/app.ts"]);
+    const source = listing.entries.find((entry) => entry.path === "src/app.ts");
+    expect(new TextDecoder().decode(await readEntry(again, source!, 1000))).toBe("export const n = 2;");
+    const page = holdPlain([{ path: "index.html", text: "<h1>Было</h1>" }, { path: "styles.css", text: "body{}" }], "бюро.zip");
+    expect(page).toEqual(["index.html", "styles.css"]);
+    const site = await bytesForArchive("index.html", "<h1>Стало</h1>");
+    expect(site?.note).toBe("Собрано 2 из 2.");
+    const siteBuf = site!.bytes.buffer.slice(site!.bytes.byteOffset, site!.bytes.byteOffset + site!.bytes.byteLength);
+    const html = listZip(siteBuf, 10).entries.find((entry) => entry.path === "index.html");
+    expect(new TextDecoder().decode(await readEntry(siteBuf, html!, 1000))).toBe("<h1>Стало</h1>");
   });
 
   it("архив без html не открывает экран", async () => {

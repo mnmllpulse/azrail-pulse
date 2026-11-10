@@ -1,4 +1,4 @@
-import { openHeld } from './zip-site';
+import { activePath, bytesForArchive, bytesForFile, openHeld, rememberPath, saveBytes, sourceIsHeld } from './zip-site';
 
 const STORAGE_KEY='pulse.home-code';
 const STARTER=`<!doctype html>
@@ -43,6 +43,19 @@ export function mountHomeCanvas(){
  const screenTab=document.querySelector<HTMLButtonElement>('#home-mode-screen');
  const fileLabel=document.querySelector<HTMLElement>('#home-files-label');
  const filePick=document.querySelector<HTMLSelectElement>('#home-files');
+ const saveFile=document.querySelector<HTMLButtonElement>('#home-save-file');
+ const saveZip=document.querySelector<HTMLButtonElement>('#home-save-zip');
+ const markSource=()=>{
+  const on=sourceIsHeld();
+  if(saveFile)saveFile.hidden=!on;
+  if(saveZip)saveZip.hidden=!on;
+ };
+ const save=(kind:'file'|'zip')=>{
+  const path=activePath();
+  const text=code?.value??'';
+  const run=kind==='zip'?bytesForArchive(path,text):Promise.resolve(bytesForFile(path,text));
+  void run.then(packed=>{if(packed)saveBytes(packed.name,packed.bytes);});
+ };
  if(!code||!screen||!kind||!codeTab||!screenTab)return;
  let saved='';
  try{saved=localStorage.getItem(STORAGE_KEY)??'';}catch{saved='';}
@@ -79,6 +92,7 @@ export function mountHomeCanvas(){
   code.value=html;
   try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
   show('screen');
+  markSource();
  });
  document.addEventListener('azrail:zip-catalog',(event)=>{
   const paths=(event as CustomEvent<string[]>).detail;
@@ -91,6 +105,8 @@ export function mountHomeCanvas(){
    filePick.append(option);
   }
   fileLabel.hidden=false;
+  rememberPath(filePick.value);
+  markSource();
  });
  document.addEventListener('azrail:zip-open',(event)=>{
   const path=(event as CustomEvent<string>).detail;
@@ -104,6 +120,8 @@ export function mountHomeCanvas(){
    }
    filePick.value=path;
    if(fileLabel)fileLabel.hidden=false;
+   rememberPath(path);
+   markSource();
   }
   void openHeld(path).then(body=>{
    if(body==null)return;
@@ -112,8 +130,11 @@ export function mountHomeCanvas(){
    show(/\.html?$/i.test(path)?'screen':'code');
   });
  });
+ saveFile?.addEventListener('click',()=>save('file'));
+ saveZip?.addEventListener('click',()=>save('zip'));
  filePick?.addEventListener('change',()=>{
   const path=filePick.value;
+  rememberPath(path);
   void openHeld(path).then(body=>{
    if(!body)return;
    code.value=body;
