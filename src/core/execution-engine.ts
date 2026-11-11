@@ -196,6 +196,8 @@ export class ExecutionEngine {
       await this.note(ctx, "repo.mapped", {
         reason: `в карте ${filesBefore.length} файлов`,
       });
+    } else if (ctx.projectId) {
+      repoMap = "РАБОЧАЯ ОБЛАСТЬ ПРОЕКТА ПУСТА: файлов нет. Не ищи существующий код (search_files/read_file ничего не вернут); новые файлы создавай через write_file.";
     }
 
     /* ── ЧТО УЖЕ ИЗВЕСТНО ПРО ЭТОТ ПРОЕКТ ───────────────────────────

@@ -310,3 +310,9 @@ describe("Дизайн-контракт только для дизайн-цел�
     expect(isDesignGoal(g)).toBe(true);
   });
 });
+
+describe("Пустая рабочая область", () => {
+  it("движок явно сообщает модели, что файлов нет", () => {
+    expect(src("src/core/execution-engine.ts")).toMatch(/РАБОЧАЯ ОБЛАСТЬ ПРОЕКТА ПУСТА/);
+  });
+});
