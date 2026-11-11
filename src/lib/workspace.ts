@@ -41,7 +41,7 @@ export async function writeFileGuarded(
   const existing = await readFile(env, projectId, path);
 
   if (existing && !opts.overwrite) {
-    throw new Error(
+    throw new ToolRejectedError(
       `Файл ${path} уже существует (${existing.content.length} символов). ` +
         `Полная перезапись сотрёт всё, чего нет в присланном тексте. ` +
         `Правь через apply_patch или edit_file. ` +
@@ -53,7 +53,7 @@ export async function writeFileGuarded(
     const was = existing.content.length;
     const now = content.length;
     if (was > 400 && now * 4 < was) {
-      throw new Error(
+      throw new ToolRejectedError(
         `Файл ${path} ужимается с ${was} до ${now} символов — больше чем вчетверо. ` +
           `Обычно это значит, что часть файла не дописана, а не что он стал короче. ` +
           `Если сокращение намеренное — повтори с overwrite: true и shrink: true.`,
@@ -187,11 +187,11 @@ export async function applyPatch(env: Env, projectId: string, path: string, hunk
     // Патч по несуществующему файлу — не ошибка инструмента, а ошибка
     // выбора инструмента. Так и сказано, чтобы модель не пыталась
     // «починить» патч.
-    throw new Error(`Файл не найден: ${path}. Новый файл создаётся через write_file, а не патчем.`);
+    throw new ToolRejectedError(`Файл не найден: ${path}. Новый файл создаётся через write_file, а не патчем.`);
   }
 
   const result = applyHunks(current.content, hunks);
-  if (!result.ok) throw new Error(result.error);
+  if (!result.ok) throw new ToolRejectedError(result.error);
 
   await writeFile(env, projectId, path, result.content);
   return {

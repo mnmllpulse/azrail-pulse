@@ -56,3 +56,7 @@ export async function designRoute(request:Request,env:Env,principal:Principal):P
  const body=await readJsonRecord(request,16000)as{baseRevision:number;contract:unknown};if(!Number.isSafeInteger(body.baseRevision)||body.baseRevision<0)throw new AccessError('Неверная версия контракта.',400);
  const d=validateDesign(body.contract),now=Date.now();const row=body.baseRevision===0?await env.AZRAIL_D1.prepare('INSERT INTO project_design_contracts VALUES(?,1,?,?) ON CONFLICT DO NOTHING RETURNING revision').bind(project,JSON.stringify(d),now).first():await env.AZRAIL_D1.prepare('UPDATE project_design_contracts SET revision=revision+1,contract_json=?,updated_at=? WHERE project_id=? AND revision=? RETURNING revision').bind(JSON.stringify(d),now,project,body.baseRevision).first();if(!row)throw new AccessError('Контракт изменён в другой вкладке. Обновите его.',409);return Response.json({...row,contract:d});
 }
+
+const DESIGN_GOAL = /(дизайн|вёрстк|верстк|стил[ьиея]|css|шрифт|типограф|цвет|палитр|тем[аыуе]\b|отступ|сетк|адаптив|брейкпоинт|кнопк|лендинг|интерфейс|\bui\b|\bux\b|layout|design|style|theme|font|color|typograph|responsive|breakpoint|button|landing|html|\.css\b|tokens?\b)/i;
+
+export const isDesignGoal = (goal: string): boolean => DESIGN_GOAL.test(goal);

@@ -5,6 +5,8 @@ import { resolve } from "node:path";
 import { applyHunks, parseEditArgs, parseHunks, MAX_HUNKS, type Hunk } from "../src/lib/patch";
 import { writeFileGuarded, applyPatch } from "../src/lib/workspace";
 import type { Env } from "../src/types";
+import { ToolRejectedError } from "../src/lib/tool-errors";
+import { isDesignGoal } from "../src/unified/design-contract";
 
 const src = (p: string) => readFileSync(resolve(__dirname, "..", p), "utf-8");
 
@@ -275,5 +277,36 @@ describe("parseEditArgs", () => {
     expect(prompt).toContain('"replacement"');
     expect(prompt).toContain('apply_patch {"path"');
     expect(prompt).toContain('"hunks"');
+  });
+});
+
+describe("Детерминированные отказы возвращаются модели, а не останавливают миссию", () => {
+  it("перезапись без overwrite — ToolRejectedError", async () => {
+    const r2 = fakeR2({ [KEY]: FILE });
+    await expect(writeFileGuarded(envWith(r2), "p1", "app.js", "x")).rejects.toBeInstanceOf(ToolRejectedError);
+  });
+
+  it("усадка файла — ToolRejectedError", async () => {
+    const r2 = fakeR2({ [KEY]: "x".repeat(1000) });
+    await expect(writeFileGuarded(envWith(r2), "p1", "app.js", "y", { overwrite: true })).rejects.toBeInstanceOf(ToolRejectedError);
+  });
+
+  it("патч по несуществующему файлу и ненайденный фрагмент — ToolRejectedError", async () => {
+    const r2 = fakeR2({ [KEY]: FILE });
+    await expect(applyPatch(envWith(r2), "p1", "nope.js", [{ search: "a", replace: "b" }])).rejects.toBeInstanceOf(ToolRejectedError);
+    await expect(applyPatch(envWith(r2), "p1", "app.js", [{ search: "нет такого", replace: "b" }])).rejects.toBeInstanceOf(ToolRejectedError);
+  });
+
+  it("исполнитель apply_patch оборачивает ошибку разбора в ToolRejectedError", () => {
+    expect(src("src/core/execution-tools.ts")).toMatch(/throw new ToolRejectedError\(parsed\.error\)/);
+  });
+});
+
+describe("Дизайн-контракт только для дизайн-целей", () => {
+  it.each(["Привет", "Напиши функцию сортировки", "Исправь баг в api.ts"])("не нужен: %s", g => {
+    expect(isDesignGoal(g)).toBe(false);
+  });
+  it.each(["Поправь вёрстку шапки", "Change the button color", "Обнови tokens.css"])("нужен: %s", g => {
+    expect(isDesignGoal(g)).toBe(true);
   });
 });

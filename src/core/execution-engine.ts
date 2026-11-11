@@ -1,4 +1,4 @@
-import { readDesignContract, designInstruction } from "../unified/design-contract";
+import { readDesignContract, designInstruction, isDesignGoal } from "../unified/design-contract";
 export { parseDecision, renderHistory } from "./execution-protocol";
 export type { StepDecision, StepRecordView } from "./execution-protocol";
 import type { StepDecision } from "./execution-protocol";
@@ -212,8 +212,10 @@ export class ExecutionEngine {
      * в src/routes/api.ts» стоит трёх разведчиков.
      */
     let memoryBlock = "";
-    const design=await readDesignContract(this.env,ctx.projectId!);
-    memoryBlock=designInstruction(design.contract);
+    if (isDesignGoal(goal)) {
+      const design=await readDesignContract(this.env,ctx.projectId!);
+      memoryBlock=designInstruction(design.contract);
+    }
     if (ctx.projectId) {
       try {
         const recalled = await recallContext(this.env, ctx.projectId, 30, {missionId:ctx.missionId, query:goal});

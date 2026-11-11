@@ -81,7 +81,7 @@ export class ExecutionToolExecutor {
       case "apply_patch": {
         this.requireProject(ctx);
         const parsed = parseHunks(input.hunks);
-        if ("error" in parsed) throw new Error(parsed.error);
+        if ("error" in parsed) throw new ToolRejectedError(parsed.error);
         return applyPatch(this.env, ctx.projectId!, String(input.path ?? ""), parsed.hunks);
       }
       case "edit_file":
