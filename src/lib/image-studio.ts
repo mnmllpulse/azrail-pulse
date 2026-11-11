@@ -120,24 +120,43 @@ export function detectImage(bytes:Uint8Array){
  return jpeg?{mime:'image/jpeg',extension:'jpg'}:png?{mime:'image/png',extension:'png'}:{mime:'image/webp',extension:'webp'};
 }
 
-export async function runImageProvider(env:Env,input:ImageStudioRequest,variationIndex:number,reference?:{bytes:Uint8Array;mime:string},onDispatch?:()=>void){
- const support=imageOperationProviderSupport(input.operation,input.structuralMode);if(!support.ready)throw new AccessError(support.reason,409);
- const model=selectImageModel(input),{width,height}=imageDimensions(input.aspectRatio,input.operation==='upscale'?1024:input.resolution);
+function imageForm(prompt:string,width:number,height:number,seed:number|null,reference?:{bytes:Uint8Array;mime:string}){
  const form=new FormData();
- form.append('prompt',effectiveImagePrompt(input,variationIndex));
- form.append('width',String(width));form.append('height',String(height));
- const variationSeed=input.seed===null?null:(input.seed+variationIndex)%2147483648;
- if(variationSeed!==null)form.append('seed',String(variationSeed));
+ form.append('prompt',prompt);
+ form.append('width',String(width));
+ form.append('height',String(height));
+ if(seed!==null)form.append('seed',String(seed));
  if(reference){
   const buffer=reference.bytes.buffer.slice(reference.bytes.byteOffset,reference.bytes.byteOffset+reference.bytes.byteLength) as ArrayBuffer;
   form.append('input_image_0',new Blob([buffer],{type:reference.mime}),'reference');
  }
  const serialized=new Response(form),contentType=serialized.headers.get('content-type');
  if(!serialized.body||!contentType)throw new Error('Не удалось подготовить multipart image request.');
+ return {body:serialized.body,contentType};
+}
+
+export async function runImageProvider(env:Env,input:ImageStudioRequest,variationIndex:number,reference?:{bytes:Uint8Array;mime:string},onDispatch?:()=>void){
+ const support=imageOperationProviderSupport(input.operation,input.structuralMode);if(!support.ready)throw new AccessError(support.reason,409);
+ const model=selectImageModel(input),{width,height}=imageDimensions(input.aspectRatio,input.operation==='upscale'?1024:input.resolution);
+ const prompt=effectiveImagePrompt(input,variationIndex);
+ const variationSeed=input.seed===null?null:(input.seed+variationIndex)%2147483648;
+ const first=imageForm(prompt,width,height,variationSeed,reference);
  onDispatch?.();
- const result=await (env.AI as unknown as {run:(model:string,input:unknown)=>Promise<unknown>}).run(model,{multipart:{body:serialized.body,contentType}});
+ try {
+  return await paint(env,model,width,height,variationSeed,first.body,first.contentType);
+ } catch(error) {
+  const message=error instanceof Error?error.message:String(error);
+  if(!/3043|internal server error/i.test(message))throw error;
+  const sideW=Math.min(width,768),sideH=Math.min(height,768);
+  const second=imageForm(prompt,sideW,sideH,variationSeed,reference);
+  return paint(env,'@cf/black-forest-labs/flux-2-klein-4b',sideW,sideH,variationSeed,second.body,second.contentType);
+ }
+}
+
+async function paint(env:Env,model:string,width:number,height:number,seed:number|null,body:ReadableStream,contentType:string){
+ const result=await (env.AI as unknown as {run:(model:string,input:unknown)=>Promise<unknown>}).run(model,{multipart:{body,contentType}});
  const image=(result&&typeof result==='object'&&typeof (result as {image?:unknown}).image==='string')?(result as {image:string}).image:null;
  if(!image)throw new Error('Image provider не вернул base64 image.');
  const bytes=fromBase64(image),format=detectImage(bytes);
- return {model,width,height,seed:variationSeed,bytes,...format};
+ return {model,width,height,seed,bytes,...format};
 }

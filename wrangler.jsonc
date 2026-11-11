@@ -16,6 +16,10 @@
       {
         "name": "Orchestrator",
         "class_name": "Orchestrator"
+      },
+      {
+        "name": "AZRAIL_SANDBOX",
+        "class_name": "Sandbox"
       }
     ]
   },
@@ -24,6 +28,12 @@
       "tag": "v1",
       "new_sqlite_classes": [
         "Orchestrator"
+      ]
+    },
+    {
+      "tag": "v2",
+      "new_sqlite_classes": [
+        "Sandbox"
       ]
     }
   ],
@@ -63,6 +73,7 @@
     "OIDC_ADMIN_EMAILS": "mnmllpulse@gmail.com",
     "AZRAIL_WORKERS_PLAN": "free",
     "AZRAIL_FORCE_FREE": "true",
+    "AZRAIL_SWITCH_SANDBOX": "off",
     "AZRAIL_METERING": "enforce",
     "UNIFIED_LEDGER": "true",
     "DAILY_PROVIDER_CALLS": "500",
@@ -74,5 +85,12 @@
   "observability": {
     "enabled": true
   },
+  "containers": [
+    {
+      "class_name": "Sandbox",
+      "image": "./Dockerfile",
+      "max_instances": 2
+    }
+  ],
   "preview_urls": false
 }

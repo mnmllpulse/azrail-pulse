@@ -14,6 +14,7 @@ import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
 import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, positiveLimit } from "./lib/quota";
 import { enforceOperationLimit } from "./lib/operation-limit";
 import { speakRemote, spokenVoice } from "./lib/speech-remote";
+import { consumeTrial, readTrial, runTrialSandbox, trialView, writeTrialFlags } from "./lib/trial";
 import { readBoundedBody, BodyLimitError, validateJsonObject } from "./lib/request-body";
 import { getCors } from "./lib/cors";
 import { Orchestrator } from "./agents/orchestrator";
@@ -435,6 +436,30 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       try { return json({policy:await setModelPolicy(env,parsedBody.allowThirdPartyModels,parsedBody.monthlyBudgetUsd)},env); }
       catch (e) { if(e instanceof ModelPolicyError) return json({error:e.message},env,400); throw e; }
     }
+    if (url.pathname === "/api/trial" && request.method === "GET") {
+      return json(trialView(await readTrial(env)), env);
+    }
+    if (url.pathname === "/api/admin/trial" && request.method === "POST") {
+      const speech = parsedBody.speech;
+      const sandbox = parsedBody.sandbox;
+      if (speech !== undefined && typeof speech !== "boolean") return json({ error: "Озвучка включается только да или нет." }, env, 400);
+      if (sandbox !== undefined && typeof sandbox !== "boolean") return json({ error: "Команды включаются только да или нет." }, env, 400);
+      return json(await writeTrialFlags(env, {
+        speech: typeof speech === "boolean" ? speech : undefined,
+        sandbox: typeof sandbox === "boolean" ? sandbox : undefined,
+      }), env);
+    }
+    if (url.pathname === "/api/trial/sandbox" && request.method === "POST") {
+      if (principal.role !== "admin" && !principal.operator) {
+        return json({ error: "Команды пока открыты только владельцу." }, env, 403);
+      }
+      try {
+        return json(await runTrialSandbox(env, String(parsedBody.projectId ?? "")), env);
+      } catch (error) {
+        if (error instanceof AccessError) return json({ error: error.message }, env, error.status);
+        throw error;
+      }
+    }
     if (url.pathname === "/api/model-catalog" && request.method === "GET") {
       return json(await readLiveCatalog(env),env);
     }
@@ -657,6 +682,11 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       if (!spoken) return json({ error: "Нужен текст." }, env, 400);
       if (spoken.length > 2000) return json({ error: "Текст для озвучки длиннее 2000 знаков." }, env, 400);
       await enforceOperationLimit(env, "generation", caller);
+      try { await consumeTrial(env, "speech"); }
+      catch (error) {
+        if (error instanceof AccessError) return json({ error: error.message, code: "speech_off" }, env, error.status);
+        throw error;
+      }
       const audio = await speakRemote(env, spoken, spokenVoice(parsedBody.voice));
       const headers = getCors(env, new Headers({ "Content-Type": audio.mime }));
       return new Response(audio.bytes, { headers });

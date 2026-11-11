@@ -9,5 +9,5 @@ export async function requestImage(account:string,input:ImageRequestBody,api:(pa
  const pending=old??{account,key:crypto.randomUUID(),body};
  sessionStorage.setItem(storageKey,JSON.stringify(pending));
  try{const result=await api('/api/studio/image',{method:'POST',headers:{'Idempotency-Key':pending.key},body:pending.body});sessionStorage.removeItem(storageKey);return result;}
- catch(e){const status=(e as {status?:number})?.status;if(status&&[400,401,403,404,405,413,415,422,429].includes(status))sessionStorage.removeItem(storageKey);throw e;}
+ catch(e){const status=(e as {status?:number})?.status;if(status&&[400,401,403,404,405,409,413,415,422,429].includes(status))sessionStorage.removeItem(storageKey);throw e;}
 }

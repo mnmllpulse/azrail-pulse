@@ -20,7 +20,9 @@ const DRAFT = /^azrail-site\t([^\t]{0,80})\t(dark|clean|premium|other)\t([01])\t
 export function draftFromPhrase(text: string): ChatSiteDraft {
   const source = text.replace(/\s+/g, ' ').trim();
   const named = source.match(/(?:сайт|лендинг|визитка|визитку)\s+([A-ZА-ЯЁ0-9][\wА-Яа-яЁё .-]{0,40})/u);
-  const raw = named?.[1]?.replace(/\s+(?:в|с|и|на)(?![\p{L}])[\s\S]*$/u, '').trim() ?? '';
+  const raw = /калькулятор/iu.test(source)
+    ? 'Калькулятор'
+    : named?.[1]?.replace(/\s+(?:в|с|и|на)(?![\p{L}])[\s\S]*$/u, '').trim() ?? '';
   const dark = /чёрн|черн|тёмн|темн|dark|noir|фиолет/iu.test(source);
   const clean = /светл|чист/iu.test(source);
   return {
@@ -106,6 +108,7 @@ export function siteZip(files: SiteFile[]): Uint8Array {
 }
 
 export function filesForDraft(draft: ChatSiteDraft): SiteFile[] {
+  if (/калькулятор/iu.test(`${draft.name}\n${draft.business}`)) return calculatorFiles();
   const proposed = proposeSite({
     ...blankSite(),
     name: draft.name,
@@ -131,6 +134,57 @@ export function filesForDraft(draft: ChatSiteDraft): SiteFile[] {
       .replace('</main>', `${section}\n</main>`);
     return { path: file.path, text: html };
   });
+}
+
+function calculatorFiles(): SiteFile[] {
+  const css = `*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#050508;color:#f4f1ea;font:16px/1.4 system-ui,sans-serif}.calc{width:min(360px,92vw);padding:20px;border:1px solid rgba(196,171,255,.35);border-radius:20px;background:rgba(255,255,255,.03)}h1{margin:0 0 12px;font-size:18px;font-weight:560}output{display:block;min-height:64px;margin-bottom:12px;padding:12px 14px;border-radius:12px;background:#0c0c12;text-align:right;font:32px/1.2 ui-monospace,monospace;overflow:auto}.keys{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}button{min-height:52px;border:1px solid rgba(255,255,255,.12);border-radius:12px;background:#14141c;color:inherit;font:18px/1 system-ui,sans-serif}button.op{color:#c4abff}button.go{background:#c4abff;color:#14081d}`;
+  const html = `<!doctype html>
+<html lang="ru">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Калькулятор</title><style>${css}</style></head>
+<body>
+<main class="calc">
+<h1>Калькулятор</h1>
+<output id="screen">0</output>
+<div class="keys">
+<button type="button" data-key="C">C</button><button type="button" data-key="±">±</button><button type="button" data-key="%">%</button><button type="button" class="op" data-key="/">/</button>
+<button type="button" data-key="7">7</button><button type="button" data-key="8">8</button><button type="button" data-key="9">9</button><button type="button" class="op" data-key="*">*</button>
+<button type="button" data-key="4">4</button><button type="button" data-key="5">5</button><button type="button" data-key="6">6</button><button type="button" class="op" data-key="-">-</button>
+<button type="button" data-key="1">1</button><button type="button" data-key="2">2</button><button type="button" data-key="3">3</button><button type="button" class="op" data-key="+">+</button>
+<button type="button" data-key="0">0</button><button type="button" data-key=".">.</button><button type="button" class="go" data-key="=">=</button><button type="button" data-key="⌫">⌫</button>
+</div>
+</main>
+<script>
+const screen=document.getElementById('screen');
+let current='0',stored=null,op=null,fresh=true;
+function show(value){screen.textContent=String(value).slice(0,16);}
+function apply(next){
+ const a=Number(stored),b=Number(current);
+ if(!Number.isFinite(a)||!Number.isFinite(b))return 'Ошибка';
+ if(next==='/'&&b===0)return 'Ошибка';
+ if(next==='+')return String(a+b);
+ if(next==='-')return String(a-b);
+ if(next==='*')return String(a*b);
+ return String(a/b);
+}
+document.querySelector('.keys').onclick=(event)=>{
+ const key=event.target instanceof HTMLElement?event.target.dataset.key:'';
+ if(!key)return;
+ if(key==='C'){current='0';stored=null;op=null;fresh=true;show(current);return;}
+ if(key==='⌫'){current=current.length>1?current.slice(0,-1):'0';fresh=false;show(current);return;}
+ if(key==='±'){current=current.startsWith('-')?current.slice(1):current==='0'?'0':'-'+current;show(current);return;}
+ if(key==='%'){const n=Number(current);current=Number.isFinite(n)?String(n/100):'Ошибка';fresh=true;show(current);return;}
+ if('+-*/'.includes(key)){
+  if(stored!==null&&op&&!fresh)current=apply(op);
+  stored=current;op=key;fresh=true;show(current);return;
+ }
+ if(key==='='){if(stored!==null&&op){current=apply(op);stored=null;op=null;fresh=true;show(current);}return;}
+ if(key==='.'){if(fresh)current='0.';else if(!current.includes('.'))current+='.';fresh=false;show(current);return;}
+ current=fresh||current==='0'?key:current+key;fresh=false;show(current);
+};
+</script>
+</body>
+</html>`;
+  return [{ path: 'index.html', text: html }, { path: 'styles.css', text: css }];
 }
 
 function bit(value: boolean) {

@@ -27,6 +27,7 @@ describe('Поручение из чата', () => {
     expect(readAssignment('Собери тёмный трек без вокала').kind).toBe('music');
     expect(readAssignment('Сделай ролик из четырёх кадров').kind).toBe('video');
     expect(readAssignment('Создай сайт для архитектурного бюро').kind).toBe('web');
+    expect(readAssignment('Сделай калькулятор').kind).toBe('web');
     expect(readAssignment('Сделай страницу-визитку: имя и три ссылки').kind).toBe('web');
     expect(readAssignment('Напиши скрипт для разбора логов').kind).toBe('talk');
     expect(readAssignment('дай изображение ночного города').kind).toBe('image');

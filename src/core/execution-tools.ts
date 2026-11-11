@@ -187,6 +187,7 @@ export class ExecutionToolExecutor {
       }
 
       case "sandbox_preview": {
+        assertSubsystem(this.env, "sandbox");
         if (!getContainer(this.env)) {
           throw new Error("Предпросмотр недоступен: песочница не настроена.");
         }
@@ -244,6 +245,7 @@ export class ExecutionToolExecutor {
          * гоняются прямо на них. Actions остаются запасным путём для
          * тех, у кого контейнера нет. */
         if (backend === "container" && ctx.projectId) {
+          assertSubsystem(this.env, "sandbox");
           const local = await this.runTestsInContainer(ctx.projectId);
           if (local) return { ...local, backend };
           // Прогонять нечем (тестов в проекте нет) — это не ошибка, но и
@@ -296,7 +298,7 @@ export class ExecutionToolExecutor {
   }
 
 
-  async runTestsInContainer(projectId: string) {
+  async runTestsInContainer(projectId: string, beforeRun?: () => Promise<void>) {
     await requireCapability(this.env,projectId,"sandbox");
     const page = await listFilesPage(this.env, projectId, 400);
     if (page.truncated) throw new Error("Workspace exceeds the 400-file verification limit; narrow the project before verification.");
@@ -319,6 +321,7 @@ export class ExecutionToolExecutor {
       return null;
     }
 
+    if (beforeRun) await beforeRun();
     const verificationDir = `${SANDBOX_WORKDIR}/.azrail-verify/${crypto.randomUUID()}`;
     await syncWorkspaceToSandbox(this.env, projectId, {workdir:verificationDir});
     const res = await runInContainer(this.env, `cd ${verificationDir} && ${files.some(f=>f.path==="package.json")?"npm run typecheck --if-present && ":""}${plan.command}`, {

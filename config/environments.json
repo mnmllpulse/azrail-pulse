@@ -32,7 +32,7 @@
       "preview_urls": false,
       "main": "src/unified.free.ts",
       "plan": "free",
-      "sandbox": false,
+      "sandbox": true,
       "d1": {
         "binding": "AZRAIL_D1",
         "database_name": "azrail-pulse-db",
@@ -56,6 +56,7 @@
         "OIDC_ADMIN_EMAILS": "mnmllpulse@gmail.com",
         "AZRAIL_WORKERS_PLAN": "free",
         "AZRAIL_FORCE_FREE": "true",
+        "AZRAIL_SWITCH_SANDBOX": "off",
         "AZRAIL_METERING": "enforce",
         "UNIFIED_LEDGER": "true",
         "DAILY_PROVIDER_CALLS": "500",

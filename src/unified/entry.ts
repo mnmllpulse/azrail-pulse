@@ -75,7 +75,13 @@ export default {
        let dispatched=false;
        try{response=await studioRoute(new Request(request,{body:bytes}),env,()=>{dispatched=true;});if(response)await finishAdmission(env,scope,claim.claim,response);}
        catch(error){
-        if(dispatched)throw new AccessError('Запрос отправлен провайдеру, но результат не подтверждён. Повтор с новым ключом может создать вторую операцию. Проверьте сохранённые файлы.',409);
+        if(dispatched){
+         const message=error instanceof Error?error.message:String(error);
+         if(/3043|internal server error/i.test(message)){
+          await env.AZRAIL_D1.prepare('DELETE FROM mission_admissions WHERE key=? AND claim=?').bind(scope,claim.claim).run();
+         }
+         throw new AccessError('Запрос отправлен провайдеру, но результат не подтверждён. Повтор с новым ключом может создать вторую операцию. Проверьте сохранённые файлы.',409);
+        }
         const status=error instanceof AccessError?error.status:error instanceof BodyLimitError?413:error instanceof BudgetError?429:503;
         if(status>=400&&status<500)await finishAdmission(env,scope,claim.claim,Response.json(errorPayload(error,'Ошибка запроса.'),{status}));
         throw error;

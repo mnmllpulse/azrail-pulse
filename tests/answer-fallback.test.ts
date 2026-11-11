@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { contextMiss, promptBudget, rememberTurn, withFallbackNotice } from "../src/agents/answer-agent";
+import { contextMiss, fitTurns, promptBudget, rememberTurn, withFallbackNotice } from "../src/agents/answer-agent";
 
 describe("spoken model fallback", () => {
   it("leaves a first-try answer unmarked", () => {
@@ -41,6 +41,14 @@ describe("spoken model fallback", () => {
     const marked = rememberTurn("user", `сделай анализ\n\nПРИЛОЖЕННЫЕ ФАЙЛЫ (1):\n${"x".repeat(80_000)}\n[АРХИВ r2=uploads/proj/a-site.zip name=site.zip]`);
     expect(marked).toContain("[АРХИВ r2=uploads/proj/a-site.zip name=site.zip]");
     expect(marked).not.toContain("xxxxx");
+  });
+
+  it("длинная история обрезается до окна модели", () => {
+    const turns = Array.from({ length: 12 }, (_, index) => ({ role: "assistant", content: "а".repeat(8_000) + index }));
+    const fitted = fitTurns(turns, "нарисуй череп");
+    const tokens = Math.ceil(fitted.map((turn) => turn.content).join("").length / 3);
+    expect(tokens).toBeLessThan(12_000);
+    expect(fitted.at(-1)?.content).toContain("11");
   });
 
   it("отказ по окну контекста узнаётся и в формулировке провайдера 5021", () => {

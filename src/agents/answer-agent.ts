@@ -92,6 +92,27 @@ export function rememberTurn(role: string, content: string): string {
   return `${kept}\n${marks}`;
 }
 
+/** Оставляет хвост истории, который вместе с вопросом влезает в окно. */
+export function fitTurns(
+  turns: Array<{ role: string; content: string }>,
+  question: string,
+  limit = 12_000,
+): Array<{ role: string; content: string }> {
+  let room = limit - 3_700 - Math.ceil(question.length / 3);
+  if (room < 400) room = 400;
+  const kept: Array<{ role: string; content: string }> = [];
+  for (let i = turns.length - 1; i >= 0; i--) {
+    if (room < 80) break;
+    let content = turns[i].content;
+    if (Math.ceil(content.length / 3) > room) {
+      content = `${content.slice(0, Math.max(0, room * 3 - 40))}\n[Реплика обрезана.]`;
+    }
+    kept.unshift({ role: turns[i].role, content });
+    room -= Math.ceil(content.length / 3);
+  }
+  return kept;
+}
+
 export function contextMiss(err: unknown): boolean {
   const raw = err instanceof Error ? err.message : String(err);
   return /context length|context window|input_tokens|maximum context|exceeded this model/i.test(raw);
@@ -200,16 +221,17 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
       .map((m) => ({ role: m.role, content: rememberTurn(m.role, m.content) }));
 
     const budget = promptBudget(question, priorTurns.map((turn) => turn.content).join("\n"));
+    const history = budget.long ? fitTurns(priorTurns, budget.text) : priorTurns;
     const voiceNote = voice === "lumen" ? "" : `\n\nОтветь только голосом ${voice === "shade" ? "Серый" : "Ария"}. Тон прошлых ответов не копируй.`;
     const shadePin = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
     const preferred = request.preferredModel || (voice === "lumen" || budget.long ? undefined : shadePin);
-    const ask = (preferredModel: string | undefined, maxTokens?: number) => runModel<{ response?: string }>(
+    const ask = (turns: Array<{ role: string; content: string }>, preferredModel: string | undefined, maxTokens?: number) => runModel<{ response?: string }>(
       this.env,
       "answer",
       {
         messages: [
           { role: "system", content: system.join("\n\n") },
-          ...priorTurns,
+          ...turns,
           { role: "user", content: `${budget.text}${voiceNote}` },
         ],
         ...(maxTokens ? { max_tokens: maxTokens } : {}),
@@ -223,10 +245,10 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
     try {
       let routed: Awaited<ReturnType<typeof ask>>;
       try {
-        routed = await ask(preferred);
+        routed = await ask(history, preferred);
       } catch (err) {
         if (request.preferredModel || !contextMiss(err)) throw err;
-        routed = await ask(undefined, 1_200);
+        routed = await ask(fitTurns(priorTurns, budget.text, 8_000), undefined, 800);
       }
       attempts = routed.attempts;
       text = withFallbackNotice(extractText(routed.output).trim(), attempts, routed.model);

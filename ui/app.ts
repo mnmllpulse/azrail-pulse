@@ -846,6 +846,17 @@ function openSettings(){
   actions.append(save,clear);row.append(input,actions);tokens.append(row);
  }
  if(!account)return;
+ const trial=block('Пробный лимит');
+ const trialNote=document.createElement('p');trialNote.className='muted';trialNote.textContent='Сейчас всё выключено. Озвучка — 10 раз, потом сама гаснет и говорит браузер. Тесты в контейнере — 3 раза, потом гаснут. Выкладка из чата не включается.';trial.append(trialNote);
+ void api('/api/trial').then(r=>{
+  const canSave=account?.role==='admin'||!!account?.operator;
+  const speech=document.createElement('label');const speechBox=document.createElement('input');speechBox.type='checkbox';speechBox.checked=!!r.speech;speech.append(speechBox,document.createTextNode(` Озвучка ElevenLabs, осталось ${r.speechLeft} из ${r.limits.speech}`));
+  const sandbox=document.createElement('label');const sandboxBox=document.createElement('input');sandboxBox.type='checkbox';sandboxBox.checked=!!r.sandbox;sandbox.append(sandboxBox,document.createTextNode(` Тесты в контейнере, осталось ${r.sandboxLeft} из ${r.limits.sandbox}`));
+  const closed=document.createElement('p');closed.textContent='Выкладка из чата закрыта. Лимит — 0.';
+  const save=document.createElement('button');save.type='button';save.className='primary';save.textContent='Сохранить пробный лимит';save.disabled=!canSave;
+  save.onclick=()=>{void api('/api/admin/trial',{method:'POST',body:JSON.stringify({speech:speechBox.checked,sandbox:sandboxBox.checked})}).then(()=>{notice('Пробный лимит сохранён.');openSettings();}).catch(failure);};
+  trial.append(speech,sandbox,closed,save);
+ }).catch(()=>{const p=document.createElement('p');p.className='muted';p.textContent='Пробный лимит сейчас не прочитался.';trial.append(p);});
  const limits=block('Лимиты');
  limits.append(document.createTextNode('Загрузка…'));
  void refreshMode().then(r=>{
@@ -1560,7 +1571,7 @@ async function runPlanPart(part:PlanPart){
   upscaleOnce.delete(part.id);
   const reference=grow?earlier:chosen||earlier;
   const operation=grow?'upscale':earlier&&!chosen?'edit':'generate';
-  const fresh:ImageRequestBody={prompt:part.text,projectId:project||undefined,aspectRatio:imageFrame,resolution:1024,style:'auto',seed:part.seed??null,variations:grow?1:imageCount,operation,...(reference?{referenceArtifactId:reference}:{})};
+  const fresh:ImageRequestBody={prompt:part.text,projectId:project||undefined,aspectRatio:imageFrame,resolution:768,style:'auto',seed:part.seed??null,variations:grow?1:imageCount,operation,...(reference?{referenceArtifactId:reference}:{})};
   const pending=readPendingImage(signed.id);
   let body=fresh;
   let stuck=false;
@@ -1705,8 +1716,15 @@ async function runChat(){
   noteLocal(message,`На экране снова ${back.path}.`);
   return;
  }
- if(/^(?:запусти|выполни|прогони)\s+(?:тесты|npm|сборку|сервер|dev|команд\p{L}*)[.!?]?$/iu.test(message)){noteLocal(message,'Команды, npm и тесты здесь не исполняются: контейнера нет. Прогон через GitHub Actions включится, когда в воркере будет секрет GITHUB_TOKEN.');return;}
- if(/^(?:выложи|задеплой|сделай\s+push|отправь\s+в\s+github)[.!?]?$/iu.test(message)){noteLocal(message,'Выкладка из чата и push в GitHub не запускаются. Секреты GITHUB_TOKEN и GITHUB_REPO ставятся в воркер, не в чат.');return;}
+ if(/^(?:запусти|выполни|прогони)\s+тесты[.!?]?$/iu.test(message)){
+  try{
+   const r=await api('/api/trial/sandbox',{method:'POST',body:JSON.stringify({projectId:project||''})}) as {note?:string;output?:string};
+   noteLocal(message,String(r.note||r.output||'Готово.'));
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Команды в контейнере выключены.');}
+  return;
+ }
+ if(/^(?:запусти|выполни|прогони)\s+(?:npm|сборку|сервер|dev|команд\p{L}*)[.!?]?$/iu.test(message)){noteLocal(message,'Произвольные команды закрыты пробным лимитом. В настройках можно включить только прогон тестов, не больше 3 раз.');return;}
+ if(/^(?:выложи|задеплой|сделай\s+push|отправь\s+в\s+github)[.!?]?$/iu.test(message)){noteLocal(message,'Выкладка из чата закрыта. Пробный лимит на неё — ноль, токен GitHub её не запускает.');return;}
  const skills=skillsReply(message);
  if(wantsPageRestore(message)){
   const restored=takeBackPage(heldPlan);

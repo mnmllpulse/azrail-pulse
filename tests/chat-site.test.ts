@@ -38,6 +38,8 @@ describe('Страница из чата', () => {
   });
 
   it('ZIP страницы содержит собранный index.html', async () => {
+    const calc = filesForDraft(draftFromPhrase('Сделай калькулятор'));
+    expect(calc.find((file) => file.path === 'index.html')?.text).toContain('data-key="="');
     const files = filesForDraft(draftFromPhrase('Собери сайт для бюро'));
     const packed = siteZip(files);
     const buf = packed.buffer.slice(packed.byteOffset, packed.byteOffset + packed.byteLength);
