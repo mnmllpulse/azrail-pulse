@@ -27,7 +27,7 @@ import {fillMarkdownContent} from './chat-markdown';
 import {formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
-import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,openStoredPlan,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
 import {diagramLines,diagramModel} from './diagram';
@@ -1245,7 +1245,8 @@ async function rememberWork(message:string,plan:WorkPlan,finished:boolean){
  if(!account||local)return;
  const thread=chatHistory.current();if(!thread)return;
  const head=plan.parts[0];
- const summary=finished&&head?(plan.parts.length>1?formatPlan(plan):formatAssignment(head)):'';
+ const pictured=finished?pictureReply(plan.parts):'';
+ const summary=pictured||(finished&&head?(plan.parts.length>1?formatPlan(plan):formatAssignment(head)):'');
  try{
   await api('/api/conversations/plan',{method:'POST',body:JSON.stringify({conversationId:thread.id,userText:message.slice(0,4000),...(summary?{summary:summary.slice(0,4000)}:{}),plan:planRecord(plan)})});
  }catch{/* Полоса остаётся на этом экране, даже если запись не дошла. */}
@@ -1416,16 +1417,19 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
  try{
   if(!account&&plan.kind!=='music'){paint({...plan,needsYou:'Войди в аккаунт, и я начну это поручение.'});return;}
   if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
-  paint(plan);
+  showAssignment(plan);
+  chatHistory.report(requestKey,plan.kind==='image'?'Собираю картинку…':formatAssignment(plan),'queued');
+  syncChatUI();workspace.toLatest();
   const text=plan.versions?.length&&plan.text?plan.text:message;
   const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,id:'part-1',text,wave:0,dependsOn:[],state,thing,versions:plan.versions,seed:plan.seed??undefined}]});
   const part:PlanPart={...plan,id:'part-1',text,wave:0,dependsOn:[],state:'running',versions:plan.versions,seed:plan.seed??undefined};
-  missionSubmitting=false;
   await rememberWork(message,one(),false);
   await runPlanPart(part);
   paintThings(part.thing?[{thing:part.thing,state:'done',versions:part.versions}]:[]);
   await rememberWork(message,one(part.thing,'done'),true);
-  if(part.ready)paint({...plan,ready:part.ready});
+  const pictured=pictureReply([part]);
+  if(pictured){showAssignment({...plan,ready:part.ready||plan.ready});chatHistory.report(requestKey,pictured,'completed');syncChatUI();workspace.toLatest();}
+  else if(part.ready)paint({...plan,ready:part.ready});
   showContinue(one(part.thing,'done'));
  }
  catch(e){
@@ -1461,7 +1465,7 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
   if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
  }
  const estimate=await todayNote(plan);
- const paint=(needsYou?:string)=>{paintPlan(plan,[estimate,needsYou].filter(Boolean).join(' '));if(!resume)chatHistory.report(requestKey,[formatPlan(plan),needsYou].filter(Boolean).join('\n\n'),plan.parts.some(part=>part.state==='failed')?'failed':'completed');syncChatUI();workspace.toLatest();};
+ const paint=(needsYou?:string)=>{paintPlan(plan,[estimate,needsYou].filter(Boolean).join(' '));if(!resume)chatHistory.report(requestKey,[formatPlan(plan),pictureReply(plan.parts),needsYou].filter(Boolean).join('\n\n'),plan.parts.some(part=>part.state==='failed')?'failed':'completed');syncChatUI();workspace.toLatest();};
  const aimed=onlyId?plan.parts.filter(part=>part.id===onlyId):plan.parts;
  const needsAccount=aimed.some(part=>part.kind!=='music'&&part.state!=='done');
  try{
@@ -1671,8 +1675,8 @@ async function chosenPlan(message:string):Promise<WorkPlan|null>{
   const memory=finishedMemory();
   const drafted=await api('/api/plan',{method:'POST',body:JSON.stringify({message,...(memory?{memory}:{})})}) as {fallback?:boolean;parts?:Array<{text?:string;kind?:string;after?:boolean}>};
   if(drafted.fallback)return planWork(message);
-  if(Array.isArray(drafted.parts)&&drafted.parts.length===0)return null;
-  return groundWorkPlan(message,workPlanFromDraft(drafted.parts??[])??planWork(message));
+  if(!Array.isArray(drafted.parts)||drafted.parts.length===0)return keepAskedMedia(message,null);
+  return keepAskedMedia(message,groundWorkPlan(message,workPlanFromDraft(drafted.parts)??planWork(message)));
  }catch{return planWork(message);}
 }
 function noteLocal(message:string,reply:string){

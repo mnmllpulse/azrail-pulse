@@ -106,6 +106,16 @@ export function workPlanFromDraft(rows: Array<{ text?: string; kind?: string; af
   return { parts, parallel };
 }
 
+/** Фраза сама просит картинку, трек, ролик, страницу или файл. Пустой план модели это не отменяет. */
+export function keepAskedMedia(message: string, drafted: WorkPlan | null): WorkPlan | null {
+  const local = planWork(message);
+  const asked = local.parts.filter((part) => part.kind === 'image' || part.kind === 'music' || part.kind === 'video' || part.kind === 'web' || part.kind === 'file' || part.kind === 'diagram');
+  if (!asked.length) return drafted;
+  if (!drafted?.parts.length) return local;
+  const kinds = new Set(drafted.parts.map((part) => part.kind));
+  return asked.some((part) => !kinds.has(part.kind)) ? local : drafted;
+}
+
 /** Файл и схема берутся только из слов самого сообщения. Модель не превращает разбор архива в сборку файла. */
 export function groundWorkPlan(message: string, plan: WorkPlan | null): WorkPlan | null {
   if (!plan) return null;
@@ -331,6 +341,22 @@ export function formatPlan(plan: WorkPlan): string {
 }
 
 const ARTIFACT_URL = /^\/api\/studio\/artifacts\/[A-Za-z0-9._~-]{1,180}(?:\?inline=1)?$/;
+
+/** Текст сообщения чата, в котором картинка остаётся картинкой после перерисовки ленты. */
+export function pictureReply(parts: Array<{ ready?: string; thing?: PlanThing }>): string {
+  const blocks: string[] = [];
+  for (const part of parts) {
+    const thing = part.thing;
+    if (thing?.type !== 'image' || !thing.url || !ARTIFACT_URL.test(thing.url)) continue;
+    const title = (thing.title || 'Картинка').replace(/[\[\]]/g, '').slice(0, 80);
+    blocks.push(part.ready?.trim() || 'Картинка в чате.');
+    blocks.push(`![${title}](${thing.url})`);
+    for (const alt of thing.alts ?? []) {
+      if (ARTIFACT_URL.test(alt)) blocks.push(`![${title}](${alt})`);
+    }
+  }
+  return blocks.join('\n\n').slice(0, 4000);
+}
 const PAGE_URL = /^\/s\/[A-Za-z0-9_-]{1,80}\/?$/;
 
 function keptUrls(urls: Array<string | undefined>): string[] {

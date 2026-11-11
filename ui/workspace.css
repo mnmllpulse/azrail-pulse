@@ -92,7 +92,11 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .assignment-frame span { color: #8d849c; font-size: 12px; }
 .app-shell .assignment-frame button[aria-pressed="true"] { border-color: #695080; color: #ead8ff; }
 .app-shell .assignment-pair, .app-shell .assignment-versions { display: flex; flex-wrap: wrap; gap: 8px; }
-.app-shell .assignment-pair img, .app-shell .assignment-versions img { width: min(100%, 420px); }
+.app-shell .assignment-pair img, .app-shell .assignment-versions img, .app-shell .chat-picture img { width: min(100%, 420px); display: block; border-radius: 12px; background: #050508; }
+.app-shell .chat-picture { margin: 8px 0 0; }
+.app-shell .chat-picture-actions { display: flex; gap: 8px; margin-top: 8px; }
+.app-shell .chat-picture-actions button { min-height: 32px; padding: 0 12px; border: 1px solid #4a3d5c; border-radius: 8px; background: #1a1522; color: #f4eefe; cursor: pointer; }
+.app-shell .chat-picture-actions button:hover { border-color: #695080; }
 .app-shell .assignment-versions { opacity: .72; }
 .app-shell .assignment-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
 .app-shell .assignment-cards article { padding: 8px; border: 1px solid #312b39; border-radius: 8px; }

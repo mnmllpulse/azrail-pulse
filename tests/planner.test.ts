@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { formatPlan, fileNameFromPhrase, followUpPlan, groundWorkPlan, holdBlocked, openStoredPlan, planRecord, planWork, restorePageVersion, retryPart, revisePart, takeBackPage, wantsPageRestore, wavesToRun, workPlanFromDraft } from '../ui/planner';
+import { formatPlan, fileNameFromPhrase, followUpPlan, groundWorkPlan, holdBlocked, keepAskedMedia, openStoredPlan, pictureReply, planRecord, planWork, restorePageVersion, retryPart, revisePart, takeBackPage, wantsPageRestore, wavesToRun, workPlanFromDraft } from '../ui/planner';
+import { chatPicturePaths } from '../ui/chat-markdown';
 
 describe('Планировщик поручения', () => {
   it('одну картинку не дробит', () => {
@@ -209,6 +210,23 @@ describe('Планировщик поручения', () => {
     expect(runnable.map((part) => part.id)).toEqual(['part-2']);
     expect(plan.parts.find((part) => part.id === 'part-3')?.state).toBe('failed');
     expect(plan.parts[0]?.state).toBe('failed');
+  });
+
+  it('пустой план модели не отменяет просьбу нарисовать', () => {
+    expect(keepAskedMedia('нарисуй череп на черном фоне', null)?.parts[0]?.kind).toBe('image');
+    expect(keepAskedMedia('нарисуй череп', workPlanFromDraft([{ text: 'опиши череп', kind: 'build' }]))?.parts[0]?.kind).toBe('image');
+    expect(keepAskedMedia('привет', null)).toBeNull();
+  });
+
+  it('готовая картинка остаётся картинкой в тексте чата', () => {
+    const reply = pictureReply([{
+      ready: 'Картинка в чате.',
+      thing: { type: 'image', url: '/api/studio/artifacts/skull-1?inline=1', title: 'Череп', alts: ['https://evil.example/x.png'] },
+    }]);
+    expect(reply).toContain('![Череп](/api/studio/artifacts/skull-1?inline=1)');
+    expect(reply).not.toContain('evil.example');
+    expect(chatPicturePaths(reply)).toEqual(['/api/studio/artifacts/skull-1?inline=1']);
+    expect(chatPicturePaths('![чужая](https://evil.example/x.png)')).toEqual([]);
   });
 
   it('имя файла берётся из фразы', () => {

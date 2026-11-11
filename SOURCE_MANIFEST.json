@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-11T03:15:05.832Z",
+  "generated_at": "2026-11-11T03:27:02.392Z",
   "excludes_self": true,
   "file_count": 1330,
   "files": [
@@ -1272,8 +1272,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1223247,
-      "sha256": "e05af77388985c4681400ee71bbaab8287fe94c1cfe1c1a4e7ba4c815aa246d7"
+      "bytes": 1226959,
+      "sha256": "a0c71b5d011c12800079fd5121c41e2c7c84dc558ed28d9d267a290262cef9e1"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3937,8 +3937,8 @@
     },
     {
       "path": "site/app.html",
-      "bytes": 23368,
-      "sha256": "294943c9ae49a1ba0e5ad194645145e3c910a7703c23d9f71a4e8b46a3bff54b"
+      "bytes": 23143,
+      "sha256": "7cd9fabcb0ad5f0a6abf0c7e7f1058f96debaef9b7ddccecc2c03accb8758155"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -3947,13 +3947,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 127656,
-      "sha256": "2d6806ef8cb4779963e0aeae07a3fccc315cc9dc89171a2ccd5048b70dd939c9"
+      "bytes": 128075,
+      "sha256": "772392ba7176d185d4398f834818cdef54444b11c89c11788d49c8bea93789ac"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 348255,
-      "sha256": "08fc1a57b3c1ac283798ee8b984f6d1952bfe75f782681f2b79c4939ef7de460"
+      "bytes": 351062,
+      "sha256": "06185f505cb70bdd169a2467419b85eaee73982a794c1d4d9ee148e237e8d924"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4046,14 +4046,14 @@
       "sha256": "597afe4daa79e752018eca2e896fad826f6bc69e6b78b339f467a6a83d05fa53"
     },
     {
-      "path": "site/assets/chunk-RYBCQPUP.js",
-      "bytes": 29910,
-      "sha256": "8800368f0ee03fd24c3a28c350ed33bc040459a19bd2eb1c7a7b6bf9d5aff5e8"
-    },
-    {
       "path": "site/assets/chunk-SXAYO3L4.js",
       "bytes": 33952,
       "sha256": "5f71428a8ce6b5f4464e9868918b7e2b242adaae2fbaedbff2f728a2117dad07"
+    },
+    {
+      "path": "site/assets/chunk-V45K3A7R.js",
+      "bytes": 30651,
+      "sha256": "d5315fa3f66190ea6d242d7adb6b6ddcf5867903f8742a80404d5d307d8e7297"
     },
     {
       "path": "site/assets/connectors-Y25HYE2L.js",
@@ -4116,9 +4116,9 @@
       "sha256": "73a8b1b3502438fca318d5199f7abd816bd84a6837a041e8524f601d0bf75f16"
     },
     {
-      "path": "site/assets/prose-CAL2XPR5.js",
+      "path": "site/assets/prose-MCMLUXVL.js",
       "bytes": 12187,
-      "sha256": "261cfa6d2aa6859a578f4cc6cafc73a80d184c447ccea17680f6f46d752c84f6"
+      "sha256": "46355242a79f025e516dd0fbb3c3b62e820ddbbb96ef4e6c9aab5223264f8610"
     },
     {
       "path": "site/assets/video-VO6EA3NO.js",
@@ -4217,8 +4217,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 23368,
-      "sha256": "294943c9ae49a1ba0e5ad194645145e3c910a7703c23d9f71a4e8b46a3bff54b"
+      "bytes": 23143,
+      "sha256": "7cd9fabcb0ad5f0a6abf0c7e7f1058f96debaef9b7ddccecc2c03accb8758155"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5472,8 +5472,8 @@
     },
     {
       "path": "tests/planner.test.ts",
-      "bytes": 12600,
-      "sha256": "260b9b704b947cec7dbbdbd97d7bfcee861fdf0e6769ed9bb426be4e0476faeb"
+      "bytes": 13795,
+      "sha256": "78aca3d4e2ab92456994de8d98b228d9283285d9cae20fe8b4e02afebc120da0"
     },
     {
       "path": "tests/platform-http.test.ts",
@@ -5812,8 +5812,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 169733,
-      "sha256": "c244cb9c9f5c7a7a5c954159ec337cb7f3c17a9f19013c2b23684714e8c4fb80"
+      "bytes": 170241,
+      "sha256": "02bc8a5c5a330d657a3741a528e613ace3a6888a925cea0bc235cf57ab6bac5d"
     },
     {
       "path": "ui/assignment.ts",
@@ -5847,8 +5847,8 @@
     },
     {
       "path": "ui/chat-markdown.ts",
-      "bytes": 2984,
-      "sha256": "c1805adff830c48d207ff32de303681f3126c0d69a525a7985f0b20baca0b7cb"
+      "bytes": 7219,
+      "sha256": "027dc19c79c67dac1c4d4dcca3e9ce99b02f84053e55a63af6137225a4e4e5bd"
     },
     {
       "path": "ui/chat-site.ts",
@@ -6032,8 +6032,8 @@
     },
     {
       "path": "ui/planner.ts",
-      "bytes": 16885,
-      "sha256": "44fa0773f71509df8c3eecda84f4ab64486e55eb1cb9bc732ad7fca7b5f8add9"
+      "bytes": 18422,
+      "sha256": "b5ea7973ad264f5e75580b8e14e3d3db313719cebf211961c4cac346b5aa3c20"
     },
     {
       "path": "ui/projects.ts",
@@ -6182,8 +6182,8 @@
     },
     {
       "path": "ui/workspace.css",
-      "bytes": 30194,
-      "sha256": "92a5fe091a2cd09dc7c437a924f986cfb83901c2672e6079d209902009a918d7"
+      "bytes": 30660,
+      "sha256": "0a007df84aa688c5e59dab987c592823c05cc7040844f138ada53edd2c186cc4"
     },
     {
       "path": "ui/zip-site.ts",
