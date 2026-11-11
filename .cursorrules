@@ -1,9 +1,0 @@
-# AZRAIL OS Code Generation Standard
-- Stack: Pure Vanilla JS (ESNext), HTML5, CSS3, Cloudflare Workers.
-- Design: Dark Minimal Noir (#050508 background, glassmorphism, accent borders).
-- Token Economy:
-  1. NEVER output entire files when modifying code. ALWAYS return SEARCH/REPLACE diff blocks.
-  2. Skip polite conversational fillers. Go straight to code patches and structural explanation.
-  3. Keep JavaScript modular and execution-lean. Avoid heavy bundlers unless specified.
-- Security: NEVER place raw API keys inside frontend JS or HTML files.
-- Working site is the Cloudflare worker azrail-pulse. Deploy only wrangler.jsonc. Do not deploy wrangler.production.json.

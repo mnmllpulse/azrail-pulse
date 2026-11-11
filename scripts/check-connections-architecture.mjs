@@ -5,7 +5,7 @@ for(const marker of ['Professional Connections','SETTINGS / CONNECTIONS','Availa
 for(const marker of ['connectionCollections','connectionDetail','connector_health_checks','recordHealthCheck','credentialRotation','secret_rotation','requiresVerification','lastCheckedAt','lastCallAt','errorCount'])if(!backend.includes(marker))fail(`Connections backend invariant missing ${marker}`);
 for(const marker of ['oauth_reauthorize','secret_rotation','connectionId','rotationDigest','claimApproval','completeApproval'])if(!oauth.includes(marker))fail(`OAuth credential lifecycle missing ${marker}`);
 for(const marker of ["{page:'connections'}",'/settings/connections'])if(!nav.includes(marker)&&!app.includes(marker))fail(`Separate Connections route missing ${marker}`);
-if(!html.includes('id="connections-page"')||!html.includes('SETTINGS / CONNECTIONS'))fail('Separate Professional Connections page is missing from app shell');
+if(!html.includes('id="connections-page"'))fail('Separate Professional Connections page is missing from app shell');
 for(const marker of ['CREATE TABLE IF NOT EXISTS connector_health_checks','latency_ms INTEGER NOT NULL','tool_count INTEGER NOT NULL','idx_connector_health_connection_time'])if(!schema.includes(marker)||!migration.includes(marker))fail(`Connections health schema missing ${marker}`);
 for(const marker of ['does not expose credentials','records verification health','credential rotation requires approval','connection detail is owner scoped'])if(!tests.includes(marker))fail(`Connections regression suite missing ${marker}`);
 if(/secret_cipher|access_token|provider-secret/.test(ui))fail('Connections UI must never reference stored credential values');

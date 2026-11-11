@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { applyHunks, parseHunks, MAX_HUNKS, type Hunk } from "../src/lib/patch";
+import { applyHunks, parseEditArgs, parseHunks, MAX_HUNKS, type Hunk } from "../src/lib/patch";
 import { writeFileGuarded, applyPatch } from "../src/lib/workspace";
 import type { Env } from "../src/types";
 
@@ -233,5 +233,47 @@ describe("Инструмент подключён, а не только напи
     const prompt = engine.slice(engine.indexOf("export const LOOP_SYSTEM_PROMPT"), engine.indexOf("export class ExecutionPlanningEngine"));
     expect(prompt).toContain("apply_patch");
     expect(prompt).toContain("только для НОВЫХ файлов");
+  });
+});
+
+describe("parseEditArgs", () => {
+  it("принимает каноничные поля", () => {
+    expect(parseEditArgs({ path: "a.ts", search: "x", replacement: "y" })).toEqual({ path: "a.ts", search: "x", replacement: "y" });
+  });
+
+  it("принимает частые псевдонимы полей", () => {
+    expect(parseEditArgs({ path: "a.ts", old_string: "x", new_string: "y" })).toEqual({ path: "a.ts", search: "x", replacement: "y" });
+    expect(parseEditArgs({ path: "a.ts", search: "x", replace: "y" })).toEqual({ path: "a.ts", search: "x", replacement: "y" });
+  });
+
+  it("явная пустая замена допустима и удаляет фрагмент", () => {
+    expect(parseEditArgs({ path: "a.ts", search: "x", replacement: "" })).toEqual({ path: "a.ts", search: "x", replacement: "" });
+  });
+
+  it("отсутствующая замена отклоняется, а не превращается в удаление", () => {
+    const r = parseEditArgs({ path: "a.ts", search: "x" });
+    expect("error" in r && r.error).toContain("replacement");
+  });
+
+  it("пустой search и отсутствующий path отклоняются со схемой", () => {
+    const noSearch = parseEditArgs({ path: "a.ts", replacement: "y" });
+    expect("error" in noSearch && noSearch.error).toContain('"search"');
+    const emptySearch = parseEditArgs({ path: "a.ts", search: "", replacement: "y" });
+    expect("error" in emptySearch).toBe(true);
+    const noPath = parseEditArgs({ search: "x", replacement: "y" });
+    expect("error" in noPath && noPath.error).toContain('"path"');
+  });
+
+  it("нечисловые и нестроковые значения не приводятся через String()", () => {
+    expect("error" in parseEditArgs({ path: "a.ts", search: 5, replacement: "y" })).toBe(true);
+    expect("error" in parseEditArgs({ path: "a.ts", search: "x", replacement: null })).toBe(true);
+  });
+
+  it("промпт миссии описывает точные схемы edit_file и apply_patch", () => {
+    const prompt = src("src/core/execution-planning.ts");
+    expect(prompt).toContain('edit_file {"path"');
+    expect(prompt).toContain('"replacement"');
+    expect(prompt).toContain('apply_patch {"path"');
+    expect(prompt).toContain('"hunks"');
   });
 });

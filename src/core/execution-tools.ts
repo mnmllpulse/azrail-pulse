@@ -7,7 +7,8 @@ import { syncWorkspaceFromSandbox } from "./sandbox-export";
 import { requireCapability, toolCapability, type ProjectLease } from "../lib/project-control";
 import type { Env, TaskRequest, ToolName } from "../types";
 import { applyPatch, editFile, listFiles, listFilesPage, readFile, searchFiles, writeFileGuarded } from "../lib/workspace";
-import { parseHunks } from "../lib/patch";
+import { parseEditArgs, parseHunks } from "../lib/patch";
+import { ToolRejectedError } from "../lib/tool-errors";
 import { describeTools } from "../lib/tool-registry";
 import { extractText, runModel } from "../lib/model-router";
 import { sliceFile } from "./file-window";
@@ -85,7 +86,11 @@ export class ExecutionToolExecutor {
       }
       case "edit_file":
         this.requireProject(ctx);
-        return editFile(this.env, ctx.projectId!, String(input.path ?? ""), String(input.search ?? ""), String(input.replacement ?? ""));
+        {
+          const edit = parseEditArgs(input);
+          if ("error" in edit) throw new ToolRejectedError(edit.error);
+          return editFile(this.env, ctx.projectId!, edit.path, edit.search, edit.replacement);
+        }
       case "list_files":
         this.requireProject(ctx);
         return listFiles(this.env, ctx.projectId!, Number(input.limit ?? 500));
