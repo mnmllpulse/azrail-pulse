@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-12T09:21:12.471Z",
+  "generated_at": "2026-11-12T09:49:56.805Z",
   "excludes_self": true,
   "file_count": 1333,
   "files": [
@@ -1272,8 +1272,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1226943,
-      "sha256": "e1d780cf8d01b4da7cc86a5a32e2c5c679cc4a50a0570d2e71379d5e30dd38f9"
+      "bytes": 1227577,
+      "sha256": "28c3ef06a85323d124139f2a4b8f9006832f482f7221454f8710355febcdf637"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3938,7 +3938,7 @@
     {
       "path": "site/app.html",
       "bytes": 23143,
-      "sha256": "25fff54c43d014d1941331fcc64a08127005cb35fd2e59f01e122b953a7e440d"
+      "sha256": "19be33c85ad455069280e6bafc348e6745531a84e4e9c952938aeaeb1e2e2725"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -3953,7 +3953,7 @@
     {
       "path": "site/assets/app.js",
       "bytes": 351046,
-      "sha256": "eadeafd75b6715e5d63b2339c6fa7ccc2222726a3c1f3a2b5e3f5d9dc2aac961"
+      "sha256": "d06f20baf8e3aff5100397cf13ba838ec47ecdbd4d57fdc6be09d123a30f35bb"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4051,9 +4051,9 @@
       "sha256": "5f71428a8ce6b5f4464e9868918b7e2b242adaae2fbaedbff2f728a2117dad07"
     },
     {
-      "path": "site/assets/chunk-V45K3A7R.js",
-      "bytes": 30651,
-      "sha256": "d5315fa3f66190ea6d242d7adb6b6ddcf5867903f8742a80404d5d307d8e7297"
+      "path": "site/assets/chunk-UVT2MGQ6.js",
+      "bytes": 31280,
+      "sha256": "e0ca2126f8bb0b5b752dc1cd27f4f38bc863e3df22479c3069abd8e013d88142"
     },
     {
       "path": "site/assets/connectors-Y25HYE2L.js",
@@ -4116,9 +4116,9 @@
       "sha256": "73a8b1b3502438fca318d5199f7abd816bd84a6837a041e8524f601d0bf75f16"
     },
     {
-      "path": "site/assets/prose-MCMLUXVL.js",
+      "path": "site/assets/prose-B23Y74W3.js",
       "bytes": 12187,
-      "sha256": "46355242a79f025e516dd0fbb3c3b62e820ddbbb96ef4e6c9aab5223264f8610"
+      "sha256": "9822881a636b801e18d1821801e6dc77b9cb96251b282ac9e8d50774df09d470"
     },
     {
       "path": "site/assets/video-VO6EA3NO.js",
@@ -4218,7 +4218,7 @@
     {
       "path": "site/index.html",
       "bytes": 23143,
-      "sha256": "25fff54c43d014d1941331fcc64a08127005cb35fd2e59f01e122b953a7e440d"
+      "sha256": "19be33c85ad455069280e6bafc348e6745531a84e4e9c952938aeaeb1e2e2725"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4432,8 +4432,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 100066,
-      "sha256": "880b7baf57b768a9f9d714ffbbaf84cefadec31b6fc4dd675216014047f5b304"
+      "bytes": 100105,
+      "sha256": "8a4b2933e9d944227762f874f557fb0c0bcddc8e8c006892ea6be0bf88c1a582"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -5032,8 +5032,8 @@
     },
     {
       "path": "src/unified/entry.ts",
-      "bytes": 7261,
-      "sha256": "a456f7dd04a8f3939d675e0be6d8914dacc451fb873f85b5c5ecb2faffa5202e"
+      "bytes": 7455,
+      "sha256": "b0d825d05cf462cd5eb1d88c4bc56903507a9661f5818ebf445b3f235277ae95"
     },
     {
       "path": "src/unified/ledger.ts",
@@ -5152,8 +5152,8 @@
     },
     {
       "path": "tests/assignment.test.ts",
-      "bytes": 3430,
-      "sha256": "bd094f64c30d3ea0c48843bd764de31e6d0ceae355006bb8f21736c7f45ed582"
+      "bytes": 4182,
+      "sha256": "9b09b3c1b8244989b2e5d33b825a5d61ca95180594b7608d9f1750576fef106a"
     },
     {
       "path": "tests/attachments.test.ts",
@@ -5207,8 +5207,8 @@
     },
     {
       "path": "tests/chat-no-fabrication.test.ts",
-      "bytes": 798,
-      "sha256": "a3e6ad91f3839ccd55b2173071dc6ac5c70927f6367d4e233bad29c3e1d9b502"
+      "bytes": 1344,
+      "sha256": "9656ab7821e1ebb1924e920ce02c5fe1bd7c4b89d1d1934c0aae602208e01d0c"
     },
     {
       "path": "tests/chat-recency.test.ts",
@@ -5832,8 +5832,8 @@
     },
     {
       "path": "ui/assignment.ts",
-      "bytes": 10814,
-      "sha256": "fbe3e4be44d1ce68f95458f451e04caa4180fa1fe9a7ca6d3b3b6ad89b2678c8"
+      "bytes": 11148,
+      "sha256": "78fba68792708318c1da831622f814bfdd0479fde83b9363b2b7b4eda290fc19"
     },
     {
       "path": "ui/attachment-manager.ts",

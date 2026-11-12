@@ -10,3 +10,13 @@ describe("чат не выдумывает созданные файлы и ка
     expect(source).toContain("выведи содержимое блоком кода и прямо скажи, что файла нет");
   });
 });
+
+describe("история чата не содержит служебных блоков", () => {
+  it("СОСТОЯНИЕ СВЯЗЕЙ добавляется к запросу модели только после сохранения реплики", () => {
+    const source = readFileSync("src/index.ts", "utf8");
+    const saved = source.indexOf('await addMessage(env, cid, "user"');
+    const appended = source.indexOf("message += supplements;");
+    expect(saved).toBeGreaterThan(0);
+    expect(appended).toBeGreaterThan(saved);
+  });
+});
