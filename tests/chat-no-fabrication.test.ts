@@ -20,3 +20,12 @@ describe("история чата не содержит служебных бл�
     expect(appended).toBeGreaterThan(saved);
   });
 });
+
+describe("картинка из вложения чата становится образцом для рисования", () => {
+  const source = readFileSync("ui/app.ts", "utf8");
+  it("вложенное изображение загружается как образец и вложение очищается после сборки", () => {
+    expect(source).toContain("async function attachedImageReference()");
+    expect(source).toContain("const chosen=imageReference||attachedId;");
+    expect(source).toContain("if(attachedId)clearAttachments();");
+  });
+});
