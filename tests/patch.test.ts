@@ -2,9 +2,11 @@ import { describe, it, expect } from "vitest";
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 
-import { applyHunks, parseHunks, MAX_HUNKS, type Hunk } from "../src/lib/patch";
+import { applyHunks, parseEditArgs, parseHunks, MAX_HUNKS, type Hunk } from "../src/lib/patch";
 import { writeFileGuarded, applyPatch } from "../src/lib/workspace";
 import type { Env } from "../src/types";
+import { ToolRejectedError } from "../src/lib/tool-errors";
+import { isDesignGoal } from "../src/unified/design-contract";
 
 const src = (p: string) => readFileSync(resolve(__dirname, "..", p), "utf-8");
 
@@ -233,5 +235,84 @@ describe("Инструмент подключён, а не только напи
     const prompt = engine.slice(engine.indexOf("export const LOOP_SYSTEM_PROMPT"), engine.indexOf("export class ExecutionPlanningEngine"));
     expect(prompt).toContain("apply_patch");
     expect(prompt).toContain("только для НОВЫХ файлов");
+  });
+});
+
+describe("parseEditArgs", () => {
+  it("принимает каноничные поля", () => {
+    expect(parseEditArgs({ path: "a.ts", search: "x", replacement: "y" })).toEqual({ path: "a.ts", search: "x", replacement: "y" });
+  });
+
+  it("принимает частые псевдонимы полей", () => {
+    expect(parseEditArgs({ path: "a.ts", old_string: "x", new_string: "y" })).toEqual({ path: "a.ts", search: "x", replacement: "y" });
+    expect(parseEditArgs({ path: "a.ts", search: "x", replace: "y" })).toEqual({ path: "a.ts", search: "x", replacement: "y" });
+  });
+
+  it("явная пустая замена допустима и удаляет фрагмент", () => {
+    expect(parseEditArgs({ path: "a.ts", search: "x", replacement: "" })).toEqual({ path: "a.ts", search: "x", replacement: "" });
+  });
+
+  it("отсутствующая замена отклоняется, а не превращается в удаление", () => {
+    const r = parseEditArgs({ path: "a.ts", search: "x" });
+    expect("error" in r && r.error).toContain("replacement");
+  });
+
+  it("пустой search и отсутствующий path отклоняются со схемой", () => {
+    const noSearch = parseEditArgs({ path: "a.ts", replacement: "y" });
+    expect("error" in noSearch && noSearch.error).toContain('"search"');
+    const emptySearch = parseEditArgs({ path: "a.ts", search: "", replacement: "y" });
+    expect("error" in emptySearch).toBe(true);
+    const noPath = parseEditArgs({ search: "x", replacement: "y" });
+    expect("error" in noPath && noPath.error).toContain('"path"');
+  });
+
+  it("нечисловые и нестроковые значения не приводятся через String()", () => {
+    expect("error" in parseEditArgs({ path: "a.ts", search: 5, replacement: "y" })).toBe(true);
+    expect("error" in parseEditArgs({ path: "a.ts", search: "x", replacement: null })).toBe(true);
+  });
+
+  it("промпт миссии описывает точные схемы edit_file и apply_patch", () => {
+    const prompt = src("src/core/execution-planning.ts");
+    expect(prompt).toContain('edit_file {"path"');
+    expect(prompt).toContain('"replacement"');
+    expect(prompt).toContain('apply_patch {"path"');
+    expect(prompt).toContain('"hunks"');
+  });
+});
+
+describe("Детерминированные отказы возвращаются модели, а не останавливают миссию", () => {
+  it("перезапись без overwrite — ToolRejectedError", async () => {
+    const r2 = fakeR2({ [KEY]: FILE });
+    await expect(writeFileGuarded(envWith(r2), "p1", "app.js", "x")).rejects.toBeInstanceOf(ToolRejectedError);
+  });
+
+  it("усадка файла — ToolRejectedError", async () => {
+    const r2 = fakeR2({ [KEY]: "x".repeat(1000) });
+    await expect(writeFileGuarded(envWith(r2), "p1", "app.js", "y", { overwrite: true })).rejects.toBeInstanceOf(ToolRejectedError);
+  });
+
+  it("патч по несуществующему файлу и ненайденный фрагмент — ToolRejectedError", async () => {
+    const r2 = fakeR2({ [KEY]: FILE });
+    await expect(applyPatch(envWith(r2), "p1", "nope.js", [{ search: "a", replace: "b" }])).rejects.toBeInstanceOf(ToolRejectedError);
+    await expect(applyPatch(envWith(r2), "p1", "app.js", [{ search: "нет такого", replace: "b" }])).rejects.toBeInstanceOf(ToolRejectedError);
+  });
+
+  it("исполнитель apply_patch оборачивает ошибку разбора в ToolRejectedError", () => {
+    expect(src("src/core/execution-tools.ts")).toMatch(/throw new ToolRejectedError\(parsed\.error\)/);
+  });
+});
+
+describe("Дизайн-контракт только для дизайн-целей", () => {
+  it.each(["Привет", "Напиши функцию сортировки", "Исправь баг в api.ts"])("не нужен: %s", g => {
+    expect(isDesignGoal(g)).toBe(false);
+  });
+  it.each(["Поправь вёрстку шапки", "Change the button color", "Обнови tokens.css"])("нужен: %s", g => {
+    expect(isDesignGoal(g)).toBe(true);
+  });
+});
+
+describe("Пустая рабочая область", () => {
+  it("движок явно сообщает модели, что файлов нет", () => {
+    expect(src("src/core/execution-engine.ts")).toMatch(/РАБОЧАЯ ОБЛАСТЬ ПРОЕКТА ПУСТА/);
   });
 });

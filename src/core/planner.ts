@@ -280,6 +280,22 @@ export const MAX_REVISIONS = 2;
  * вопрос «почему миссия пошла не туда» решается по журналу, и исчезнувший
  * шаг делает его неотвечаемым.
  */
+const titleKey = (t: string) => t.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+
+/** Убирает пустые шаги и повторы уже выполненных или предыдущих шагов (по нормализованному тексту). */
+export function dedupeTitles(existing: string[], incoming: string[]): string[] {
+  const seen = new Set(existing.map(titleKey));
+  const out: string[] = [];
+  for (const raw of incoming) {
+    const title = raw.trim();
+    const key = titleKey(title);
+    if (!key || seen.has(key)) continue;
+    seen.add(key);
+    out.push(title);
+  }
+  return out;
+}
+
 export async function revisePlan(
   env: Env,
   missionId: string,
@@ -290,7 +306,7 @@ export async function revisePlan(
   const kept = steps.filter((s) => s.status === "done");
   const dropped = steps.filter((s) => s.status !== "done");
 
-  const titles = newTitles.map((t) => t.trim()).filter(Boolean).slice(0, MAX_STEPS - kept.length);
+  const titles = dedupeTitles(kept.map((s) => s.title), newTitles).slice(0, MAX_STEPS - kept.length);
   if (!titles.length) {
     // Пустая замена оставила бы миссию совсем без плана — хуже, чем с
     // неверным: неверный хотя бы задаёт направление.

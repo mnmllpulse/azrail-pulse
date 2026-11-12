@@ -1,4 +1,4 @@
-import { readDesignContract, designInstruction } from "../unified/design-contract";
+import { readDesignContract, designInstruction, isDesignGoal } from "../unified/design-contract";
 export { parseDecision, renderHistory } from "./execution-protocol";
 export type { StepDecision, StepRecordView } from "./execution-protocol";
 import type { StepDecision } from "./execution-protocol";
@@ -196,6 +196,8 @@ export class ExecutionEngine {
       await this.note(ctx, "repo.mapped", {
         reason: `в карте ${filesBefore.length} файлов`,
       });
+    } else if (ctx.projectId) {
+      repoMap = "РАБОЧАЯ ОБЛАСТЬ ПРОЕКТА ПУСТА: файлов нет. Не ищи существующий код (search_files/read_file ничего не вернут); новые файлы создавай через write_file.";
     }
 
     /* ── ЧТО УЖЕ ИЗВЕСТНО ПРО ЭТОТ ПРОЕКТ ───────────────────────────
@@ -212,8 +214,10 @@ export class ExecutionEngine {
      * в src/routes/api.ts» стоит трёх разведчиков.
      */
     let memoryBlock = "";
-    const design=await readDesignContract(this.env,ctx.projectId!);
-    memoryBlock=designInstruction(design.contract);
+    if (isDesignGoal(goal)) {
+      const design=await readDesignContract(this.env,ctx.projectId!);
+      memoryBlock=designInstruction(design.contract);
+    }
     if (ctx.projectId) {
       try {
         const recalled = await recallContext(this.env, ctx.projectId, 30, {missionId:ctx.missionId, query:goal});

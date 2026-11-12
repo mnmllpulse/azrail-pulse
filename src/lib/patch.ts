@@ -180,3 +180,34 @@ export function parseHunks(raw: unknown): { hunks: Hunk[] } | { error: string } 
   }
   return { hunks };
 }
+
+const SEARCH_KEYS = ["search", "old_string", "old"] as const;
+const REPLACE_KEYS = ["replacement", "replace", "new_string", "new"] as const;
+const EDIT_SCHEMA = 'Формат: {"path": "...", "search": "точный фрагмент", "replacement": "новый текст"}.';
+
+const firstString = (input: Record<string, unknown>, keys: readonly string[]) => {
+  for (const key of keys) if (typeof input[key] === "string") return input[key] as string;
+  return undefined;
+};
+
+/**
+ * Разбор аргументов edit_file.
+ *
+ * Модель путает имена полей (replace вместо replacement, old_string вместо
+ * search). Раньше отсутствующая замена превращалась в пустую строку, и
+ * фрагмент молча удалялся. Теперь пустая замена допустима только если поле
+ * прислано явно, а при любой ошибке модель получает схему целиком.
+ */
+export function parseEditArgs(
+  input: Record<string, unknown>,
+): { path: string; search: string; replacement: string } | { error: string } {
+  const path = typeof input.path === "string" ? input.path : "";
+  if (!path) return { error: `Поле "path" обязательно. ${EDIT_SCHEMA}` };
+  const search = firstString(input, SEARCH_KEYS);
+  if (!search) return { error: `Поле "search" обязательно и не может быть пустым. ${EDIT_SCHEMA}` };
+  const replacement = firstString(input, REPLACE_KEYS);
+  if (replacement === undefined) {
+    return { error: `Поле "replacement" обязательно (пустая строка удаляет фрагмент). ${EDIT_SCHEMA}` };
+  }
+  return { path, search, replacement };
+}

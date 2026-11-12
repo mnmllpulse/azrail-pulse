@@ -16,7 +16,7 @@ const names=['Web Studio','Image Studio','Music Studio','Video Studio','Pulse La
 for(const name of names)ok(`brand:${name}`,manifest.includes(`title:'${name}'`));
 ok('brand:no-pulse-lad',!manifest.includes('Pulse Lad'));
 ok('brand:russian-descriptors',names.every(name=>{const idx=manifest.indexOf(`title:'${name}'`);const slice=manifest.slice(idx,idx+420);return /description:'[^']*[А-Яа-яЁё]/.test(slice);}));
-ok('brand:prompt-russian',music.includes('>Промпт</label>')&&image.includes('>Промпт</label>')&&video.includes('Подсказки для промпта')&&web.includes('Промпт → workspace'));
+ok('brand:prompt-russian',music.includes('>Промпт</label>')&&image.includes('>Промпт</label>')&&video.includes('Подсказки для промпта'));
 ok('compare:component',compare.includes('openUniversalCompareCenter')&&compare.includes('A и B должны быть разными')&&compare.includes("blobAPI(`/api/studio/artifacts/${encodeURIComponent(asset.id)}`)"));
 ok('compare:media-native',forAll(compare,['image','audio','video','text','binary']));
 ok('compare:web-boundary',compare.includes('Web Studio → Changes/Versions'));

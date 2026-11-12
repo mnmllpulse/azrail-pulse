@@ -5,8 +5,9 @@ alwaysApply: true
 
 # AZRAIL OS Code Generation Standard
 
-- Stack: vanilla JS (ESNext), HTML5, CSS3, Cloudflare Workers, D1, Durable Objects. Do not add React, Vue, or Angular unless the task asks for it.
+- Stack: TypeScript (strict, ESNext) for the Worker and the UI, HTML5, CSS3, Cloudflare Workers, D1, Durable Objects. Do not add React, Vue, or Angular unless the task asks for it. Avoid heavy bundlers; the UI builds through the existing `npm run build:ui`.
 - Design: dark minimal noir, background near #050508, glass where the current shell already uses it.
-- Keep scripts modular. Do not rewrite a whole file when a small edit is enough.
+- Keep scripts modular. Do not rewrite a whole file when a small edit is enough: return SEARCH/REPLACE patches.
+- Skip conversational filler; go straight to the patch and a short structural note.
 - Never place raw API keys (OpenAI, ElevenLabs, Anthropic) in client-side JS or HTML. Provider calls go through the worker.
 - Working site is the Cloudflare worker `azrail-pulse`. Deploy only `wrangler.jsonc`. Do not deploy `wrangler.production.json`.
