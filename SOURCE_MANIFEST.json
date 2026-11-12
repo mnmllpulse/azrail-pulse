@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-11T08:02:47.786Z",
+  "generated_at": "2026-11-12T03:30:58.018Z",
   "excludes_self": true,
-  "file_count": 1329,
+  "file_count": 1331,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -44,6 +44,11 @@
       "path": ".env.example",
       "bytes": 1365,
       "sha256": "42209ee77bdf44d2851574199667bccf0c8c5f72bbc562a80decf90f6062035b"
+    },
+    {
+      "path": ".gitattributes",
+      "bytes": 59,
+      "sha256": "527bbe1efdb6e26ba9423fbb03093cca43c606940d613d698456051c4ceace7d"
     },
     {
       "path": ".github/workflows/check.yml",
@@ -1267,8 +1272,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1226959,
-      "sha256": "a0c71b5d011c12800079fd5121c41e2c7c84dc558ed28d9d267a290262cef9e1"
+      "bytes": 1226943,
+      "sha256": "e1d780cf8d01b4da7cc86a5a32e2c5c679cc4a50a0570d2e71379d5e30dd38f9"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -1582,13 +1587,13 @@
     },
     {
       "path": "public/ultimate.html",
-      "bytes": 33188,
-      "sha256": "997b7f735814ffc1155ba4aaa4090a4d353529b8772ad65a80d2a186bd4c0636"
+      "bytes": 33172,
+      "sha256": "11a07326546375550db4ff1f262a2d91c5137f2fe86751bb7d080d6f321750f6"
     },
     {
       "path": "public/ultimate.js",
-      "bytes": 14418,
-      "sha256": "1921a83974bf5b418cd04d363545ba35f0126a6526d7dedf47aec74d085294e3"
+      "bytes": 14402,
+      "sha256": "f8259b12bfd139b328ba5d47337549209b84623b0bdb29cf904f77e37b9495ad"
     },
     {
       "path": "references/README.md",
@@ -3557,8 +3562,8 @@
     },
     {
       "path": "scripts/check-repo-hygiene.mjs",
-      "bytes": 8550,
-      "sha256": "23eddf293091b790bebfc99fe728a5c8da5ed27baea846f2dab38eddcbe6982c"
+      "bytes": 8567,
+      "sha256": "74c4f8a3a58a5380dcd663785fa28593156bc591512c74f7fa82611aba74558b"
     },
     {
       "path": "scripts/check-rollout.mjs",
@@ -3933,7 +3938,7 @@
     {
       "path": "site/app.html",
       "bytes": 23143,
-      "sha256": "7cd9fabcb0ad5f0a6abf0c7e7f1058f96debaef9b7ddccecc2c03accb8758155"
+      "sha256": "25fff54c43d014d1941331fcc64a08127005cb35fd2e59f01e122b953a7e440d"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -3947,8 +3952,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 351062,
-      "sha256": "06185f505cb70bdd169a2467419b85eaee73982a794c1d4d9ee148e237e8d924"
+      "bytes": 351046,
+      "sha256": "eadeafd75b6715e5d63b2339c6fa7ccc2222726a3c1f3a2b5e3f5d9dc2aac961"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4213,7 +4218,7 @@
     {
       "path": "site/index.html",
       "bytes": 23143,
-      "sha256": "7cd9fabcb0ad5f0a6abf0c7e7f1058f96debaef9b7ddccecc2c03accb8758155"
+      "sha256": "25fff54c43d014d1941331fcc64a08127005cb35fd2e59f01e122b953a7e440d"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4332,8 +4337,8 @@
     },
     {
       "path": "src/core/execution-engine.ts",
-      "bytes": 67037,
-      "sha256": "dcfadf35ac69ef1318ee7eef8c836d08cf4f2ffd0e04cedcad9fd11f5ab76426"
+      "bytes": 67383,
+      "sha256": "f7a8e2c508b570c2dd118f39109f502dd65da59b2c73c749c979352e6f794c4a"
     },
     {
       "path": "src/core/execution-journal.ts",
@@ -4352,8 +4357,8 @@
     },
     {
       "path": "src/core/execution-tools.ts",
-      "bytes": 21390,
-      "sha256": "e631375e60404c06ed655a0c6617d302e0115e3d6e7cb5828aed6e22ec1c630e"
+      "bytes": 21402,
+      "sha256": "7ee0e1e65bea049fb27c30cd2daffce89f886f2c7466d06aa0e9773fd0439d3e"
     },
     {
       "path": "src/core/execution-types.ts",
@@ -4377,8 +4382,8 @@
     },
     {
       "path": "src/core/planner.ts",
-      "bytes": 16897,
-      "sha256": "b9b9817b0ec56de5a66137607ccf87b2318c82fabe751126bff2aa2b26b644e4"
+      "bytes": 17529,
+      "sha256": "d2da16713685da9dad3653b09774eab76f33aab7ac47602c827368a0fe6d24d5"
     },
     {
       "path": "src/core/reflection.ts",
@@ -4932,8 +4937,8 @@
     },
     {
       "path": "src/lib/workspace.ts",
-      "bytes": 11288,
-      "sha256": "93ae065ad40a0952c93f3e60acabad6a1a1501fcfbc068664fdd96d3f4f7b5dd"
+      "bytes": 11336,
+      "sha256": "eb037c3b1a974fb2aed15cfa177a186dc45cf2007f55bcbb7f9004a8218ab5e8"
     },
     {
       "path": "src/lib/write-budget.ts",
@@ -5017,8 +5022,8 @@
     },
     {
       "path": "src/unified/design-contract.ts",
-      "bytes": 8422,
-      "sha256": "ce6273791d9a3e05765341596430365e8de93da3144d1c3932257380c223d385"
+      "bytes": 8884,
+      "sha256": "b19c161b21036be4eeca128839153054ace8c3dc55db46166fac094b27652d0f"
     },
     {
       "path": "src/unified/drafts.ts",
@@ -5452,8 +5457,8 @@
     },
     {
       "path": "tests/patch.test.ts",
-      "bytes": 13559,
-      "sha256": "8bc6c3ad37f8f83f8e4ccc74a02e478cff1a41e25755afc68226daa702d0d356"
+      "bytes": 15811,
+      "sha256": "5118367d92be31ef4040ab4172d9ffda15931ef8d2e39d23ad5493334e683a18"
     },
     {
       "path": "tests/performance-budget.test.ts",
@@ -5464,6 +5469,11 @@
       "path": "tests/performance-sample.test.ts",
       "bytes": 1325,
       "sha256": "8fa577cd70795975a8bcb83bd233aca689fc82cebfc4f5ab65f6811ccd6d0195"
+    },
+    {
+      "path": "tests/plan-dedupe.test.ts",
+      "bytes": 632,
+      "sha256": "fd48fea9277e0c863330399a47ea82be3b3cdf9d370ce4402507aad98fabf151"
     },
     {
       "path": "tests/planner.test.ts",
@@ -5807,8 +5817,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 170241,
-      "sha256": "02bc8a5c5a330d657a3741a528e613ace3a6888a925cea0bc235cf57ab6bac5d"
+      "bytes": 170225,
+      "sha256": "699a75842d23ed3c44a7935ed50312a31b9c83bb0c551e89e7387d94d2beaa31"
     },
     {
       "path": "ui/assignment.ts",
