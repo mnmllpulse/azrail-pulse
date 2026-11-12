@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-12T10:06:46.162Z",
+  "generated_at": "2026-11-12T22:13:35.730Z",
   "excludes_self": true,
   "file_count": 1333,
   "files": [
@@ -5082,8 +5082,8 @@
     },
     {
       "path": "src/unified/studios.ts",
-      "bytes": 47139,
-      "sha256": "e94fcb5caaf64f8e8bfaa613172dcd4ec1ec1fdeda138c363d033732bf7cefe3"
+      "bytes": 47693,
+      "sha256": "7195b5624043e807d076155d101c0f6f37672adb0f88f2ce5fc30b4009f86738"
     },
     {
       "path": "src/unified/system-intelligence.ts",
@@ -5552,8 +5552,8 @@
     },
     {
       "path": "tests/rc15-hardening.test.ts",
-      "bytes": 7884,
-      "sha256": "dae4e82f54a9bb2dc8d4380158e4abdf305cc9670829ef7afe663b62a36f59d0"
+      "bytes": 7991,
+      "sha256": "aba9b1ab9c3ea6855506c37ed75a0a9329a1d961056de9f6034cb118933f4e3c"
     },
     {
       "path": "tests/rc19-quality-gate.test.ts",
