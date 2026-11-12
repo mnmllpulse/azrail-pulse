@@ -733,6 +733,17 @@ $('assignment-frame').addEventListener('click',event=>{
  markFrame();
 });
 let imageReference='';
+const attachedReferences=new WeakMap<File,string>();
+async function attachedImageReference():Promise<string>{
+ const file=attachmentManager.files().find(item=>/^image\//i.test(item.type)||/\.(png|jpe?g|webp|gif)$/i.test(item.name));
+ if(!file)return '';
+ const known=attachedReferences.get(file);if(known)return known;
+ const headers:Record<string,string>={'Content-Type':file.type||'image/png','X-Filename':encodeURIComponent(file.name.slice(0,120)),'X-Studio-Id':'image'};
+ const saved=await api('/api/studio/artifacts',{method:'POST',headers,body:file}) as {id?:string};
+ if(!saved?.id)return '';
+ attachedReferences.set(file,saved.id);
+ return saved.id;
+}
 $<HTMLInputElement>('assignment-reference').addEventListener('change',()=>{
  const input=$<HTMLInputElement>('assignment-reference');
  const file=input.files?.[0];
@@ -1570,7 +1581,8 @@ async function runPlanPart(part:PlanPart){
   const signed=account;if(!signed)throw Error('Войдите, чтобы собрать изображение.');
   const previous=part.versions?.[0]?.url??'';
   const earlier=artifactId(previous);
-  const chosen=imageReference;
+  const attachedId=imageReference?'':await attachedImageReference().catch(()=>'');
+  const chosen=imageReference||attachedId;
   const grow=upscaleOnce.has(part.id);
   upscaleOnce.delete(part.id);
   const reference=grow?earlier:chosen||earlier;
@@ -1591,6 +1603,7 @@ async function runPlanPart(part:PlanPart){
   const seed=result.items?.find(item=>Number.isInteger(item.seed))?.seed;
   if(typeof seed==='number')part.seed=seed;
   part.state='done';
+  if(attachedId)clearAttachments();
   part.ready=stuck?`Закончила зависшую сборку «${name}».`:grow?`Детализация «${name}» сохранена.`:urls.length>1?`${urls.length} варианта «${name}».`:`Картинка «${name}» сохранена.`;
   if(urls[0])part.thing={type:'image',url:urls[0],title:name,...(urls.length>1?{alts:urls.slice(1,3)}:{})};
   return;

@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-12T09:49:56.805Z",
+  "generated_at": "2026-11-12T10:06:46.162Z",
   "excludes_self": true,
   "file_count": 1333,
   "files": [
@@ -1272,8 +1272,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1227577,
-      "sha256": "28c3ef06a85323d124139f2a4b8f9006832f482f7221454f8710355febcdf637"
+      "bytes": 1228018,
+      "sha256": "5cfe9684f5ed9b9004c3e6de24234d7292636ba0af8213bc394cbf1d6aad14d5"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3938,7 +3938,7 @@
     {
       "path": "site/app.html",
       "bytes": 23143,
-      "sha256": "19be33c85ad455069280e6bafc348e6745531a84e4e9c952938aeaeb1e2e2725"
+      "sha256": "44749914d10e02ec9e9a9f77c1abd71a7e70b22e8b6f6fbcb6e11091ff51346a"
     },
     {
       "path": "site/assets/als-OZNCFUCX.js",
@@ -3952,8 +3952,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 351046,
-      "sha256": "d06f20baf8e3aff5100397cf13ba838ec47ecdbd4d57fdc6be09d123a30f35bb"
+      "bytes": 351486,
+      "sha256": "806729c12ac187817d2e507bcca647a52cab6c5847d3f933cc12587a7d844d50"
     },
     {
       "path": "site/assets/audio-YQR6WQQO.js",
@@ -4218,7 +4218,7 @@
     {
       "path": "site/index.html",
       "bytes": 23143,
-      "sha256": "19be33c85ad455069280e6bafc348e6745531a84e4e9c952938aeaeb1e2e2725"
+      "sha256": "44749914d10e02ec9e9a9f77c1abd71a7e70b22e8b6f6fbcb6e11091ff51346a"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5207,8 +5207,8 @@
     },
     {
       "path": "tests/chat-no-fabrication.test.ts",
-      "bytes": 1344,
-      "sha256": "9656ab7821e1ebb1924e920ce02c5fe1bd7c4b89d1d1934c0aae602208e01d0c"
+      "bytes": 1919,
+      "sha256": "172ca89173a9254b86cd0b7ff932449adcb39da8a5344f7c17bd73d3bfe0061c"
     },
     {
       "path": "tests/chat-recency.test.ts",
@@ -5827,8 +5827,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 170225,
-      "sha256": "699a75842d23ed3c44a7935ed50312a31b9c83bb0c551e89e7387d94d2beaa31"
+      "bytes": 171016,
+      "sha256": "8fe007a13081951761555187cf0bcba265d6b832e91ebdb6b27b15094040ae6a"
     },
     {
       "path": "ui/assignment.ts",
