@@ -123,7 +123,7 @@ $('composer').addEventListener('submit',async e=>{
     if(!pendingBody){let message=$('idea').value.trim();if(!message)throw Error('Опишите задачу.');const files=[...$('files').files];
       if(files.length>5||files.reduce((s,f)=>s+f.size,0)>100000)throw Error('Прикрепите до 5 текстовых файлов общим размером до 100 КБ. Для архивов откройте полную панель.');
       for(const file of files)message+='\n\nМатериал пользователя: '+file.name+'\n'+await file.text();
-      pendingBody=JSON.stringify({message,projectId:project,maxIterations:8});pendingKey=uuid();
+      pendingBody=JSON.stringify({message,projectId:project});pendingKey=uuid();
       cached('azrail_ultimate_pending_body',pendingBody);cached('azrail_ultimate_pending_key',pendingKey);
     }
     notice('Отправляю задачу…');const d=await api('/api/mission',JSON.parse(pendingBody),pendingKey);
