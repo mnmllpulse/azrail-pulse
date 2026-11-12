@@ -5,10 +5,10 @@ const version = String(pkg.version ?? '').trim();
 if (!version) throw new Error('package.json version is required');
 
 const replacements = [
-  ['ui/app.html', /UNIFIED \/ [^<]+/, `UNIFIED / ${version}`],
-  ['index.html', /UNIFIED \/ [^<]+/, `UNIFIED / ${version}`],
-  ['site/app.html', /UNIFIED \/ [^<]+/, `UNIFIED / ${version}`],
-  ['site/index.html', /UNIFIED \/ [^<]+/, `UNIFIED / ${version}`],
+  ['ui/app.html', /UNIFIED \/ [^\s<]+/, `UNIFIED / ${version}`],
+  ['index.html', /UNIFIED \/ [^\s<]+/, `UNIFIED / ${version}`],
+  ['site/app.html', /UNIFIED \/ [^\s<]+/, `UNIFIED / ${version}`],
+  ['site/index.html', /UNIFIED \/ [^\s<]+/, `UNIFIED / ${version}`],
   ['public/ultimate.html', /ULTIMATE · [^<]+/, `ULTIMATE · ${version}`],
   ['src/unified/mcp-client.ts', /clientInfo:\{name:'azrail-pulse',version:'[^']+'\}/, `clientInfo:{name:'azrail-pulse',version:'${version}'}`],
 ];

@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-12T03:30:58.018Z",
+  "generated_at": "2026-11-12T03:40:03.641Z",
   "excludes_self": true,
-  "file_count": 1331,
+  "file_count": 1332,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3927,8 +3927,8 @@
     },
     {
       "path": "scripts/sync-version.mjs",
-      "bytes": 1484,
-      "sha256": "5211de900cf523353aa08835bd78c81bbac9c47090d78ab8c2d1ca202e15142f"
+      "bytes": 1492,
+      "sha256": "050b60f3af6c26e371474d59138e8fb335f846821e119574fd34ec747c8578ab"
     },
     {
       "path": "scripts/verify-release-package.mjs",
@@ -5704,6 +5704,11 @@
       "path": "tests/supply-chain.test.ts",
       "bytes": 518,
       "sha256": "8436a0f421316f790db0ff358ecf09f0f6dc11677fb92feaa64a23aceb5af792"
+    },
+    {
+      "path": "tests/sync-version.test.ts",
+      "bytes": 592,
+      "sha256": "96794c30c272d4427e65a5c2402eace2bdfcc523513d3fb7937032a1a753a5c7"
     },
     {
       "path": "tests/syntax-guard.test.ts",
