@@ -270,15 +270,15 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
   const mime=request.headers.get('Content-Type')?.split(';')[0]??'application/octet-stream';
   let decoded:string;try{decoded=decodeURIComponent(request.headers.get('X-Filename')??'artifact.bin');}catch{throw new AccessError('Некорректная кодировка имени файла.',400);}
   const name=decoded.replace(/[\x00-\x1f/\\]/g,'_').slice(0,160).trim()||'artifact.bin';
-  const projectId=(request.headers.get('X-Project-Id')??'').trim();
+  let projectId=(request.headers.get('X-Project-Id')??'').trim();
   const studioId=normalizeStudioId(request.headers.get('X-Studio-Id'));
-  if(projectId)await requireResource(env,auth.principal!,'project',projectId);
+  if(projectId){await requireResource(env,auth.principal!,'project',projectId);projectId=await savedProjectId(env,projectId);}
   return json(await saveArtifactStream(env,account,projectId||null,studioId,name,mime,request,12*1024*1024),{status:201});
  }
  if(path==='/api/studio/image') {
   const body=await readJsonRecord(request,20000);
   const input=parseImageStudioRequest(body);
-  if(input.projectId)await requireResource(env,auth.principal!,'project',input.projectId);
+  if(input.projectId){await requireResource(env,auth.principal!,'project',input.projectId);input.projectId=await savedProjectId(env,input.projectId);}
   const reference=input.referenceArtifactId?await loadReferenceImage(env,account,input.referenceArtifactId):undefined;
   if(input.maskArtifactId)await loadReferenceImage(env,account,input.maskArtifactId); // ownership/type validation; provider dispatch stays fail-closed until a reviewed mask-capable model is wired.
   const jobId=crypto.randomUUID(),jobModel=selectImageModel(input),{width,height}=imageDimensions(input.aspectRatio,input.operation==='upscale'?1024:input.resolution);
@@ -330,6 +330,10 @@ function intelligentAssetKind(mime:string,name:string){
  if(/\.(?:ts|tsx|js|jsx|py|go|rs|java|c|cpp|h|css|html|vue|svelte)$/i.test(n))return 'code';
  return 'other';
 }
+async function savedProjectId(env:Env,id:string):Promise<string> {
+ return (await env.AZRAIL_D1.prepare('SELECT id FROM projects WHERE id=?').bind(id).first())?id:'';
+}
+
 function assetIntelligenceStatement(env:Env,id:string,account:string,studioId:ReturnType<typeof normalizeStudioId>,name:string,mime:string,bytes:number,projectId:string|null,now:number){
  const kind=intelligentAssetKind(mime,name),tags=[studioId,kind].filter(Boolean),metadata={name,mime,bytes,studioId,projectId,source:'artifact-save'};
  return env.AZRAIL_D1.prepare(`INSERT INTO asset_intelligence(artifact_id,account_id,kind,metadata_json,tags_json,embedding_ref,usage_count,updated_at) VALUES(?,?,?,?,?,NULL,0,?)`).bind(id,account,kind,JSON.stringify(metadata),JSON.stringify(tags),now);

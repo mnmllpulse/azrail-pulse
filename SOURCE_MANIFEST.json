@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-12T22:13:35.730Z",
+  "generated_at": "2026-11-12T22:28:55.119Z",
   "excludes_self": true,
-  "file_count": 1333,
+  "file_count": 1334,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -5082,8 +5082,8 @@
     },
     {
       "path": "src/unified/studios.ts",
-      "bytes": 47693,
-      "sha256": "7195b5624043e807d076155d101c0f6f37672adb0f88f2ce5fc30b4009f86738"
+      "bytes": 47969,
+      "sha256": "69fdc60129649b50b126512f85aa487959f2da6be5e3ba1c6e3e36e778be079d"
     },
     {
       "path": "src/unified/system-intelligence.ts",
@@ -5699,6 +5699,11 @@
       "path": "tests/studio-navigation.test.ts",
       "bytes": 20316,
       "sha256": "40a79efcaadc762439e4d25aa7de5c2528dcba8d5a09da5ea3b7980c69d6656a"
+    },
+    {
+      "path": "tests/studio-orphan-project.test.ts",
+      "bytes": 655,
+      "sha256": "2f90e82b7c9a92255a594893a4cfb62dc9bfa25415a0156a0c67bc49847f8252"
     },
     {
       "path": "tests/studio-registry.test.ts",
