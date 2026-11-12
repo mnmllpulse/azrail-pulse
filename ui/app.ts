@@ -734,15 +734,33 @@ $('assignment-frame').addEventListener('click',event=>{
 });
 let imageReference='';
 const attachedReferences=new WeakMap<File,string>();
-async function attachedImageReference():Promise<string>{
- const file=attachmentManager.files().find(item=>/^image\//i.test(item.type)||/\.(png|jpe?g|webp|gif)$/i.test(item.name));
- if(!file)return '';
+const isImageFile=(file:File)=>/^image\//i.test(file.type)||/\.(png|jpe?g|webp|gif)$/i.test(file.name);
+async function uploadedAttachment(file:File):Promise<string>{
  const known=attachedReferences.get(file);if(known)return known;
- const headers:Record<string,string>={'Content-Type':file.type||'image/png','X-Filename':encodeURIComponent(file.name.slice(0,120)),'X-Studio-Id':'image'};
+ if(file.size>12*1024*1024)return '';
+ const image=isImageFile(file);
+ const headers:Record<string,string>={'Content-Type':file.type||(image?'image/png':'application/octet-stream'),'X-Filename':encodeURIComponent(file.name.slice(0,120)),'X-Studio-Id':image?'image':'data'};
  const saved=await api('/api/studio/artifacts',{method:'POST',headers,body:file}) as {id?:string};
  if(!saved?.id)return '';
  attachedReferences.set(file,saved.id);
  return saved.id;
+}
+async function attachedImageReference():Promise<string>{
+ const file=attachmentManager.files().find(isImageFile);
+ return file?uploadedAttachment(file):'';
+}
+let sentMarkup={for:'',text:''};
+async function attachmentMarkup(message:string):Promise<string>{
+ const files=account?attachmentManager.files():[];
+ const lines:string[]=[];
+ for(const file of files){
+  const name=file.name.replace(/[\[\]()\n]/g,' ').trim().slice(0,80)||'файл';
+  const id=await uploadedAttachment(file).catch(()=>'');
+  lines.push(id?`${isImageFile(file)?'!':''}[${name}](/api/studio/artifacts/${id})`:`📎 ${name}`);
+ }
+ const text=lines.length?'\n\n'+lines.join('\n\n'):'';
+ sentMarkup={for:message,text};
+ return text;
 }
 $<HTMLInputElement>('assignment-reference').addEventListener('change',()=>{
  const input=$<HTMLInputElement>('assignment-reference');
@@ -1259,7 +1277,7 @@ async function rememberWork(message:string,plan:WorkPlan,finished:boolean){
  const pictured=finished?pictureReply(plan.parts):'';
  const summary=pictured||(finished&&head?(plan.parts.length>1?formatPlan(plan):formatAssignment(head)):'');
  try{
-  await api('/api/conversations/plan',{method:'POST',body:JSON.stringify({conversationId:thread.id,userText:message.slice(0,4000),...(summary?{summary:summary.slice(0,4000)}:{}),plan:planRecord(plan)})});
+  await api('/api/conversations/plan',{method:'POST',body:JSON.stringify({conversationId:thread.id,userText:(message===sentMarkup.for?message+sentMarkup.text:message).slice(0,4000),...(summary?{summary:summary.slice(0,4000)}:{}),plan:planRecord(plan)})});
  }catch{/* Полоса остаётся на этом экране, даже если запись не дошла. */}
 }
 function showAssignment(plan:Assignment){
@@ -1422,7 +1440,7 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
  const requestKey=crypto.randomUUID();
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
- chatHistory.accepted(requestKey,message,project,'');
+ chatHistory.accepted(requestKey,message+await attachmentMarkup(message),project,'');
  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
  const paint=(next:Assignment,status='completed')=>{showAssignment(next);chatHistory.report(requestKey,formatAssignment(next),status);syncChatUI();workspace.toLatest();};
  try{
@@ -1472,7 +1490,7 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  if(!resume){
-  chatHistory.accepted(requestKey,message,project,'');
+  chatHistory.accepted(requestKey,message+await attachmentMarkup(message),project,'');
   if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
  }
  const estimate=await todayNote(plan);
@@ -1789,12 +1807,12 @@ async function runChat(){
  const requestKey=crypto.randomUUID();
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
- chatHistory.accepted(requestKey,message,project,conversationId);
+ const shown=message+await attachmentMarkup(message);chatHistory.accepted(requestKey,shown,project,conversationId);
  chatHistory.report(requestKey,'','queued');
  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft(prompt.value);workspace.resizePrompt();
  syncChatUI();workspace.toLatest();
  try{
-  const body=JSON.stringify({message,projectId:project,conversationId,voice:chatVoice,attachments:attachmentRefs,...(preferredModel?{preferredModel}:{})});
+  const body=JSON.stringify({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:attachmentRefs,...(preferredModel?{preferredModel}:{})});
   const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':requestKey},body});
   const reply=String(r.result?.summary||r.result?.error||r.error||'Пустой ответ.');
   const status=r.result?.status==='failed'||r.success===false?'failed':'completed';
