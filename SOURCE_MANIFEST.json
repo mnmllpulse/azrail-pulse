@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-12T03:40:03.641Z",
+  "generated_at": "2026-11-12T09:21:12.471Z",
   "excludes_self": true,
-  "file_count": 1332,
+  "file_count": 1333,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -4227,8 +4227,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 20069,
-      "sha256": "de9c10cd7d30700250328e19787669190b3ba18a5dce3c3153965fe37dece7b5"
+      "bytes": 20745,
+      "sha256": "9775501c7e30e7750bf8ec4fc051cfc92714324eb668d0e3e4dfc552567aeab3"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -5204,6 +5204,11 @@
       "path": "tests/canon-check.test.ts",
       "bytes": 4616,
       "sha256": "941dae26e97de81503fb553483fddb1c6441491b93f92fb52253b806d5a781d6"
+    },
+    {
+      "path": "tests/chat-no-fabrication.test.ts",
+      "bytes": 798,
+      "sha256": "a3e6ad91f3839ccd55b2173071dc6ac5c70927f6367d4e233bad29c3e1d9b502"
     },
     {
       "path": "tests/chat-recency.test.ts",
