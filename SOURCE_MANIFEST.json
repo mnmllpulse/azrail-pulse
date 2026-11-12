@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-12T22:33:59.350Z",
+  "generated_at": "2026-11-12T22:46:09.374Z",
   "excludes_self": true,
-  "file_count": 1335,
+  "file_count": 1336,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -5211,6 +5211,11 @@
       "sha256": "941dae26e97de81503fb553483fddb1c6441491b93f92fb52253b806d5a781d6"
     },
     {
+      "path": "tests/chat-file-link.test.ts",
+      "bytes": 1101,
+      "sha256": "6e74404bb2f8adffd8790984575cdece0b093824280bdc7e6988c8b0ac4757fc"
+    },
+    {
       "path": "tests/chat-no-fabrication.test.ts",
       "bytes": 1919,
       "sha256": "172ca89173a9254b86cd0b7ff932449adcb39da8a5344f7c17bd73d3bfe0061c"
@@ -5872,8 +5877,8 @@
     },
     {
       "path": "ui/chat-markdown.ts",
-      "bytes": 7219,
-      "sha256": "027dc19c79c67dac1c4d4dcca3e9ce99b02f84053e55a63af6137225a4e4e5bd"
+      "bytes": 8052,
+      "sha256": "bde2438e9ec16e3fac5ebd4a3012145ee630c784ded9a5a606425c32e319083c"
     },
     {
       "path": "ui/chat-site.ts",
@@ -6057,8 +6062,8 @@
     },
     {
       "path": "ui/planner.ts",
-      "bytes": 18422,
-      "sha256": "b5ea7973ad264f5e75580b8e14e3d3db313719cebf211961c4cac346b5aa3c20"
+      "bytes": 18719,
+      "sha256": "871e2467648c786dc9cb7f866a2f1511401ec6d85052f60a9aee1ae10362beed"
     },
     {
       "path": "ui/projects.ts",
