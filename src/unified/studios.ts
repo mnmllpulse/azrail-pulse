@@ -345,18 +345,30 @@ async function saveArtifactStream(env:Env,account:string,projectId:string|null,s
  if(!request.body)throw new AccessError('Файл пуст.',400);
  const id=crypto.randomUUID(),key=`studio/${account}/${id}`;
  let bytes=0;
- const limiter=new TransformStream<Uint8Array,Uint8Array>({
-  transform(chunk,controller){
-   bytes+=chunk.byteLength;
-   if(bytes>maxBytes)throw new AccessError(`Файл больше ${Math.floor(maxBytes/1024/1024)}MB.`,413);
-   controller.enqueue(chunk);
-  },
- });
  try {
-  await env.AZRAIL_R2.put(key,request.body.pipeThrough(limiter),{httpMetadata:{contentType:mime}});
+  if(contentLengthRaw){
+   const stored=await env.AZRAIL_R2.put(key,request.body,{httpMetadata:{contentType:mime}});
+   bytes=stored?.size??0;
+  } else {
+   const chunks:Uint8Array[]=[],reader=request.body.getReader();
+   for(;;){
+    const {done,value}=await reader.read();
+    if(done)break;
+    bytes+=value.byteLength;
+    if(bytes>maxBytes){await reader.cancel().catch(()=>{});throw new AccessError(`Файл больше ${Math.floor(maxBytes/1024/1024)}MB.`,413);}
+    chunks.push(value);
+   }
+   const whole=new Uint8Array(bytes);let offset=0;
+   for(const chunk of chunks){whole.set(chunk,offset);offset+=chunk.byteLength;}
+   await env.AZRAIL_R2.put(key,whole,{httpMetadata:{contentType:mime}});
+  }
  } catch(error) {
   await deleteR2KeysBestEffort(env,[key],'studio.artifact_stream_stage_cleanup',{account,id});
   throw error;
+ }
+ if(bytes>maxBytes){
+  await deleteR2KeysBestEffort(env,[key],'studio.artifact_stream_oversize_cleanup',{account,id});
+  throw new AccessError(`Файл больше ${Math.floor(maxBytes/1024/1024)}MB.`,413);
  }
  if(bytes===0){
   await deleteR2KeysBestEffort(env,[key],'studio.artifact_stream_empty_cleanup',{account,id});
