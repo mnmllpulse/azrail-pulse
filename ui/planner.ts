@@ -347,6 +347,12 @@ export function pictureReply(parts: Array<{ ready?: string; thing?: PlanThing }>
   const blocks: string[] = [];
   for (const part of parts) {
     const thing = part.thing;
+    if (thing?.type === 'file' && thing.url && ARTIFACT_URL.test(thing.url)) {
+      const name = (thing.title || 'Файл').replace(/[\[\]]/g, '').slice(0, 80);
+      blocks.push(part.ready?.trim() || 'Файл в чате.');
+      blocks.push(`[${name}](${thing.url})`);
+      continue;
+    }
     if (thing?.type !== 'image' || !thing.url || !ARTIFACT_URL.test(thing.url)) continue;
     const title = (thing.title || 'Картинка').replace(/[\[\]]/g, '').slice(0, 80);
     blocks.push(part.ready?.trim() || 'Картинка в чате.');
