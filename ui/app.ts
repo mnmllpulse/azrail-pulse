@@ -1432,7 +1432,7 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
   chatHistory.report(requestKey,plan.kind==='image'?'Собираю картинку…':formatAssignment(plan),'queued');
   syncChatUI();workspace.toLatest();
   const text=plan.versions?.length&&plan.text?plan.text:message;
-  const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,id:'part-1',text,wave:0,dependsOn:[],state,thing,versions:plan.versions,seed:plan.seed??undefined}]});
+  const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,...(state==='done'&&part.ready?{ready:part.ready}:{}),id:'part-1',text,wave:0,dependsOn:[],state,thing,versions:plan.versions,seed:plan.seed??undefined}]});
   const part:PlanPart={...plan,id:'part-1',text,wave:0,dependsOn:[],state:'running',versions:plan.versions,seed:plan.seed??undefined};
   await rememberWork(message,one(),false);
   await runPlanPart(part);
