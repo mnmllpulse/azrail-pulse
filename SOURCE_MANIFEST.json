@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-12T22:28:55.119Z",
+  "generated_at": "2026-11-12T22:33:59.350Z",
   "excludes_self": true,
-  "file_count": 1334,
+  "file_count": 1335,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -5032,8 +5032,8 @@
     },
     {
       "path": "src/unified/entry.ts",
-      "bytes": 7455,
-      "sha256": "b0d825d05cf462cd5eb1d88c4bc56903507a9661f5818ebf445b3f235277ae95"
+      "bytes": 7599,
+      "sha256": "d2ada2de061b14699b9485a2a5bf1fac5cc281204f679e980a1fc1597ec50b2e"
     },
     {
       "path": "src/unified/ledger.ts",
@@ -5119,6 +5119,11 @@
       "path": "tests/ableton-lab.test.ts",
       "bytes": 6819,
       "sha256": "1b4fafca4dfdfdae61c4057e899a4870fd98b621dd6b1f82252218d72d44bab1"
+    },
+    {
+      "path": "tests/admission-release.test.ts",
+      "bytes": 462,
+      "sha256": "8facb15f76d91ad4e19ba6d73e9d2c49b7c5a59c00954ef3d028afdc25be1709"
     },
     {
       "path": "tests/als-music-parser.test.ts",

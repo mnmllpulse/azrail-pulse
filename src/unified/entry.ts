@@ -85,6 +85,7 @@ export default {
         }
         const status=error instanceof AccessError?error.status:error instanceof BodyLimitError?413:error instanceof BudgetError?429:503;
         if(status>=400&&status<500)await finishAdmission(env,scope,claim.claim,Response.json(errorPayload(error,'Ошибка запроса.'),{status}));
+        else await env.AZRAIL_D1.prepare('DELETE FROM mission_admissions WHERE key=? AND claim=?').bind(scope,claim.claim).run().catch(()=>{});
         throw error;
        }
       }
