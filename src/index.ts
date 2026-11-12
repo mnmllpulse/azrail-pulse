@@ -702,7 +702,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       if (body.attachments?.length) {
         message += attachmentsToText(await loadAttachments(env, body.attachments as AttachmentRef[]));
       }
-      message += await chatSupplements(env, body.message);
+      const supplements = await chatSupplements(env, body.message);
 
       const cid = body.conversationId ?? body.projectId ?? crypto.randomUUID();
       await ensureConversation(env, cid, body.projectId);
@@ -726,6 +726,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       }
       const note = zipArchiveNote(body.attachments as AttachmentRef[] | undefined);
       await addMessage(env, cid, "user", note ? `${message}\n${note}` : message, body.parentMessageId);
+      message += supplements;
 
       // Chat only accepts registered text models. Invalid sticky picks (Whisper,
       // image, unknown slug) fall back to Auto instead of hard-failing the turn.

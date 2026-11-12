@@ -10,6 +10,7 @@ import { BudgetError } from './ledger';
 import {connectorRoute} from './connectors';
 import {publishedSiteResponse} from '../lib/web-sites';
 import {unversionApiPath} from '../lib/api-contract';
+import {log} from '../lib/resilience';
 
 const SPA_PAGES=new Set(['/index.html','/app.html','/ultimate.html']);
 function isStaticAsset(pathname:string) {
@@ -101,6 +102,7 @@ export default {
    if(!response)throw new Error('No response generated');
    return secureResponse(response,request);
   } catch(error) {
+   log('error','request.unhandled',{path:new URL(request.url).pathname,method:request.method,message:error instanceof Error?error.message:String(error)});
    const known=error instanceof AccessError || error instanceof BodyLimitError || error instanceof BudgetError || (error instanceof Error&&'status' in error);
    const status=error instanceof BodyLimitError?413:error instanceof BudgetError?429:known?Number((error as {status:number}).status):503;
    return secureResponse(Response.json(known?errorPayload(error,'Ошибка запроса.'):{error:'Сервис недоступен. Проверьте настройки, лимит и журнал сервера.'},{status:status>=400&&status<=599?status:503}),request);

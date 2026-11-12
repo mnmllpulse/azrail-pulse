@@ -25,7 +25,8 @@ const CREATE = new RegExp(
   NB + '(созда(й|ть|йте)|напиш(и|ите)|написать|сдела(й|ть|йте)|сгенерируй|собери|собрать|нарисуй|нарисовать|смонтируй)',
   'iu',
 );
-const HOLD = new RegExp(NB + '(тест|покрыти|уязвимост|безопасн|секрет|аудит|деплой|задепло|выкат|коммит|ветк)', 'iu');
+const HOLD = new RegExp(NB + '(тест(?!ов(?:ый|ая|ое|ые|ого|ому|ым|ых|ую|ой))|покрыти|уязвимост|безопасн|секрет|аудит|деплой|задепло|выкат|коммит|ветк)', 'iu');
+const EXPLICIT = new RegExp(NB + '(созда(?:й|ть|йте)|сдела(?:й|ть|йте)|собери|собрать)\\s+(?:мне\\s+|нам\\s+)?(?:pdf|docx|xlsx|pptx|схем\\p{L}*|диаграмм\\p{L}*|график)' + NA, 'iu');
 const IMAGE = new RegExp(NB + '(картинк|постер|иллюстрац|обложк|изображен|логотип|нарисуй)', 'iu');
 const MUSIC = new RegExp(NB + '(музык|песн|мелод|саундтрек|трек' + NA + '|бит' + NA + ')', 'iu');
 const VIDEO = new RegExp(NB + '(видео|раскадров|ролик' + NA + '|клип' + NA + ')', 'iu');
@@ -121,7 +122,7 @@ export function readAssignment(text: string): Assignment {
   const source = (text ?? '').trim();
   if (!source || source.length > 4000) return TALK;
   const asks = QUESTION.test(source) || source.endsWith('?');
-  if (asks || HOLD.test(source)) return TALK;
+  if (asks || (HOLD.test(source) && !EXPLICIT.test(source))) return TALK;
 
   const hits: Array<{ at: number; plan: Assignment }> = [];
   const diagramAt = at(DIAGRAM, source);
