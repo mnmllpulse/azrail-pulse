@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-12T23:06:36.304Z",
+  "generated_at": "2026-11-12T23:19:35.075Z",
   "excludes_self": true,
   "file_count": 1337,
   "files": [
@@ -5157,8 +5157,8 @@
     },
     {
       "path": "tests/assignment.test.ts",
-      "bytes": 4182,
-      "sha256": "9b09b3c1b8244989b2e5d33b825a5d61ca95180594b7608d9f1750576fef106a"
+      "bytes": 5484,
+      "sha256": "ac58b39236ab6ab4fbac198980137f37bc9c19371934bcb9dd8ae51bc34789ea"
     },
     {
       "path": "tests/attachments.test.ts",
@@ -5852,8 +5852,8 @@
     },
     {
       "path": "ui/assignment.ts",
-      "bytes": 11148,
-      "sha256": "78fba68792708318c1da831622f814bfdd0479fde83b9363b2b7b4eda290fc19"
+      "bytes": 12039,
+      "sha256": "de09ebc222136295240c8b2b3ac3d7d146c2431647b8118c4f1dbc496f558913"
     },
     {
       "path": "ui/attachment-manager.ts",
