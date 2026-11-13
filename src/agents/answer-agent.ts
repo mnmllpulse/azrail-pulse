@@ -4,6 +4,7 @@ import type { Env, AnswerAgentState, TaskRequest, TaskResult } from "../types";
 import { runModel, extractText } from "../lib/model-router";
 import { taskTrace, type TraceContext } from "../lib/observability-context";
 import { recallContext } from "../lib/memory-agent";
+import { answerDepth } from "../lib/answer-depth";
 import { calculateAll, CALC_VOCABULARY, type CalcStep } from "../lib/calc";
 
 /**
@@ -178,6 +179,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
       calculations = await this.computeFor(question, request.preferredModel, taskTrace(request));
     }
 
+    const depth = answerDepth(question, request.conversationHistory?.length ?? 0);
     const voice = request.voice === "shade" || request.voice === "aria" ? request.voice : "lumen";
     const voiceLine = voice === "shade"
       ? "АКТИВНЫЙ ГОЛОС: Серый. Пиши как собранный мужчина, без шуток, без восклицаний, без тепла и без пафоса. На «привет» и только на него ответь ровно: «Привет. Слушаю.» Разбор, код и ответ по делу с приветствия не начинай. Код, разбор, таблицу и документ отдавай целиком."
@@ -186,7 +188,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
         : "АКТИВНЫЙ ГОЛОС: Люмен. Пиши как живой доброжелательный мужчина: тепло, умно, с лёгкой радостью. На «привет» ответь: «Привет. Рад тебя слышать.»";
     const system = [
       voiceLine,
-      "Ты — AZRAIL. Отвечаешь владельцу в живом чате на «ты», по-русски. Тон из активного голоса обязателен с первой фразы и не меняется внутри ответа.",
+      "Ты — AZRAIL. Отвечаешь владельцу в живом чате на «ты», по-русски. Глубину ответа задаёт блок ГЛУБИНА ОТВЕТА ниже; просьбу пользователя быть краткими соблюдай всегда. Тон из активного голоса обязателен с первой фразы и не меняется внутри ответа.",
       "Один голос на весь ответ. Не представляйся заново в каждой реплике и не предлагай помощь в конце.",
       "Всегда отвечай на сообщение. Никогда не отказывайся из‑за «технических ограничений» или «не могу поддерживать диалог»: сбои платформы озвучивает сама платформа.",
       "Если чего-то не знаешь — скажи прямо. Выдумывать факты, тарифы и числа запрещено.",
@@ -196,6 +198,8 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
       "Не выдумывай выполненное действие. Push в GitHub, деплой Cloudflare, Figma, Canva, Gmail и Google Drive этот ответ не выполняет. Нет расписаний, нет браузера, нет доступа к компьютеру владельца. Картинка — «нарисуй». Страница — «сделай сайт». Файл — «сделай pdf», «docx», «xlsx» или «pptx». Схема — «схема» или «диаграмма». Ролик — раскадровка. Трек обещай только если во входе уже есть звук.",
       "Этот ответ сам не создаёт файлов, картинок, страниц и треков. Никогда не пиши «файл создан», «нарисовано», «готово», если во входе нет готового результата. На просьбу о простом файле (txt, md, csv, json, код) выведи содержимое блоком кода и прямо скажи, что файла нет, текст можно скопировать. Картинку не описывай так, будто она нарисована: предложи формулировку «нарисуй …».",
     ];
+
+    system.push(depth.instruction);
 
     if (memory) {
       system.push(
@@ -235,7 +239,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
           ...turns,
           { role: "user", content: `${budget.text}${voiceNote}` },
         ],
-        ...(maxTokens ? { max_tokens: maxTokens } : {}),
+        max_tokens: maxTokens ?? depth.maxTokens,
       },
       { preferredModel, estimatedTokens: budget.tokens, trace: taskTrace(request) },
     );
