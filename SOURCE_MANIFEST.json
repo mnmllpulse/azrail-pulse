@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T10:48:18.438Z",
+  "generated_at": "2026-11-13T10:57:24.664Z",
   "excludes_self": true,
-  "file_count": 1195,
+  "file_count": 1196,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -4711,6 +4711,11 @@
       "sha256": "83fbb5e666aa09739d7842fd922624212d486af32ffd7338a5a6659136d8e570"
     },
     {
+      "path": "tests/model-plan-grounding.test.ts",
+      "bytes": 1473,
+      "sha256": "9e10c739f93dae239469fb776013aa07e55e638ecb4472ae941755486281cae6"
+    },
+    {
       "path": "tests/model-policy.test.ts",
       "bytes": 5902,
       "sha256": "93f998a85b0ef0c2374735201add327240ee4896ad2d2493e13b8405ac5b1fb8"
@@ -5142,8 +5147,8 @@
     },
     {
       "path": "ui/assignment.ts",
-      "bytes": 12039,
-      "sha256": "de09ebc222136295240c8b2b3ac3d7d146c2431647b8118c4f1dbc496f558913"
+      "bytes": 12237,
+      "sha256": "d6a71a205817c4e7f359e4d234f541e1d220d997bab3e479dee7802c2765bd0c"
     },
     {
       "path": "ui/attachment-manager.ts",
@@ -5357,8 +5362,8 @@
     },
     {
       "path": "ui/planner.ts",
-      "bytes": 18978,
-      "sha256": "dec5b0aa453639766c67046f0dc250776e7243fdf965b1e04d9b29f51d3b1306"
+      "bytes": 19053,
+      "sha256": "591af173969509f624437de77636b4d8043e43d285e2496a43398aaf074a175b"
     },
     {
       "path": "ui/projects.ts",

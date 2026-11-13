@@ -116,11 +116,12 @@ export function keepAskedMedia(message: string, drafted: WorkPlan | null): WorkP
   return asked.some((part) => !kinds.has(part.kind)) ? local : drafted;
 }
 
-/** Файл и схема берутся только из слов самого сообщения. Модель не превращает разбор архива в сборку файла. */
+/** Картинка, музыка, ролик, сайт, файл и схема берутся только из слов самого сообщения. Модель не превращает вопрос в сборку. */
 export function groundWorkPlan(message: string, plan: WorkPlan | null): WorkPlan | null {
   if (!plan) return null;
-  const asked = readAssignment(message).kind;
-  const parts = plan.parts.filter((part) => (part.kind !== 'file' && part.kind !== 'diagram') || asked === part.kind);
+  const asked = new Set(planWork(message).parts.map((part) => part.kind));
+  asked.add(readAssignment(message).kind);
+  const parts = plan.parts.filter((part) => part.kind === 'build' || asked.has(part.kind));
   if (!parts.length) return null;
   if (parts.length === plan.parts.length) return plan;
   return { ...plan, parts, parallel: parts.some((part) => parts.filter((other) => other.wave === part.wave).length > 1) };
