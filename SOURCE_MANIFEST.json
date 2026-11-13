@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T05:46:09.620Z",
+  "generated_at": "2026-11-13T05:48:04.520Z",
   "excludes_self": true,
   "file_count": 1191,
   "files": [
@@ -302,8 +302,8 @@
     },
     {
       "path": "docs/history/CONVERSATIONAL_UI_AUDIT_RU.md",
-      "bytes": 21963,
-      "sha256": "7572ef578cd2d4e4e592a5debe4d921b96e69008d11b05e5edca2c78689b8fa6"
+      "bytes": 21985,
+      "sha256": "07dfec8a87a85e7a202d8804e79c6341cdbf9f6410adfd9a1ddd57fb33312ccb"
     },
     {
       "path": "docs/history/README.md",
@@ -3117,8 +3117,8 @@
     },
     {
       "path": "scripts/release-preflight.mjs",
-      "bytes": 51450,
-      "sha256": "f59209902608533384e4e15501fcef349fa5f132a84808c61145112d1bddccf7"
+      "bytes": 51566,
+      "sha256": "fbee60eb337b7c1aae2419d515bd1d74634d9261c669a2f2630be178e16df44c"
     },
     {
       "path": "scripts/security-check.mjs",

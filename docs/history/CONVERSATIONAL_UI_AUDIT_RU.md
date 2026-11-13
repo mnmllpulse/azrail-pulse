@@ -58,7 +58,7 @@ P1 — следующий приоритет перед расширением �
 | Pulse Lab | Локальные capability checks и серверный системный отчёт | Наблюдаемость не равна доказательству успешной платной генерации. Нужны живые health/smoke-проверки с актуальными доступами и отдельным разрешением на операции | P1 |
 | Connections / auth / release | Раздельный Connections workbench, серверные права, approval-gates и release-guards сохранены | Сверить фактические OIDC/role bindings staging/production, получить требуемые release receipts; не обходить guards ради создания «зелёного» release ZIP | P1 |
 
-Основания: [серверный chat-store](../../src/lib/chat-store.ts), [реестр студий](../../ui/studio-manifest.ts), [image readiness](../../src/lib/image-intelligence.ts), [Music Studio](MUSIC_STUDIO_RU.md), [Video Studio](VIDEO_STUDIO_ARCHITECTURE_RU.md), [Data Studio](../../ui/data-studio.ts), [Ledger Studio](../../ui/ledger-studio.ts), [Pulse Lab](../../ui/pulse-lab.ts).
+Основания: [серверный chat-store](../../src/lib/chat-store.ts), [реестр студий](../../ui/studio-manifest.ts), [image readiness](../../src/lib/image-intelligence.ts), [Music Studio](../current/MUSIC_STUDIO_RU.md), [Video Studio](../current/VIDEO_STUDIO_ARCHITECTURE_RU.md), [Data Studio](../../ui/data-studio.ts), [Ledger Studio](../../ui/ledger-studio.ts), [Pulse Lab](../../ui/pulse-lab.ts).
 
 ## 5. GitHub и Cloudflare: прочитано, но не изменено
 
