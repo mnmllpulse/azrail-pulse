@@ -1,7 +1,7 @@
 import { currentBillingScope } from "./billing-context";
 import { ProviderOutcomeUncertainError } from "./billing";
 import { eligibleRegistry, policyModelCall, ModelPolicyError } from "./model-policy";
-import { isNeuronPaidModel, NEURON_PAID_BLOCK } from "./neuron-paid";
+import { isNeuronMetered, isNeuronPaidModel, NEURON_PAID_BLOCK, NeuronBudgetError, neuronAllowedFor } from "./neuron-paid";
 // AZRAIL — выбор модели под задачу.
 //
 // Что этот модуль делает и, что важнее, чего НЕ делает.
@@ -298,7 +298,7 @@ export async function runModel<T = unknown>(
           // Timeout is not a clean provider failure: env.AI.run cannot be
           // cancelled by Promise.race, so the first dispatch may still finish.
           // Repeating it can create a duplicate charge/result.
-          retryable: (err) => !(err instanceof ModelPolicyError) && !(err instanceof TimeoutError) && !(err instanceof ProviderOutcomeUncertainError) && !isQuotaError(err),
+          retryable: (err) => !(err instanceof NeuronBudgetError) && !(err instanceof ModelPolicyError) && !(err instanceof TimeoutError) && !(err instanceof ProviderOutcomeUncertainError) && !isQuotaError(err),
           signal: req.signal,
         },
       )) as T;
@@ -336,7 +336,10 @@ export async function runModel<T = unknown>(
   // и лишь для тех, кто прошёл отбор. Обратный порядок читал бы KV для
   // каждой модели реестра на каждом вызове: сейчас это шесть чтений, но
   // растёт линейно с каталогом и добавляется к КАЖДОМУ запросу.
-  const registry = await eligibleRegistry(env);
+  // Платные модели из разрешённого набора доступны только задачам, которым они нужны:
+  // мелкие вопросы остаются на бесплатных, чтобы не тратить суточные нейроны.
+  const allowedPaid = neuronAllowedFor(intent, req.complexity ?? "normal");
+  const registry = (await eligibleRegistry(env)).filter((m) => !isNeuronMetered(m.slug) || allowedPaid.has(m.slug));
   const preliminary = route(intent, { ...req, gatewayAvailable: !!env.AI_GATEWAY_ID }, registry);
 
   const unavailable: string[] = [...(req.unavailable ?? [])];

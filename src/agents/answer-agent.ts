@@ -240,7 +240,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
         ],
         max_tokens: maxTokens ?? depth.maxTokens,
       },
-      { preferredModel, estimatedTokens: budget.tokens, trace: taskTrace(request) },
+      { preferredModel, estimatedTokens: budget.tokens, complexity: depth.complexity, trace: taskTrace(request) },
     );
 
     let text: string;

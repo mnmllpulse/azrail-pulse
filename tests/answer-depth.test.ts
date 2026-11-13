@@ -15,7 +15,7 @@ describe("answerDepth", () => {
   it("краткость побеждает экспертные маркеры", () => {
     const depth = answerDepth("Подробно, но в двух словах: что такое DNS?");
     expect(depth.brief).toBe(true);
-    expect(depth.maxTokens).toBeLessThan(1000);
+    expect(depth.maxTokens).toBeLessThanOrEqual(1200);
   });
 
   it("длинный вопрос получает экспертную глубину", () => {

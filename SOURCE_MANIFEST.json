@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T23:27:12.545Z",
+  "generated_at": "2026-11-13T23:29:53.627Z",
   "excludes_self": true,
-  "file_count": 1204,
+  "file_count": 1206,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -117,8 +117,8 @@
     },
     {
       "path": "config/environments.json",
-      "bytes": 4843,
-      "sha256": "22d25b9e8451095258adceaf789237017cf1bf63b8c4ee842f1b27fd178b5536"
+      "bytes": 4884,
+      "sha256": "9bf1e87c00e71460ab96acc7f344ee5cecdd513874c6d5660b505d74cdf3fef9"
     },
     {
       "path": "docs/DOCS_RULES.md",
@@ -129,6 +129,11 @@
       "path": "docs/LOCAL_AGENT.md",
       "bytes": 2563,
       "sha256": "13180820868553db13ea072d1c422d85a6e6d6238df1c3f0a4f505bc2a2f8e68"
+    },
+    {
+      "path": "docs/NEURON_BUDGET.md",
+      "bytes": 3525,
+      "sha256": "b25865c243d791d61462344d81cabc74772f63cd2091960ff25fe44f2ed5b79b"
     },
     {
       "path": "docs/README.md",
@@ -3507,8 +3512,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 21902,
-      "sha256": "c0545eddab50caf93aba3f5ccecaad1a74aa7c8b916d631ab4c16ae3e912c68a"
+      "bytes": 21932,
+      "sha256": "e4c85db46000f88b3984ed8ceac74cb2ad2e384d5873f56e75ab5dc4602c6684"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -3737,8 +3742,8 @@
     },
     {
       "path": "src/lib/answer-depth.ts",
-      "bytes": 3729,
-      "sha256": "1e3ea46302df138799a28ad762ec845b99ff07f8a7a0695ce037732a5ade4f57"
+      "bytes": 3966,
+      "sha256": "ae73aa6bb5b26394690b75f9c4748d4e024ee32b904cceb30d52687206a0b1ae"
     },
     {
       "path": "src/lib/api-contract.ts",
@@ -3997,8 +4002,8 @@
     },
     {
       "path": "src/lib/model-policy.ts",
-      "bytes": 7436,
-      "sha256": "f60ef081ace3ae1dc87f4709f6a86b0d3d9073fd27deef7180b06525cf37bdd8"
+      "bytes": 10202,
+      "sha256": "a4faa4882d476b7a365e134948c6e4a6dfe6483efaae2f76a2c7340d42a3daf1"
     },
     {
       "path": "src/lib/model-registry.ts",
@@ -4007,8 +4012,8 @@
     },
     {
       "path": "src/lib/model-router.ts",
-      "bytes": 34259,
-      "sha256": "77bece1d30858da8d2af0a9dc56531f9690389eaa802fcd158ab23a179ef899c"
+      "bytes": 34794,
+      "sha256": "65cc60c0c564ef00c83465bf0e9ac3c0f3a5696fb539e0c33c35a3277219066a"
     },
     {
       "path": "src/lib/music-intelligence.ts",
@@ -4022,8 +4027,8 @@
     },
     {
       "path": "src/lib/neuron-paid.ts",
-      "bytes": 788,
-      "sha256": "361b7585c053aa1e871716dd19200ab31b5447941db7fd90e75a4f0d68b9b175"
+      "bytes": 4244,
+      "sha256": "28a361d7b8ccb103a6370f07ae6da288eab1e1b5a11344b45a63b5a16a66f343"
     },
     {
       "path": "src/lib/observability-context.ts",
@@ -4272,8 +4277,8 @@
     },
     {
       "path": "src/types.ts",
-      "bytes": 13364,
-      "sha256": "9a97c83675d40aa8eb0cd5c10e3c0bc8a815615ff5d2a43c544e73f10fd3e908"
+      "bytes": 13544,
+      "sha256": "661a3307f19b037c1c78c66324a75532b6fb7481f777f1fd6255b00941d688bf"
     },
     {
       "path": "src/unified/connector-adapter.ts",
@@ -4427,8 +4432,8 @@
     },
     {
       "path": "tests/answer-depth.test.ts",
-      "bytes": 1468,
-      "sha256": "1a47b0508eac987258c6c3e46d07c8137164d1c710513a65de220fdb40a55afe"
+      "bytes": 1475,
+      "sha256": "c8f5db23097f00c07f51d17dbaced208a4a1585db38cce4dad0a5e7a7f9e52e4"
     },
     {
       "path": "tests/answer-fallback.test.ts",
@@ -4786,6 +4791,11 @@
       "sha256": "ea1f2fb14274bfee6b1d696af85acd5b01199e9649ecda24bdfc05edd4e839fa"
     },
     {
+      "path": "tests/neuron-meter.test.ts",
+      "bytes": 6978,
+      "sha256": "4217ce372ceba897e19d3b5ff24f594b4d7fc205c200c080d54391ea511f831a"
+    },
+    {
       "path": "tests/office-file.test.ts",
       "bytes": 1823,
       "sha256": "798865167b052abdfa7e8a212f3638c3fe8aeb8b3669f588b3e59e47afa75375"
@@ -4862,8 +4872,8 @@
     },
     {
       "path": "tests/pulse-deploy-config.test.ts",
-      "bytes": 1869,
-      "sha256": "6564c57e4ca2015aeb3a97f71ea0e77b4145d915b3c6ae984b0870c827e43bc7"
+      "bytes": 1929,
+      "sha256": "90b2d64a7f9b75b004af70b32a369e5b909344a398c4e7d996f489b47999bc55"
     },
     {
       "path": "tests/pulse-lab.test.ts",
@@ -6012,8 +6022,8 @@
     },
     {
       "path": "wrangler.jsonc",
-      "bytes": 2165,
-      "sha256": "f58d8110a44e02993837ba999110095ce3c3b2803336239613380bcdef47f63c"
+      "bytes": 2202,
+      "sha256": "2ca19a6bd3010b2ba19a4b8eb29c37745d99459280473b90bf8603df189d8256"
     },
     {
       "path": "wrangler.production.json",

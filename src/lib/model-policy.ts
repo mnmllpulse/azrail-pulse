@@ -1,7 +1,9 @@
-import { accountCall } from "../unified/ledger";
+import { accountCall, BudgetError, ensureBudget, reserve, settle } from "../unified/ledger";
 import type { Env } from "../types";
 import { MODEL_REGISTRY, type ModelEntry } from "./model-registry";
 import { meteredCall } from "./billing";
+import { dailyNeuronCap, isNeuronMetered, NeuronBudgetError, neuronsFor, neuronUpperBound } from "./neuron-paid";
+import { extractUsage } from "./usage";
 import type { TraceContext } from "./observability-context";
 
 export interface ModelCallDimensions { routeAttempt?:number; retryAttempt?:number; }
@@ -71,8 +73,9 @@ export async function setModelPolicy(env: Env, enabled: unknown, budget: unknown
   return readModelPolicy(env);
 }
 
-export function modelBlockReason(model: ModelEntry, policy: ModelPolicy, env: Pick<Env,"AI_GATEWAY_ID"|"AZRAIL_WORKERS_PLAN">): string | null {
+export function modelBlockReason(model: ModelEntry, policy: ModelPolicy, env: Pick<Env,"AI_GATEWAY_ID"|"AZRAIL_WORKERS_PLAN"|"AZRAIL_FORCE_FREE">): string | null {
   if (FREE_MODEL_SLUGS.has(model.slug) && !model.requiresGateway) return null;
+  if (isNeuronMetered(model.slug)) return env.AZRAIL_WORKERS_PLAN === "paid" && env.AZRAIL_FORCE_FREE !== "true" ? null : "Требуется Workers Paid";
   if (!policy.allowThirdPartyModels) return "Сторонние и платные модели выключены";
   if (model.requiresGateway && !env.AI_GATEWAY_ID) return "AI Gateway не настроен";
   if (!model.requiresGateway && env.AZRAIL_WORKERS_PLAN !== "paid") return "Требуется Workers Paid";
@@ -84,11 +87,47 @@ export async function eligibleRegistry(env: Env): Promise<ModelEntry[]> {
   return MODEL_REGISTRY.filter(m => !modelBlockReason(m, policy, env));
 }
 
+
+/** Платная модель из разрешённого набора: суточный потолок в нейронах через общий ledger, без денежного бюджета. */
+async function neuronMeteredCall(env: Env, model: ModelEntry, input: Record<string,unknown>, scope: string, trace?:TraceContext, dimensions:ModelCallDimensions={}): Promise<unknown> {
+  const budgetScope = `neurons:${new Date().toISOString().slice(0,10)}`;
+  const cap = dailyNeuronCap(env.AZRAIL_DAILY_NEURONS);
+  return meteredCall({...env, AZRAIL_METERING: env.AZRAIL_METERING ? "observe" : undefined},
+    model.slug, input, scope, async () => {
+      await ensureBudget(env, budgetScope, "neuron", cap);
+      // Снижение потолка действует сегодня же; недооценка раньше закрыла день навсегда.
+      await env.AZRAIL_D1.prepare(`UPDATE resource_budgets SET limit_units=CASE
+        WHEN EXISTS(SELECT 1 FROM resource_ledger WHERE scope=? AND unit='neuron' AND actual_units>reserved_units)
+        THEN 0 ELSE ? END WHERE scope=? AND unit='neuron'`).bind(budgetScope, cap, budgetScope).run();
+      const maxTokens = Number(input.max_tokens) > 0 ? Number(input.max_tokens) : 4096;
+      const upper = neuronUpperBound(model.slug, new TextEncoder().encode(JSON.stringify(input)).byteLength, maxTokens);
+      const id = crypto.randomUUID();
+      try {
+        await reserve(env, {id, scope: budgetScope, unit: "neuron", resource: model.slug, upperBound: upper, fingerprint: id});
+      } catch (error) {
+        if (error instanceof BudgetError) throw new NeuronBudgetError();
+        throw error;
+      }
+      let output: unknown;
+      try {
+        output = await env.AI.run(model.slug, input);
+      } catch (error) {
+        await settle(env, id, 0, `Provider error: ${error instanceof Error ? error.message : String(error)}`).catch(() => {});
+        throw error;
+      }
+      const usage = extractUsage(output);
+      await settle(env, id, usage ? neuronsFor(model.slug, usage) : upper,
+        usage ? "Usage from response" : "No usage in response; upper bound charged").catch(() => {});
+      return output;
+    }, scope, {invokeTimeoutMs:55_000, trace, provider:model.provider, ...dimensions});
+}
+
 /** The only text-model provider boundary. Rechecked for EVERY attempt. */
 async function policyModelCallInternal(env: Env, model: ModelEntry, input: Record<string,unknown>, scope: string, trace?:TraceContext, dimensions:ModelCallDimensions={}): Promise<unknown> {
   const policy = await readModelPolicy(env);
   const blocked = modelBlockReason(model, policy, env);
   if (blocked) throw new ModelPolicyError(blocked);
+  if (isNeuronMetered(model.slug)) return neuronMeteredCall(env, model, input, scope, trace, dimensions);
   const free = FREE_MODEL_SLUGS.has(model.slug) && !model.requiresGateway;
   if (free) {
     // Direct binding: do not attach a gateway even if one exists in this account.

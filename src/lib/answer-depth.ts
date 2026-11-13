@@ -4,6 +4,8 @@ export interface AnswerDepth {
   level: AnswerDepthLevel;
   brief: boolean;
   maxTokens: number;
+  /** Для роутера: мелкие вопросы остаются на бесплатных моделях. */
+  complexity: "trivial" | "normal" | "heavy";
   instruction: string;
 }
 
@@ -14,26 +16,26 @@ const SMALLTALK = /^(?:привет|здравствуй|здорово|хай|�
 
 const LEVELS: Record<AnswerDepthLevel, { maxTokens: number; instruction: string }> = {
   1: {
-    maxTokens: 500,
+    maxTokens: 1200,
     instruction: "ГЛУБИНА ОТВЕТА: короткая. Ответь естественно и по существу в одном-трёх предложениях. Не расширяй тему.",
   },
   2: {
-    maxTokens: 1500,
+    maxTokens: 2500,
     instruction: "ГЛУБИНА ОТВЕТА: стандартная. Дай законченное объяснение: определение, суть, достаточный контекст и пример, если он помогает. Не обрывай ответ на одном определении.",
   },
   3: {
-    maxTokens: 3000,
+    maxTokens: 4000,
     instruction: "ГЛУБИНА ОТВЕТА: подробный разбор. Структура: определение и ключевые понятия; причины и механизм; логические связи; два-три конкретных примера; практическое применение; ограничения, исключения и спорные места; краткий вывод. Заголовки и списки используй там, где они упрощают чтение. Не заменяй разбор общими фразами.",
   },
   4: {
-    maxTokens: 5000,
+    maxTokens: 6000,
     instruction: "ГЛУБИНА ОТВЕТА: экспертный анализ. Раскрой тему системно: понятия, механизмы, взаимосвязи, сравнения альтернатив (таблица, если уместно), ограничения и пограничные случаи, разные точки зрения при спорности темы, выводы и рекомендации. Не сокращай ответ искусственно; факты, в которых не уверен, помечай прямо.",
   },
 };
 
 export function answerDepth(question: string, priorTurns = 0): AnswerDepth {
   const text = question.replace(/\s+/g, " ").trim();
-  const build = (level: AnswerDepthLevel, brief = false): AnswerDepth => ({ level, brief, ...LEVELS[level] });
+  const build = (level: AnswerDepthLevel, brief = false): AnswerDepth => ({ level, brief, complexity: level === 1 ? "trivial" : level >= 3 ? "heavy" : "normal", ...LEVELS[level] });
   if (BRIEF.test(text)) return build(1, true);
   if (SMALLTALK.test(text)) return build(1);
   if (EXPERT.test(text) || text.length > 600) return build(4);
