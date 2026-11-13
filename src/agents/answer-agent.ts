@@ -228,8 +228,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
     const budget = promptBudget(question, priorTurns.map((turn) => turn.content).join("\n"));
     const history = budget.long ? fitTurns(priorTurns, budget.text) : priorTurns;
     const voiceNote = voice === "lumen" ? "" : `\n\nОтветь только голосом ${voice === "shade" ? "Серый" : "Ария"}. Тон прошлых ответов не копируй.`;
-    const shadePin = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
-    const preferred = request.preferredModel || (voice === "lumen" || budget.long ? undefined : shadePin);
+    const preferred = request.preferredModel;
     const ask = (turns: Array<{ role: string; content: string }>, preferredModel: string | undefined, maxTokens?: number) => runModel<{ response?: string }>(
       this.env,
       "answer",
