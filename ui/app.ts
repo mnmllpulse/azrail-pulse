@@ -30,7 +30,7 @@ import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
-import {diagramLines,diagramModel} from './diagram';
+import {diagramLines,diagramModel,diagramSvg} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
@@ -1044,31 +1044,7 @@ function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster='',
   parent.append(host);return;
  }
  if(thing.type==='diagram'&&thing.lines?.length){
-  const model=diagramModel(thing.lines.join('\n'));
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('viewBox','0 0 640 160');
-  svg.setAttribute('width','100%');
-  svg.setAttribute('role','img');
-  const count=Math.max(model.nodes.length,1);
-  const place=new Map(model.nodes.map((name,index)=>[name,{x:count===1?250:24+index*(520/Math.max(count-1,1)),y:62}]));
-  for(const [from,to] of model.edges){
-   const start=place.get(from);const end=place.get(to);if(!start||!end)continue;
-   const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-   line.setAttribute('x1',String(start.x+88));line.setAttribute('y1',String(start.y+16));
-   line.setAttribute('x2',String(end.x));line.setAttribute('y2',String(end.y+16));
-   line.setAttribute('stroke','#8b7cff');line.setAttribute('stroke-width','2');svg.append(line);
-  }
-  for(const name of model.nodes){
-   const point=place.get(name);if(!point)continue;
-   const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
-   rect.setAttribute('x',String(point.x));rect.setAttribute('y',String(point.y));
-   rect.setAttribute('width','112');rect.setAttribute('height','32');rect.setAttribute('rx','6');
-   rect.setAttribute('fill','#12121a');rect.setAttribute('stroke','#8b7cff');
-   const label=document.createElementNS('http://www.w3.org/2000/svg','text');
-   label.textContent=name;label.setAttribute('x',String(point.x+8));label.setAttribute('y',String(point.y+21));
-   label.setAttribute('fill','#f4f1ea');label.setAttribute('font-size','12');
-   svg.append(rect,label);
-  }
+  const svg=diagramSvg(document,thing.lines);
   host.append(svg);parent.append(host);return;
  }
  if(thing.type==='note'&&thing.title){const note=document.createElement('p');note.textContent=thing.title;host.append(note);parent.append(host);}

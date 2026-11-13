@@ -1,3 +1,4 @@
+import { diagramSvg } from './diagram';
 /** Escape text for safe HTML insertion. */
 export function escapeHtml(value: string): string {
   return value
@@ -78,7 +79,12 @@ export function fillMarkdownContent(host: HTMLElement, raw: string): void {
   while ((match = fence.exec(source))) {
     const before = source.slice(last, match.index);
     if (before) appendRich(host, before);
-    appendCodeBlock(host, match[1]?.trim() || '', match[2] ?? '');
+    if ((match[1]?.trim() || '') === 'diagram') {
+      const holder = doc.createElement('div');
+      holder.className = 'chat-diagram';
+      holder.append(diagramSvg(doc, (match[2] ?? '').split('\n').map((line) => line.trim()).filter(Boolean)));
+      host.append(holder);
+    } else appendCodeBlock(host, match[1]?.trim() || '', match[2] ?? '');
     last = match.index + match[0].length;
   }
   const tail = source.slice(last);
