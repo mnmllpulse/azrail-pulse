@@ -27,6 +27,7 @@ import {fillMarkdownContent} from './chat-markdown';
 import {formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
+import {agentSettings} from './local-agent';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
@@ -886,6 +887,7 @@ function openSettings(){
   save.onclick=()=>{void api('/api/admin/trial',{method:'POST',body:JSON.stringify({speech:speechBox.checked,sandbox:sandboxBox.checked})}).then(()=>{notice('Пробный лимит сохранён.');openSettings();}).catch(failure);};
   trial.append(speech,sandbox,closed,save);
  }).catch(()=>{const p=document.createElement('p');p.className='muted';p.textContent='Пробный лимит сейчас не прочитался.';trial.append(p);});
+ if(account?.role==='admin')root.append(agentSettings(api,notice,failure));
  const limits=block('Лимиты');
  limits.append(document.createTextNode('Загрузка…'));
  void refreshMode().then(r=>{
