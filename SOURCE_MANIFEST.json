@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T11:17:15.915Z",
+  "generated_at": "2026-11-13T11:42:17.484Z",
   "excludes_self": true,
-  "file_count": 1197,
+  "file_count": 1198,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3497,8 +3497,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 22028,
-      "sha256": "a75fbd51f56608a920333e15110ce33f51225262d12620aa7406bfa40ed7deaa"
+      "bytes": 21902,
+      "sha256": "c0545eddab50caf93aba3f5ccecaad1a74aa7c8b916d631ab4c16ae3e912c68a"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -4414,6 +4414,11 @@
       "path": "tests/answer-fallback.test.ts",
       "bytes": 3426,
       "sha256": "fecf290bcaa3d3251547157e486ef2929c2db7122c4609a4efc38100396df891"
+    },
+    {
+      "path": "tests/answer-model-routing.test.ts",
+      "bytes": 1012,
+      "sha256": "ea4422ed44797eafab49350aafbd63e7008d8f82f2e7e40ded95f02d43740464"
     },
     {
       "path": "tests/answer-prompt-no-phantom-file.test.ts",
