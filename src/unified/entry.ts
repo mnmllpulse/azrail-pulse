@@ -8,6 +8,7 @@ import { claimMission, finishAdmission } from '../lib/mission-admission';
 import { readBoundedBody, BodyLimitError } from '../lib/request-body';
 import { BudgetError } from './ledger';
 import {connectorRoute} from './connectors';
+import {agentRoute} from './local-agent';
 import {publishedSiteResponse} from '../lib/web-sites';
 import {unversionApiPath} from '../lib/api-contract';
 import {log} from '../lib/resilience';
@@ -92,6 +93,7 @@ export default {
      }
     }
    }
+   if(!response)response=await agentRoute(request,env);
    if(!response)response=await connectorRoute(request,env);
    if(!response)response=await studioRoute(request,env);
    if(!response&&(url.pathname.startsWith('/api/')||url.pathname==='/health'||url.pathname==='/agents'||url.pathname.startsWith('/agents/')))response=await engine.fetch(request,env,ctx);
