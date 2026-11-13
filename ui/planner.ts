@@ -353,6 +353,11 @@ export function pictureReply(parts: Array<{ ready?: string; thing?: PlanThing }>
       blocks.push(`[${name}](${thing.url})`);
       continue;
     }
+    if (thing?.type === 'diagram' && thing.lines?.length) {
+      blocks.push(part.ready?.trim() || 'Схема в чате.');
+      blocks.push('```diagram\n' + thing.lines.map((line) => line.replace(/`/g, "'")).join('\n') + '\n```');
+      continue;
+    }
     if (thing?.type !== 'image' || !thing.url || !ARTIFACT_URL.test(thing.url)) continue;
     const title = (thing.title || 'Картинка').replace(/[\[\]]/g, '').slice(0, 80);
     blocks.push(part.ready?.trim() || 'Картинка в чате.');

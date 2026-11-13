@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T05:48:04.520Z",
+  "generated_at": "2026-11-13T06:07:17.918Z",
   "excludes_self": true,
-  "file_count": 1191,
+  "file_count": 1192,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -4551,6 +4551,11 @@
       "sha256": "1cbdfaddf477350f15acf17da30d36c025a2b017201fa4c8e85eb6cf2d61fe5d"
     },
     {
+      "path": "tests/diagram-chain.test.ts",
+      "bytes": 1673,
+      "sha256": "7638a1181f5c5caabc0513601d60fb2f6fe3749de8b7db28688276e3674cb790"
+    },
+    {
       "path": "tests/event-stream.test.ts",
       "bytes": 1726,
       "sha256": "3e9996cc0f19148a4fa5f0a87c0ca6e9006f10d8b4418eac64c973b0fd0f88c5"
@@ -5117,8 +5122,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 172030,
-      "sha256": "1fe9cfaa29dc6b734faec24fe3751dd77836c9637e4be5bcc305efe3502be30e"
+      "bytes": 170490,
+      "sha256": "90b3ed212ecd66561627dd8ec1f0fbac615b38321e9e3c6e42fceb88fa21e47f"
     },
     {
       "path": "ui/assignment.ts",
@@ -5152,8 +5157,8 @@
     },
     {
       "path": "ui/chat-markdown.ts",
-      "bytes": 8052,
-      "sha256": "bde2438e9ec16e3fac5ebd4a3012145ee630c784ded9a5a606425c32e319083c"
+      "bytes": 8375,
+      "sha256": "44559925fc41f187d362db0eecddf016a6d8d4ceaa018fe05c7524635a68f133"
     },
     {
       "path": "ui/chat-site.ts",
@@ -5242,8 +5247,8 @@
     },
     {
       "path": "ui/diagram.ts",
-      "bytes": 1650,
-      "sha256": "5d9ec0a409958269a22a780b05b9c103f20952fa7c23e70e835730c001c6d0b3"
+      "bytes": 4383,
+      "sha256": "4bd77c7b09c9f1e6f974f90699f47cc74722fed22147c3b1d35dea75a4932be7"
     },
     {
       "path": "ui/dry-speech.ts",
@@ -5337,8 +5342,8 @@
     },
     {
       "path": "ui/planner.ts",
-      "bytes": 18719,
-      "sha256": "871e2467648c786dc9cb7f866a2f1511401ec6d85052f60a9aee1ae10362beed"
+      "bytes": 18978,
+      "sha256": "dec5b0aa453639766c67046f0dc250776e7243fdf965b1e04d9b29f51d3b1306"
     },
     {
       "path": "ui/projects.ts",
