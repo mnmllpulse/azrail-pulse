@@ -153,8 +153,8 @@ if (!retentionPreview.includes('unsafeReferencesSkipped') || !retentionPreview.i
 const voiceAdapter = readFileSync('src/unified/voice.ts','utf8');
 if (studios.includes('audio:[...bytes]') || voiceAdapter.includes('audio:[...') || !voiceAdapter.includes('function audioToBase64'))
   fail('Studio voice must use bounded binary Whisper input through SpeechToTextAdapter instead of expanding bytes into a JS number array');
-if (!studios.includes('saveArtifactStream') || !studios.includes('request.body.pipeThrough(limiter)'))
-  fail('Studio artifact uploads must stream to R2 through a byte-counting limiter');
+if (!studios.includes('saveArtifactStream') || !studios.includes('env.AZRAIL_R2.put(key,request.body,') || studios.includes('pipeThrough(limiter)'))
+  fail('Studio artifact uploads must hand a known-length body to R2 (R2 rejects TransformStream bodies) and buffer chunked uploads under the size limit');
 if (!missionCoordinator.includes('requiredApprovalCallIds(replay)'))
   fail('waiting_approval recovery must derive connector approvals from validated checkpoints');
 if (!planner.includes('export async function loadPlan') || !planner.includes('env.AZRAIL_D1.batch('))

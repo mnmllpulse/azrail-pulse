@@ -1696,7 +1696,7 @@ describe("Документы не обещают несуществующего"
   // проверка целостности показала бы, что зип испорчен. И в папке лежал
   // временный файл verify-extract-tmp.mjs, который уехал бы в репозиторий.
   const idx = ["src/index.ts", "src/unified/studios.ts", "src/unified/connectors.ts"].map(src).join("\n");
-  const docs = ["README.md", "DEPLOY.md", "docs/history/changelog/CHANGELOG_v0.4.0.md", "docs/product/AZRAIL_PRODUCT_SPEC_v0.5.md"];
+  const docs = ["README.md", "DEPLOY.md", "docs/product/AZRAIL_PRODUCT_SPEC_v0.5.md"];
 
   it("каждый упомянутый /api/* существует в коде", () => {
     const real = new Set([

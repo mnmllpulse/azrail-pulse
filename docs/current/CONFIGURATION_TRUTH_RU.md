@@ -1,5 +1,7 @@
 # Canonical Configuration Truth — AZRAIL 1.5.0-rc.20
 
+Status: current
+
 Единственный source of truth для Cloudflare environment-конфигурации:
 
 `config/environments.json`

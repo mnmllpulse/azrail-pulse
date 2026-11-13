@@ -1,5 +1,7 @@
 # Orchestrator Architecture — Stage 7 / RC21
 
+Status: current
+
 `src/agents/orchestrator.ts` остаётся Durable Object shell: WebSocket lifecycle, state update, task flow и публичные RPC-методы. Доменные обязанности вынесены в отдельные модули без изменения внешних RPC-контрактов.
 
 ## Границы

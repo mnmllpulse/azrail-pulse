@@ -1,5 +1,7 @@
 # Video Studio 2.0 · AZRAIL 1.5.0-rc.59
 
+Status: current
+
 Video Studio теперь реализует Series F **F41–F60** как профессиональный bounded workflow:
 
 `Creative brief → Project Storyboard → Shot List / Scene Cards → Timeline Editor → Assets / Reference Board → Continuity Memory → Camera / Keyframes / Transitions → Voice/Music/SFX → Captions → Color Grading → Render Queue → Proxy/Final WebM → Video QA → Export`.

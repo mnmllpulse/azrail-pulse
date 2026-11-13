@@ -1,5 +1,7 @@
 # Professional Web Studio — 1.5.0-rc.57
 
+Status: current
+
 Web Studio использует immutable project workspace и теперь закрывает Series E **E17–E21** поверх существующего Files/Preview/Changes/Tests/Logs/Versions workbench.
 
 ## Рабочие области

@@ -1,5 +1,7 @@
 # Professional Ledger Studio — AZRAIL 1.5.0-rc.35
 
+Status: current
+
 Ledger Studio — read-only cost/usage workbench поверх внутреннего AZRAIL metering. Он не является копией счёта Cloudflare или другого provider billing.
 
 ## Контракт

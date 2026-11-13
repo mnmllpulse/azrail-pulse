@@ -1,5 +1,7 @@
 # Metatron Lab 2.0 — Agent Operations Center
 
+Status: current
+
 Metatron — не отдельная декоративная студия, а **control plane агентной системы AZRAIL**. Он объединяет уже существующие mission lifecycle, checkpoints, traces, approvals, fencing и durable event stream в один операторский экран.
 
 ## F61–F80

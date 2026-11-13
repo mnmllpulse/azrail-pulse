@@ -1,0 +1,51 @@
+# Архив изменений
+
+Snapshot: сводка прошлых changelog. Полные тексты: ветка `archive/docs-2026-11` (коммит cfc6232), каталог `docs/history/changelog/`.
+
+- **AZRAIL PULSE Unified 1.5.0-rc.2** — Local-only release candidate. Do not publish or deploy until repeated verification is complete.
+- **AZRAIL PULSE Unified 1.5.0-rc.3** — Локальный кандидат. Ничего из этого релиза не публиковалось в `main` и не развёртывалось в Cloudflare.
+- **AZRAIL PULSE Unified 1.5.0-rc.4** — RC4 — третий глубокий инженерный проход по локальному ZIP. Никаких публикаций в GitHub и никаких изменений Cloudflare в рамках этого прохода не выполнялось.
+- **AZRAIL PULSE Unified 1.5.0-rc.5** — Release-candidate hardening pass focused on delivery atomicity, uncertain external outcomes, monetary reconciliation and OIDC/SSRF boundaries.
+- **AZRAIL PULSE Unified 1.5.0-rc.6** — RC6 is a local review candidate. No GitHub publication/commit and no Cloudflare deployment or configuration mutation were performed in this pass.
+- **AZRAIL PULSE Unified 1.5.0-rc.7** — RC7 is a local review candidate. No GitHub publication/commit and no Cloudflare deployment or configuration mutation were performed in this pass.
+- **AZRAIL PULSE 1.5.0-rc.8** — Локальный hardening-кандидат. Публикация в GitHub и изменение Cloudflare в рамках этого прохода не выполнялись.
+- **AZRAIL PULSE 1.5.0-rc.9** — Локальный hardening-кандидат. В рамках прохода GitHub и Cloudflare использовались только read-only; публикация, merge, deployment и cloud-write операции не выполнялись.
+- **AZRAIL PULSE 1.5.0-rc.10** — Локальный hardening-кандидат. В рамках прохода GitHub и Cloudflare использовались только read-only; публикация, merge, deployment и cloud-write операции не выполнялись.
+- **AZRAIL PULSE 1.5.0-rc.11** — Локальный release candidate. GitHub и Cloudflare этим архивом не изменялись.
+- **AZRAIL PULSE 1.5.0-rc.12** — Локальный release candidate. GitHub и Cloudflare этим архивом не изменялись.
+- **AZRAIL PULSE 1.5.0-rc.13** — RC13 усиливает конкурентную безопасность mission recovery и side-effect execution.
+- **AZRAIL PULSE 1.5.0-rc.14** — RC14 усиливает delivery fencing, writer fencing, безопасные preview-механизмы хранения и memory discipline Studio.
+- **AZRAIL PULSE 1.5.0-rc.15** — RC15 completes the eight-point hardening pass requested after RC14. No GitHub write, Cloudflare mutation, migration apply, or deployment is performed by this package.
+- **AZRAIL 1.5.0-rc.16** — 
+- **AZRAIL PULSE Unified 1.5.0-rc.17** — 
+- **AZRAIL PULSE 1.5.0-rc.18** — 
+- **AZRAIL PULSE 1.5.0-rc.19** — Stage 5 — Quality Gate hardening.
+- **AZRAIL PULSE 1.5.0-rc.20 — Stage 6** — Stage 6 decomposes the 1,754-line execution engine without changing mission behavior.
+- **AZRAIL PULSE 1.5.0-rc.21 — Stage 7** — 
+- **AZRAIL PULSE 1.5.0-rc.22** — 
+- **AZRAIL 1.5.0-rc.23 — Stage 9 Unified Approval Engine** — Approvals are SHA-256-bound to exact parameters, expire, are single-use, and distinguish failed from uncertain external execution.
+- **AZRAIL 1.5.0-rc.24 — Stage 10 Unified Event Stream** — Realtime delivery now sends one `{type:"event_stream", event}` application frame after the event is durable. The UI resumes from the last monotonic sequence instead of relying on timestamps.
+- **AZRAIL PULSE 1.5.0-rc.25** — 
+- **AZRAIL 1.5.0-rc.26 — Stage 12 Professional Projects** — 
+- **AZRAIL 1.5.0-rc.27 — Stage 13 Attachment Manager** — 
+- **AZRAIL 1.5.0-rc.28 — Stage 14 Professional Web Studio** — 
+- **AZRAIL 1.5.0-rc.29 — Stage 15 Professional Image Studio** — 
+- **AZRAIL 1.5.0-rc.30 — Stage 16 Professional Music Studio** — 
+- **AZRAIL 1.5.0-rc.31 — Stage 17 Professional Video Studio** — 
+- **AZRAIL 1.5.0-rc.32 — Stage 18 Professional Audio Lab** — 
+- **AZRAIL 1.5.0-rc.33 — Stage 19 Professional Ableton Lab** — 
+- **AZRAIL 1.5.0-rc.34 — Stage 20 / Professional Data Studio** — 
+- **AZRAIL 1.5.0-rc.35 — Stage 21 / Professional Ledger Studio** — 
+- **AZRAIL 1.5.0-rc.36 — Stage 22 / Professional Pulse Lab** — 
+- **AZRAIL 1.5.0-rc.37 — Stage 23 / Professional Connections** — 
+- **AZRAIL 1.5.0-rc.38 — Stage 24 / Node24 Verification Harness** — 
+- **AZRAIL PULSE 1.5.0-rc.39 — Stage 25** — 
+- **AZRAIL PULSE 1.5.0-rc.40 — Stage 26** — 
+- **AZRAIL PULSE 1.5.0-rc.41 — Stage 27 / Staging Smoke Preparation** — Stage D #32 is prepared without deploying RC41 and without executing a real authenticated smoke against Cloudflare. GitHub, Cloudflare and Canva were used read-only only.
+- **AZRAIL PULSE 1.5.0-rc.42 — Stage 28 / Security Verification Preparation** — Stage D #33 is prepared locally/read-only. No GitHub push, Cloudflare deploy/migration/write, production mutation, or Canva edit was performed.
+- **AZRAIL PULSE 1.5.0-rc.43 — Stage 29 / Production Drift Reconciliation** — Stage D #34 выполнен как read-only production reconciliation. GitHub, Cloudflare production/staging и Canva не изменялись.
+- **AZRAIL PULSE 1.5.0-rc.44 — Stage 30 / Backup & Restore Proof** — Stage D #35 подготовлен без GitHub/Cloudflare/Canva mutations. Live production/staging restore не выполнялся.
+- **AZRAIL 1.5.0-rc.45** — 
+- **AZRAIL 1.5.0-rc.46** — 
+- **AZRAIL PULSE 1.5.0-rc.47 — Stage 33** — 
+- **AZRAIL OS v0.4.0 — Foundation Upgrade** — This release does not claim a code execution sandbox, browser automation, or live

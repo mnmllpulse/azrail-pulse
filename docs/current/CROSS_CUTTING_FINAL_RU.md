@@ -1,5 +1,7 @@
 # Final Cross-Cutting Closure — RC63
 
+Status: current
+
 RC63 закрывает последние сквозные пункты PDF после завершения Series F и Series G: **Compare Mode**, **Professional Review Agent** и **canonical Studio naming/descriptor governance**.
 
 ## Universal Compare Center / Compare Mode

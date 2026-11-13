@@ -1,5 +1,7 @@
 # Observability / Trace Correlation — AZRAIL 1.5.0-rc.25
 
+Status: current
+
 Stage 11 вводит единый correlation contract для HTTP, миссий, задач агентов, model calls, tool calls, approvals, connector calls и operational events.
 
 ## Canonical chain

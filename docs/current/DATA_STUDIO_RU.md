@@ -1,5 +1,7 @@
 # Professional Data Studio · RC34
 
+Status: current
+
 Data Studio — локальный табличный workbench для CSV/TSV-like datasets. Анализ данных выполняется в браузере; Cloudflare используется только когда пользователь явно нажимает **Save dataset to Project**.
 
 ## Workflow

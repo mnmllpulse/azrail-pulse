@@ -1,5 +1,7 @@
 # Studio Module Registry — текущий контракт
 
+Status: current
+
 Начиная с RC22 каталог студий и исполняемая логика разделены.
 
 ## Source of Truth
