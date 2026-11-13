@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T11:17:15.915Z",
+  "generated_at": "2026-11-13T11:50:57.954Z",
   "excludes_self": true,
-  "file_count": 1197,
+  "file_count": 1203,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -124,6 +124,11 @@
       "path": "docs/DOCS_RULES.md",
       "bytes": 1513,
       "sha256": "864aafea2af4ee3572cbd942423267e3419494264399baee77b71118cf941fbb"
+    },
+    {
+      "path": "docs/LOCAL_AGENT.md",
+      "bytes": 2563,
+      "sha256": "13180820868553db13ea072d1c422d85a6e6d6238df1c3f0a4f505bc2a2f8e68"
     },
     {
       "path": "docs/README.md",
@@ -3036,6 +3041,11 @@
       "sha256": "e99fe60f8a8577f5474fe16b21d6a8173ddfcf7bb3f1171fea420b7b391053ce"
     },
     {
+      "path": "scripts/local-agent/azrail-agent.mjs",
+      "bytes": 4573,
+      "sha256": "f101b6ac1490bd0e7e30b1d342d8c890e1d677560d648a96c8290a5b06d093cb"
+    },
+    {
       "path": "scripts/local-contrast.mjs",
       "bytes": 7382,
       "sha256": "1c39dff6ec78b15fd361ead72b485da98e1c8bf0b59fdcbdaa9eaec15c7db1cb"
@@ -3552,8 +3562,8 @@
     },
     {
       "path": "src/agents/orchestrator.ts",
-      "bytes": 26376,
-      "sha256": "3d603c56928bfc6cd7ded1860199faacfc45b806983f46b1859f0abfdda21827"
+      "bytes": 30060,
+      "sha256": "fc37eb52a13a7b934fd283f44e5dcb83d7f385b04ba299af2c18d91aa777770c"
     },
     {
       "path": "src/agents/qa-agent.ts",
@@ -3904,6 +3914,11 @@
       "path": "src/lib/ledger-studio.ts",
       "bytes": 14344,
       "sha256": "4c5f6b345c1b9d77eccc88be96d11a94c3c5a0b02563730dbbcffb0171415b7d"
+    },
+    {
+      "path": "src/lib/local-agent.ts",
+      "bytes": 7619,
+      "sha256": "0b5ed7fbe66feaa30b74e2f28c1a927c4939e15ee9bd56606bb4f2cc0623f9b2"
     },
     {
       "path": "src/lib/memory-agent.ts",
@@ -4307,13 +4322,18 @@
     },
     {
       "path": "src/unified/entry.ts",
-      "bytes": 7599,
-      "sha256": "d2ada2de061b14699b9485a2a5bf1fac5cc281204f679e980a1fc1597ec50b2e"
+      "bytes": 7697,
+      "sha256": "e11277c20369b3b9c8a155f0fe8af78fb4f43f4a1782fea0f2bb0f09bec5be3a"
     },
     {
       "path": "src/unified/ledger.ts",
       "bytes": 4450,
       "sha256": "3fd193f5005c232f88feb2a409d010b767bc53ea82686edc62c703a2127c58b4"
+    },
+    {
+      "path": "src/unified/local-agent.ts",
+      "bytes": 4077,
+      "sha256": "86123c1ccf850f66d8d3c19d1707701a289f1cc19782ddc3a301c73d2bf5d2d7"
     },
     {
       "path": "src/unified/mcp-client.ts",
@@ -4656,6 +4676,11 @@
       "sha256": "1bcbe822546474a473d162562bacf4831078ad372a5aeb9401dfa56cb2e2640c"
     },
     {
+      "path": "tests/local-agent.test.ts",
+      "bytes": 7075,
+      "sha256": "0df99c11ce1c7f398b8f56d2f66f9cbfcae2a43ed0c01c9aaf4c6b41c0ad5974"
+    },
+    {
       "path": "tests/local-load-contract.test.ts",
       "bytes": 585,
       "sha256": "ca1de08ec49799521f82dd57cbf039b021a3f2206c1efbdcd710cf4cfd4825ef"
@@ -4917,8 +4942,8 @@
     },
     {
       "path": "tests/regressions.test.ts",
-      "bytes": 197084,
-      "sha256": "ab8fd013d01c27349208a8738601740d336b6fc0b71975bfae1641bf2bfafa88"
+      "bytes": 197113,
+      "sha256": "2a312fb45dd522bc481aff9c5ba320c8551934f973db74067a238f2878167281"
     },
     {
       "path": "tests/replan.test.ts",
@@ -5147,8 +5172,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 170490,
-      "sha256": "90b3ed212ecd66561627dd8ec1f0fbac615b38321e9e3c6e42fceb88fa21e47f"
+      "bytes": 170611,
+      "sha256": "60fbc79ba536db4a96fc573eb1d50ff77fb251f0257bff1859eb2bfda182b873"
     },
     {
       "path": "ui/assignment.ts",
@@ -5309,6 +5334,11 @@
       "path": "ui/ledger-studio.ts",
       "bytes": 13343,
       "sha256": "9da4b37ed79b16a1ed040311fee75bd99cabf78541ef5ce6fc0ef9203a0de736"
+    },
+    {
+      "path": "ui/local-agent.ts",
+      "bytes": 5580,
+      "sha256": "0fa1c6c537a2e2c16f8e70da4f2073e340e9240d876903949a5d0c6fc1185344"
     },
     {
       "path": "ui/media.ts",
