@@ -1,5 +1,7 @@
 # Professional Ableton Lab · RC33
 
+Status: current
+
 Ableton Lab анализирует `.als` / Ableton XML как **read-only project structure**. Исходный Live Set не изменяется.
 
 ## Что извлекается

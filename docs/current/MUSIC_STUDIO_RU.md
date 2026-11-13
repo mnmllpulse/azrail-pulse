@@ -1,5 +1,7 @@
 # Professional Music Studio — 1.5.0-rc.57
 
+Status: current
+
 Stage 16 закрывает пункт **Music Studio** из Professional UX master-плана.
 
 ## UX-контракт

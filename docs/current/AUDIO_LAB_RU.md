@@ -1,5 +1,7 @@
 # Professional Audio Lab · RC32
 
+Status: current
+
 Audio Lab выполняет **локальный offline-анализ** декодированного PCM. Аудио не отправляется в облако для измерения mastering-метрик.
 
 ## Метрики

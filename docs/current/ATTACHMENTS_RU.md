@@ -1,5 +1,7 @@
 # Attachment Manager — RC27
 
+Status: current
+
 Stage 13 закрывает пункт **Attachment Manager** из Professional UX плана.
 
 ## Что изменилось
