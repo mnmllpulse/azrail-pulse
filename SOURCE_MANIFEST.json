@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T11:09:29.457Z",
+  "generated_at": "2026-11-13T11:17:15.915Z",
   "excludes_self": true,
   "file_count": 1197,
   "files": [
@@ -3497,8 +3497,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 21361,
-      "sha256": "a67f5c5a49cf48ac3f525cca1f8513e78e416a22bc934630245dd4ce35dfc8c2"
+      "bytes": 22028,
+      "sha256": "a75fbd51f56608a920333e15110ce33f51225262d12620aa7406bfa40ed7deaa"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -4417,8 +4417,8 @@
     },
     {
       "path": "tests/answer-prompt-no-phantom-file.test.ts",
-      "bytes": 662,
-      "sha256": "6bbace6c8c3b6bcc69445c42cdbe7e32211dd8c34b42371047d03be7047b54df"
+      "bytes": 1049,
+      "sha256": "2b85df86a70439f80973b8bd067f43bcd1362e7b3b57adf2e333034f9599ad36"
     },
     {
       "path": "tests/api-contract.test.ts",
@@ -5923,7 +5923,7 @@
     {
       "path": "verification/sbom.spdx.json",
       "bytes": 213253,
-      "sha256": "bbe70b1f60a10c8a5f636a28e67b464523a7f483b7d41775d4829d36c78aed84"
+      "sha256": "fbc6f030d9bc1347eadc1fb1e4be3b13033cba59f2659e22b3dc2dde422be640"
     },
     {
       "path": "verification/security-permission-matrix.json",
