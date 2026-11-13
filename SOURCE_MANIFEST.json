@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T10:57:24.664Z",
+  "generated_at": "2026-11-13T11:09:29.457Z",
   "excludes_self": true,
-  "file_count": 1196,
+  "file_count": 1197,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -727,8 +727,8 @@
     },
     {
       "path": "package-lock.json",
-      "bytes": 155907,
-      "sha256": "2b08bc8e59560d922aac38629b496a5b92c51ee1706342b42bb01a1ec8385dcb"
+      "bytes": 155011,
+      "sha256": "f97f5f29f6006aa6d61441a142a67b05e6011172841f9902a9626880e9762cd0"
     },
     {
       "path": "package.json",
@@ -3497,8 +3497,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 21094,
-      "sha256": "eb5b4aeb4fdb533bd49909b5d9c2aeeafd217af200d9d08fc877b0a2a306aecf"
+      "bytes": 21361,
+      "sha256": "a67f5c5a49cf48ac3f525cca1f8513e78e416a22bc934630245dd4ce35dfc8c2"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -4414,6 +4414,11 @@
       "path": "tests/answer-fallback.test.ts",
       "bytes": 3426,
       "sha256": "fecf290bcaa3d3251547157e486ef2929c2db7122c4609a4efc38100396df891"
+    },
+    {
+      "path": "tests/answer-prompt-no-phantom-file.test.ts",
+      "bytes": 662,
+      "sha256": "6bbace6c8c3b6bcc69445c42cdbe7e32211dd8c34b42371047d03be7047b54df"
     },
     {
       "path": "tests/api-contract.test.ts",
