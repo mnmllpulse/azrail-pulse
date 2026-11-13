@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T06:07:17.918Z",
+  "generated_at": "2026-11-13T10:40:54.506Z",
   "excludes_self": true,
-  "file_count": 1192,
+  "file_count": 1193,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -2962,8 +2962,8 @@
     },
     {
       "path": "scripts/cloudflare-readonly-snapshot.mjs",
-      "bytes": 9353,
-      "sha256": "8f6882bfbfd1fd1db17ed939ec98c109282747ee66ebaf9224c0a0586a7ac4a7"
+      "bytes": 10202,
+      "sha256": "a895fce82dc71c15d1cd66a81ccf42deb402bf28f5b25843f3ca04a7f1091981"
     },
     {
       "path": "scripts/code-hygiene.mjs",
@@ -4504,6 +4504,11 @@
       "path": "tests/chat-site.test.ts",
       "bytes": 3367,
       "sha256": "4f6476f419aec502947d96b5a1ef407c1c108cca7fff33f630d9d013bf266aeb"
+    },
+    {
+      "path": "tests/cloud-snapshot-active-version.test.ts",
+      "bytes": 682,
+      "sha256": "d3510363e4e691ff74b69e37006746f288500d836b46397e42fd62065530989a"
     },
     {
       "path": "tests/connector-oauth-design.test.ts",
