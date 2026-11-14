@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-14T09:24:20.068Z",
+  "generated_at": "2026-11-14T09:35:57.818Z",
   "excludes_self": true,
   "file_count": 1214,
   "files": [
@@ -4007,13 +4007,13 @@
     },
     {
       "path": "src/lib/model-policy.ts",
-      "bytes": 10423,
-      "sha256": "da4e49a59c6e5b08c6814f6ab22a11b7b09607727c37318d1ca4dc2af15b5dd6"
+      "bytes": 10458,
+      "sha256": "8f2ff6575db770911b27455e51796c385da2781d185949640470735ff98b458e"
     },
     {
       "path": "src/lib/model-registry.ts",
-      "bytes": 26642,
-      "sha256": "6eaa115ecc69ce04ef085203c7d6279913b6ff407f2f8121073b9c9bd627b591"
+      "bytes": 28049,
+      "sha256": "c37db65e12188ccb00b50a355d179e24f42b4a5b63d7e8bb6dd2f511b41daf81"
     },
     {
       "path": "src/lib/model-router.ts",
@@ -4032,8 +4032,8 @@
     },
     {
       "path": "src/lib/neuron-paid.ts",
-      "bytes": 4722,
-      "sha256": "6f4fc4b7a10faf92379cf3e49d36716c07cc4bbac9dc7a64d4e871b42ac32602"
+      "bytes": 4796,
+      "sha256": "3babb124386c07e0b4a1e8206c5cd2434d2c3e951cd2f68592e88d593155c503"
     },
     {
       "path": "src/lib/observability-context.ts",
@@ -4767,8 +4767,8 @@
     },
     {
       "path": "tests/model-deprecation.test.ts",
-      "bytes": 2228,
-      "sha256": "5698fbf1745792442166dd0f216a4fcd6aa19dd994032ee8e552703c90f99a94"
+      "bytes": 3032,
+      "sha256": "9e2f71697312ab1429328d9dca6d0102d8e0c2357a45acc453d97ad17542fa39"
     },
     {
       "path": "tests/model-display.test.ts",

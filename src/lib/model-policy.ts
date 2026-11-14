@@ -16,6 +16,7 @@ export const FREE_MODEL_SLUGS = new Set([
   "@cf/qwen/qwen2.5-coder-32b-instruct",
   "@cf/qwen/qwen3-30b-a3b-fp8",
   "@cf/openai/gpt-oss-20b",
+  "@cf/google/gemma-4-26b-a4b-it",
   "@cf/baai/bge-m3",
 ]);
 

@@ -1,4 +1,4 @@
-import { isDeprecated } from "./model-registry";
+import { findModel, isDeprecated } from "./model-registry";
 import type { ModelUsage } from "./usage";
 
 /** The seven Workers Paid models. One shared pool: 10,000 neurons/day, then Cloudflare bills. */
@@ -59,10 +59,12 @@ const CODE_INTENTS = new Set(["generate_code", "review_repo", "generate_ui"]);
 /** Какие платные модели можно предлагать роутеру для этой задачи. Мелкие задачи — только бесплатные. */
 export function neuronAllowedFor(intent: string, complexity: "trivial" | "normal" | "heavy", now = Date.now()): ReadonlySet<string> {
   if (complexity === "trivial") return new Set();
-  if (CODE_INTENTS.has(intent)) return new Set([KIMI_CODE, GLM_FLASH]);
-  if (complexity === "heavy") return new Set([DEEPSEEK_FLASH, GLM_53, GLM_FLASH]);
-  // Когда glm-5.3-flash отключат, обычные вопросы переходят на deepseek-v4-flash.
-  return new Set([isDeprecated({ deprecatedAt: GLM_FLASH_DEPRECATED_AT }, now) ? DEEPSEEK_FLASH : GLM_FLASH]);
+  const base = CODE_INTENTS.has(intent) ? [KIMI_CODE, GLM_FLASH]
+    : complexity === "heavy" ? [DEEPSEEK_FLASH, GLM_53, GLM_FLASH]
+      : [GLM_FLASH];
+  // Отключённые модели (changelog Cloudflare 2026-11-05) выпадают; если не осталось ни одной, остаётся glm-5.3.
+  const live = base.filter((slug) => !isDeprecated(findModel(slug) ?? {}, now));
+  return new Set(live.length ? live : [GLM_53]);
 }
 
 /** Суточный потолок платных моделей. Некорректное значение закрывает платные модели. */
