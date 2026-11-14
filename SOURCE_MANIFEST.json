@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-14T04:24:59.379Z",
+  "generated_at": "2026-11-14T04:50:16.464Z",
   "excludes_self": true,
   "file_count": 1209,
   "files": [
@@ -3517,8 +3517,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 21932,
-      "sha256": "e4c85db46000f88b3984ed8ceac74cb2ad2e384d5873f56e75ab5dc4602c6684"
+      "bytes": 22288,
+      "sha256": "53d6f1a08ef9b6c405cea64404bb3b363c3fa6ca6d59f3f78c26ad8a69889490"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -4767,8 +4767,8 @@
     },
     {
       "path": "tests/model-plan-grounding.test.ts",
-      "bytes": 1473,
-      "sha256": "9e10c739f93dae239469fb776013aa07e55e638ecb4472ae941755486281cae6"
+      "bytes": 2415,
+      "sha256": "77b5a9732d1fa158bb85d2be1aa86f770a378030d0708833b600175c2ead8d89"
     },
     {
       "path": "tests/model-policy.test.ts",
@@ -5202,13 +5202,13 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 170611,
-      "sha256": "60fbc79ba536db4a96fc573eb1d50ff77fb251f0257bff1859eb2bfda182b873"
+      "bytes": 171009,
+      "sha256": "38718a6c19132099cfcc30705f6b20026faee41b862bde92593e5f4fba306a54"
     },
     {
       "path": "ui/assignment.ts",
-      "bytes": 12237,
-      "sha256": "d6a71a205817c4e7f359e4d234f541e1d220d997bab3e479dee7802c2765bd0c"
+      "bytes": 12581,
+      "sha256": "f0c9870d239dd40cea1e394ac8a0737d86357992a165d0f11d261d4cdfc826d2"
     },
     {
       "path": "ui/attachment-manager.ts",
