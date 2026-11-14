@@ -36,7 +36,7 @@ for (const table of ['missions','projects','mission_events','mission_checkpoints
 }
 
 const files = readdirSync('migrations').filter((name) => /^\d{3}-.+\.sql$/.test(name)).sort((a, b) => Number(a.slice(0,3)) - Number(b.slice(0,3)));
-if (!files.length || files[0] !== '002-mission-async.sql' || files.at(-1) !== '037-conversation-archive.sql') fail('unexpected migration catalog boundary');
+if (!files.length || files[0] !== '002-mission-async.sql' || files.at(-1) !== '038-model-calls-indexes.sql') fail('unexpected migration catalog boundary');
 const plan = [];
 for (const filename of files) {
   const version = filename.slice(0, 3);
@@ -53,7 +53,7 @@ for (const filename of files) {
 }
 
 if (!contract.plan?.baseline_migrations?.includes('002-mission-async.sql')) fail('contract does not baseline migration 002');
-if (contract.plan?.apply_from !== '003-bench.sql' || contract.plan?.apply_through !== '037-conversation-archive.sql') fail('contract migration range mismatch');
+if (contract.plan?.apply_from !== '003-bench.sql' || contract.plan?.apply_through !== '038-model-calls-indexes.sql') fail('contract migration range mismatch');
 
 const report = {
   schema_version: 1,

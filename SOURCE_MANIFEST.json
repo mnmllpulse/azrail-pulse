@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-14T04:14:39.890Z",
+  "generated_at": "2026-11-14T04:24:59.379Z",
   "excludes_self": true,
-  "file_count": 1207,
+  "file_count": 1209,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -734,6 +734,11 @@
       "path": "migrations/037-conversation-archive.sql",
       "bytes": 132,
       "sha256": "23d830ad3a7dbc4874e462eeb0ac4c700f49766af1dd07a8d3cad42c843426f8"
+    },
+    {
+      "path": "migrations/038-model-calls-indexes.sql",
+      "bytes": 288,
+      "sha256": "0e18f48a569bc619c070b3cdce277b66ab0acb565f43d8968b689b5bda8c8d2a"
     },
     {
       "path": "package-lock.json",
@@ -2642,8 +2647,8 @@
     },
     {
       "path": "schema.sql",
-      "bytes": 49577,
-      "sha256": "3e5290238c181b5eb8413f148a8f1ff4fa414eac82987f7807252f33aa4a7610"
+      "bytes": 49768,
+      "sha256": "2617962052549b1c33f53705da88f15485aff1b7cd836181f872d821e7add682"
     },
     {
       "path": "scripts/backup-restore-cloud-drill.mjs",
@@ -2932,8 +2937,8 @@
     },
     {
       "path": "scripts/check-staging-migration-preparation.mjs",
-      "bytes": 5127,
-      "sha256": "4c9dfe690f3471663b113ee2474037d112907e5909293d9a7b8605b3c7ae3393"
+      "bytes": 5125,
+      "sha256": "1ad9ea19bfd6281090f89bb725af84cfd0bed37865542642c5968482f57221c1"
     },
     {
       "path": "scripts/check-staging-smoke-preparation.mjs",
@@ -4741,6 +4746,11 @@
       "sha256": "5040abfa32f54e32768d9bd7c6c62dd4969645112c2ada74f39d4e2d6b593d76"
     },
     {
+      "path": "tests/model-calls-indexes.test.ts",
+      "bytes": 1158,
+      "sha256": "bf779e4f70b22d4107815512779fd87dcf25e7e11aeb3942b2d0b9d722c81e56"
+    },
+    {
       "path": "tests/model-deprecation.test.ts",
       "bytes": 2228,
       "sha256": "5698fbf1745792442166dd0f216a4fcd6aa19dd994032ee8e552703c90f99a94"
@@ -6002,8 +6012,8 @@
     },
     {
       "path": "verification/staging-migration-contract.json",
-      "bytes": 1010,
-      "sha256": "44396938544ffdd9a3a41191cf854977ac88b0b72418c133caf1a66356d337cc"
+      "bytes": 1009,
+      "sha256": "72c774b21fb2c87ce2294b3f5b306ee734e7af582d07eacf500bd0001a15437e"
     },
     {
       "path": "verification/staging-migration-readonly-snapshot.json",
