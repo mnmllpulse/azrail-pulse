@@ -55,6 +55,15 @@ export interface ModelEntry {
   requiresGateway: boolean;
   /** Откуда взяты данные — чтобы через полгода было видно, что перепроверять. */
   source: string;
+  /** Дата отключения модели (YYYY-MM-DD, UTC). С этого дня роутер её не предлагает; запись остаётся в реестре. */
+  deprecatedAt?: string;
+}
+
+/** Модель отключена на момент `now`. Дата — первый день, когда вызывать её уже нельзя. */
+export function isDeprecated(model: Pick<ModelEntry, "deprecatedAt">, now = Date.now()): boolean {
+  if (!model.deprecatedAt) return false;
+  const at = Date.parse(`${model.deprecatedAt}T00:00:00Z`);
+  return Number.isFinite(at) && now >= at;
 }
 
 /**
@@ -198,6 +207,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   // как устаревшая; ровно та ошибка, что уже была с llama-3.1-8b-instruct.
   {
     slug: "@cf/moonshotai/kimi-k2.6",
+    deprecatedAt: "2026-11-20", // со слов помощника Cloudflare 2026-11-13; сторонний дайджест называет 2026-11-15; первоисточник не подтвердил
     provider: "Moonshot AI",
     tier: "frontier",
     capabilities: ["text_generation", "tool_calling", "reasoning", "vision"],
@@ -234,6 +244,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   },
   {
     slug: "@cf/zai-org/glm-5.3-flash",
+    deprecatedAt: "2026-11-20", // со слов помощника Cloudflare 2026-11-13; первоисточник не подтвердил
     provider: "Z.ai",
     tier: "balanced",
     capabilities: ["text_generation", "tool_calling", "reasoning", "vision"],

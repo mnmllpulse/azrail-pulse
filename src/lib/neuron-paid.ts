@@ -1,3 +1,4 @@
+import { isDeprecated } from "./model-registry";
 import type { ModelUsage } from "./usage";
 
 /** The seven Workers Paid models. One shared pool: 10,000 neurons/day, then Cloudflare bills. */
@@ -29,6 +30,9 @@ export const NEURON_RATES: Readonly<Record<string, { input: number; output: numb
   [KIMI_CODE]: { input: 86_364, output: 363_636 },
 };
 
+/** Дублирует deprecatedAt записи glm-5.3-flash в реестре; тест следит, чтобы значения совпадали. */
+export const GLM_FLASH_DEPRECATED_AT = "2026-11-20";
+
 export const DEFAULT_DAILY_NEURONS = 6000;
 
 export class NeuronBudgetError extends Error {
@@ -53,11 +57,12 @@ export const NEURON_PAID_BLOCK =
 const CODE_INTENTS = new Set(["generate_code", "review_repo", "generate_ui"]);
 
 /** Какие платные модели можно предлагать роутеру для этой задачи. Мелкие задачи — только бесплатные. */
-export function neuronAllowedFor(intent: string, complexity: "trivial" | "normal" | "heavy"): ReadonlySet<string> {
+export function neuronAllowedFor(intent: string, complexity: "trivial" | "normal" | "heavy", now = Date.now()): ReadonlySet<string> {
   if (complexity === "trivial") return new Set();
   if (CODE_INTENTS.has(intent)) return new Set([KIMI_CODE, GLM_FLASH]);
   if (complexity === "heavy") return new Set([DEEPSEEK_FLASH, GLM_53, GLM_FLASH]);
-  return new Set([GLM_FLASH]);
+  // Когда glm-5.3-flash отключат, обычные вопросы переходят на deepseek-v4-flash.
+  return new Set([isDeprecated({ deprecatedAt: GLM_FLASH_DEPRECATED_AT }, now) ? DEEPSEEK_FLASH : GLM_FLASH]);
 }
 
 /** Суточный потолок платных моделей. Некорректное значение закрывает платные модели. */

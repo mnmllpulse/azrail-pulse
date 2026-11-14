@@ -8,7 +8,7 @@ import { withProjectLock } from "./lib/project-control";
 import { quarantineStaleRunningToolReceipts } from "./lib/checkpoints";
 import { dispatchOutbox } from "./lib/outbox";
 import { reconcileModelCall } from "./lib/billing";
-import { authenticate, authorizeRequest, createAccount, requireResource, activeAccount, administrator, AccessError, type Principal } from "./lib/accounts";
+import { authenticate, authorizeRequest, createAccount, requireResource, activeAccount, anonymous, AccessError, type Principal } from "./lib/accounts";
 import { getAgentByName } from "agents";
 import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
 import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, positiveLimit } from "./lib/quota";
@@ -213,7 +213,8 @@ export default {
 async function handleRequest(request: Request, env: Env, ingressTrace?: TraceContext): Promise<Response> {
     const url = new URL(request.url);
     const trace = ingressTrace ?? requestTrace(request);
-    let principal: Principal = administrator;
+    // Без успешной проверки доступа права минимальные: администратором запрос становится только после authenticate().
+    let principal: Principal = anonymous;
     let caller = "shared";
     let parsedBody: Record<string, unknown> = {};
     // SDK RPC bypasses application validation and budgets. Only /api/stream is public transport.

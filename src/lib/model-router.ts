@@ -23,6 +23,7 @@ import {
   findModel,
   policyFor,
   tiersFor,
+  isDeprecated,
   type Complexity,
   type ModelCapability,
   type ModelEntry,
@@ -90,6 +91,8 @@ export interface RouteRequirements {
   complexity?: Complexity;
   /** Модели, недоступные прямо сейчас (исчерпан лимит) */
   unavailable?: string[];
+  /** Текущее время для проверки отключения моделей; по умолчанию Date.now(). */
+  now?: number;
   /**
    * Доступен ли AI Gateway. Без него сторонние модели вызвать нельзя.
    *
@@ -137,6 +140,10 @@ export function route(
 
   const passed: ModelEntry[] = [];
   for (const model of registry) {
+    if (isDeprecated(model, req.now)) {
+      reasoning.push(`${model.slug} — пропущена: модель отключена ${model.deprecatedAt}.`);
+      continue;
+    }
     if (unavailable.has(model.slug)) {
       reasoning.push(`${model.slug} — пропущена: исчерпан лимит, ждём восстановления.`);
       continue;

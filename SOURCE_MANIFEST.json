@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-13T23:29:53.627Z",
+  "generated_at": "2026-11-14T04:14:39.890Z",
   "excludes_self": true,
-  "file_count": 1206,
+  "file_count": 1207,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3717,8 +3717,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 100105,
-      "sha256": "8a4b2933e9d944227762f874f557fb0c0bcddc8e8c006892ea6be0bf88c1a582"
+      "bytes": 100300,
+      "sha256": "75bb6061a9ea4c959bcd0dc9f21558997af222da83227e7ccaa25bbfb2b2ecd7"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -3727,8 +3727,8 @@
     },
     {
       "path": "src/lib/accounts.ts",
-      "bytes": 8282,
-      "sha256": "d81154305f61131ce62fbf64c831a5a1cd663d258253a9fd717fcc681b2f2f4e"
+      "bytes": 8541,
+      "sha256": "be57fba13ea20a3f160cb62de4d759ca34a3024fbe16ed40b4bb643d298a2d6f"
     },
     {
       "path": "src/lib/agent-registry.ts",
@@ -4007,13 +4007,13 @@
     },
     {
       "path": "src/lib/model-registry.ts",
-      "bytes": 25678,
-      "sha256": "91062d3387e49a6d1fe5abb2120a38cac4deb1c5c62159b26b36bc84630f4e70"
+      "bytes": 26642,
+      "sha256": "6eaa115ecc69ce04ef085203c7d6279913b6ff407f2f8121073b9c9bd627b591"
     },
     {
       "path": "src/lib/model-router.ts",
-      "bytes": 34794,
-      "sha256": "65cc60c0c564ef00c83465bf0e9ac3c0f3a5696fb539e0c33c35a3277219066a"
+      "bytes": 35138,
+      "sha256": "a729991c83ee6c5b7f2258de04d28838a5514bed25d70217568eff54a194a2c6"
     },
     {
       "path": "src/lib/music-intelligence.ts",
@@ -4027,8 +4027,8 @@
     },
     {
       "path": "src/lib/neuron-paid.ts",
-      "bytes": 4244,
-      "sha256": "28a361d7b8ccb103a6370f07ae6da288eab1e1b5a11344b45a63b5a16a66f343"
+      "bytes": 4722,
+      "sha256": "6f4fc4b7a10faf92379cf3e49d36716c07cc4bbac9dc7a64d4e871b42ac32602"
     },
     {
       "path": "src/lib/observability-context.ts",
@@ -4739,6 +4739,11 @@
       "path": "tests/mission-trace.test.ts",
       "bytes": 5968,
       "sha256": "5040abfa32f54e32768d9bd7c6c62dd4969645112c2ada74f39d4e2d6b593d76"
+    },
+    {
+      "path": "tests/model-deprecation.test.ts",
+      "bytes": 2228,
+      "sha256": "5698fbf1745792442166dd0f216a4fcd6aa19dd994032ee8e552703c90f99a94"
     },
     {
       "path": "tests/model-display.test.ts",
