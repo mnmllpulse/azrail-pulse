@@ -30,6 +30,7 @@ import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
+import {studioIntent,ledgerSummary,pulseSummary,dataSummary,audioSummary} from './chat-studios';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
 import {diagramLines,diagramModel,diagramSvg} from './diagram';
@@ -1726,6 +1727,27 @@ async function runChat(){
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
+ const studioKind=studioIntent(message,attachmentManager.files());
+ if(studioKind){
+  try{
+   if(!account)throw Error('Войдите, чтобы открыть этот отчёт.');
+   if(studioKind==='ledger')noteLocal(message,ledgerSummary(await api('/api/studio/ledger?limit=200')));
+   else if(studioKind==='pulse')noteLocal(message,pulseSummary(await api('/api/studio/pulse')));
+   else if(studioKind==='data'){
+    const file=attachmentManager.files().find(item=>/\.(?:csv|tsv)$/i.test(item.name))!;
+    if(file.size>2_000_000)throw Error('Таблица должна быть не больше 2 МБ.');
+    const {parseDataset}=await import('./data');
+    noteLocal(message,dataSummary(file.name,parseDataset(await file.text()).analysis));
+    clearAttachments();
+   }else{
+    const file=attachmentManager.files().find(item=>/\.(?:wav|mp3|flac|ogg|m4a|aac|webm)$/i.test(item.name))!;
+    const {analyzeAudio}=await import('./media');
+    noteLocal(message,audioSummary(file.name,await analyzeAudio(file)));
+    clearAttachments();
+   }
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Не удалось собрать отчёт.');}
+  return;
+ }
  if(wantsZipOfReply(message)){
   const last=[...(chatHistory.current()?.turns??[])].reverse().find(turn=>turn.status==='completed'&&filesFromReply(turn.reply).length>0);
   const bytes=last?zipOfReply(last.reply):null;
