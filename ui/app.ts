@@ -1438,6 +1438,7 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
   if(pictured){showAssignment({...plan,ready:part.ready||plan.ready});chatHistory.report(requestKey,pictured,'completed');syncChatUI();workspace.toLatest();}
   else if(part.ready)paint({...plan,ready:part.ready});
   showContinue(one(part.thing,'done'));
+  clearAttachments();
  }
  catch(e){
   const text=e instanceof Error?e.message:'Не удалось начать поручение.';
@@ -1503,6 +1504,7 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
    mountLiveClip();
   }
   await rememberWork(message,plan,true);
+  clearAttachments();
  }
  catch(e){
   const text=e instanceof Error?e.message:'Не удалось начать план.';
@@ -1770,6 +1772,8 @@ async function runChat(){
  try{
  let planned=followUpPlan(message,heldPlan)??await chosenPlan(message);
  if(planned&&planned.parts.length===1&&planned.parts[0].kind==='build')planned=null;
+ // Сайт по приложенному файлу: конструктор файл не читает, поэтому разбор и код уходят в чат, где файл виден.
+ if(planned&&planned.parts.length===1&&['web','page'].includes(planned.parts[0].kind)&&attachmentManager.files().some(file=>!isImageFile(file)))planned=null;
  if(planned&&planned.parts.length>1){handed=true;await runPlan(planned,message);return;}
  if(planned&&planned.parts.length===1){handed=true;await runAssignment(planned.parts[0],message);return;}
  if(!account)throw Error('Войдите в аккаунт, чтобы писать в Chat.');

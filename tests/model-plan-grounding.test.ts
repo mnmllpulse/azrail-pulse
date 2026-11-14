@@ -24,3 +24,15 @@ describe('модельный план привязан к словам сооб�
     expect(groundWorkPlan('почему небо голубое', modelPlan('image'))).toBeNull();
   });
 });
+
+describe("условные фразы и ответ про связи", () => {
+  it("«Если нужно создать изображение…» — разговор", async () => {
+    const { readAssignment } = await import("../ui/assignment");
+    expect(readAssignment("Если нужно создать изображение, нужно использовать отдельные инструменты или сервисы можно подробней пожалуйста").kind).toBe("talk");
+    expect(readAssignment("нарисуй кота").kind).toBe("image");
+  });
+  it("блок связей упоминается только по вопросу о них", async () => {
+    const { readFileSync } = await import("node:fs");
+    expect(readFileSync("src/agents/answer-agent.ts", "utf8")).toContain("используй только если человек прямо спросил о связях");
+  });
+});
