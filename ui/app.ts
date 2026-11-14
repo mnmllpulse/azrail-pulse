@@ -29,6 +29,7 @@ import {readPendingImage,requestImage,type ImageRequestBody} from './image-reque
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
 import {diagramLines,diagramModel,diagramSvg} from './diagram';
@@ -1723,6 +1724,15 @@ async function runChat(){
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
+ if(wantsZipOfReply(message)){
+  const last=[...(chatHistory.current()?.turns??[])].reverse().find(turn=>turn.status==='completed'&&filesFromReply(turn.reply).length>0);
+  const bytes=last?zipOfReply(last.reply):null;
+  if(last&&bytes){
+   saveBytes('azrail-files.zip',bytes);
+   noteLocal(message,`Собрал azrail-files.zip: ${filesFromReply(last.reply).map(file=>file.path).join(', ')}.`);
+   return;
+  }
+ }
  if(/^верни\s+файл[.!?]?$/iu.test(message)){
   const field=document.querySelector<HTMLTextAreaElement>('#home-code');
   const back=restoreFileShot(activePath(),field?.value??'');
