@@ -92,22 +92,26 @@ export async function eligibleRegistry(env: Env): Promise<ModelEntry[]> {
 async function neuronMeteredCall(env: Env, model: ModelEntry, input: Record<string,unknown>, scope: string, trace?:TraceContext, dimensions:ModelCallDimensions={}): Promise<unknown> {
   const budgetScope = `neurons:${new Date().toISOString().slice(0,10)}`;
   const cap = dailyNeuronCap(env.AZRAIL_DAILY_NEURONS);
+  const id = crypto.randomUUID();
+  let upper = 0;
+  // Резерв берётся до отправки: отказ по лимиту фиксируется как cancelled («не отправлено»), а не как uncertain.
+  const beforeInvoke = async () => {
+    await ensureBudget(env, budgetScope, "neuron", cap);
+    // Снижение потолка действует сегодня же; недооценка раньше закрыла день навсегда.
+    await env.AZRAIL_D1.prepare(`UPDATE resource_budgets SET limit_units=CASE
+      WHEN EXISTS(SELECT 1 FROM resource_ledger WHERE scope=? AND unit='neuron' AND actual_units>reserved_units)
+      THEN 0 ELSE ? END WHERE scope=? AND unit='neuron'`).bind(budgetScope, cap, budgetScope).run();
+    const maxTokens = Number(input.max_tokens) > 0 ? Number(input.max_tokens) : 4096;
+    upper = neuronUpperBound(model.slug, new TextEncoder().encode(JSON.stringify(input)).byteLength, maxTokens);
+    try {
+      await reserve(env, {id, scope: budgetScope, unit: "neuron", resource: model.slug, upperBound: upper, fingerprint: id});
+    } catch (error) {
+      if (error instanceof BudgetError) throw new NeuronBudgetError();
+      throw error;
+    }
+  };
   return meteredCall({...env, AZRAIL_METERING: env.AZRAIL_METERING ? "observe" : undefined},
     model.slug, input, scope, async () => {
-      await ensureBudget(env, budgetScope, "neuron", cap);
-      // Снижение потолка действует сегодня же; недооценка раньше закрыла день навсегда.
-      await env.AZRAIL_D1.prepare(`UPDATE resource_budgets SET limit_units=CASE
-        WHEN EXISTS(SELECT 1 FROM resource_ledger WHERE scope=? AND unit='neuron' AND actual_units>reserved_units)
-        THEN 0 ELSE ? END WHERE scope=? AND unit='neuron'`).bind(budgetScope, cap, budgetScope).run();
-      const maxTokens = Number(input.max_tokens) > 0 ? Number(input.max_tokens) : 4096;
-      const upper = neuronUpperBound(model.slug, new TextEncoder().encode(JSON.stringify(input)).byteLength, maxTokens);
-      const id = crypto.randomUUID();
-      try {
-        await reserve(env, {id, scope: budgetScope, unit: "neuron", resource: model.slug, upperBound: upper, fingerprint: id});
-      } catch (error) {
-        if (error instanceof BudgetError) throw new NeuronBudgetError();
-        throw error;
-      }
       let output: unknown;
       try {
         output = await env.AI.run(model.slug, input);
@@ -119,7 +123,7 @@ async function neuronMeteredCall(env: Env, model: ModelEntry, input: Record<stri
       await settle(env, id, usage ? neuronsFor(model.slug, usage) : upper,
         usage ? "Usage from response" : "No usage in response; upper bound charged").catch(() => {});
       return output;
-    }, scope, {invokeTimeoutMs:55_000, trace, provider:model.provider, ...dimensions});
+    }, scope, {invokeTimeoutMs:55_000, trace, provider:model.provider, beforeInvoke, ...dimensions});
 }
 
 /** The only text-model provider boundary. Rechecked for EVERY attempt. */

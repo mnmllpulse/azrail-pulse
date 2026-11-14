@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-14T05:08:03.847Z",
+  "generated_at": "2026-11-14T05:33:44.422Z",
   "excludes_self": true,
-  "file_count": 1211,
+  "file_count": 1212,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3892,8 +3892,8 @@
     },
     {
       "path": "src/lib/image-intelligence.ts",
-      "bytes": 4358,
-      "sha256": "c5d0823ce90c42c55bbc2d4fffe42dec8a028fe433d8db565493deccafbd2634"
+      "bytes": 4351,
+      "sha256": "9f129133128478b8fea66c748a1ca508c102d73a628a050191d8ebd1019299c4"
     },
     {
       "path": "src/lib/image-pipeline.ts",
@@ -3972,8 +3972,8 @@
     },
     {
       "path": "src/lib/mission-graph.ts",
-      "bytes": 3080,
-      "sha256": "2b086e1aa506586f55389afe7caf30aad12f0e2a187f773c20e81333cf544130"
+      "bytes": 2827,
+      "sha256": "3621b466213615d966770340de30af015fc563c3d7a986434815955409a583b2"
     },
     {
       "path": "src/lib/mission-limits.ts",
@@ -4007,8 +4007,8 @@
     },
     {
       "path": "src/lib/model-policy.ts",
-      "bytes": 10202,
-      "sha256": "a4faa4882d476b7a365e134948c6e4a6dfe6483efaae2f76a2c7340d42a3daf1"
+      "bytes": 10423,
+      "sha256": "da4e49a59c6e5b08c6814f6ab22a11b7b09607727c37318d1ca4dc2af15b5dd6"
     },
     {
       "path": "src/lib/model-registry.ts",
@@ -4092,8 +4092,8 @@
     },
     {
       "path": "src/lib/prose-compose.ts",
-      "bytes": 6875,
-      "sha256": "69d9996cd180e40f220cd3722574dd3273616e9e1dc3a707487ac7d12d6abdf5"
+      "bytes": 6868,
+      "sha256": "d9297cb11d16f2e3ac49823645f904e0dc5475b5e4bba703a1d76dc2d19b9c52"
     },
     {
       "path": "src/lib/prose-studio.ts",
@@ -4112,8 +4112,8 @@
     },
     {
       "path": "src/lib/quota.ts",
-      "bytes": 5304,
-      "sha256": "d7ead0d6aef840246f9f064bcae371fb7a1b97d939718e138577f6adb82e40da"
+      "bytes": 5646,
+      "sha256": "b6d643514623cdbf465208c6595546d903427aca0e28380dce85af9752e1d6a6"
     },
     {
       "path": "src/lib/r2-consistency.ts",
@@ -4222,8 +4222,8 @@
     },
     {
       "path": "src/lib/web-sites.ts",
-      "bytes": 17941,
-      "sha256": "35af11df47e577598c455ba0734b00c113c4fa3ca01e462d7369985b167c4b6f"
+      "bytes": 17934,
+      "sha256": "480d0d23eec8071a6a8a6c87c714f507ba976fe16fad3941a61f7065e669b5fc"
     },
     {
       "path": "src/lib/web-workbench.ts",
@@ -4541,6 +4541,11 @@
       "sha256": "6e74404bb2f8adffd8790984575cdece0b093824280bdc7e6988c8b0ac4757fc"
     },
     {
+      "path": "tests/chat-markdown-headings.test.ts",
+      "bytes": 1327,
+      "sha256": "a4c84c164dad32b508ae580011cab0cdf3630d9a3f9e743a37b0f24f0e1dbf42"
+    },
+    {
       "path": "tests/chat-no-fabrication.test.ts",
       "bytes": 1919,
       "sha256": "172ca89173a9254b86cd0b7ff932449adcb39da8a5344f7c17bd73d3bfe0061c"
@@ -4812,8 +4817,8 @@
     },
     {
       "path": "tests/neuron-meter.test.ts",
-      "bytes": 6978,
-      "sha256": "4217ce372ceba897e19d3b5ff24f594b4d7fc205c200c080d54391ea511f831a"
+      "bytes": 7738,
+      "sha256": "c08330f6f779e2289e2ef387990c46d1baca8169014bc42a8884da3e37f21610"
     },
     {
       "path": "tests/office-file.test.ts",
@@ -5207,8 +5212,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 171493,
-      "sha256": "c0281e3a799352754331e967408336f61cd51eae86630068f991157a69ed1fd7"
+      "bytes": 171850,
+      "sha256": "857ea48a5790014a37e7759d7a208fd582a11e7c25c55d59c693e9abcf1a27a4"
     },
     {
       "path": "ui/assignment.ts",
@@ -5242,8 +5247,8 @@
     },
     {
       "path": "ui/chat-markdown.ts",
-      "bytes": 8375,
-      "sha256": "44559925fc41f187d362db0eecddf016a6d8d4ceaa018fe05c7524635a68f133"
+      "bytes": 8908,
+      "sha256": "023a6298e45f2445bb67ac85bccdde9e1c6708ae4159d9a70a2633b1c0a7b3da"
     },
     {
       "path": "ui/chat-site.ts",
@@ -5382,8 +5387,8 @@
     },
     {
       "path": "ui/media.ts",
-      "bytes": 45959,
-      "sha256": "a82d97998d2b8104b0da141a3c28144af5762835dab187d1c1e588e2f41dbf26"
+      "bytes": 45683,
+      "sha256": "8e6e2d313505e29a04c559262f0e9bbec32c2416fe7974961c3f7555e8549d9d"
     },
     {
       "path": "ui/metatron-lab.ts",
@@ -5397,8 +5402,8 @@
     },
     {
       "path": "ui/model-display.ts",
-      "bytes": 7844,
-      "sha256": "c34f936be766475031346e760104b2f7edca604004572138f34ec63bf9368642"
+      "bytes": 7823,
+      "sha256": "1023e347633939bb7f85365b5b811328820e43c5d93de35a7f4eb667e54ec058"
     },
     {
       "path": "ui/music-brief.ts",
@@ -5512,8 +5517,8 @@
     },
     {
       "path": "ui/studio-modules/music.ts",
-      "bytes": 44918,
-      "sha256": "46e26126679ac35b1f1cb4e6ac4ac8443256eb66197e88ba2f3c88bafdbba77a"
+      "bytes": 44904,
+      "sha256": "b3a920bebd9163a6538cf14062d0b04c0c3bf1d2ac5915301ce1ffd0857d3091"
     },
     {
       "path": "ui/studio-modules/prose.ts",
@@ -5577,8 +5582,8 @@
     },
     {
       "path": "ui/web-site.ts",
-      "bytes": 36830,
-      "sha256": "df57d716752c9065e119ec1b71d4f9dcefa9bd7b803be3b2a34703ee1a033c7c"
+      "bytes": 35371,
+      "sha256": "a008454c0a5c4bf854e51802c06060687674723e7dd1e45d7838958f15dd22f7"
     },
     {
       "path": "ui/web-workbench.ts",
@@ -5587,8 +5592,8 @@
     },
     {
       "path": "ui/workspace.css",
-      "bytes": 30660,
-      "sha256": "0a007df84aa688c5e59dab987c592823c05cc7040844f138ada53edd2c186cc4"
+      "bytes": 30898,
+      "sha256": "175bb686ff57a20a2d789e730139fea45a95a170c966ca9ae93d8e64d2e5fc11"
     },
     {
       "path": "ui/zip-site.ts",

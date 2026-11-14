@@ -24,7 +24,7 @@ export async function generateSitePlan(env:Env,body:Record<string,unknown>,onDis
  return normalizePlan(extractText(output));
 }
 
-export function normalizePlan(text:string){
+function normalizePlan(text:string){
  let parsed:unknown;
  const fenced=text.replace(/```(?:json)?/gi,'').trim();
  try{parsed=JSON.parse(fenced.match(/\{[\s\S]*\}/)?.[0]??fenced);}catch{throw new AccessError('Модель не вернула структуру сайта.',502);}

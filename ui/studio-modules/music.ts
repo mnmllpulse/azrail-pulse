@@ -243,14 +243,14 @@ export function fillAlsResult(result:AlsCardResult,root:ParentNode=document){
  const view=card.ownerDocument.defaultView;
  if(view)view.document.dispatchEvent(new view.CustomEvent('pulse-als-parsed'));
 }
-export function showAlsError(root:ParentNode=document){
+function showAlsError(root:ParentNode=document){
  alsCardState=null;
  resetAlsCard(root,false);
  const status=alsById(root,'als-status');if(status)status.textContent='Ошибка анализа';
  const bpm=alsById(root,'als-bpm');if(bpm)bpm.textContent='Ошибка';
  const roles=alsById(root,'als-roles');if(roles){const div=roles.ownerDocument.createElement('div');div.textContent='Не удалось разобрать файл';roles.appendChild(div);}
 }
-export function hideAlsResult(root:ParentNode=document){const card=alsById(root,'als-result');if(card)card.hidden=true;}
+function hideAlsResult(root:ParentNode=document){const card=alsById(root,'als-result');if(card)card.hidden=true;}
 function missingNames(left:string[],right:string[]){const have=new Set(right);return left.filter(name=>!have.has(name));}
 function showAlsCompare(root:ParentNode,first:AlsCardResult,second:AlsCardResult){
  const box=alsById(root,'compare-box');if(!box)return;

@@ -74,6 +74,16 @@ describe("счётчик нейронов", () => {
     expect(used()?.c).toBe(0);
   });
 
+  it("отказ по лимиту нейронов пишется как cancelled, а не uncertain", async () => {
+    const { env, sqlite } = fixture({ AZRAIL_DAILY_NEURONS: "10", AZRAIL_METERING: "observe" } as Partial<Env>);
+    const big = "я".repeat(50_000);
+    const result = await runModel(env, "answer", { messages: [{ role: "user", content: big }] }, { complexity: "heavy" });
+    expect(FREE_MODEL_SLUGS.has(result.model)).toBe(true);
+    const rows = sqlite.prepare("SELECT status, COUNT(*) AS n FROM model_calls GROUP BY status").all() as Array<{ status: string; n: number }>;
+    expect(rows.find((row) => row.status === "uncertain")).toBeUndefined();
+    expect(rows.find((row) => row.status === "cancelled")?.n).toBeGreaterThan(0);
+  });
+
   it("недооценка закрывает платные модели на остаток дня", async () => {
     const { env, used } = fixture({}, { prompt_tokens: 10, completion_tokens: 50_000_000 });
     await runModel(env, "answer", { messages: [] }, { complexity: "normal" });

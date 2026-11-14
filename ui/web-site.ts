@@ -151,13 +151,6 @@ export function applyPlan(flow:SiteFlow,plan:SitePlan):SiteFlow{
  return {...base,template,palette,font,trade:clean(plan.trade??base.trade,40)||base.trade,pages:pages.length?pages:base.pages,edits};
 }
 export type ReferenceRead={title:string;headings:string[];nav:string[];tone:'dark'|'light';template:SiteTemplate};
-export function applyReference(flow:SiteFlow,report:ReferenceRead):SiteFlow{
- const nav=report.nav.map(item=>clean(item,32)).filter(item=>item.length>1).slice(0,6);
- const taken:string[]=[];
- const pages=nav.length>=2?nav.map(title=>{const id=taken.length?slugPage(title,new Set(taken)):'home';taken.push(id);return sitePage(id,title,id==='home'?'index.html':`${id}.html`,id===taken[taken.length-1]&&taken.length===nav.length?['hero','contact']:['hero','benefits','cta']);}):flow.pages;
- const template=TEMPLATE_SET.has(report.template)?report.template:flow.template;
- return {...flow,template,pages,name:flow.name.trim()||clean(report.title,80),styleNote:`По ссылке тон ${report.tone==='dark'?'тёмный':'светлый'}. Разделов: ${nav.length||report.headings.length}. Тексты ссылки в сайт не копируются.`,paletteTouched:false,edits:{}};
-}
 export function nextTemplate(flow:SiteFlow):SiteFlow{
  const order:SiteTemplate[]=['dark','clean','bold','corporate','creative'];
  const index=order.indexOf(flow.template);
@@ -165,16 +158,6 @@ export function nextTemplate(flow:SiteFlow):SiteFlow{
  const palette:SitePalette=template==='bold'?'bolt':template==='corporate'||template==='clean'?'sand':template==='dark'?'ink':'wine';
  const font:SiteFont=template==='corporate'||template==='clean'||template==='bold'?'grotesk':'serif';
  return {...flow,template,palette:flow.paletteTouched?flow.palette:palette,font};
-}
-
-export function variantSites(flow:SiteFlow):SiteFlow[]{
- const templates=(['dark','clean','bold','corporate','creative'] as SiteTemplate[]).filter(template=>template!==flow.template).slice(0,3);
- return templates.map(template=>{
-  const next=proposeSite(flow);
-  const palette:SitePalette=template==='bold'?'bolt':template==='corporate'||template==='clean'?'sand':template==='dark'?'ink':'wine';
-  const font:SiteFont=template==='corporate'||template==='clean'||template==='bold'?'grotesk':'serif';
-  return {...next,template,palette,font};
- });
 }
 
 function clean(value:string,max:number){
@@ -191,7 +174,7 @@ function onPages(flow:SiteFlow){return flow.pages.filter(page=>page.on);}
 function ctaLabel(goal:SiteGoal){return goal==='sales'?'Смотреть услугу':goal==='portfolio'||goal==='image'?'Смотреть работы':goal==='launch'?'Смотреть запуск':'Оставить заявку';}
 function contactFile(flow:SiteFlow){return onPages(flow).find(page=>page.blocks.includes('contact'))?.file??onPages(flow)[0]?.file??'index.html';}
 
-export function composedCopy(flow:SiteFlow){
+function composedCopy(flow:SiteFlow){
  const name=clean(flow.name,80)||'Проект';
  const business=clean(flow.business,280)||'Коротко о деле, без лишних слов.';
  const audience=clean(flow.audience,120);
@@ -255,7 +238,7 @@ export function siteText(flow:SiteFlow,key:string){
 
 function paletteFor(flow:SiteFlow){return PALETTES[flow.palette]??PALETTES.ink;}
 
-export function siteCss(flow:SiteFlow){
+function siteCss(flow:SiteFlow){
  const color=paletteFor(flow);
  const display=flow.font==='serif'?'Palatino,"Palatino Linotype",Georgia,serif':'"Segoe UI",system-ui,sans-serif';
  const body=flow.font==='serif'?'"Segoe UI",system-ui,sans-serif':display;

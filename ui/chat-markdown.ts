@@ -177,11 +177,25 @@ export function fillMarkdownContent(host: HTMLElement, raw: string): void {
     const block = doc.createElement('div');
     block.className = 'md-text';
     const paragraphs = text.split(/\n{2,}/);
-    for (const part of paragraphs) {
-      if (!part.trim()) continue;
+    const paragraph = (lines: string[]) => {
+      if (!lines.join('').trim()) return;
       const p = doc.createElement('p');
-      p.innerHTML = formatInline(escapeHtml(part)).replace(/\n/g, '<br>');
+      p.innerHTML = formatInline(escapeHtml(lines.join('\n'))).replace(/\n/g, '<br>');
       block.append(p);
+    };
+    for (const part of paragraphs) {
+      let run: string[] = [];
+      for (const line of part.split('\n')) {
+        const heading = /^(#{1,4})\s+(.+?)\s*#*$/.exec(line);
+        if (!heading) { run.push(line); continue; }
+        paragraph(run);
+        run = [];
+        const h = doc.createElement(`h${Math.min(heading[1].length + 2, 6)}`);
+        h.className = 'md-heading';
+        h.innerHTML = formatInline(escapeHtml(heading[2]));
+        block.append(h);
+      }
+      paragraph(run);
     }
     if (block.childElementCount) parent.append(block);
   }
