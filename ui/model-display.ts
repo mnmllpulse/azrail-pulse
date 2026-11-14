@@ -30,7 +30,7 @@ const PROVIDER_ALIASES: Record<string, string> = {
   clef: 'Cloudflare',
 };
 
-export const PROVIDER_ICON_PATHS: Record<string, string> = {
+const PROVIDER_ICON_PATHS: Record<string, string> = {
   'Moonshot AI': '/icons/kimi.svg',
   'Z.ai': '/icons/zai.svg',
   DeepSeek: '/icons/deepseek.svg',
@@ -156,7 +156,7 @@ export function isChatCapableModel(m: {
 }
 
 /** Cloudflare dashboard order: flagship families first, then A–Z. */
-export const PROVIDER_SORT_ORDER = [
+const PROVIDER_SORT_ORDER = [
   'OpenAI',
   'Anthropic',
   'Google',
@@ -191,7 +191,7 @@ export function modelRecencyScore(slug: string): number {
   return score;
 }
 
-export function providerSortKey(provider: string): number {
+function providerSortKey(provider: string): number {
   const idx = PROVIDER_SORT_ORDER.indexOf(provider);
   return idx === -1 ? 500 + provider.charCodeAt(0) : idx;
 }

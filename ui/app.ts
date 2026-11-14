@@ -96,7 +96,7 @@ function applyExpert(on:boolean){
 }
 applyExpert(false);
 function setPreferredModel(model:string){preferredModel=model;try{if(model)sessionStorage.setItem('pulse.preferredModel',model);else sessionStorage.removeItem('pulse.preferredModel');}catch{}const select=$<HTMLSelectElement>('composer-model');if(model&&!Array.from(select.options).some(o=>o.value===model)){const option=document.createElement('option');option.value=model;option.textContent=modelDisplayName(model);option.title=model;select.append(option);}select.value=model;if(typeof syncModelsButton==='function')syncModelsButton();syncContextPanel();}
-function setChatVoice(voice:ChatVoice){chatVoice=voice;try{sessionStorage.setItem('pulse.voice',voice);}catch{}syncChatUI();notice(`Голос: ${VOICES[voice].name}. Серый говорит ниже, Люмен выше, Ария мягче.`);}
+function setChatVoice(voice:ChatVoice){chatVoice=voice;session(()=>sessionStorage.setItem('pulse.voice',voice));syncChatUI();notice(`Голос: ${VOICES[voice].name}. Серый говорит ниже, Люмен выше, Ария мягче.`);}
 
 let chatStorage:Storage|undefined;
 try{chatStorage={getItem:key=>deviceValue(key),setItem:(key,value)=>{deviceWrite(key,value);},removeItem:key=>deviceWrite(key,null),key:()=>null,length:0,clear(){}} as Storage;}catch{}
@@ -526,6 +526,8 @@ prompt.addEventListener('input',()=>{saveComposerDraft();syncChatUI(false);});
 let noticeTimer=0;
 function notice(message:string,persist=false){clearTimeout(noticeTimer);$('notice-text').textContent=message;$('notice').hidden=false;if(!persist)noticeTimer=window.setTimeout(()=>{$('notice').hidden=true;},6500);}
 $('notice-close').onclick=()=>{clearTimeout(noticeTimer);$('notice').hidden=true;};
+/** sessionStorage бросает в приватном окне и при заблокированных данных сайта: тогда работаем без него. */
+function session(write:()=>void){try{write();}catch{/* хранилище недоступно */}}
 function failure(e:unknown){notice(e instanceof Error?e.message:String(e),true);}
 class APIError extends Error {
  constructor(message:string,readonly status:number,readonly code?:string,readonly body?:any){super(message);}
@@ -536,8 +538,8 @@ async function api(path:string,options:RequestInit={}) {
  if(authToken&&!headers.has('Authorization'))headers.set('Authorization','Bearer '+authToken);
  const r=await fetch(path,{...options,credentials:'same-origin',headers,signal:options.signal??AbortSignal.timeout(90000)});
  if(r.status===204)return null;
- if(r.status===401&&authToken){authToken='';try{sessionStorage.removeItem('pulse.token');}catch{}account=null;}
- const text=await r.text();let body:any;try{body=JSON.parse(text);}catch{}
+ if(r.status===401&&authToken){authToken='';session(()=>sessionStorage.removeItem('pulse.token'));account=null;}
+ const text=await r.text();let body:any;try{body=JSON.parse(text);}catch{/* не JSON: тело разбирается как текст ниже */}
  if(!r.ok)throw new APIError(typeof body?.error==='string'?body.error:`Сервис вернул ошибку ${r.status}. Повторите позже.`,r.status,body?.code,body);
  if(body===undefined)throw Error('Сервис вернул неполный ответ. Статус операции требует проверки.');return body;
 }
@@ -793,9 +795,9 @@ const openTokenLogin=()=>{
  bind('login-save',async()=>{
    const value=$<HTMLInputElement>('login-token').value.trim();
    if(!value)throw Error('Введите токен.');
-   authToken=value;try{sessionStorage.setItem('pulse.token',authToken);}catch{}
+   authToken=value;session(()=>sessionStorage.setItem('pulse.token',authToken));
    try{const me=await api('/api/me');account=me.account;}
-   catch(e){authToken='';try{sessionStorage.removeItem('pulse.token');}catch{};throw e;}
+   catch(e){authToken='';session(()=>sessionStorage.removeItem('pulse.token'));throw e;}
    $<HTMLDialogElement>('dialog').close();$('account').textContent=account!.name;syncChatAccount();void refreshComposerModels();await refreshMode();
    await syncServerChats();
    if(mission&&expertOn()){navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}
@@ -819,7 +821,7 @@ bind('account',async()=>{
  $('account-name').textContent=account.name;$('account-id').textContent=account.id;
  bind('logout',async()=>{
   const wasToken=!!authToken;
-  if(wasToken){authToken='';try{sessionStorage.removeItem('pulse.token');}catch{}}
+  if(wasToken){authToken='';session(()=>sessionStorage.removeItem('pulse.token'))}
   else await api('/auth/logout',{method:'POST'});
   chatHistory.clearScope();
   for(const key of ['pulse.pending','pulse.project','pulse.mission','pulse.image.pending','pulse.identity'])deviceWrite(key,null);
@@ -829,7 +831,7 @@ bind('account',async()=>{
 async function refreshAccount(){
  if(local){syncChatAccount();$('local-notice').textContent='Локальный просмотр · WAV/MIDI, аудиоанализ и CSV доступны на устройстве. Для AI и проектов нужен вход в развёрнутое приложение.';$('local-notice').hidden=false;return;}
  const a=await api('/auth/status');account=a.account;oidcConfigured=!!a.configured;if(typeof a.key==='boolean')keyLogin=a.key;
- if(!account&&authToken){try{const me=await api('/api/me');account=me.account;}catch{authToken='';try{sessionStorage.removeItem('pulse.token');}catch{}}}
+ if(!account&&authToken){try{const me=await api('/api/me');account=me.account;}catch{authToken='';session(()=>sessionStorage.removeItem('pulse.token'))}}
  syncChatAccount();void refreshComposerModels();
  if(account){$('account').textContent=account.name;await refreshMode();ensureEventStream();if(mission&&expertOn()){if(composerPage==='create')navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}}
  else if(!oidcConfigured)notice('OIDC не настроен. Войдите по токену через кнопку «Аккаунт» — регистрация внешнего приложения не нужна.');

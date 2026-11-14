@@ -13,7 +13,7 @@ export type ImageAdvancedControls={
  requestedModel:string|null;
 };
 
-export const IMAGE_PROVIDER_MODELS=['@cf/black-forest-labs/flux-2-klein-4b','@cf/black-forest-labs/flux-2-klein-9b'] as const;
+const IMAGE_PROVIDER_MODELS=['@cf/black-forest-labs/flux-2-klein-4b','@cf/black-forest-labs/flux-2-klein-9b'] as const;
 const UUID=/^[a-f0-9-]{36}$/i;
 const PROVIDER_NATIVE=new Set<ImageAdvancedOperation>(['generate','variation','edit','upscale']);
 const MASK_REQUIRED=new Set<ImageAdvancedOperation>(['inpaint','remove','replace']);

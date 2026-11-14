@@ -103,5 +103,7 @@ export async function cleanupSecurityState(env: Env): Promise<void> {
     env.AZRAIL_D1.prepare("DELETE FROM web_sessions WHERE expires_at <= ?").bind(now),
     env.AZRAIL_D1.prepare("DELETE FROM oidc_states WHERE expires_at <= ?").bind(now),
     env.AZRAIL_D1.prepare("DELETE FROM connector_oauth_states WHERE expires_at <= ?").bind(now),
+    // Вызов без результата дольше таймаута провайдера: резерв остаётся, статус честный.
+    env.AZRAIL_D1.prepare("UPDATE model_calls SET status='uncertain',finished_at=?,error='no result recorded' WHERE status='running' AND started_at < ?").bind(now, now - 15 * 60_000),
   ]);
 }

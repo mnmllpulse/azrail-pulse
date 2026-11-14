@@ -27,7 +27,7 @@ function beatsPerBar(signature:MusicTimeSignature){return signature==='4/4'?4:3;
 function genreBpm(genre:MusicGenre,seed:number){const ranges:Record<MusicGenre,[number,number]>={
  'dark-minimal':[122,130],'melodic-techno':[120,128],ambient:[72,104],industrial:[126,138],cinematic:[84,118],
 };const [a,b]=ranges[genre];return a+(seed%(b-a+1));}
-export const MAX_MUSIC_BARS=640;
+const MAX_MUSIC_BARS=640;
 export function storyBlocks(introBars?:number):StoryBlock[]{const intro=introBars==null?8:Math.max(4,Math.min(12,Math.trunc(introBars)));const delta=8-intro;return [{id:'intro',label:'Вступление',bars:intro,level:.46},{id:'rise',label:'Развитие',bars:8+delta,level:.64},{id:'drop-1',label:'Первый дроп',bars:16,level:.9},{id:'break',label:'Брейк',bars:8,level:.38},{id:'drop-2',label:'Основной дроп',bars:16,level:1},{id:'outro',label:'Завершение',bars:8,level:.52}];}
 export function tenMinuteBars(bpm:number,signature:MusicTimeSignature='4/4'){const tempo=Math.trunc(bpm);if(!Number.isInteger(tempo)||tempo<60||tempo>180)throw Error('BPM 60–180 или Auto.');return Math.max(6,Math.min(MAX_MUSIC_BARS,Math.round(600*tempo/(60*beatsPerBar(signature)))));}
 export function tenMinuteStory(bpm:number,signature:MusicTimeSignature='4/4'):StoryBlock[]{const total=tenMinuteBars(bpm,signature),weights=[1,1,2,1,2,1],raw=weights.map(weight=>total*weight/8),bars=raw.map(value=>Math.floor(value));let left=total-bars.reduce((sum,value)=>sum+value,0);const order=raw.map((value,index)=>({index,frac:value-Math.floor(value)})).sort((a,b)=>b.frac-a.frac||a.index-b.index);for(let step=0;step<left;step++)bars[order[step%order.length]!.index]++;const spec=[{id:'intro',label:'Вступление',level:.46},{id:'rise',label:'Развитие',level:.64},{id:'drop-1',label:'Первый дроп',level:.9},{id:'break',label:'Брейк',level:.38},{id:'drop-2',label:'Основной дроп',level:1},{id:'outro',label:'Завершение',level:.52}];return spec.map((section,index)=>({...section,bars:bars[index]!}));}
@@ -52,7 +52,7 @@ export function storySections(bars:number,introBars?:number){
  let cursor=0;
  return plan.map((section,index)=>{const length=index===plan.length-1?Math.max(0,count-cursor):Math.max(1,Math.round(section.bars/total*count));const from=cursor;cursor=Math.min(count,cursor+length);return {label:section.label,from,to:cursor,level:section.level};});
 }
-export function storyLevel(bar:number,bars:number,introBars?:number){const sections=storySections(bars,introBars);return sections.find(section=>bar>=section.from&&bar<section.to)?.level??sections[sections.length-1]?.level??.5;}
+function storyLevel(bar:number,bars:number,introBars?:number){const sections=storySections(bars,introBars);return sections.find(section=>bar>=section.from&&bar<section.to)?.level??sections[sections.length-1]?.level??.5;}
 function arrangementLevel(kind:MusicArrangement,bar:number,bars:number,introBars?:number,story?:StoryBlock[]){
  if(kind==='loop')return 1;
  if(kind==='section-story'&&story?.length)return storyBlockLevel(story,bar);
@@ -297,7 +297,6 @@ export async function renderMusicSession(input:MusicInput,notes?:MusicNote[],ste
  let prints:PrintedStem[]|undefined;if(printing){try{prints=await printedStems(renderedBuffer,heard,options?.raw===true);}catch{prints=undefined;}}
  return {wav:wave(heard),midi:midi(session),seconds:duration,waveform:waveformPeaks(heard),session,rms:bufferRms(heard),master:reading,buffer:heard,sections:undefined as RenderedSection[]|undefined,prints};
 }
-export async function renderMusic(prompt:string,bpm:number,bars:number){return renderMusicSession({prompt,bpm,keyRoot:'F',scale:'minor',bars,timeSignature:'4/4',genre:'dark-minimal',mood:'hypnotic',pattern:'pulse',arrangement:'loop',synthPreset:'dark-pulse'});}
 export function wave(buffer:AudioBuffer){return wavFromChannels(Array.from({length:buffer.numberOfChannels},(_,channel)=>buffer.getChannelData(channel)),buffer.sampleRate);}
 function variableLength(n:number){const bytes=[n&127];while(n>>=7)bytes.unshift((n&127)|128);return bytes;}
 function midi(session:ResolvedMusicSession){const events:Array<{t:number;order:number;bytes:number[]}>=[],ticks=480;const channels:Record<MusicNote['part'],number>={lead:0,bass:1,pad:2,arp:3};for(const n of session.notes){const channel=channels[n.part],velocity=Math.round(clamp(n.velocity,0,1)*110);events.push({t:Math.round(n.start*ticks),order:1,bytes:[0x90|channel,n.pitch,velocity]},{t:Math.round((n.start+n.length)*ticks),order:0,bytes:[0x80|channel,n.pitch,0]});}events.sort((a,b)=>a.t-b.t||a.order-b.order);const tempo=Math.round(60000000/session.bpm),[num,denText]=session.timeSignature.split('/').map(Number),denPow=Math.round(Math.log2(denText));const data=[0,255,3,11,...[...'AZRAIL MUSIC'].map(c=>c.charCodeAt(0)),0,255,81,3,(tempo>>16)&255,(tempo>>8)&255,tempo&255,0,255,88,4,num,denPow,24,8];let last=0;for(const e of events){data.push(...variableLength(e.t-last),...e.bytes);last=e.t;}data.push(0,255,47,0);const n=data.length;return new Blob([new Uint8Array([77,84,104,100,0,0,0,6,0,0,0,1,1,224,77,84,114,107,(n>>>24)&255,(n>>>16)&255,(n>>>8)&255,n&255,...data])],{type:'audio/midi'});}
