@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-14T09:35:57.818Z",
+  "generated_at": "2026-11-14T09:58:17.880Z",
   "excludes_self": true,
   "file_count": 1214,
   "files": [
@@ -117,8 +117,8 @@
     },
     {
       "path": "config/environments.json",
-      "bytes": 4884,
-      "sha256": "9bf1e87c00e71460ab96acc7f344ee5cecdd513874c6d5660b505d74cdf3fef9"
+      "bytes": 4972,
+      "sha256": "84abea3041d55b568fc792711af704aa5b2c5a1ba269e669b41f17778e0771f8"
     },
     {
       "path": "docs/DOCS_RULES.md",
@@ -6067,8 +6067,8 @@
     },
     {
       "path": "wrangler.production.json",
-      "bytes": 1719,
-      "sha256": "fff5a21659606182476a4212aeda8166e812012dae043d00086b1830face4977"
+      "bytes": 1799,
+      "sha256": "46506d891798fe84af9270a638b2279196125d284b9969fb888f67a9232d8338"
     },
     {
       "path": "wrangler.staging.json",
