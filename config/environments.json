@@ -132,9 +132,11 @@
         "AZRAIL_WORKERS_PLAN": "paid",
         "AZRAIL_METERING": "enforce",
         "UNIFIED_LEDGER": "true",
-        "DAILY_PROVIDER_CALLS": "200",
+        "DAILY_PROVIDER_CALLS": "500",
+        "CHAT_DAILY_LIMIT": "200",
         "AZRAIL_MISSION_BUDGET_USD": "1",
         "AI_GATEWAY_ID": "default",
+        "OIDC_ADMIN_EMAILS": "mnmllpulse@gmail.com",
         "OIDC_ADMIN_GROUPS": "pulse-admins",
         "OIDC_GROUPS_CLAIM": "groups"
       },
