@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-14T04:50:16.464Z",
+  "generated_at": "2026-11-14T05:08:03.847Z",
   "excludes_self": true,
-  "file_count": 1209,
+  "file_count": 1211,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -4556,6 +4556,11 @@
       "sha256": "4f6476f419aec502947d96b5a1ef407c1c108cca7fff33f630d9d013bf266aeb"
     },
     {
+      "path": "tests/chat-zip.test.ts",
+      "bytes": 1425,
+      "sha256": "9f5d51e56bb88c5b8522617a3e900935a54c268f1eab3e78208183dba53fceb3"
+    },
+    {
       "path": "tests/cloud-snapshot-active-version.test.ts",
       "bytes": 682,
       "sha256": "d3510363e4e691ff74b69e37006746f288500d836b46397e42fd62065530989a"
@@ -5202,8 +5207,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 171009,
-      "sha256": "38718a6c19132099cfcc30705f6b20026faee41b862bde92593e5f4fba306a54"
+      "bytes": 171493,
+      "sha256": "c0281e3a799352754331e967408336f61cd51eae86630068f991157a69ed1fd7"
     },
     {
       "path": "ui/assignment.ts",
@@ -5244,6 +5249,11 @@
       "path": "ui/chat-site.ts",
       "bytes": 12451,
       "sha256": "1facf4683187aba1429a8214b6fbce8be3e3a8032fd9ad14b45443094a57754e"
+    },
+    {
+      "path": "ui/chat-zip.ts",
+      "bytes": 1842,
+      "sha256": "13358d016db089449bc06216740843c23b03373e6154293fd10688390e6a20ae"
     },
     {
       "path": "ui/components/command-palette.ts",
