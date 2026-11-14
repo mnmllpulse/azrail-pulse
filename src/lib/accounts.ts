@@ -4,6 +4,8 @@ import { checkAuth } from "./auth";
 export type Role = "admin" | "editor" | "viewer";
 export interface Principal { id: string; role: Role; name: string; operator?: boolean }
 export class AccessError extends Error { constructor(message: string, public status = 403) { super(message); } }
+/** Принципал до проверки доступа: права минимальные, записывать может только viewer-уровень. */
+export const anonymous: Principal = { id: "anonymous", role: "viewer", name: "Anonymous" };
 export const administrator: Principal = { id: "bootstrap-admin", role: "admin", name: "Administrator" };
 export async function hashToken(token: string): Promise<string> {
   const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(token));
