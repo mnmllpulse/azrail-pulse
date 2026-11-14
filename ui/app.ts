@@ -1504,6 +1504,8 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
     if(result.status==='rejected'){part.state='failed';part.needsYou=result.reason instanceof Error?result.reason.message:'Эта часть не вышла.';}
     else if(part.state==='running')part.state='done';
    });
+   // Вложения уходят с поручением; оставленный файл подмешался бы в следующие сообщения.
+   clearAttachments();
    paint(plan.parts.some(part=>part.state==='failed')?'Часть плана не вышла. Остальные, которые уже шли рядом, не откатываю.':undefined);
    mountLiveClip();
   }

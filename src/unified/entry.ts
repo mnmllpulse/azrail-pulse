@@ -79,6 +79,11 @@ export default {
        catch(error){
         if(dispatched){
          const message=error instanceof Error?error.message:String(error);
+         if(/\b3030\b|has been flagged/i.test(message)){
+          // Окончательный отказ фильтра безопасности провайдера: результата не будет, повтор безопасен.
+          await env.AZRAIL_D1.prepare('DELETE FROM mission_admissions WHERE key=? AND claim=?').bind(scope,claim.claim).run();
+          throw new AccessError('Фильтр безопасности провайдера отклонил запрос (код 3030): фраза или приложенная картинка помечены. Измени фразу или возьми другую картинку.',422);
+         }
          if(/3043|internal server error/i.test(message)){
           await env.AZRAIL_D1.prepare('DELETE FROM mission_admissions WHERE key=? AND claim=?').bind(scope,claim.claim).run();
          }

@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-14T09:58:17.880Z",
+  "generated_at": "2026-11-14T11:00:40.417Z",
   "excludes_self": true,
   "file_count": 1214,
   "files": [
@@ -4332,8 +4332,8 @@
     },
     {
       "path": "src/unified/entry.ts",
-      "bytes": 7697,
-      "sha256": "e11277c20369b3b9c8a155f0fe8af78fb4f43f4a1782fea0f2bb0f09bec5be3a"
+      "bytes": 8371,
+      "sha256": "5c9875c44006455fc3df59f5eec442efbe017432862c31696849790e9125fed2"
     },
     {
       "path": "src/unified/ledger.ts",
@@ -4427,8 +4427,8 @@
     },
     {
       "path": "tests/admission-release.test.ts",
-      "bytes": 462,
-      "sha256": "8facb15f76d91ad4e19ba6d73e9d2c49b7c5a59c00954ef3d028afdc25be1709"
+      "bytes": 1550,
+      "sha256": "d93718bcfad86321412477f1d7afb9e4d6de6a046881f86714e4d7177d8cae71"
     },
     {
       "path": "tests/als-music-parser.test.ts",
@@ -5217,8 +5217,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 173120,
-      "sha256": "f7eb85e1c84ed91a47333b316a15503e19c37157854e7bdfe6a4a32f6fb58e65"
+      "bytes": 173304,
+      "sha256": "625004e66475430224987a40dffacc501c89e9ff75dce9343165eac46b978d04"
     },
     {
       "path": "ui/assignment.ts",
