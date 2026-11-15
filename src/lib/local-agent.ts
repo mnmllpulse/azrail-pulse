@@ -1,6 +1,6 @@
 import { AccessError } from "./accounts";
 
-export type AgentJobKind = "list" | "read" | "write";
+export type AgentJobKind = "list" | "read" | "write" | "run";
 export type AgentJobStatus = "awaiting_approval" | "queued" | "running" | "done" | "failed" | "rejected" | "expired";
 
 export interface AgentJob {
@@ -30,6 +30,18 @@ export interface AgentStore {
   claimQueued(now: number): Promise<AgentJob | null>;
   recentJobs(limit: number): Promise<AgentJob[]>;
 }
+
+/** Белый список команд. Аргументы зафиксированы в агенте; сюда попадает только идентификатор. */
+export const AGENT_COMMANDS: Record<string, string> = {
+  git_status: "git status --short",
+  git_diff: "git diff --stat",
+  git_log: "git log --oneline -n 20",
+  node_version: "node --version",
+  npm_test: "npm test",
+  npm_build: "npm run build",
+  npm_lint: "npm run lint",
+  npm_typecheck: "npm run typecheck",
+};
 
 export const AGENT_SESSION_MS = 60 * 60 * 1000;
 export const AGENT_JOB_TTL_MS = 15 * 60 * 1000;
@@ -95,6 +107,7 @@ export function publicJob(job: AgentJob) {
     path: job.path,
     status: job.status,
     ...(job.kind === "write" ? { bytes: job.content?.length ?? 0 } : {}),
+    ...(job.kind === "run" ? { command: AGENT_COMMANDS[job.path] ?? job.path } : {}),
     result: job.result,
     error: job.error,
     createdAt: job.createdAt,
@@ -106,8 +119,12 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
   const state = await store.getState();
   if (!state || state.expiresAt <= now) throw new AccessError("Агент выключен. Включи его, чтобы ставить задачи.", 409);
   const kind = input.kind;
-  if (kind !== "list" && kind !== "read" && kind !== "write") throw new AccessError("Допустимые действия: list, read, write.", 400);
-  const path = safeAgentPath(input.path, kind === "list");
+  if (kind !== "list" && kind !== "read" && kind !== "write" && kind !== "run") throw new AccessError("Допустимые действия: list, read, write, run.", 400);
+  let path: string;
+  if (kind === "run") {
+    if (typeof input.path !== "string" || !Object.hasOwn(AGENT_COMMANDS, input.path)) throw new AccessError(`Команда не из белого списка. Доступны: ${Object.keys(AGENT_COMMANDS).join(", ")}.`, 400);
+    path = input.path;
+  } else path = safeAgentPath(input.path, kind === "list");
   let content: string | null = null;
   if (kind === "write") {
     if (typeof input.content !== "string") throw new AccessError("Для записи нужен текст файла.", 400);
@@ -119,7 +136,7 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     kind,
     path,
     content,
-    status: kind === "write" ? "awaiting_approval" : "queued",
+    status: kind === "write" || kind === "run" ? "awaiting_approval" : "queued",
     result: null,
     error: null,
     createdAt: now,
@@ -164,5 +181,5 @@ export async function finishJob(store: AgentStore, id: string, input: { ok?: unk
   const ok = input.ok === true;
   const output = typeof input.output === "string" ? input.output.slice(0, AGENT_MAX_RESULT) : null;
   const error = typeof input.error === "string" ? input.error.slice(0, 1000) : null;
-  await store.updateJob(id, { status: ok ? "done" : "failed", result: ok ? output : null, error: ok ? null : error ?? "Ошибка агента.", updatedAt: now });
+  await store.updateJob(id, { status: ok ? "done" : "failed", result: ok || job.kind === "run" ? output : null, error: ok ? null : error ?? "Ошибка агента.", updatedAt: now });
 }

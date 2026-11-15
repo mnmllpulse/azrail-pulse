@@ -68,13 +68,13 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
 
     if (state.enabled) {
       const kind = el('select');
-      for (const [value, label] of [['list', 'Список файлов'], ['read', 'Прочитать файл'], ['write', 'Записать файл']]) {
+      for (const [value, label] of [['list', 'Список файлов'], ['read', 'Прочитать файл'], ['write', 'Записать файл'], ['run', 'Команда (белый список)']]) {
         const option = el('option', label);
         option.value = value;
         kind.append(option);
       }
       const path = el('input');
-      path.placeholder = 'путь внутри папки, например src/index.ts';
+      path.placeholder = 'путь внутри папки, для команды: git_status, git_diff, git_log, node_version, npm_test, npm_build, npm_lint, npm_typecheck';
       path.maxLength = 300;
       const content = el('textarea');
       content.rows = 4;
@@ -98,7 +98,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
           row.append(out);
         }
         if (job.status === 'awaiting_approval') {
-          const ok = el('button', `Разрешить запись (${job.bytes ?? 0} симв.)`);
+          const ok = el('button', job.kind === 'run' ? `Разрешить запуск: ${job.path}` : `Разрешить запись (${job.bytes ?? 0} симв.)`);
           ok.type = 'button';
           ok.onclick = () => void api(`/api/agent/jobs/${job.id}/approve`, { method: 'POST', body: '{}' }).then(paint).catch(failure);
           const no = el('button', 'Отклонить');

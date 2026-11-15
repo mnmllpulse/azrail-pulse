@@ -1,9 +1,44 @@
 #!/usr/bin/env node
+import { execFile } from "node:child_process";
 import { mkdir, readdir, readFile, realpath, rename, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve, sep, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const MAX_READ = 200_000;
+const RUN_TIMEOUT_MS = 120_000;
+const RUN_MAX_OUTPUT = 200_000;
+
+/** Белый список: идентификатор → программа и фиксированные аргументы. Ввода пользователя в аргументах нет. */
+export const COMMANDS = {
+  git_status: ["git", "status", "--short"],
+  git_diff: ["git", "diff", "--stat"],
+  git_log: ["git", "log", "--oneline", "-n", "20"],
+  node_version: ["node", "--version"],
+  npm_test: ["npm", "test"],
+  npm_build: ["npm", "run", "build"],
+  npm_lint: ["npm", "run", "lint"],
+  npm_typecheck: ["npm", "run", "typecheck"],
+};
+
+/** Дочерний процесс не видит ключ агента и другие AZRAIL_*. */
+export function childEnv(env) {
+  return Object.fromEntries(Object.entries(env).filter(([key]) => !/^AZRAIL_/i.test(key)));
+}
+
+export function runCommand(root, id) {
+  const argv = Object.hasOwn(COMMANDS, id) ? COMMANDS[id] : null;
+  if (!argv) return Promise.reject(new Error("Команда не из белого списка."));
+  const windows = process.platform === "win32";
+  return new Promise((done, fail) => {
+    execFile(argv[0], argv.slice(1), { cwd: root, env: childEnv(process.env), timeout: RUN_TIMEOUT_MS, maxBuffer: RUN_MAX_OUTPUT * 2, windowsHide: true, shell: windows && argv[0] === "npm", encoding: "utf8" }, (error, stdout, stderr) => {
+      const text = `${stdout ?? ""}${stderr ? `\n${stderr}` : ""}`.trim().slice(-RUN_MAX_OUTPUT);
+      if (error?.killed) return fail(new Error(`Команда остановлена по таймауту ${RUN_TIMEOUT_MS / 1000} с.\n${text}`.slice(0, 1000)));
+      if (error && typeof error.code === "string") return fail(new Error(`Не запустилась: ${error.code}`));
+      const code = error ? error.code : 0;
+      done({ ok: code === 0, output: `${text}\n[код выхода ${code}]`.trim() });
+    });
+  });
+}
 const MAX_LIST = 500;
 const DENIED = /(^|\/)(\.git|\.ssh|\.gnupg|\.aws|node_modules|\.wrangler)(\/|$)|(^|\/)(\.env[^/]*|\.dev\.vars|id_rsa[^/]*|id_ed25519[^/]*|[^/]*\.(pem|key|pfx|p12|kdbx))$/i;
 
@@ -85,7 +120,7 @@ async function main() {
       if (job) {
         let body;
         try {
-          body = { ok: true, output: await runJob(root, job) };
+          body = job.kind === "run" ? await runCommand(root, job.path) : { ok: true, output: await runJob(root, job) };
         } catch (error) {
           body = { ok: false, error: error instanceof Error ? error.message : String(error) };
         }

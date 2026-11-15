@@ -1791,7 +1791,7 @@ async function runChat(){
   const id=agentWaiting;agentWaiting='';
   try{
    await api(`/api/agent/jobs/${id}/${AGENT_APPROVE.test(message)?'approve':'reject'}`,{method:'POST',body:'{}'});
-   noteLocal(message,jobReply(await waitJob(api,id,ms=>new Promise(r=>setTimeout(r,ms)))));
+   noteLocal(message,jobReply(await waitJob(api,id,ms=>new Promise(r=>setTimeout(r,ms)),90)));
   }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент не ответил.');}
   return;
  }
