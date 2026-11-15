@@ -20,7 +20,8 @@ const readJson = (path) => JSON.parse(readFileSync(path, 'utf8'));
 const snapshot = readJson(snapshotPath);
 const expected = {
   staging: readJson('wrangler.staging.json'),
-  production: readJson('wrangler.production.json'),
+  // Слот production снимка = живой воркер azrail-pulse, его канон — wrangler.jsonc (env pulse).
+  production: readJson('wrangler.jsonc'),
 };
 
 const severityRank = { PASS: 0, WARNING: 1, DRIFT: 2, BLOCKER: 3 };

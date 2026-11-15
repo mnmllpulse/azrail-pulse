@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-14T11:00:40.417Z",
+  "generated_at": "2026-11-15T04:15:28.216Z",
   "excludes_self": true,
   "file_count": 1214,
   "files": [
@@ -2972,8 +2972,8 @@
     },
     {
       "path": "scripts/cloud-drift.mjs",
-      "bytes": 9682,
-      "sha256": "82af1b9ac44b5ab597af49a22ca365a49c0c93ed48ce5af6a75cd62294f030cc"
+      "bytes": 9800,
+      "sha256": "962f4a49ebfdcbc924a31a13f1cbbc25d0a2620eb835be26a24b9147186165f2"
     },
     {
       "path": "scripts/cloudflare-readonly-snapshot.mjs",
@@ -5632,8 +5632,8 @@
     },
     {
       "path": "verification/cloudflare-snapshot.json",
-      "bytes": 7212,
-      "sha256": "b37fd7c0f5ceb57a7577384e744ae0c376cf721e40928d6259e7472cd6e1f7a8"
+      "bytes": 9383,
+      "sha256": "67ce866e5cc3938abe3d4ea638d13b8c48ad58fcb9ad195a8c088e1ad6ea7a58"
     },
     {
       "path": "verification/current/PDF_IMPLEMENTATION_AUDIT_RC55_RU.md",
@@ -5992,8 +5992,8 @@
     },
     {
       "path": "verification/production-drift-readonly-snapshot.json",
-      "bytes": 8839,
-      "sha256": "fbe1e1ad79d12ae35042430b6d461ce0ce6fc758a7dec9931103f7b7e70fa0e5"
+      "bytes": 9602,
+      "sha256": "c9ff7a3e9c7d977e2878c1df9c21d6bc3e5c9fc2ad28d749ab09cc73028a8e68"
     },
     {
       "path": "verification/production-release-contract.json",
@@ -6032,8 +6032,8 @@
     },
     {
       "path": "verification/staging-deploy-readonly-snapshot.json",
-      "bytes": 3140,
-      "sha256": "a31823558d1ebb8919e8dee0b0a497b52fc0016c5558fe064c0d4849e4621a9b"
+      "bytes": 3369,
+      "sha256": "1a2ee82d85fa88e08486b5d5b274d471469b03f8db3b1e0a99293dcf213a5420"
     },
     {
       "path": "verification/staging-migration-contract.json",
