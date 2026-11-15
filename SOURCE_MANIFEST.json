@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T09:36:18.242Z",
+  "generated_at": "2026-11-15T09:42:41.561Z",
   "excludes_self": true,
-  "file_count": 1224,
+  "file_count": 1225,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -224,6 +224,11 @@
       "path": "docs/current/ORCHESTRATOR_ARCHITECTURE_RU.md",
       "bytes": 2119,
       "sha256": "6a2ac551615b9cdcecc478bc450f10680e46f2c3ba577235bee386386bac822a"
+    },
+    {
+      "path": "docs/current/PHASE0_AUDIT.md",
+      "bytes": 4783,
+      "sha256": "bd992fabe1845c242bf6e14b3b6ba5204da46ee637d4a2346e2338c4bab000d7"
     },
     {
       "path": "docs/current/PRODUCTION_READINESS.md",
