@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T21:49:38.339Z",
+  "generated_at": "2026-11-15T22:03:46.627Z",
   "excludes_self": true,
   "file_count": 1233,
   "files": [
@@ -567,8 +567,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1261735,
-      "sha256": "95dc2cf53fd45e3fa61344be9a5284743c5861ee1a181e63598d49e28445b6f0"
+      "bytes": 1269961,
+      "sha256": "d9195815e762f2a29ebb219421eb7ba01e681cab1757f0e84567ff64574418e6"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3248,7 +3248,7 @@
     {
       "path": "site/app.html",
       "bytes": 23143,
-      "sha256": "61718b20b71cf779c84994a9d12e6ce24a0b1540eb6b851bb3a90c5ffd4a92c2"
+      "sha256": "63ac731e1cd42d88da24ea1f3beb02cc9edb203226fa37f45af00f6b8aecafd4"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3262,8 +3262,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 381174,
-      "sha256": "969432c5da1547c179b5300c8dc553e30ed904065fdf4adebd661335c18b6d4b"
+      "bytes": 389390,
+      "sha256": "1148cd98b3b3b646a580c758ebb7a8e5572f40d3dd4fa7a55ecf1d75a158a76d"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3538,7 +3538,7 @@
     {
       "path": "site/index.html",
       "bytes": 23143,
-      "sha256": "61718b20b71cf779c84994a9d12e6ce24a0b1540eb6b851bb3a90c5ffd4a92c2"
+      "sha256": "63ac731e1cd42d88da24ea1f3beb02cc9edb203226fa37f45af00f6b8aecafd4"
     },
     {
       "path": "site/manifest.webmanifest",
