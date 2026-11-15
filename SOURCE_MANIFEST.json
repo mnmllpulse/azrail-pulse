@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T09:23:34.524Z",
+  "generated_at": "2026-11-15T09:28:01.293Z",
   "excludes_self": true,
   "file_count": 1222,
   "files": [
@@ -4887,8 +4887,8 @@
     },
     {
       "path": "tests/planner.test.ts",
-      "bytes": 13795,
-      "sha256": "78aca3d4e2ab92456994de8d98b228d9283285d9cae20fe8b4e02afebc120da0"
+      "bytes": 15015,
+      "sha256": "bb6482f1433fa78f6a746fd3525b6e782c1f017f1929a42ed31cbc2851ef42be"
     },
     {
       "path": "tests/platform-http.test.ts",
@@ -5247,8 +5247,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 175736,
-      "sha256": "e43fa19db15582f230f99f49d0210b6a4a5fee7de98e7684a1a3c1fb3d9583ac"
+      "bytes": 177003,
+      "sha256": "b706dcff5456f78843dafddff5d3d07e9d8a3a043fa35f1af03a9f0150c79d84"
     },
     {
       "path": "ui/assignment.ts",
@@ -5492,8 +5492,8 @@
     },
     {
       "path": "ui/planner.ts",
-      "bytes": 19053,
-      "sha256": "591af173969509f624437de77636b4d8043e43d285e2496a43398aaf074a175b"
+      "bytes": 19720,
+      "sha256": "6aebe220fb573f5bbe3185f39d68d5237cb956b36dfa32e483040e7447f26244"
     },
     {
       "path": "ui/projects.ts",

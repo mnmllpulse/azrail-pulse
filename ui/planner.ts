@@ -271,6 +271,17 @@ export function revisePart(plan: WorkPlan, id: string, text: string): boolean {
   return true;
 }
 
+export const SWITCH_KINDS: Array<Exclude<AssignmentKind, 'talk' | 'build'>> = ['image', 'web', 'music', 'video', 'file', 'diagram'];
+
+/** Та же фраза уходит в другую студию. Готовое результат прошлой студии остаётся в версиях. */
+export function switchPartKind(plan: WorkPlan, id: string, kind: Exclude<AssignmentKind, 'talk'>): boolean {
+  const part = plan.parts.find((item) => item.id === id);
+  if (!part || part.kind === kind || part.state === 'running') return false;
+  keepVersion(part);
+  Object.assign(part, assignmentForKind(kind), { state: 'waiting', ready: '' });
+  return true;
+}
+
 /** Возвращает в работу только упавшую часть. Готовая соседняя часть остаётся готовой. */
 export function retryPart(plan: WorkPlan, id: string): boolean {
   const part = plan.parts.find((item) => item.id === id);

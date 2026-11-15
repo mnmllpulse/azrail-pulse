@@ -24,11 +24,11 @@ import {openUniversalCompareCenter} from './components/universal-compare';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
-import {formatAssignment,skillsReply,type Assignment} from './assignment';
+import {assignmentForKind,formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
-import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
 import {agentIntent,AGENT_OFF,APPROVE as AGENT_APPROVE,REJECT as AGENT_REJECT,approvalText,jobReply,waitJob,type AgentJobView} from './chat-agent';
 import {modelIntent,proposalText,YES,ROLLBACK,type ModelProposal} from './chat-settings';
@@ -1312,7 +1312,12 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
   edit.textContent='Править';
   edit.dataset.part=part.id;
   edit.onclick=()=>openPartEdit(plan,part.id);
-  item.append(line,edit);
+  const other=document.createElement('button');
+  other.type='button';
+  other.className='part-edit';
+  other.textContent='Другая студия';
+  other.onclick=()=>openPartKind(plan,part.id);
+  item.append(line,edit,other);
   if(part.state==='done'&&part.kind==='image'&&part.thing?.url){
    const grow=document.createElement('button');
    grow.type='button';
@@ -1384,6 +1389,26 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
  showContinue(plan);
  const login=$<HTMLButtonElement>('assignment-login');
  login.hidden=!needsYou.includes('Войди');
+}
+function openPartKind(plan:WorkPlan,id:string){
+ const part=plan.parts.find(item=>item.id===id);
+ if(!part||missionSubmitting)return;
+ const item=document.querySelector<HTMLButtonElement>(`#assignment-parts [data-part="${CSS.escape(id)}"]`)?.closest('li');
+ if(!item)return;
+ item.replaceChildren();
+ const pick=document.createElement('select');
+ pick.setAttribute('aria-label',`Студия для части ${part.worker}`);
+ for(const kind of SWITCH_KINDS){if(kind===part.kind)continue;const option=document.createElement('option');option.value=kind;option.textContent=assignmentForKind(kind).worker;pick.append(option);}
+ const go=document.createElement('button');
+ go.type='button';
+ go.textContent='Собрать в этой студии';
+ go.onclick=()=>{
+  if(!switchPartKind(plan,id,pick.value as typeof SWITCH_KINDS[number]))return;
+  const message=heldMessage||plan.parts.map(row=>row.text).join(' · ');
+  void runPlan(plan,message,true,id).catch(failure);
+ };
+ item.append(pick,go);
+ pick.focus();
 }
 function openPartEdit(plan:WorkPlan,id:string){
  const part=plan.parts.find(item=>item.id===id);
