@@ -30,6 +30,7 @@ import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
+import {agentIntent,AGENT_OFF,APPROVE as AGENT_APPROVE,REJECT as AGENT_REJECT,approvalText,jobReply,waitJob,type AgentJobView} from './chat-agent';
 import {modelIntent,proposalText,YES,ROLLBACK,type ModelProposal} from './chat-settings';
 import {studioIntent,ledgerSummary,pulseSummary,dataSummary,audioSummary} from './chat-studios';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
@@ -354,6 +355,7 @@ function syncChatAccount(){
 }
 type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;reviewed?:boolean;task?:string;capabilities?:string[];availability?:string;provider?:string;icon?:string|null;description?:string};
 let catalogModels:CatalogModel[]=[];
+let agentWaiting='';
 let modelProposal:ModelProposal|null=null;
 let modelUndo:ModelProposal|null=null;
 /** Full registry for the Models picker (exactly the server catalog, no truncation). */
@@ -1732,6 +1734,26 @@ async function runChat(){
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
+ if(agentWaiting&&(AGENT_APPROVE.test(message)||AGENT_REJECT.test(message))){
+  const id=agentWaiting;agentWaiting='';
+  try{
+   await api(`/api/agent/jobs/${id}/${AGENT_APPROVE.test(message)?'approve':'reject'}`,{method:'POST',body:'{}'});
+   noteLocal(message,jobReply(await waitJob(api,id,ms=>new Promise(r=>setTimeout(r,ms)))));
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент не ответил.');}
+  return;
+ }
+ const forAgent=agentIntent(message);
+ if(forAgent){
+  try{
+   if(!account)throw Error('Войдите, чтобы работать с компьютером.');
+   const state=await api('/api/agent/status') as {enabled?:boolean};
+   if(!state.enabled){noteLocal(message,AGENT_OFF);return;}
+   const made=(await api('/api/agent/jobs',{method:'POST',body:JSON.stringify(forAgent)})).job as AgentJobView;
+   if(made.status==='awaiting_approval'){agentWaiting=made.id;noteLocal(message,approvalText(made));return;}
+   noteLocal(message,jobReply(await waitJob(api,made.id,ms=>new Promise(r=>setTimeout(r,ms)))));
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент недоступен.');}
+  return;
+ }
  const switchTo=modelIntent(message,pickerModels().map(m=>({slug:m.slug,label:modelLabel(m),free:!!m.freeAllowlisted&&m.availability!=='unavailable'})));
  if(switchTo){
   const here=catalogModels.find(m=>m.slug===preferredModel);

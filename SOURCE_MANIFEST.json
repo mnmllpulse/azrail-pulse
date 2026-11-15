@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T09:09:33.575Z",
+  "generated_at": "2026-11-15T09:23:34.524Z",
   "excludes_self": true,
-  "file_count": 1220,
+  "file_count": 1222,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -127,8 +127,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 2563,
-      "sha256": "13180820868553db13ea072d1c422d85a6e6d6238df1c3f0a4f505bc2a2f8e68"
+      "bytes": 3035,
+      "sha256": "27ae622f44c3f313fe958d7387d8278aab0fe904e7beb1094626a9c48c80de65"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -4536,6 +4536,11 @@
       "sha256": "941dae26e97de81503fb553483fddb1c6441491b93f92fb52253b806d5a781d6"
     },
     {
+      "path": "tests/chat-agent.test.ts",
+      "bytes": 2566,
+      "sha256": "e484359ae8eb58af9d657d5feb9241df192a6c336e8b6fd07e0f95d6767d7e87"
+    },
+    {
       "path": "tests/chat-attachments-history.test.ts",
       "bytes": 1092,
       "sha256": "34beb6456cf5de0cecc85d170da68c7485641f6ff446a48d135a65bebf45e50b"
@@ -5242,8 +5247,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 174406,
-      "sha256": "c0a0ddba454ab64439d811821c359b6289cbfe0971dfc491bbe3cdbb1e6d2f68"
+      "bytes": 175736,
+      "sha256": "e43fa19db15582f230f99f49d0210b6a4a5fee7de98e7684a1a3c1fb3d9583ac"
     },
     {
       "path": "ui/assignment.ts",
@@ -5269,6 +5274,11 @@
       "path": "ui/chat-actions.ts",
       "bytes": 8530,
       "sha256": "de563673dc2f7ee017e6daededb2be0e261e68576e08d28725dbb810531ed43a"
+    },
+    {
+      "path": "ui/chat-agent.ts",
+      "bytes": 4145,
+      "sha256": "893047e2f5eefbf7020f99024ebe95b78070c6acdb50698ee02b6aefa0cd725e"
     },
     {
       "path": "ui/chat-history.ts",
