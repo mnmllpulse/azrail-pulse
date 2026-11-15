@@ -1,3 +1,4 @@
+import { decide, levelOf, permissionMode } from "../lib/permission-levels";
 import { readDesignContract, designInstruction, isDesignGoal } from "../unified/design-contract";
 export { parseDecision, renderHistory } from "./execution-protocol";
 export type { StepDecision, StepRecordView } from "./execution-protocol";
@@ -808,6 +809,15 @@ export class ExecutionEngine {
           ok: false,
           result: `Инструмент "${decision.tool}" недоступен. Доступны только: ${tools.map((t) => t.name).join(", ")}.`,
         });
+        consecutiveFailures++;
+        if (consecutiveFailures >= 3) break;
+        continue;
+      }
+
+      if (decide(levelOf(known), permissionMode(this.env.AZRAIL_PERMISSION_MODE)) === "ask") {
+        await this.recordApprovalRequest(ctx, known.name, decision.input ?? {}, decision.reason ?? "");
+        await this.note(ctx, "approval.requested", { tool: known.name, reason: decision.reason });
+        history.push({ tool: known.name, input: decision.input ?? {}, ok: false, result: `Инструмент "${known.name}" требует подтверждения человека и не выполнен.` });
         consecutiveFailures++;
         if (consecutiveFailures >= 3) break;
         continue;
