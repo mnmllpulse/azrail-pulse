@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T22:45:49.472Z",
+  "generated_at": "2026-11-15T22:51:06.503Z",
   "excludes_self": true,
-  "file_count": 1235,
+  "file_count": 1238,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -127,8 +127,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 5275,
-      "sha256": "236a280f7c0703b706e92f543bdd2a49de7105e88ebe88a3e7874c78dd0e7378"
+      "bytes": 5843,
+      "sha256": "22fe107e2ff074888510694ff8af21596657bb9a8a4bd7ca0e740d447f592f67"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -567,8 +567,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1276936,
-      "sha256": "e7cc1e56254f4d43f42179b4f5cb3d9d4733196485dcb67cb7830a7901ca5d84"
+      "bytes": 1279621,
+      "sha256": "efb0847877203438fe559fac4a5523456fc60a607c1ef2f8b2d3dae0655735ee"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3248,7 +3248,7 @@
     {
       "path": "site/app.html",
       "bytes": 24166,
-      "sha256": "84b026bbe74dd56184349aaeb3ff1504368d1da7ad5d86f2d0553a51aca5872f"
+      "sha256": "f27f5192315a83a499c78ba17d378dbe1b32ba689280cc003950932694bb2079"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3262,8 +3262,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 394587,
-      "sha256": "23fe23c51a11209772a0772070fa9c5f81b1f886a85fed65085928861ed13d6d"
+      "bytes": 397269,
+      "sha256": "6e493d022fd3f17246c2e9cfa279acca9d8a988e83a968bd73db428f2e46caa9"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3538,7 +3538,7 @@
     {
       "path": "site/index.html",
       "bytes": 24166,
-      "sha256": "84b026bbe74dd56184349aaeb3ff1504368d1da7ad5d86f2d0553a51aca5872f"
+      "sha256": "f27f5192315a83a499c78ba17d378dbe1b32ba689280cc003950932694bb2079"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -3657,8 +3657,8 @@
     },
     {
       "path": "src/core/execution-engine.ts",
-      "bytes": 68077,
-      "sha256": "f5ba6338cba6693ecc7d013d1a0731360b5ce40cd182eb5adcf7daf8af4a6987"
+      "bytes": 68112,
+      "sha256": "3390894235b1e33c8019172d12f7a4301a41b69d1fc9abdef05aa4b8404cb6d8"
     },
     {
       "path": "src/core/execution-journal.ts",
@@ -3752,8 +3752,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 101648,
-      "sha256": "409a3cc51e40a8877a9b86b69189ab516ee59e99eea56062d258663950716e27"
+      "bytes": 102366,
+      "sha256": "4d2087ad231b2d3030ff0f541a21d544d7f99d4c634183cc716124528236b599"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4104,6 +4104,11 @@
       "path": "src/lib/permission-levels.ts",
       "bytes": 1733,
       "sha256": "f28366a89339632f44fbd8cc1f00ae495561a1b71d2e8bb97a20a3a11ebfe523"
+    },
+    {
+      "path": "src/lib/permission-setting.ts",
+      "bytes": 804,
+      "sha256": "4885fa69b11a75c512cadb666744742c3777fba276fbea0713ec8b149f11482c"
     },
     {
       "path": "src/lib/product-intelligence.ts",
@@ -4931,6 +4936,11 @@
       "sha256": "fb4c832d6883560147c287e7e95bec75f4cc487c10107378c356ed4d4def03b3"
     },
     {
+      "path": "tests/permission-setting.test.ts",
+      "bytes": 1938,
+      "sha256": "a3a7627d4771f2c19214eee3fa9fa02dfcb7dc15b4a3534e7f851d022890a8c4"
+    },
+    {
       "path": "tests/plan-dedupe.test.ts",
       "bytes": 632,
       "sha256": "fd48fea9277e0c863330399a47ea82be3b3cdf9d370ce4402507aad98fabf151"
@@ -5302,8 +5312,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 181206,
-      "sha256": "4f5e6b7433eebbd532463efaa153e604b34a7d796e0ae2278e405fac0936010f"
+      "bytes": 181318,
+      "sha256": "8433c87ad7350cd019de45a45b7f8ad46fbbe87e1ef025d021031cba027c87df"
     },
     {
       "path": "ui/assignment.ts",
@@ -5549,6 +5559,11 @@
       "path": "ui/navigation.ts",
       "bytes": 2622,
       "sha256": "da829cc1402471bb4e9419435b73113a2ac932d010af1aa34d5ebc163317b85c"
+    },
+    {
+      "path": "ui/permission-settings.ts",
+      "bytes": 2287,
+      "sha256": "0fdf9e505f0db689ccdd94e9364205a3b51aca9100205e4b1e6464140b3c1a2d"
     },
     {
       "path": "ui/planner.ts",

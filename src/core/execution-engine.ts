@@ -1,4 +1,5 @@
-import { decide, levelOf, permissionMode } from "../lib/permission-levels";
+import { decide, levelOf } from "../lib/permission-levels";
+import { readPermissionMode } from "../lib/permission-setting";
 import { readDesignContract, designInstruction, isDesignGoal } from "../unified/design-contract";
 export { parseDecision, renderHistory } from "./execution-protocol";
 export type { StepDecision, StepRecordView } from "./execution-protocol";
@@ -814,7 +815,7 @@ export class ExecutionEngine {
         continue;
       }
 
-      if (decide(levelOf(known), permissionMode(this.env.AZRAIL_PERMISSION_MODE)) === "ask") {
+      if (decide(levelOf(known), await readPermissionMode(this.env)) === "ask") {
         await this.recordApprovalRequest(ctx, known.name, decision.input ?? {}, decision.reason ?? "");
         await this.note(ctx, "approval.requested", { tool: known.name, reason: decision.reason });
         history.push({ tool: known.name, input: decision.input ?? {}, ok: false, result: `Инструмент "${known.name}" требует подтверждения человека и не выполнен.` });
