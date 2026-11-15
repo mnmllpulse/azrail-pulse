@@ -30,6 +30,7 @@ import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
 import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
+import {fixIntent,fixConsentText,runFixLoop,FIX_APPROVE} from './chat-fixloop';
 import {agentIntent,AGENT_OFF,APPROVE as AGENT_APPROVE,REJECT as AGENT_REJECT,approvalText,jobReply,waitJob,type AgentJobView} from './chat-agent';
 import {modelIntent,proposalText,YES,ROLLBACK,type ModelProposal} from './chat-settings';
 import {studioIntent,budgetSummary,ledgerSummary,pulseSummary,dataSummary,audioSummary} from './chat-studios';
@@ -356,6 +357,7 @@ function syncChatAccount(){
 type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;reviewed?:boolean;task?:string;capabilities?:string[];availability?:string;provider?:string;icon?:string|null;description?:string};
 let catalogModels:CatalogModel[]=[];
 let agentWaiting='';
+let fixPending='';
 let modelProposal:ModelProposal|null=null;
 let modelUndo:ModelProposal|null=null;
 /** Full registry for the Models picker (exactly the server catalog, no truncation). */
@@ -1793,6 +1795,36 @@ async function runChat(){
    await api(`/api/agent/jobs/${id}/${AGENT_APPROVE.test(message)?'approve':'reject'}`,{method:'POST',body:'{}'});
    noteLocal(message,jobReply(await waitJob(api,id,ms=>new Promise(r=>setTimeout(r,ms)),90)));
   }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент не ответил.');}
+  return;
+ }
+ if(fixPending&&FIX_APPROVE.test(message)){
+  const command=fixPending;fixPending='';
+  const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
+  const job=async(kind:string,path:string,content?:string)=>{
+   const made=(await api('/api/agent/jobs',{method:'POST',body:JSON.stringify({kind,path,...(content===undefined?{}:{content})})})).job as AgentJobView;
+   if(made.status==='awaiting_approval')await api(`/api/agent/jobs/${made.id}/approve`,{method:'POST',body:'{}'});
+   return waitJob(api,made.id,sleep,kind==='run'?90:30);
+  };
+  try{
+   const out=await runFixLoop({
+    run:c=>job('run',c),
+    read:async p=>{try{const j=await job('read',p);return j.status==='done'?j.result??'':null;}catch{return null;}},
+    write:async(p,c)=>{try{return (await job('write',p,c)).status==='done';}catch{return false;}},
+    ask:async q=>{const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({message:q,projectId:project||crypto.randomUUID(),conversationId:crypto.randomUUID(),voice:chatVoice,...(preferredModel?{preferredModel}:{})})});return String(r.result?.summary||'');},
+    say:t=>notice(t,false),
+   },command);
+   noteLocal(message,out);
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Цикл прерван.');}
+  return;
+ }
+ const fixCommand=fixIntent(message);
+ if(fixCommand){
+  try{
+   if(!account)throw Error('Войдите, чтобы работать с компьютером.');
+   const state=await api('/api/agent/status') as {enabled?:boolean};
+   if(!state.enabled){noteLocal(message,AGENT_OFF);return;}
+   fixPending=fixCommand;noteLocal(message,fixConsentText(fixCommand));
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент недоступен.');}
   return;
  }
  const forAgent=agentIntent(message);
