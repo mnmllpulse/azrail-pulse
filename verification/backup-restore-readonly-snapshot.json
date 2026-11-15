@@ -1,15 +1,15 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-10T08:25:00Z",
-  "source": "Cloudflare API read-only D1 Time Travel bookmark inspection via ChatGPT connector",
+  "generated_at": "2026-11-15T21:43:16.285Z",
+  "source": "wrangler d1 time-travel info (только чтение)",
   "mutation_free": true,
   "environment": "production+staging",
   "databases": [
     {
       "environment": "production",
-      "name": "azrail-db",
-      "database_id": "c76e7d92-648c-45bc-b0df-f26b00d0ff88",
-      "bookmark": "00000e17-00000000-00005100-cf3d679af247de19b5174ec299a2b624",
+      "name": "azrail-pulse-db",
+      "database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f",
+      "bookmark": "00001308-00000090-00005124-6abacaa1da9bfd73cd87230e49001d14",
       "http_status": 200
     },
     {

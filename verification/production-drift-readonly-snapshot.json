@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-15T04:08:25.458Z",
+  "generated_at": "2026-11-15T21:42:47.891Z",
   "source": "Cloudflare API read-only GET for worker settings and resources. D1 schema block is the previous read and was not queried again.",
   "mutation_free": true,
   "environment": "production",
@@ -91,7 +91,7 @@
           {
             "name": "AZRAIL_SWITCH_SANDBOX",
             "type": "plain_text",
-            "text": "off"
+            "text": "on"
           },
           {
             "name": "AZRAIL_WORKERS_PLAN",
@@ -173,9 +173,9 @@
         "previews_enabled": false
       },
       "deployment": {
-        "id": "7c17f8d4-b4ba-4068-a127-82f5007e08f9",
-        "version_id": "4662a2eb-ce70-4dc9-93b1-b94d68eea0b0",
-        "created_on": "2026-11-14T11:06:02.357832Z",
+        "id": "2d0abc0d-94b8-411e-90cb-78b72d383b27",
+        "version_id": "40d04df3-be5b-46b3-be11-064e2fb58211",
+        "created_on": "2026-11-15T21:38:51.591096Z",
         "source": "wrangler"
       },
       "secret_bindings": [],
