@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T04:49:54.620Z",
+  "generated_at": "2026-11-15T05:01:49.944Z",
   "excludes_self": true,
-  "file_count": 1214,
+  "file_count": 1216,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3722,8 +3722,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 100300,
-      "sha256": "75bb6061a9ea4c959bcd0dc9f21558997af222da83227e7ccaa25bbfb2b2ecd7"
+      "bytes": 101648,
+      "sha256": "409a3cc51e40a8877a9b86b69189ab516ee59e99eea56062d258663950716e27"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -3772,8 +3772,8 @@
     },
     {
       "path": "src/lib/attachments.ts",
-      "bytes": 20923,
-      "sha256": "612be40ade659df929b3e444b0c2d655373726faea17f482bab8623a11675d8d"
+      "bytes": 20944,
+      "sha256": "96deff57cb4bef0040c767c1ea10d4b8feee05291dab870f0b60198616e0a14e"
     },
     {
       "path": "src/lib/auth.ts",
@@ -4249,6 +4249,11 @@
       "path": "src/lib/ws-ticket.ts",
       "bytes": 1177,
       "sha256": "4ab1b3ca2aa814cbbc4636142b110dfeebd1a31946f0959f845213bc45355e8f"
+    },
+    {
+      "path": "src/lib/zip-audit.ts",
+      "bytes": 7572,
+      "sha256": "af5d2c4c7b5d189196fa542177fd37308d62719c10b8d0025a456fbe5715b3ca"
     },
     {
       "path": "src/lib/zip-reader.ts",
@@ -5179,6 +5184,11 @@
       "path": "tests/web-studio-workbench.test.ts",
       "bytes": 569,
       "sha256": "e4357493a4c06bfdb269fa9a0c0c2e25085be670620289240125294f454f3c19"
+    },
+    {
+      "path": "tests/zip-audit.test.ts",
+      "bytes": 3315,
+      "sha256": "0145a916aa092abd104ae57c9966deea121aefa10dd0eedfd387413abe468e2e"
     },
     {
       "path": "tests/zip-site.test.ts",
