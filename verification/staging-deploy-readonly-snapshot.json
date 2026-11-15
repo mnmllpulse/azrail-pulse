@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "release": "1.5.0-rc.54",
-  "generated_at": "2026-10-29T00:12:02.043Z",
+  "generated_at": "2026-11-15T04:08:25.458Z",
   "source": "Cloudflare API read-only GET. No Cloudflare write.",
   "mutation_free": true,
   "worker": {
@@ -71,9 +71,19 @@
         "text": "1000"
       },
       {
+        "name": "CHAT_DAILY_LIMIT",
+        "type": "plain_text",
+        "text": "200"
+      },
+      {
         "name": "DAILY_PROVIDER_CALLS",
         "type": "plain_text",
-        "text": "20"
+        "text": "500"
+      },
+      {
+        "name": "OIDC_ADMIN_EMAILS",
+        "type": "plain_text",
+        "text": "mnmllpulse@gmail.com"
       },
       {
         "name": "OIDC_ADMIN_GROUPS",
@@ -118,10 +128,10 @@
       }
     ],
     "latest_deployment": {
-      "deployment_id": "711e1854-8690-4826-9dfb-85ea4765a2c6",
-      "version_id": "844d68dd-733b-42c5-ad76-15bb2d803fa1",
+      "deployment_id": "3d3aec99-7315-4c50-9bc1-f13f4270a0d8",
+      "version_id": "dccc96ee-4ab2-458a-91ed-dd2d0394cd46",
       "percentage": 100,
-      "created_on": "2026-10-29T00:11:34.885242Z"
+      "created_on": "2026-11-10T21:40:38.043573Z"
     }
   }
 }
