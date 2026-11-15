@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-15T04:08:25.458Z",
+  "generated_at": "2026-11-15T21:42:47.891Z",
   "source": "Cloudflare API read-only GET. No Cloudflare write.",
   "mutation_free": true,
   "environments": {
@@ -231,7 +231,7 @@
           {
             "name": "AZRAIL_SWITCH_SANDBOX",
             "type": "plain_text",
-            "text": "off"
+            "text": "on"
           },
           {
             "name": "AZRAIL_WORKERS_PLAN",
