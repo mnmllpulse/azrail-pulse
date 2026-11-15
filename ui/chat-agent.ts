@@ -1,3 +1,5 @@
+import { redactSecrets } from '../src/lib/secret-scan';
+
 type Api = (path: string, init?: RequestInit) => Promise<any>;
 
 export type AgentIntent = { kind: 'list' | 'read' | 'write' | 'run'; path: string; content?: string } | null;
@@ -59,7 +61,7 @@ export function jobReply(job: AgentJobView, shown = 6000): string {
     return `${job.status === 'done' ? 'Команда выполнена' : 'Команда завершилась с ошибкой'}: ${job.command ?? job.path}.\n\n\`\`\`\n${cut}\n\`\`\``;
   }
   if (job.status === 'done') {
-    const body = job.result ?? '';
+    const body = redactSecrets(job.result ?? '');
     const cut = body.length > shown ? `${body.slice(0, shown)}\n… показано ${shown} из ${body.length} симв.` : body;
     return job.kind === 'write' ? `Записал ${job.path}.` : `${job.kind === 'list' ? 'Файлы' : job.path}:\n\n\`\`\`\n${cut}\n\`\`\``;
   }

@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T22:51:06.503Z",
+  "generated_at": "2026-11-15T22:55:18.215Z",
   "excludes_self": true,
-  "file_count": 1238,
+  "file_count": 1240,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -127,8 +127,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 5843,
-      "sha256": "22fe107e2ff074888510694ff8af21596657bb9a8a4bd7ca0e740d447f592f67"
+      "bytes": 6198,
+      "sha256": "9857ba5f32c5987b0e19305fc6144fab5e629b454da43ace28d32e79f26d43a3"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -562,13 +562,13 @@
     },
     {
       "path": "docs/runbooks/THREAT_MODEL_RU.md",
-      "bytes": 10254,
-      "sha256": "85718be0fd960657633edfbb601952b02a42742ca45035d0b2a32f3db5c1b30a"
+      "bytes": 11701,
+      "sha256": "936df435121d5c1487032ba9b34cea740b0f7b54d39d128446eb7c61f8865360"
     },
     {
       "path": "index.html",
-      "bytes": 1279621,
-      "sha256": "efb0847877203438fe559fac4a5523456fc60a607c1ef2f8b2d3dae0655735ee"
+      "bytes": 1286161,
+      "sha256": "1f0a13a07e607cacefc3e6080087580a37038eba3abd1283d93a9d2a4f5c77ef"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3248,7 +3248,7 @@
     {
       "path": "site/app.html",
       "bytes": 24166,
-      "sha256": "f27f5192315a83a499c78ba17d378dbe1b32ba689280cc003950932694bb2079"
+      "sha256": "5494a5555d7a99f49cc7743380f6cf19a7683fbef42da5ae6aea1cdfc960d978"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3262,8 +3262,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 397269,
-      "sha256": "6e493d022fd3f17246c2e9cfa279acca9d8a988e83a968bd73db428f2e46caa9"
+      "bytes": 403809,
+      "sha256": "d275bb5f7673d5e785413a3737fef767f468818adf39aba8e1ec9f0d63225d8f"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3538,7 +3538,7 @@
     {
       "path": "site/index.html",
       "bytes": 24166,
-      "sha256": "f27f5192315a83a499c78ba17d378dbe1b32ba689280cc003950932694bb2079"
+      "sha256": "5494a5555d7a99f49cc7743380f6cf19a7683fbef42da5ae6aea1cdfc960d978"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4187,8 +4187,8 @@
     },
     {
       "path": "src/lib/secret-scan.ts",
-      "bytes": 4955,
-      "sha256": "e7f9a247b214c573b3d22bc859b204c75352828383f0cd8fdba0415dfdcd7dce"
+      "bytes": 5603,
+      "sha256": "1f90de51423af12fe95562e04e4ab0d05b91d64a1d3bd06cd3ee4b6cd7e6d4ed"
     },
     {
       "path": "src/lib/series-g.ts",
@@ -4224,6 +4224,11 @@
       "path": "src/lib/trial.ts",
       "bytes": 4135,
       "sha256": "24e90e3275447bb48eb83244f4e7454c948b1d0ace141ba701e168b4462bbcc7"
+    },
+    {
+      "path": "src/lib/untrusted.ts",
+      "bytes": 2843,
+      "sha256": "740e74a1d2b1f31eba1f37edab547b9a5cc7d69aca063a47d3dc8bc7a060a8af"
     },
     {
       "path": "src/lib/upload.ts",
@@ -4292,8 +4297,8 @@
     },
     {
       "path": "src/lib/zip-audit.ts",
-      "bytes": 7572,
-      "sha256": "af5d2c4c7b5d189196fa542177fd37308d62719c10b8d0025a456fbe5715b3ca"
+      "bytes": 7714,
+      "sha256": "2ec3414f323a87deb9f9edcd5e8e0bd7c3a469197fa664dbbf3611507894a59a"
     },
     {
       "path": "src/lib/zip-reader.ts",
@@ -5236,6 +5241,11 @@
       "sha256": "d3a26f0ce0fc7ff90b60d67663536875d76c7517f5f39197515510b6da88dfe9"
     },
     {
+      "path": "tests/untrusted-input.test.ts",
+      "bytes": 4505,
+      "sha256": "3ae8939fdbf92b1210119628d8036df91da3d943a186fe1a424e22e5956b4f81"
+    },
+    {
       "path": "tests/usage.test.ts",
       "bytes": 8349,
       "sha256": "79402d6d491ebad054e110f2481b89fca52655b9e47d6ed548588f9313998604"
@@ -5342,13 +5352,13 @@
     },
     {
       "path": "ui/chat-agent.ts",
-      "bytes": 5837,
-      "sha256": "6853e5f89644d4be6e8524ca689e95bd3c5fe5bd7236fb9988994ef58c8d03b0"
+      "bytes": 5909,
+      "sha256": "8b9941f1f12129f0dd1db04055d80a3cc8e790a23b7e508d2a643e23cd19a05d"
     },
     {
       "path": "ui/chat-fixloop.ts",
-      "bytes": 6170,
-      "sha256": "1619abb80841f9d2e4367ea3effb2628aeb226aa5fd2aa597d8a0ae1e57558ce"
+      "bytes": 7540,
+      "sha256": "9b718ff03a52628578ebc6f5a9fbc51b87b9cb6126c663f0b76d1d31ccbae8e6"
     },
     {
       "path": "ui/chat-history.ts",

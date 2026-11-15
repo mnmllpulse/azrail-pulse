@@ -1,4 +1,6 @@
 import { WHERE, type AgentJobView } from './chat-agent';
+import { redactSecrets, scanSecrets } from '../src/lib/secret-scan';
+import { fenceUntrusted, injectionSignals, UNTRUSTED_RULE } from '../src/lib/untrusted';
 
 export const FIX_ROUNDS = 3;
 export const FIX_FILES = 3;
@@ -53,9 +55,21 @@ export function parseEdits(reply: string, allowed: readonly string[], originals:
   return edits;
 }
 
+/** Файл с секретом или с подменой инструкций модели не отдаётся: правка вернула бы его с дырой или с чужой командой. */
+export function screenFiles(files: ReadonlyMap<string, string>): { safe: Map<string, string>; skipped: string[] } {
+  const safe = new Map<string, string>();
+  const skipped: string[] = [];
+  for (const [path, text] of files) {
+    const bad = scanSecrets([{ path, content: text }]).length > 0 || injectionSignals(text).length > 0;
+    if (bad) skipped.push(path);
+    else safe.set(path, text);
+  }
+  return { safe, skipped };
+}
+
 function prompt(command: string, log: string, files: ReadonlyMap<string, string>): string {
-  const body = [...files].map(([path, text]) => `--- ${path} ---\n${text.slice(0, 12000)}`).join('\n\n');
-  return `Команда «${command}» упала. Ниже хвост лога и файлы из него. Исправь причину ошибки.\nОтвет: только JSON-массив [{"path":"...","content":"полное новое содержимое файла"}], не больше ${FIX_FILES} файлов, только из списка ниже, без пояснений. Если причина не в этих файлах — верни [].\n\nЛОГ:\n${log.slice(-6000)}\n\nФАЙЛЫ:\n${body}`;
+  const body = [...files].map(([path, text]) => fenceUntrusted(path, text.slice(0, 12000))).join('\n\n');
+  return `Команда «${command}» упала. Ниже хвост лога и файлы из него. Исправь причину ошибки.\n${UNTRUSTED_RULE}\nОтвет: только JSON-массив [{"path":"...","content":"полное новое содержимое файла"}], не больше ${FIX_FILES} файлов, только из списка ниже, без пояснений. Если причина не в этих файлах — верни [].\n\n${fenceUntrusted('лог команды', redactSecrets(log.slice(-6000)))}\n\nФАЙЛЫ:\n${body}`;
 }
 
 export async function runFixLoop(deps: FixDeps, command: string): Promise<string> {
@@ -71,15 +85,18 @@ export async function runFixLoop(deps: FixDeps, command: string): Promise<string
       return lines.join('\n');
     }
     lines.push(`Раунд ${round}: «${command}» упала.`);
-    const files = new Map<string, string>();
+    const read = new Map<string, string>();
     for (const path of pathsFromLog(log)) {
       const text = await deps.read(path);
-      if (text !== null) files.set(path, text);
+      if (text !== null) read.set(path, text);
     }
-    if (!files.size) { lines.push('В логе нет читаемых файлов проекта. Останавливаюсь.'); break; }
-    if (round === FIX_ROUNDS) { lines.push(`Лимит ${FIX_ROUNDS} раундов исчерпан.`); lines.push(`Хвост лога:\n\`\`\`\n${log.slice(-1500)}\n\`\`\``); break; }
+    if (!read.size) { lines.push('В логе нет читаемых файлов проекта. Останавливаюсь.'); break; }
+    const { safe: files, skipped } = screenFiles(read);
+    if (skipped.length) lines.push(`Не отданы модели (секрет или подозрительный текст): ${skipped.join(', ')}.`);
+    if (!files.size) { lines.push('Все файлы из лога закрыты проверкой. Останавливаюсь, исправь вручную.'); lines.push(`Хвост лога:\n\`\`\`\n${redactSecrets(log.slice(-1500))}\n\`\`\``); break; }
+    if (round === FIX_ROUNDS) { lines.push(`Лимит ${FIX_ROUNDS} раундов исчерпан.`); lines.push(`Хвост лога:\n\`\`\`\n${redactSecrets(log.slice(-1500))}\n\`\`\``); break; }
     const edits = parseEdits(await deps.ask(prompt(command, log, files)), [...files.keys()], files);
-    if (!edits) { lines.push('Модель не предложила допустимой правки. Останавливаюсь.'); lines.push(`Хвост лога:\n\`\`\`\n${log.slice(-1500)}\n\`\`\``); break; }
+    if (!edits) { lines.push('Модель не предложила допустимой правки. Останавливаюсь.'); lines.push(`Хвост лога:\n\`\`\`\n${redactSecrets(log.slice(-1500))}\n\`\`\``); break; }
     for (const edit of edits) {
       const saved = (await deps.write(`.azrail-backup/r${round}/${edit.path}`, files.get(edit.path) ?? '')) && (await deps.write(edit.path, edit.content));
       if (!saved) { lines.push(`Запись ${edit.path} не удалась. Останавливаюсь.`); return lines.join('\n'); }
