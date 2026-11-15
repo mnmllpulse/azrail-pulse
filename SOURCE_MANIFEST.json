@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T09:28:01.293Z",
+  "generated_at": "2026-11-15T09:36:18.242Z",
   "excludes_self": true,
-  "file_count": 1222,
+  "file_count": 1224,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -381,9 +381,19 @@
       "sha256": "eea67ae8811e79917de50c66d1c8b8d80e2ca32f9662d44c872aa406e1ba1dcc"
     },
     {
+      "path": "docs/product/COMMERCIAL_ROADMAP.md",
+      "bytes": 11417,
+      "sha256": "61974595f4a092ac1361f65382574fb07ee05931538e36a20a374cbfc438b2ea"
+    },
+    {
+      "path": "docs/product/MASTER_SPECIFICATION.md",
+      "bytes": 23015,
+      "sha256": "29f08656daeb1be6ec707724b86637997d4c3fc2e5a83678f3f6257cc41d78a3"
+    },
+    {
       "path": "docs/product/README.md",
-      "bytes": 1024,
-      "sha256": "52b673f29f304a02ba72fd071a0da5da36a4ac25ebcb41c959e04a8965b2a32d"
+      "bytes": 1526,
+      "sha256": "0657934cac1f7f1e04155c033dcdff33d27933e1c63d8e86f1a35d4b7cdb2d24"
     },
     {
       "path": "docs/product/SERIES_E_F_G_UPDATE_SCENARIO.pdf",
