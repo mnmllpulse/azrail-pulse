@@ -734,13 +734,31 @@ $('assignment-frame').addEventListener('click',event=>{
 });
 let imageReference='';
 const attachedReferences=new WeakMap<File,string>();
+const REFERENCE_SIDE=480;
+async function shrinkReference(file:Blob):Promise<Blob>{
+ const bitmap=await createImageBitmap(file);
+ try{
+  const scale=Math.min(1,REFERENCE_SIDE/Math.max(bitmap.width,bitmap.height));
+  const width=Math.max(1,Math.round(bitmap.width*scale));
+  const height=Math.max(1,Math.round(bitmap.height*scale));
+  const canvas=document.createElement('canvas');
+  canvas.width=width;canvas.height=height;
+  const context=canvas.getContext('2d');
+  if(!context)throw Error('Образец не удалось подготовить.');
+  context.drawImage(bitmap,0,0,width,height);
+  const blob=await new Promise<Blob|null>(resolve=>canvas.toBlob(result=>resolve(result),'image/jpeg',0.85));
+  if(!blob||blob.size<1)throw Error('Образец не удалось подготовить.');
+  return blob;
+ }finally{bitmap.close();}
+}
 async function attachedImageReference():Promise<string>{
  const file=attachmentManager.files().find(item=>/^image\//i.test(item.type)||/\.(png|jpe?g|webp|gif)$/i.test(item.name));
  if(!file)return '';
  const known=attachedReferences.get(file);if(known)return known;
- const headers:Record<string,string>={'Content-Type':file.type||'image/png','X-Filename':encodeURIComponent(file.name.slice(0,120)),'X-Studio-Id':'image'};
- const saved=await api('/api/studio/artifacts',{method:'POST',headers,body:file}) as {id?:string};
- if(!saved?.id)return '';
+ const fitted=await shrinkReference(file);
+ const headers:Record<string,string>={'Content-Type':'image/jpeg','X-Filename':encodeURIComponent(file.name.replace(/\.\w+$/,'.jpg').slice(0,120)),'X-Studio-Id':'image'};
+ const saved=await api('/api/studio/artifacts',{method:'POST',headers,body:fitted}) as {id?:string};
+ if(!saved?.id)throw Error('Вложенная картинка не сохранилась, поэтому рисовать по ней нельзя.');
  attachedReferences.set(file,saved.id);
  return saved.id;
 }
@@ -751,9 +769,10 @@ $<HTMLInputElement>('assignment-reference').addEventListener('change',()=>{
  if(!file)return;
  if(!account){notice('Войдите, чтобы взять свою картинку.');return;}
  const send=async(withProject:boolean)=>{
-  const headers:Record<string,string>={'Content-Type':file.type||'image/png','X-Filename':file.name.slice(0,120),'X-Studio-Id':'image'};
+  const fitted=await shrinkReference(file);
+  const headers:Record<string,string>={'Content-Type':'image/jpeg','X-Filename':file.name.replace(/\.\w+$/,'.jpg').slice(0,120),'X-Studio-Id':'image'};
   if(withProject&&project)headers['X-Project-Id']=project;
-  return api('/api/studio/artifacts',{method:'POST',headers,body:file}) as Promise<{id?:string}>;
+  return api('/api/studio/artifacts',{method:'POST',headers,body:fitted}) as Promise<{id?:string}>;
  };
  void send(true).catch(()=>send(false)).then(saved=>{
   if(!saved?.id){notice('Картинка не сохранилась.');return;}
@@ -1581,21 +1600,24 @@ async function runPlanPart(part:PlanPart){
   const signed=account;if(!signed)throw Error('Войдите, чтобы собрать изображение.');
   const previous=part.versions?.[0]?.url??'';
   const earlier=artifactId(previous);
-  const attachedId=imageReference?'':await attachedImageReference().catch(()=>'');
-  const chosen=imageReference||attachedId;
+  const attachedId=await attachedImageReference();
+  if(attachedId){clearAttachments();imageReference='';}
+  const chosen=attachedId||imageReference;
   const grow=upscaleOnce.has(part.id);
   upscaleOnce.delete(part.id);
   const reference=grow?earlier:chosen||earlier;
-  const operation=grow?'upscale':earlier&&!chosen?'edit':'generate';
-  const fresh:ImageRequestBody={prompt:part.text,projectId:project||undefined,aspectRatio:imageFrame,resolution:768,style:'auto',seed:part.seed??null,variations:grow?1:imageCount,operation,...(reference?{referenceArtifactId:reference}:{})};
+  const follow=!grow&&Boolean(reference);
+  const operation=grow?'upscale':follow?'edit':'generate';
+  const fresh:ImageRequestBody={prompt:part.text,projectId:project||undefined,aspectRatio:imageFrame,resolution:768,style:'auto',seed:part.seed??null,variations:follow||grow?1:imageCount,operation,...(reference?{referenceArtifactId:reference,identityConsistency:true}:{})};
   const pending=readPendingImage(signed.id);
   let body=fresh;
   let stuck=false;
   if(pending){
-   try{
-    const saved=JSON.parse(pending.body) as ImageRequestBody;
-    if(saved&&typeof saved.prompt==='string'){body=saved;stuck=pending.body!==JSON.stringify(fresh);}
-   }catch{/* Битый хвост не подменяет новую фразу. */}
+   let saved:ImageRequestBody|null=null;
+   try{saved=JSON.parse(pending.body) as ImageRequestBody;}catch{saved=null;}
+   const same=!!saved&&saved.prompt===fresh.prompt&&(saved.referenceArtifactId??null)===(fresh.referenceArtifactId??null)&&saved.operation===fresh.operation;
+   if(same&&saved){body=saved;stuck=pending.body!==JSON.stringify(fresh);}
+   else{try{sessionStorage.removeItem('pulse.image.pending');}catch{/* Новая картинка не должна дорисовывать старый запрос. */}}
   }
   const result=await requestImage(signed.id,body,api) as {items?:Array<{name?:string;url?:string;seed?:number|null}>};
   const urls=(result.items??[]).map(item=>safeMediaPath(String(item.url??''))).filter(Boolean);
@@ -1603,7 +1625,6 @@ async function runPlanPart(part:PlanPart){
   const seed=result.items?.find(item=>Number.isInteger(item.seed))?.seed;
   if(typeof seed==='number')part.seed=seed;
   part.state='done';
-  if(attachedId)clearAttachments();
   part.ready=stuck?`Закончила зависшую сборку «${name}».`:grow?`Детализация «${name}» сохранена.`:urls.length>1?`${urls.length} варианта «${name}».`:`Картинка «${name}» сохранена.`;
   if(urls[0])part.thing={type:'image',url:urls[0],title:name,...(urls.length>1?{alts:urls.slice(1,3)}:{})};
   return;

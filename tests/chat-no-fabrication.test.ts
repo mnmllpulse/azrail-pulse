@@ -25,7 +25,10 @@ describe("картинка из вложения чата становится �
   const source = readFileSync("ui/app.ts", "utf8");
   it("вложенное изображение загружается как образец и вложение очищается после сборки", () => {
     expect(source).toContain("async function attachedImageReference()");
-    expect(source).toContain("const chosen=imageReference||attachedId;");
-    expect(source).toContain("if(attachedId)clearAttachments();");
+    expect(source).toContain("const chosen=attachedId||imageReference;");
+    expect(source).toContain("if(attachedId){clearAttachments();imageReference='';}");
+    expect(source).toContain("identityConsistency:true");
+    expect(source).toContain("shrinkReference");
+    expect(source).not.toContain("attachedImageReference().catch");
   });
 });
