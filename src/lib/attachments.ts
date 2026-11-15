@@ -38,7 +38,7 @@ const ZIP_MAX_TOTAL = 192 * 1024;
 const ZIP_MAX_ONE = 64 * 1024;
 
 /** Шум сборки: в перечень не попадает — он ничего не говорит о проекте. */
-const ZIP_NOISE = /(^|\/)(__MACOSX|node_modules|\.git|dist|build|coverage|\.wrangler)(\/|$)|(^|\/)\.DS_Store$/;
+export const ZIP_NOISE = /(^|\/)(__MACOSX|node_modules|\.git|dist|build|coverage|\.wrangler)(\/|$)|(^|\/)\.DS_Store$/;
 
 /** Файлы, по которым понятен проект. Читаются первыми, до общей очереди. */
 const ZIP_PRIORITY = /(^|\/)(readme|package\.json|wrangler\.|tsconfig|schema\.sql|index\.|main\.|app\.)/i;
@@ -58,7 +58,7 @@ export function zipTier(path: string): number {
 }
 
 /** Расширения, которые имеет смысл читать как текст. */
-const TEXT_EXT = new Set([
+export const TEXT_EXT = new Set([
   "ts", "tsx", "js", "jsx", "mjs", "cjs", "json", "md", "txt", "css", "html",
   "yml", "yaml", "toml", "sql", "sh", "py", "rs", "go", "java", "kt", "swift",
   "c", "h", "cpp", "hpp", "rb", "php", "xml", "svg", "csv", "env", "gitignore",
@@ -87,7 +87,7 @@ const MARKDOWN_MIME: Record<string, string> = {
 };
 const RICH_MAX_BYTES = 10 * 1024 * 1024;
 
-function extOf(name: string): string {
+export function extOf(name: string): string {
   const i = name.lastIndexOf(".");
   return i === -1 ? "" : name.slice(i + 1).toLowerCase();
 }
