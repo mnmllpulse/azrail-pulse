@@ -212,6 +212,57 @@ export class Orchestrator extends Agent<Env, OrchestratorState> {
    * видно: поднимается ли каждый агент, проходит ли запись в D1 по цепочке
    * внешних ключей, отвечают ли KV и R2.
    */
+  /**
+   * Очередь локального агента: хранится в SQLite этого объекта (экземпляр
+   * "local-agent"), без миграций D1. Задачи недолговечны по замыслу.
+   */
+  async agentStore(op: string, arg?: unknown): Promise<unknown> {
+    this.sql`CREATE TABLE IF NOT EXISTS agent_state (id INTEGER PRIMARY KEY CHECK (id=1), token_hash TEXT NOT NULL, expires_at INTEGER NOT NULL, last_seen INTEGER)`;
+    this.sql`CREATE TABLE IF NOT EXISTS agent_jobs (id TEXT PRIMARY KEY, kind TEXT NOT NULL, path TEXT NOT NULL, content TEXT, status TEXT NOT NULL, result TEXT, error TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)`;
+    type Row = { id: string; kind: string; path: string; content: string | null; status: string; result: string | null; error: string | null; created_at: number; updated_at: number };
+    const job = (r: Row) => ({ id: r.id, kind: r.kind, path: r.path, content: r.content, status: r.status, result: r.result, error: r.error, createdAt: r.created_at, updatedAt: r.updated_at });
+    if (op === "getState") {
+      const r = this.sql<{ token_hash: string; expires_at: number; last_seen: number | null }>`SELECT token_hash, expires_at, last_seen FROM agent_state WHERE id=1`[0];
+      return r ? { tokenHash: r.token_hash, expiresAt: r.expires_at, lastSeen: r.last_seen } : null;
+    }
+    if (op === "setState") {
+      const s = arg as { tokenHash: string; expiresAt: number; lastSeen: number | null } | null;
+      if (!s) {
+        this.sql`DELETE FROM agent_state`;
+        this.sql`DELETE FROM agent_jobs`;
+      } else {
+        this.sql`INSERT INTO agent_state (id, token_hash, expires_at, last_seen) VALUES (1, ${s.tokenHash}, ${s.expiresAt}, ${s.lastSeen}) ON CONFLICT(id) DO UPDATE SET token_hash=excluded.token_hash, expires_at=excluded.expires_at, last_seen=excluded.last_seen`;
+      }
+      return null;
+    }
+    if (op === "insertJob") {
+      const j = arg as ReturnType<typeof job>;
+      this.sql`INSERT INTO agent_jobs (id, kind, path, content, status, result, error, created_at, updated_at) VALUES (${j.id}, ${j.kind}, ${j.path}, ${j.content}, ${j.status}, ${j.result}, ${j.error}, ${j.createdAt}, ${j.updatedAt})`;
+      return null;
+    }
+    if (op === "getJob") {
+      const r = this.sql<Row>`SELECT * FROM agent_jobs WHERE id=${String(arg)}`[0];
+      return r ? job(r) : null;
+    }
+    if (op === "updateJob") {
+      const { id, patch } = arg as { id: string; patch: { status?: string; result?: string | null; error?: string | null; updatedAt?: number } };
+      const cur = this.sql<Row>`SELECT * FROM agent_jobs WHERE id=${id}`[0];
+      if (!cur) return null;
+      this.sql`UPDATE agent_jobs SET status=${patch.status ?? cur.status}, result=${patch.result === undefined ? cur.result : patch.result}, error=${patch.error === undefined ? cur.error : patch.error}, updated_at=${patch.updatedAt ?? cur.updated_at} WHERE id=${id}`;
+      return null;
+    }
+    if (op === "claimQueued") {
+      const since = Number(arg);
+      this.sql`UPDATE agent_jobs SET status='expired' WHERE status IN ('queued','awaiting_approval') AND created_at < ${since}`;
+      const r = this.sql<Row>`SELECT * FROM agent_jobs WHERE status='queued' ORDER BY created_at LIMIT 1`[0];
+      if (!r) return null;
+      this.sql`UPDATE agent_jobs SET status='running', updated_at=${Date.now()} WHERE id=${r.id}`;
+      return job(r);
+    }
+    if (op === "recentJobs") return this.sql<Row>`SELECT * FROM agent_jobs ORDER BY created_at DESC LIMIT ${Number(arg) || 10}`.map(job);
+    throw new Error(`Неизвестная операция очереди: ${op}`);
+  }
+
   async selfTest(): Promise<OrchestratorSelfTestResult> {
     return runOrchestratorSelfTest(this.env, (agentClass, name) => this.subAgent(agentClass, name));
   }

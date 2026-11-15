@@ -8,7 +8,7 @@ import { withProjectLock } from "./lib/project-control";
 import { quarantineStaleRunningToolReceipts } from "./lib/checkpoints";
 import { dispatchOutbox } from "./lib/outbox";
 import { reconcileModelCall } from "./lib/billing";
-import { authenticate, authorizeRequest, createAccount, requireResource, activeAccount, administrator, AccessError, type Principal } from "./lib/accounts";
+import { authenticate, authorizeRequest, createAccount, requireResource, activeAccount, anonymous, AccessError, type Principal } from "./lib/accounts";
 import { getAgentByName } from "agents";
 import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
 import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, positiveLimit } from "./lib/quota";
@@ -37,6 +37,7 @@ import { UsageLedger } from "./lib/usage";
 import { checkRateLimit } from "./lib/auth";
 import { chargeWrites, estimateMissionWrites } from "./lib/write-budget";
 import { validateAgainstCanon, summarizeCanon } from "./lib/canon-check";
+import { AUDIT_ASK, AUDIT_NEXT, parseAuditProgress, runZipAudit } from "./lib/zip-audit";
 import { loadAttachments, attachmentsToText, zipArchiveNote, archivesFromText, fileNamesInQuestion, zipNamesInHistory, censusLine, uploadKeyForProject, readNamedFromZip, findOwnedZip } from "./lib/attachments";
 import { chatSupplements } from "./lib/chat-context";
 import { log } from "./lib/resilience";
@@ -213,7 +214,8 @@ export default {
 async function handleRequest(request: Request, env: Env, ingressTrace?: TraceContext): Promise<Response> {
     const url = new URL(request.url);
     const trace = ingressTrace ?? requestTrace(request);
-    let principal: Principal = administrator;
+    // Без успешной проверки доступа права минимальные: администратором запрос становится только после authenticate().
+    let principal: Principal = anonymous;
     let caller = "shared";
     let parsedBody: Record<string, unknown> = {};
     // SDK RPC bypasses application validation and budgets. Only /api/stream is public transport.
@@ -745,22 +747,40 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       // тип схлопывается в never, и без неё сборка падает восемью ошибками
       // подряд на обращениях к полям результата.
       // intent:answer — разговор, не миссия/скан проекта.
-      const result: TaskResult = await orchestrator.handleTask({
+      const ask = (text: string, turns: typeof prior = []): Promise<TaskResult> => orchestrator.handleTask({
         projectId: body.projectId,
         conversationId: cid,
         parentMessageId: body.parentMessageId,
         inputType: "text",
         intent: "answer",
-        message,
-        payload: message,
-        conversationHistory: prior,
+        message: text,
+        payload: text,
+        conversationHistory: turns,
         preferredModel,
         voice: body.voice,
         _requestId: trace.requestId,
         _traceId: trace.traceId,
       });
 
-      const seen = censusLine(message);
+      let audited: TaskResult | null = null;
+      if (AUDIT_ASK.test(body.message)) {
+        const history = rows.filter((m) => typeof m.content === "string").map((m) => String(m.content)).join("\n");
+        const fresh = (body.attachments as AttachmentRef[] | undefined)?.find((ref) => ref.r2Key && ref.fileName.toLowerCase().endsWith(".zip") && uploadKeyForProject(ref.r2Key, body.projectId));
+        const archive = fresh ? { r2Key: fresh.r2Key as string, fileName: fresh.fileName } : archivesFromText(history).filter((a) => uploadKeyForProject(a.r2Key, body.projectId)).at(-1);
+        if (archive) {
+          let last: TaskResult | null = null;
+          const run = await runZipAudit(env, archive, body.message, fresh ? 0 : AUDIT_NEXT.test(body.message) ? parseAuditProgress(history) : 0, async (text) => {
+            last = await ask(text);
+            if (last.status === "failed") throw new Error(last.error ?? "модель не ответила");
+            return last.summary ?? "";
+          });
+          if (run && last) audited = { ...(last as TaskResult), summary: run.text };
+        }
+      }
+
+      const result: TaskResult = audited ?? await ask(message, prior);
+
+      const seen = audited ? null : censusLine(message);
       if (seen && result.summary && !result.summary.includes(seen)) result.summary = `${seen}\n\n${result.summary}`;
       const assistantId = await addMessage(
         env,

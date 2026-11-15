@@ -1,5 +1,7 @@
 # Unified Event Stream — AZRAIL 1.5.0-rc.25
 
+Status: current
+
 ## Цель
 
 `event_stream` — единый append-only operational event contract для миссий, агентов, инструментов, approvals, connectors, verification, recovery и publication. Он не заменяет специализированные таблицы состояния: `missions`, `task_history`, `approval_requests`, `approval_receipts`, `connector_calls` и `workspace_publications` остаются каноническими источниками состояния своих подсистем.

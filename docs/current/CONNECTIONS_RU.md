@@ -1,5 +1,7 @@
 # Professional Connections — RC37
 
+Status: current
+
 `Settings → Connections` — отдельный control surface для внешних MCP-сервисов. Верхняя навигация AZRAIL остаётся минимальной: Create / Projects / Studios.
 
 ## Public connection profile

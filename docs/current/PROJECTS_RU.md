@@ -1,5 +1,7 @@
 # Professional Projects — RC26
 
+Status: current
+
 Stage 12 закрывает пункт **Projects** из Professional UX плана. Проект становится рабочим центром, а не только карточкой с последней миссией.
 
 ## Контракт данных

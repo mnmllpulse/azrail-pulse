@@ -116,11 +116,12 @@ export function keepAskedMedia(message: string, drafted: WorkPlan | null): WorkP
   return asked.some((part) => !kinds.has(part.kind)) ? local : drafted;
 }
 
-/** Файл и схема берутся только из слов самого сообщения. Модель не превращает разбор архива в сборку файла. */
+/** Картинка, музыка, ролик, сайт, файл и схема берутся только из слов самого сообщения. Модель не превращает вопрос в сборку. */
 export function groundWorkPlan(message: string, plan: WorkPlan | null): WorkPlan | null {
   if (!plan) return null;
-  const asked = readAssignment(message).kind;
-  const parts = plan.parts.filter((part) => (part.kind !== 'file' && part.kind !== 'diagram') || asked === part.kind);
+  const asked = new Set(planWork(message).parts.map((part) => part.kind));
+  asked.add(readAssignment(message).kind);
+  const parts = plan.parts.filter((part) => part.kind === 'build' || asked.has(part.kind));
   if (!parts.length) return null;
   if (parts.length === plan.parts.length) return plan;
   return { ...plan, parts, parallel: parts.some((part) => parts.filter((other) => other.wave === part.wave).length > 1) };
@@ -270,6 +271,17 @@ export function revisePart(plan: WorkPlan, id: string, text: string): boolean {
   return true;
 }
 
+export const SWITCH_KINDS: Array<Exclude<AssignmentKind, 'talk' | 'build'>> = ['image', 'web', 'music', 'video', 'file', 'diagram'];
+
+/** Та же фраза уходит в другую студию. Готовое результат прошлой студии остаётся в версиях. */
+export function switchPartKind(plan: WorkPlan, id: string, kind: Exclude<AssignmentKind, 'talk'>): boolean {
+  const part = plan.parts.find((item) => item.id === id);
+  if (!part || part.kind === kind || part.state === 'running') return false;
+  keepVersion(part);
+  Object.assign(part, assignmentForKind(kind), { state: 'waiting', ready: '' });
+  return true;
+}
+
 /** Возвращает в работу только упавшую часть. Готовая соседняя часть остаётся готовой. */
 export function retryPart(plan: WorkPlan, id: string): boolean {
   const part = plan.parts.find((item) => item.id === id);
@@ -347,6 +359,17 @@ export function pictureReply(parts: Array<{ ready?: string; thing?: PlanThing }>
   const blocks: string[] = [];
   for (const part of parts) {
     const thing = part.thing;
+    if (thing?.type === 'file' && thing.url && ARTIFACT_URL.test(thing.url)) {
+      const name = (thing.title || 'Файл').replace(/[\[\]]/g, '').slice(0, 80);
+      blocks.push(part.ready?.trim() || 'Файл в чате.');
+      blocks.push(`[${name}](${thing.url})`);
+      continue;
+    }
+    if (thing?.type === 'diagram' && thing.lines?.length) {
+      blocks.push(part.ready?.trim() || 'Схема в чате.');
+      blocks.push('```diagram\n' + thing.lines.map((line) => line.replace(/`/g, "'")).join('\n') + '\n```');
+      continue;
+    }
     if (thing?.type !== 'image' || !thing.url || !ARTIFACT_URL.test(thing.url)) continue;
     const title = (thing.title || 'Картинка').replace(/[\[\]]/g, '').slice(0, 80);
     blocks.push(part.ready?.trim() || 'Картинка в чате.');

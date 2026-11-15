@@ -30,7 +30,3 @@ export function validateMissionGraph(nodes:MissionGraphNode[]):MissionGraph{
  return {nodes,order,parallelGroups,estimatedMicroUsd:nodes.reduce((sum,node)=>sum+node.estimatedMicroUsd,0)};
 }
 
-export function nextRunnableNodes(graph:MissionGraph){
- const state=new Map(graph.nodes.map(node=>[node.id,node.status] as const));
- return graph.nodes.filter(node=>node.status==='waiting'&&node.dependencies.every(dep=>state.get(dep)==='succeeded'));
-}

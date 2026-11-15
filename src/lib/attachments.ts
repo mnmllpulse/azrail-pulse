@@ -38,13 +38,27 @@ const ZIP_MAX_TOTAL = 192 * 1024;
 const ZIP_MAX_ONE = 64 * 1024;
 
 /** Шум сборки: в перечень не попадает — он ничего не говорит о проекте. */
-const ZIP_NOISE = /(^|\/)(__MACOSX|node_modules|\.git|dist|build|coverage|\.wrangler)(\/|$)|(^|\/)\.DS_Store$/;
+export const ZIP_NOISE = /(^|\/)(__MACOSX|node_modules|\.git|dist|build|coverage|\.wrangler)(\/|$)|(^|\/)\.DS_Store$/;
 
 /** Файлы, по которым понятен проект. Читаются первыми, до общей очереди. */
 const ZIP_PRIORITY = /(^|\/)(readme|package\.json|wrangler\.|tsconfig|schema\.sql|index\.|main\.|app\.)/i;
 
+const ZIP_LOW = /(^|\/)(legacy|references|vendor|fixtures?|snapshots?|__snapshots__|\.cursor|\.github)(\/|$)|(^|\/)[^/]*(lock|\.min\.|\.map)(\.|$)/i;
+const ZIP_SOURCE = /(^|\/)(src|lib|app|server|api|worker|workers)\//i;
+const ZIP_SUPPORT = /(^|\/)(tests?|scripts?|docs?|migrations)\//i;
+
+/** Ярус файла: меньше — читается раньше. Имя, глубина и размер решают только внутри яруса. */
+export function zipTier(path: string): number {
+  if (ZIP_LOW.test(path)) return 4;
+  const depth = path.split("/").length;
+  if (ZIP_PRIORITY.test(path) && depth <= 3) return 0;
+  if (ZIP_SOURCE.test(path)) return 1;
+  if (ZIP_SUPPORT.test(path)) return 3;
+  return 2;
+}
+
 /** Расширения, которые имеет смысл читать как текст. */
-const TEXT_EXT = new Set([
+export const TEXT_EXT = new Set([
   "ts", "tsx", "js", "jsx", "mjs", "cjs", "json", "md", "txt", "css", "html",
   "yml", "yaml", "toml", "sql", "sh", "py", "rs", "go", "java", "kt", "swift",
   "c", "h", "cpp", "hpp", "rb", "php", "xml", "svg", "csv", "env", "gitignore",
@@ -73,7 +87,7 @@ const MARKDOWN_MIME: Record<string, string> = {
 };
 const RICH_MAX_BYTES = 10 * 1024 * 1024;
 
-function extOf(name: string): string {
+export function extOf(name: string): string {
   const i = name.lastIndexOf(".");
   return i === -1 ? "" : name.slice(i + 1).toLowerCase();
 }
@@ -117,9 +131,12 @@ async function readZip(buf: ArrayBuffer, archiveName: string): Promise<LoadedAtt
 
   const readable = visible.filter((e) => !e.skipped && TEXT_EXT.has(extOf(e.path)));
   const queue = [...readable].sort((a, b) => {
-    const pa = ZIP_PRIORITY.test(a.path) ? 0 : 1;
-    const pb = ZIP_PRIORITY.test(b.path) ? 0 : 1;
-    return pa !== pb ? pa - pb : a.size - b.size;
+    const ta = zipTier(a.path);
+    const tb = zipTier(b.path);
+    if (ta !== tb) return ta - tb;
+    const da = a.path.split("/").length;
+    const db = b.path.split("/").length;
+    return da !== db ? da - db : a.size - b.size;
   });
 
   let budget = ZIP_MAX_TOTAL;

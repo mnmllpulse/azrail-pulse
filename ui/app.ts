@@ -24,13 +24,18 @@ import {openUniversalCompareCenter} from './components/universal-compare';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
-import {formatAssignment,skillsReply,type Assignment} from './assignment';
+import {assignmentForKind,formatAssignment,skillsReply,type Assignment} from './assignment';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
-import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {agentSettings} from './local-agent';
+import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
+import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
+import {agentIntent,AGENT_OFF,APPROVE as AGENT_APPROVE,REJECT as AGENT_REJECT,approvalText,jobReply,waitJob,type AgentJobView} from './chat-agent';
+import {modelIntent,proposalText,YES,ROLLBACK,type ModelProposal} from './chat-settings';
+import {studioIntent,budgetSummary,ledgerSummary,pulseSummary,dataSummary,audioSummary} from './chat-studios';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
-import {diagramLines,diagramModel} from './diagram';
+import {diagramLines,diagramModel,diagramSvg} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
@@ -94,7 +99,7 @@ function applyExpert(on:boolean){
 }
 applyExpert(false);
 function setPreferredModel(model:string){preferredModel=model;try{if(model)sessionStorage.setItem('pulse.preferredModel',model);else sessionStorage.removeItem('pulse.preferredModel');}catch{}const select=$<HTMLSelectElement>('composer-model');if(model&&!Array.from(select.options).some(o=>o.value===model)){const option=document.createElement('option');option.value=model;option.textContent=modelDisplayName(model);option.title=model;select.append(option);}select.value=model;if(typeof syncModelsButton==='function')syncModelsButton();syncContextPanel();}
-function setChatVoice(voice:ChatVoice){chatVoice=voice;try{sessionStorage.setItem('pulse.voice',voice);}catch{}syncChatUI();notice(`Голос: ${VOICES[voice].name}. Серый говорит ниже, Люмен выше, Ария мягче.`);}
+function setChatVoice(voice:ChatVoice){chatVoice=voice;session(()=>sessionStorage.setItem('pulse.voice',voice));syncChatUI();notice(`Голос: ${VOICES[voice].name}. Серый говорит ниже, Люмен выше, Ария мягче.`);}
 
 let chatStorage:Storage|undefined;
 try{chatStorage={getItem:key=>deviceValue(key),setItem:(key,value)=>{deviceWrite(key,value);},removeItem:key=>deviceWrite(key,null),key:()=>null,length:0,clear(){}} as Storage;}catch{}
@@ -350,6 +355,9 @@ function syncChatAccount(){
 }
 type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;reviewed?:boolean;task?:string;capabilities?:string[];availability?:string;provider?:string;icon?:string|null;description?:string};
 let catalogModels:CatalogModel[]=[];
+let agentWaiting='';
+let modelProposal:ModelProposal|null=null;
+let modelUndo:ModelProposal|null=null;
 /** Full registry for the Models picker (exactly the server catalog, no truncation). */
 function pickerModels(){return catalogModels.filter(m=>m.availability!=='unavailable'&&typeof m.slug==='string');}
 function modelLabel(m:CatalogModel){return m.displayName||modelDisplayName(m.slug);}
@@ -524,6 +532,8 @@ prompt.addEventListener('input',()=>{saveComposerDraft();syncChatUI(false);});
 let noticeTimer=0;
 function notice(message:string,persist=false){clearTimeout(noticeTimer);$('notice-text').textContent=message;$('notice').hidden=false;if(!persist)noticeTimer=window.setTimeout(()=>{$('notice').hidden=true;},6500);}
 $('notice-close').onclick=()=>{clearTimeout(noticeTimer);$('notice').hidden=true;};
+/** sessionStorage бросает в приватном окне и при заблокированных данных сайта: тогда работаем без него. */
+function session(write:()=>void){try{write();}catch{/* хранилище недоступно */}}
 function failure(e:unknown){notice(e instanceof Error?e.message:String(e),true);}
 class APIError extends Error {
  constructor(message:string,readonly status:number,readonly code?:string,readonly body?:any){super(message);}
@@ -534,8 +544,8 @@ async function api(path:string,options:RequestInit={}) {
  if(authToken&&!headers.has('Authorization'))headers.set('Authorization','Bearer '+authToken);
  const r=await fetch(path,{...options,credentials:'same-origin',headers,signal:options.signal??AbortSignal.timeout(90000)});
  if(r.status===204)return null;
- if(r.status===401&&authToken){authToken='';try{sessionStorage.removeItem('pulse.token');}catch{}account=null;}
- const text=await r.text();let body:any;try{body=JSON.parse(text);}catch{}
+ if(r.status===401&&authToken){authToken='';session(()=>sessionStorage.removeItem('pulse.token'));account=null;}
+ const text=await r.text();let body:any;try{body=JSON.parse(text);}catch{/* не JSON: тело разбирается как текст ниже */}
  if(!r.ok)throw new APIError(typeof body?.error==='string'?body.error:`Сервис вернул ошибку ${r.status}. Повторите позже.`,r.status,body?.code,body);
  if(body===undefined)throw Error('Сервис вернул неполный ответ. Статус операции требует проверки.');return body;
 }
@@ -751,16 +761,41 @@ async function shrinkReference(file:Blob):Promise<Blob>{
   return blob;
  }finally{bitmap.close();}
 }
-async function attachedImageReference():Promise<string>{
- const file=attachmentManager.files().find(item=>/^image\//i.test(item.type)||/\.(png|jpe?g|webp|gif)$/i.test(item.name));
- if(!file)return '';
+const isImageFile=(file:File)=>/^image\//i.test(file.type)||/\.(png|jpe?g|webp|gif)$/i.test(file.name);
+async function uploadedAttachment(file:File):Promise<string>{
  const known=attachedReferences.get(file);if(known)return known;
+ if(file.size>12*1024*1024)return '';
+ const image=isImageFile(file);
+ const headers:Record<string,string>={'Content-Type':file.type||(image?'image/png':'application/octet-stream'),'X-Filename':encodeURIComponent(file.name.slice(0,120)),'X-Studio-Id':image?'image':'data'};
+ const saved=await api('/api/studio/artifacts',{method:'POST',headers,body:file}) as {id?:string};
+ if(!saved?.id)return '';
+ attachedReferences.set(file,saved.id);
+ return saved.id;
+}
+const shrunkReferences=new WeakMap<File,string>();
+async function attachedImageReference():Promise<string>{
+ const file=attachmentManager.files().find(isImageFile);
+ if(!file)return '';
+ const known=shrunkReferences.get(file);if(known)return known;
  const fitted=await shrinkReference(file);
  const headers:Record<string,string>={'Content-Type':'image/jpeg','X-Filename':encodeURIComponent(file.name.replace(/\.\w+$/,'.jpg').slice(0,120)),'X-Studio-Id':'image'};
  const saved=await api('/api/studio/artifacts',{method:'POST',headers,body:fitted}) as {id?:string};
  if(!saved?.id)throw Error('Вложенная картинка не сохранилась, поэтому рисовать по ней нельзя.');
- attachedReferences.set(file,saved.id);
+ shrunkReferences.set(file,saved.id);
  return saved.id;
+}
+let sentMarkup={for:'',text:''};
+async function attachmentMarkup(message:string):Promise<string>{
+ const files=account?attachmentManager.files():[];
+ const lines:string[]=[];
+ for(const file of files){
+  const name=file.name.replace(/[\[\]()\n]/g,' ').trim().slice(0,80)||'файл';
+  const id=await uploadedAttachment(file).catch(()=>'');
+  lines.push(id?`${isImageFile(file)?'!':''}[${name}](/api/studio/artifacts/${id})`:`📎 ${name}`);
+ }
+ const text=lines.length?'\n\n'+lines.join('\n\n'):'';
+ sentMarkup={for:message,text};
+ return text;
 }
 $<HTMLInputElement>('assignment-reference').addEventListener('change',()=>{
  const input=$<HTMLInputElement>('assignment-reference');
@@ -792,9 +827,9 @@ const openTokenLogin=()=>{
  bind('login-save',async()=>{
    const value=$<HTMLInputElement>('login-token').value.trim();
    if(!value)throw Error('Введите токен.');
-   authToken=value;try{sessionStorage.setItem('pulse.token',authToken);}catch{}
+   authToken=value;session(()=>sessionStorage.setItem('pulse.token',authToken));
    try{const me=await api('/api/me');account=me.account;}
-   catch(e){authToken='';try{sessionStorage.removeItem('pulse.token');}catch{};throw e;}
+   catch(e){authToken='';session(()=>sessionStorage.removeItem('pulse.token'));throw e;}
    $<HTMLDialogElement>('dialog').close();$('account').textContent=account!.name;syncChatAccount();void refreshComposerModels();await refreshMode();
    await syncServerChats();
    if(mission&&expertOn()){navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}
@@ -818,7 +853,7 @@ bind('account',async()=>{
  $('account-name').textContent=account.name;$('account-id').textContent=account.id;
  bind('logout',async()=>{
   const wasToken=!!authToken;
-  if(wasToken){authToken='';try{sessionStorage.removeItem('pulse.token');}catch{}}
+  if(wasToken){authToken='';session(()=>sessionStorage.removeItem('pulse.token'))}
   else await api('/auth/logout',{method:'POST'});
   chatHistory.clearScope();
   for(const key of ['pulse.pending','pulse.project','pulse.mission','pulse.image.pending','pulse.identity'])deviceWrite(key,null);
@@ -828,7 +863,7 @@ bind('account',async()=>{
 async function refreshAccount(){
  if(local){syncChatAccount();$('local-notice').textContent='Локальный просмотр · WAV/MIDI, аудиоанализ и CSV доступны на устройстве. Для AI и проектов нужен вход в развёрнутое приложение.';$('local-notice').hidden=false;return;}
  const a=await api('/auth/status');account=a.account;oidcConfigured=!!a.configured;if(typeof a.key==='boolean')keyLogin=a.key;
- if(!account&&authToken){try{const me=await api('/api/me');account=me.account;}catch{authToken='';try{sessionStorage.removeItem('pulse.token');}catch{}}}
+ if(!account&&authToken){try{const me=await api('/api/me');account=me.account;}catch{authToken='';session(()=>sessionStorage.removeItem('pulse.token'))}}
  syncChatAccount();void refreshComposerModels();
  if(account){$('account').textContent=account.name;await refreshMode();ensureEventStream();if(mission&&expertOn()){if(composerPage==='create')navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}}
  else if(!oidcConfigured)notice('OIDC не настроен. Войдите по токену через кнопку «Аккаунт» — регистрация внешнего приложения не нужна.');
@@ -887,6 +922,7 @@ function openSettings(){
   save.onclick=()=>{void api('/api/admin/trial',{method:'POST',body:JSON.stringify({speech:speechBox.checked,sandbox:sandboxBox.checked})}).then(()=>{notice('Пробный лимит сохранён.');openSettings();}).catch(failure);};
   trial.append(speech,sandbox,closed,save);
  }).catch(()=>{const p=document.createElement('p');p.className='muted';p.textContent='Пробный лимит сейчас не прочитался.';trial.append(p);});
+ if(account?.role==='admin')root.append(agentSettings(api,notice,failure));
  const limits=block('Лимиты');
  limits.append(document.createTextNode('Загрузка…'));
  void refreshMode().then(r=>{
@@ -1045,31 +1081,7 @@ function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster='',
   parent.append(host);return;
  }
  if(thing.type==='diagram'&&thing.lines?.length){
-  const model=diagramModel(thing.lines.join('\n'));
-  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
-  svg.setAttribute('viewBox','0 0 640 160');
-  svg.setAttribute('width','100%');
-  svg.setAttribute('role','img');
-  const count=Math.max(model.nodes.length,1);
-  const place=new Map(model.nodes.map((name,index)=>[name,{x:count===1?250:24+index*(520/Math.max(count-1,1)),y:62}]));
-  for(const [from,to] of model.edges){
-   const start=place.get(from);const end=place.get(to);if(!start||!end)continue;
-   const line=document.createElementNS('http://www.w3.org/2000/svg','line');
-   line.setAttribute('x1',String(start.x+88));line.setAttribute('y1',String(start.y+16));
-   line.setAttribute('x2',String(end.x));line.setAttribute('y2',String(end.y+16));
-   line.setAttribute('stroke','#8b7cff');line.setAttribute('stroke-width','2');svg.append(line);
-  }
-  for(const name of model.nodes){
-   const point=place.get(name);if(!point)continue;
-   const rect=document.createElementNS('http://www.w3.org/2000/svg','rect');
-   rect.setAttribute('x',String(point.x));rect.setAttribute('y',String(point.y));
-   rect.setAttribute('width','112');rect.setAttribute('height','32');rect.setAttribute('rx','6');
-   rect.setAttribute('fill','#12121a');rect.setAttribute('stroke','#8b7cff');
-   const label=document.createElementNS('http://www.w3.org/2000/svg','text');
-   label.textContent=name;label.setAttribute('x',String(point.x+8));label.setAttribute('y',String(point.y+21));
-   label.setAttribute('fill','#f4f1ea');label.setAttribute('font-size','12');
-   svg.append(rect,label);
-  }
+  const svg=diagramSvg(document,thing.lines);
   host.append(svg);parent.append(host);return;
  }
  if(thing.type==='note'&&thing.title){const note=document.createElement('p');note.textContent=thing.title;host.append(note);parent.append(host);}
@@ -1278,7 +1290,7 @@ async function rememberWork(message:string,plan:WorkPlan,finished:boolean){
  const pictured=finished?pictureReply(plan.parts):'';
  const summary=pictured||(finished&&head?(plan.parts.length>1?formatPlan(plan):formatAssignment(head)):'');
  try{
-  await api('/api/conversations/plan',{method:'POST',body:JSON.stringify({conversationId:thread.id,userText:message.slice(0,4000),...(summary?{summary:summary.slice(0,4000)}:{}),plan:planRecord(plan)})});
+  await api('/api/conversations/plan',{method:'POST',body:JSON.stringify({conversationId:thread.id,userText:(message===sentMarkup.for?message+sentMarkup.text:message).slice(0,4000),...(summary?{summary:summary.slice(0,4000)}:{}),plan:planRecord(plan)})});
  }catch{/* Полоса остаётся на этом экране, даже если запись не дошла. */}
 }
 function showAssignment(plan:Assignment){
@@ -1326,7 +1338,12 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
   edit.textContent='Править';
   edit.dataset.part=part.id;
   edit.onclick=()=>openPartEdit(plan,part.id);
-  item.append(line,edit);
+  const other=document.createElement('button');
+  other.type='button';
+  other.className='part-edit';
+  other.textContent='Другая студия';
+  other.onclick=()=>openPartKind(plan,part.id);
+  item.append(line,edit,other);
   if(part.state==='done'&&part.kind==='image'&&part.thing?.url){
    const grow=document.createElement('button');
    grow.type='button';
@@ -1399,6 +1416,26 @@ function paintPlan(plan:WorkPlan,needsYou='Пока не нужно.'){
  const login=$<HTMLButtonElement>('assignment-login');
  login.hidden=!needsYou.includes('Войди');
 }
+function openPartKind(plan:WorkPlan,id:string){
+ const part=plan.parts.find(item=>item.id===id);
+ if(!part||missionSubmitting)return;
+ const item=document.querySelector<HTMLButtonElement>(`#assignment-parts [data-part="${CSS.escape(id)}"]`)?.closest('li');
+ if(!item)return;
+ item.replaceChildren();
+ const pick=document.createElement('select');
+ pick.setAttribute('aria-label',`Студия для части ${part.worker}`);
+ for(const kind of SWITCH_KINDS){if(kind===part.kind)continue;const option=document.createElement('option');option.value=kind;option.textContent=assignmentForKind(kind).worker;pick.append(option);}
+ const go=document.createElement('button');
+ go.type='button';
+ go.textContent='Собрать в этой студии';
+ go.onclick=()=>{
+  if(!switchPartKind(plan,id,pick.value as typeof SWITCH_KINDS[number]))return;
+  const message=heldMessage||plan.parts.map(row=>row.text).join(' · ');
+  void runPlan(plan,message,true,id).catch(failure);
+ };
+ item.append(pick,go);
+ pick.focus();
+}
 function openPartEdit(plan:WorkPlan,id:string){
  const part=plan.parts.find(item=>item.id===id);
  if(!part||missionSubmitting)return;
@@ -1441,7 +1478,7 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
  const requestKey=crypto.randomUUID();
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
- chatHistory.accepted(requestKey,message,project,'');
+ chatHistory.accepted(requestKey,message+await attachmentMarkup(message),project,'');
  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
  const paint=(next:Assignment,status='completed')=>{showAssignment(next);chatHistory.report(requestKey,formatAssignment(next),status);syncChatUI();workspace.toLatest();};
  try{
@@ -1451,7 +1488,7 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
   chatHistory.report(requestKey,plan.kind==='image'?'Собираю картинку…':formatAssignment(plan),'queued');
   syncChatUI();workspace.toLatest();
   const text=plan.versions?.length&&plan.text?plan.text:message;
-  const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,id:'part-1',text,wave:0,dependsOn:[],state,thing,versions:plan.versions,seed:plan.seed??undefined}]});
+  const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,...(state==='done'&&part.ready?{ready:part.ready}:{}),id:'part-1',text,wave:0,dependsOn:[],state,thing,versions:plan.versions,seed:plan.seed??undefined}]});
   const part:PlanPart={...plan,id:'part-1',text,wave:0,dependsOn:[],state:'running',versions:plan.versions,seed:plan.seed??undefined};
   await rememberWork(message,one(),false);
   await runPlanPart(part);
@@ -1461,6 +1498,7 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
   if(pictured){showAssignment({...plan,ready:part.ready||plan.ready});chatHistory.report(requestKey,pictured,'completed');syncChatUI();workspace.toLatest();}
   else if(part.ready)paint({...plan,ready:part.ready});
   showContinue(one(part.thing,'done'));
+  clearAttachments();
  }
  catch(e){
   const text=e instanceof Error?e.message:'Не удалось начать поручение.';
@@ -1491,7 +1529,7 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  if(!resume){
-  chatHistory.accepted(requestKey,message,project,'');
+  chatHistory.accepted(requestKey,message+await attachmentMarkup(message),project,'');
   if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
  }
  const estimate=await todayNote(plan);
@@ -1522,10 +1560,13 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
     if(result.status==='rejected'){part.state='failed';part.needsYou=result.reason instanceof Error?result.reason.message:'Эта часть не вышла.';}
     else if(part.state==='running')part.state='done';
    });
+   // Вложения уходят с поручением; оставленный файл подмешался бы в следующие сообщения.
+   clearAttachments();
    paint(plan.parts.some(part=>part.state==='failed')?'Часть плана не вышла. Остальные, которые уже шли рядом, не откатываю.':undefined);
    mountLiveClip();
   }
   await rememberWork(message,plan,true);
+  clearAttachments();
  }
  catch(e){
   const text=e instanceof Error?e.message:'Не удалось начать план.';
@@ -1746,6 +1787,74 @@ async function runChat(){
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
+ if(agentWaiting&&(AGENT_APPROVE.test(message)||AGENT_REJECT.test(message))){
+  const id=agentWaiting;agentWaiting='';
+  try{
+   await api(`/api/agent/jobs/${id}/${AGENT_APPROVE.test(message)?'approve':'reject'}`,{method:'POST',body:'{}'});
+   noteLocal(message,jobReply(await waitJob(api,id,ms=>new Promise(r=>setTimeout(r,ms)))));
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент не ответил.');}
+  return;
+ }
+ const forAgent=agentIntent(message);
+ if(forAgent){
+  try{
+   if(!account)throw Error('Войдите, чтобы работать с компьютером.');
+   const state=await api('/api/agent/status') as {enabled?:boolean};
+   if(!state.enabled){noteLocal(message,AGENT_OFF);return;}
+   const made=(await api('/api/agent/jobs',{method:'POST',body:JSON.stringify(forAgent)})).job as AgentJobView;
+   if(made.status==='awaiting_approval'){agentWaiting=made.id;noteLocal(message,approvalText(made));return;}
+   noteLocal(message,jobReply(await waitJob(api,made.id,ms=>new Promise(r=>setTimeout(r,ms)))));
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент недоступен.');}
+  return;
+ }
+ const switchTo=modelIntent(message,pickerModels().map(m=>({slug:m.slug,label:modelLabel(m),free:!!m.freeAllowlisted&&m.availability!=='unavailable'})));
+ if(switchTo){
+  const here=catalogModels.find(m=>m.slug===preferredModel);
+  modelProposal={to:switchTo.slug,toLabel:switchTo.label,from:preferredModel,fromLabel:here?modelLabel(here):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL')};
+  noteLocal(message,proposalText(modelProposal));
+  return;
+ }
+ if(modelProposal&&YES.test(message)){
+  const done=modelProposal;modelProposal=null;modelUndo=done;setPreferredModel(done.to);
+  noteLocal(message,`Применено: «${done.toLabel}». Вернуть «${done.fromLabel}» — напиши «откати».`);
+  return;
+ }
+ if(modelUndo&&ROLLBACK.test(message)){
+  const back=modelUndo;modelUndo=null;setPreferredModel(back.from);
+  noteLocal(message,`Вернул «${back.fromLabel}».`);
+  return;
+ }
+ const studioKind=studioIntent(message,attachmentManager.files());
+ if(studioKind){
+  try{
+   if(!account)throw Error('Войдите, чтобы открыть этот отчёт.');
+   if(studioKind==='ledger')noteLocal(message,ledgerSummary(await api('/api/studio/ledger?limit=200')));
+   else if(studioKind==='budget')noteLocal(message,budgetSummary(await api('/api/studio/budget')));
+   else if(studioKind==='pulse')noteLocal(message,pulseSummary(await api('/api/studio/pulse')));
+   else if(studioKind==='data'){
+    const file=attachmentManager.files().find(item=>/\.(?:csv|tsv)$/i.test(item.name))!;
+    if(file.size>2_000_000)throw Error('Таблица должна быть не больше 2 МБ.');
+    const {parseDataset}=await import('./data');
+    noteLocal(message,dataSummary(file.name,parseDataset(await file.text()).analysis));
+    clearAttachments();
+   }else{
+    const file=attachmentManager.files().find(item=>/\.(?:wav|mp3|flac|ogg|m4a|aac|webm)$/i.test(item.name))!;
+    const {analyzeAudio}=await import('./media');
+    noteLocal(message,audioSummary(file.name,await analyzeAudio(file)));
+    clearAttachments();
+   }
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Не удалось собрать отчёт.');}
+  return;
+ }
+ if(wantsZipOfReply(message)){
+  const last=[...(chatHistory.current()?.turns??[])].reverse().find(turn=>turn.status==='completed'&&filesFromReply(turn.reply).length>0);
+  const bytes=last?zipOfReply(last.reply):null;
+  if(last&&bytes){
+   saveBytes('azrail-files.zip',bytes);
+   noteLocal(message,`Собрал azrail-files.zip: ${filesFromReply(last.reply).map(file=>file.path).join(', ')}.`);
+   return;
+  }
+ }
  if(/^верни\s+файл[.!?]?$/iu.test(message)){
   const field=document.querySelector<HTMLTextAreaElement>('#home-code');
   const back=restoreFileShot(activePath(),field?.value??'');
@@ -1795,6 +1904,8 @@ async function runChat(){
  try{
  let planned=followUpPlan(message,heldPlan)??await chosenPlan(message);
  if(planned&&planned.parts.length===1&&planned.parts[0].kind==='build')planned=null;
+ // Сайт по приложенному файлу: конструктор файл не читает, поэтому разбор и код уходят в чат, где файл виден.
+ if(planned&&planned.parts.length===1&&['web','page'].includes(planned.parts[0].kind)&&attachmentManager.files().some(file=>!isImageFile(file)))planned=null;
  if(planned&&planned.parts.length>1){handed=true;await runPlan(planned,message);return;}
  if(planned&&planned.parts.length===1){handed=true;await runAssignment(planned.parts[0],message);return;}
  if(!account)throw Error('Войдите в аккаунт, чтобы писать в Chat.');
@@ -1810,12 +1921,12 @@ async function runChat(){
  const requestKey=crypto.randomUUID();
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
- chatHistory.accepted(requestKey,message,project,conversationId);
+ const shown=message+await attachmentMarkup(message);chatHistory.accepted(requestKey,shown,project,conversationId);
  chatHistory.report(requestKey,'','queued');
  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft(prompt.value);workspace.resizePrompt();
  syncChatUI();workspace.toLatest();
  try{
-  const body=JSON.stringify({message,projectId:project,conversationId,voice:chatVoice,attachments:attachmentRefs,...(preferredModel?{preferredModel}:{})});
+  const body=JSON.stringify({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:attachmentRefs,...(preferredModel?{preferredModel}:{})});
   const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':requestKey},body});
   const reply=String(r.result?.summary||r.result?.error||r.error||'Пустой ответ.');
   const status=r.result?.status==='failed'||r.success===false?'failed':'completed';

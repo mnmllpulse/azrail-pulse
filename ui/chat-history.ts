@@ -185,6 +185,10 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
    fillMarkdownContent(body,content);
    item.append(body);
    if(status!=='queued'&&status!=='failed')appendAssistantActions(item,content,handlers);
+  }else if(role==='user'&&/\]\(\/api\/studio\/artifacts\//.test(content)){
+   const body=doc.createElement('div');
+   fillMarkdownContent(body,content);
+   item.append(body);
   }else{
    const text=doc.createElement('p');text.className='message-content';text.textContent=content;item.append(text);
   }

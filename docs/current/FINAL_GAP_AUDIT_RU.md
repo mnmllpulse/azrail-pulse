@@ -1,5 +1,7 @@
 # Final Gap Audit — AZRAIL 1.5.0-rc.63
 
+Status: current
+
 Этот документ отделяет **закрытые требования PDF** от функций, которые нельзя честно считать production-ready без внешнего provider/runtime/deployment proof.
 
 ## Закрыто локально по PDF

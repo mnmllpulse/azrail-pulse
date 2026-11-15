@@ -1,8 +1,34 @@
+# Dependencies / build
 node_modules/
 dist/
+coverage/
 .wrangler/
+.work/
+.build/
+backups/
+wrangler.generated.json
+
+# Secrets / local state
+.env*
+.dev.vars
+*.sqlite
+
+# Logs and generated reports
 *.log
+verification/
+SOURCE_MANIFEST.json
+release-manifest.json
+package-lock.json
+
+# History and archives
 docs/history/
 docs/legacy/
-*.sqlite
-.env*
+verification/history/
+references/legacy/
+
+# Heavy binaries
+*.png
+*.jpg
+*.pdf
+*.docx
+*.zip

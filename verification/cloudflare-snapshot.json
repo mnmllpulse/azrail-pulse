@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-29T00:12:02.043Z",
+  "generated_at": "2026-11-15T04:08:25.458Z",
   "source": "Cloudflare API read-only GET. No Cloudflare write.",
   "mutation_free": true,
   "environments": {
@@ -87,9 +87,19 @@
             "text": "1000"
           },
           {
+            "name": "CHAT_DAILY_LIMIT",
+            "type": "plain_text",
+            "text": "200"
+          },
+          {
             "name": "DAILY_PROVIDER_CALLS",
             "type": "plain_text",
-            "text": "20"
+            "text": "500"
+          },
+          {
+            "name": "OIDC_ADMIN_EMAILS",
+            "type": "plain_text",
+            "text": "mnmllpulse@gmail.com"
           },
           {
             "name": "OIDC_ADMIN_GROUPS",
@@ -136,14 +146,14 @@
       ]
     },
     "production": {
-      "worker_name": "azrail-os",
+      "worker_name": "azrail-pulse",
       "settings": {
-        "compatibility_date": "2026-08-08",
+        "compatibility_date": "2026-09-29",
         "compatibility_flags": [
           "nodejs_compat"
         ],
         "observability": {
-          "enabled": false,
+          "enabled": true,
           "head_sampling_rate": 1,
           "redact_query_string": false,
           "logs": {
@@ -153,12 +163,9 @@
             "invocation_logs": true
           },
           "traces": {
-            "enabled": true,
+            "enabled": false,
             "persist": true,
             "head_sampling_rate": 1
-          },
-          "issues": {
-            "enabled": true
           }
         },
         "bindings": [
@@ -176,39 +183,55 @@
             "type": "assets"
           },
           {
+            "name": "AUTH_MODE",
+            "type": "plain_text",
+            "text": "oidc"
+          },
+          {
             "name": "AZRAIL_D1",
             "type": "d1",
-            "database_id": "c76e7d92-648c-45bc-b0df-f26b00d0ff88"
+            "database_id": "879af4e8-b800-4991-b9c9-fc43a8dbe47f"
+          },
+          {
+            "name": "AZRAIL_DAILY_NEURONS",
+            "type": "plain_text",
+            "text": "6000"
+          },
+          {
+            "name": "AZRAIL_FORCE_FREE",
+            "type": "plain_text",
+            "text": "false"
           },
           {
             "name": "AZRAIL_KV",
             "type": "kv_namespace",
-            "namespace_id": "dab3b792264f4d9cbec5d637d4f8d71e"
+            "namespace_id": "90738a2617074fa3825bf5d45e6cf50d"
           },
           {
             "name": "AZRAIL_METERING",
             "type": "plain_text",
-            "text": "observe"
+            "text": "enforce"
           },
           {
             "name": "AZRAIL_MISSION_BUDGET_USD",
             "type": "plain_text",
-            "text": "1"
+            "text": "0.10"
           },
           {
             "name": "AZRAIL_R2",
             "type": "r2_bucket",
-            "bucket_name": "azrail-artifacts"
+            "bucket_name": "azrail-pulse-artifacts"
           },
           {
             "name": "AZRAIL_SANDBOX",
             "type": "durable_object_namespace",
             "class_name": "Sandbox",
-            "namespace_id": "4b79e361386245e68f45161fd349e5f3"
+            "namespace_id": "4d35a0c0aa194449835ad3baacfedf7b"
           },
           {
-            "name": "AZRAIL_TOKEN",
-            "type": "secret_text"
+            "name": "AZRAIL_SWITCH_SANDBOX",
+            "type": "plain_text",
+            "text": "off"
           },
           {
             "name": "AZRAIL_WORKERS_PLAN",
@@ -216,15 +239,67 @@
             "text": "paid"
           },
           {
-            "name": "CORS_ORIGIN",
+            "name": "AZRAIL_WRITE_BUDGET",
             "type": "plain_text",
-            "text": "*"
+            "text": "1000"
+          },
+          {
+            "name": "CHAT_DAILY_LIMIT",
+            "type": "plain_text",
+            "text": "200"
+          },
+          {
+            "name": "DAILY_PROVIDER_CALLS",
+            "type": "plain_text",
+            "text": "500"
+          },
+          {
+            "name": "ELEVENLABS_API_KEY",
+            "type": "secret_text"
+          },
+          {
+            "name": "GITHUB_REPO",
+            "type": "secret_text"
+          },
+          {
+            "name": "GITHUB_TOKEN",
+            "type": "secret_text"
+          },
+          {
+            "name": "OIDC_ADMIN_EMAILS",
+            "type": "plain_text",
+            "text": "mnmllpulse@gmail.com"
+          },
+          {
+            "name": "OIDC_CLIENT_ID",
+            "type": "plain_text",
+            "text": "2f6b60f04afb1141453899b193e2620b3d65b8a7904e81e1450bc97e705c1912"
+          },
+          {
+            "name": "OIDC_GROUPS_CLAIM",
+            "type": "plain_text",
+            "text": "groups"
+          },
+          {
+            "name": "OIDC_ISSUER",
+            "type": "plain_text",
+            "text": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/2f6b60f04afb1141453899b193e2620b3d65b8a7904e81e1450bc97e705c1912"
           },
           {
             "name": "Orchestrator",
             "type": "durable_object_namespace",
             "class_name": "Orchestrator",
-            "namespace_id": "038f459445494cddba984df5aca4520b"
+            "namespace_id": "b1f95681bcdb4ccebdc6a47238fae425"
+          },
+          {
+            "name": "PUBLIC_ORIGINS",
+            "type": "plain_text",
+            "text": "https://azrail-pulse.mnmllpulse.workers.dev"
+          },
+          {
+            "name": "UNIFIED_LEDGER",
+            "type": "plain_text",
+            "text": "true"
           }
         ]
       },

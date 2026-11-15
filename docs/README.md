@@ -4,6 +4,7 @@
 - `runbooks/` — operator procedures and release gates.
 - `product/` — architecture, product specification and branding source documents.
 - `releases/` — current release changelog.
-- `history/` — historical audits, old changelogs, previous verification notes and old exported documents.
+- `history/` — snapshots and summaries only; full text of past audits and changelogs lives in branch `archive/docs-2026-11`.
+- `DOCS_RULES.md` — how to keep documentation tidy.
 
 If historical content conflicts with current code or current documentation, `docs/current/`, `docs/runbooks/`, executable checks in `scripts/`, and canonical configuration in `config/` take precedence.

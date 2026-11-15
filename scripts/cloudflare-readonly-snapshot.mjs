@@ -96,6 +96,27 @@ if (!stagingDeployment?.id || !stagingDeployment.version_id || !productionDeploy
   process.exit(2);
 }
 
+async function activeVersionSettings(script, deployment, fallback) {
+  try {
+    const version = await get(`/workers/scripts/${script}/versions/${deployment.version_id}`);
+    const bindings = version?.resources?.bindings;
+    if (!Array.isArray(bindings) || !bindings.length) return fallback;
+    const runtime = version.resources.script_runtime ?? {};
+    return {
+      ...fallback,
+      bindings,
+      compatibility_date: runtime.compatibility_date ?? fallback.compatibility_date,
+      compatibility_flags: runtime.compatibility_flags ?? fallback.compatibility_flags,
+    };
+  } catch {
+    return fallback;
+  }
+}
+const [stagingActive, productionActive] = await Promise.all([
+  activeVersionSettings(workers.staging, stagingDeployment, stagingSettings),
+  activeVersionSettings(workers.production, productionDeployment, productionSettings),
+]);
+
 const azrailResource = (value) => /^azrail/i.test(String(value ?? ''));
 const resources = {
   d1: (Array.isArray(d1) ? d1 : []).filter((item) => azrailResource(item.name)).map((item) => ({ uuid: item.uuid, name: item.name })),
@@ -103,8 +124,8 @@ const resources = {
   r2: (Array.isArray(r2) ? r2 : (r2?.buckets ?? [])).filter((item) => azrailResource(item.name)).map((item) => ({ name: item.name })),
 };
 
-const stagingBindings = (stagingSettings.bindings ?? []).map(publicBinding);
-const productionBindings = (productionSettings.bindings ?? []).map(publicBinding);
+const stagingBindings = (stagingActive.bindings ?? []).map(publicBinding);
+const productionBindings = (productionActive.bindings ?? []).map(publicBinding);
 const cronList = (result) => {
   const list = Array.isArray(result) ? result : (result?.schedules ?? []);
   return list.map((item) => ({ cron: item.cron }));

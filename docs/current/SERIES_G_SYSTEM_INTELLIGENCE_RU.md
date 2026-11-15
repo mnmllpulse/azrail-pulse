@@ -1,5 +1,7 @@
 # Series G — System Intelligence (G01–G10)
 
+Status: current
+
 Release target: **AZRAIL 1.5.0-rc.63**. Это локальная интеграция сквозных систем поверх уже закрытых Series E/F; отдельные параллельные state stores не создаются.
 
 ## G01 Suggestion Engine

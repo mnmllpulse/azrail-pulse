@@ -1,5 +1,7 @@
 # Product Intelligence — RC63
 
+Status: current
+
 ## Memory hierarchy
 
 `user -> workspace -> project -> studio domain -> agent/session`

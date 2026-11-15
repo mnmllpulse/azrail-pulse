@@ -1,5 +1,10 @@
 # Historical material
 
-This directory is intentionally non-authoritative. It preserves prior audits, old RC changelogs, pre-hardening deployment notes, screenshots and previous exported documents for traceability.
+Status: snapshot 2026-11-13. Этот каталог не является источником истины и не содержит инструкций по выкладке.
 
-Do not use files in this directory as deployment instructions. Current procedures live in `docs/current/` and `docs/runbooks/`.
+- `CHANGELOG_ARCHIVE.md` — по строке на каждый прошлый релиз.
+- `AUDITS_SUMMARY.md` — что было удалено при чистке.
+- `*_RU.md` — снимки состояния, вынесенные из `docs/current/`.
+- Полные тексты (audits, changelog, verification, скриншоты): ветка `archive/docs-2026-11`.
+
+Актуальные процедуры: `docs/current/` и `docs/runbooks/`.

@@ -1,5 +1,7 @@
 # Полный построчный аудит репозитория — RC50
 
+Status: current
+
 ## Цель
 
 RC50 выполняет более строгую проверку, чем предыдущая уборка RC48: **каждый файл будущего GitHub ZIP проходит inventory/hash pass, а каждый декодируемый текстовый файл — построчный scan**. Исторические `docs/history/`, `verification/history/` и `references/legacy/` также входят в проверку, хотя они остаются non-runtime и non-authoritative.

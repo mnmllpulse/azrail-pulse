@@ -1,5 +1,7 @@
 # Готовность к выпуску
 
+Status: current
+
 Release: `1.5.0-rc.63`
 
 Status: CONDITIONAL

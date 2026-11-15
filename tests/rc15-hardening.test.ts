@@ -97,10 +97,11 @@ describe("RC15 5/8 retention invariants",()=>{
 });
 
 describe("RC15 6/8 Studio streaming",()=>{
-  it("streams generic artifacts through a bounded TransformStream instead of buffering 12 MiB",()=>{
+  it("passes a known-length request body straight to R2 (R2 rejects TransformStream bodies) and buffers only chunked uploads under the limit",()=>{
     const source=readFileSync(new URL('../src/unified/studios.ts',import.meta.url),'utf8');
     expect(source).toContain('saveArtifactStream');
-    expect(source).toContain('request.body.pipeThrough(limiter)');
+    expect(source).toContain('env.AZRAIL_R2.put(key,request.body,');
+    expect(source).not.toContain('pipeThrough(limiter)');
     expect(source).not.toContain("const bytes=await readBoundedBody(request,12*1024*1024)");
   });
 });

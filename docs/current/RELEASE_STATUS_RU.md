@@ -1,5 +1,7 @@
 # AZRAIL 1.5.0-rc.63 — статус релиза
 
+Status: current
+
 Текущая контрольная точка: **Stage 33 / Stage D пункт 38 — Production Release Preparation**.
 
 ## Что подтверждено

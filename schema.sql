@@ -587,6 +587,8 @@ CREATE TABLE IF NOT EXISTS model_calls (
   actual_micro_usd INTEGER,
   error TEXT
 );
+CREATE INDEX IF NOT EXISTS idx_model_calls_status_started ON model_calls(status, started_at DESC);
+CREATE INDEX IF NOT EXISTS idx_model_calls_scope_started ON model_calls(scope, started_at);
 CREATE TABLE IF NOT EXISTS model_call_dimensions (
   call_id TEXT PRIMARY KEY,
   provider TEXT NOT NULL,

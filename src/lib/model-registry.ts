@@ -55,6 +55,15 @@ export interface ModelEntry {
   requiresGateway: boolean;
   /** Откуда взяты данные — чтобы через полгода было видно, что перепроверять. */
   source: string;
+  /** Дата отключения модели (YYYY-MM-DD, UTC). С этого дня роутер её не предлагает; запись остаётся в реестре. */
+  deprecatedAt?: string;
+}
+
+/** Модель отключена на момент `now`. Дата — первый день, когда вызывать её уже нельзя. */
+export function isDeprecated(model: Pick<ModelEntry, "deprecatedAt">, now = Date.now()): boolean {
+  if (!model.deprecatedAt) return false;
+  const at = Date.parse(`${model.deprecatedAt}T00:00:00Z`);
+  return Number.isFinite(at) && now >= at;
 }
 
 /**
@@ -90,6 +99,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   // ─── Собственные модели Cloudflare (@cf/) ───────────────────────────
   {
     slug: "@cf/moonshotai/kimi-k2.7-code",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "Moonshot AI",
     tier: "frontier",
     capabilities: ["text_generation", "tool_calling", "reasoning", "coding", "vision"],
@@ -101,6 +111,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   },
   {
     slug: "@cf/zai-org/glm-5.2",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "Z.ai",
     tier: "frontier",
     capabilities: ["text_generation", "tool_calling", "coding"],
@@ -114,6 +125,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   },
   {
     slug: "@cf/deepseek-ai/deepseek-v4-flash-0731",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "DeepSeek",
     tier: "frontier",
     capabilities: ["text_generation", "tool_calling", "reasoning"],
@@ -128,6 +140,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   },
   {
     slug: "@cf/nvidia/nemotron-3-120b-a12b",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "NVIDIA",
     tier: "frontier",
     capabilities: ["text_generation", "tool_calling", "reasoning", "coding"],
@@ -161,6 +174,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   },
   {
     slug: "@cf/meta/llama-3.2-3b-instruct",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "Meta",
     tier: "fast",
     capabilities: ["text_generation", "multilingual"],
@@ -198,6 +212,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   // как устаревшая; ровно та ошибка, что уже была с llama-3.1-8b-instruct.
   {
     slug: "@cf/moonshotai/kimi-k2.6",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "Moonshot AI",
     tier: "frontier",
     capabilities: ["text_generation", "tool_calling", "reasoning", "vision"],
@@ -216,6 +231,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   },
   {
     slug: "@cf/deepseek-ai/deepseek-v4-pro-0813",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "DeepSeek",
     tier: "frontier",
     capabilities: ["text_generation", "tool_calling", "reasoning"],
@@ -234,6 +250,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   },
   {
     slug: "@cf/zai-org/glm-5.3-flash",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "Z.ai",
     tier: "balanced",
     capabilities: ["text_generation", "tool_calling", "reasoning", "vision"],
@@ -269,6 +286,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   },
   {
     slug: "@cf/qwen/qwen3-30b-a3b-fp8",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "Qwen",
     tier: "balanced",
     capabilities: ["text_generation", "tool_calling", "reasoning"],
@@ -278,6 +296,7 @@ export const MODEL_REGISTRY: ModelEntry[] = [
   },
   {
     slug: "@cf/qwen/qwq-32b",
+    deprecatedAt: "2026-11-20", // официально: Cloudflare changelog 2026-11-05 (срок сдвинут с 15.11 на 20.11, после даты ответ 410/5028)
     provider: "Qwen",
     tier: "balanced",
     capabilities: ["text_generation", "reasoning"],

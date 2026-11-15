@@ -36,10 +36,8 @@ npm run node24:suite
 
 ## История
 
-Старые changelog/verification/audit-файлы не лежат в корне:
+Старые changelog/verification/audit-файлы не лежат в корне. Сводки: `docs/history/CHANGELOG_ARCHIVE.md`, `docs/history/AUDITS_SUMMARY.md`. Полные тексты: ветка `archive/docs-2026-11`.
 
-- `docs/history/changelog/`
-- `docs/history/audits/`
 - `verification/history/rc/`
 - `references/legacy/`
 

@@ -58,7 +58,7 @@ function asDraft(title:string,blocks:Block[]):ProseDraft{
  const sections=blocks.map(block=>({name:block.name,line:block.rows.join('\n')}));
  return {title,text:sections.map(section=>`[${section.name}]\n${section.line}`).join('\n\n'),sections};
 }
-export function keepProse(raw:string):ProseDraft{
+function keepProse(raw:string):ProseDraft{
  const text=clean(raw);
  const blocks=blocksOf(text);
  if(!blocks.some(block=>block.name!=='Шапка'))return {title:'Как есть',text,sections:[]};

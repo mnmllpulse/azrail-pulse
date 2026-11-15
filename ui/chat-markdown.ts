@@ -1,3 +1,4 @@
+import { diagramSvg } from './diagram';
 /** Escape text for safe HTML insertion. */
 export function escapeHtml(value: string): string {
   return value
@@ -16,6 +17,7 @@ function formatInline(escaped: string): string {
 }
 
 const PICTURE = /!\[([^\]\n]{0,180})\]\(([^)\s]{1,300})\)/g;
+const EMBED = /(!?)\[([^\]\n]{0,180})\]\(([^)\s]{1,300})\)/g;
 
 /** Только своя картинка студии. Чужой адрес в чат не становится изображением. */
 export function safeChatPicture(raw: string): string {
@@ -77,26 +79,52 @@ export function fillMarkdownContent(host: HTMLElement, raw: string): void {
   while ((match = fence.exec(source))) {
     const before = source.slice(last, match.index);
     if (before) appendRich(host, before);
-    appendCodeBlock(host, match[1]?.trim() || '', match[2] ?? '');
+    if ((match[1]?.trim() || '') === 'diagram') {
+      const holder = doc.createElement('div');
+      holder.className = 'chat-diagram';
+      holder.append(diagramSvg(doc, (match[2] ?? '').split('\n').map((line) => line.trim()).filter(Boolean)));
+      host.append(holder);
+    } else appendCodeBlock(host, match[1]?.trim() || '', match[2] ?? '');
     last = match.index + match[0].length;
   }
   const tail = source.slice(last);
   if (tail) appendRich(host, tail);
 
   function appendRich(parent: HTMLElement, text: string) {
-    const picture = new RegExp(PICTURE.source, 'g');
+    const embed = new RegExp(EMBED.source, 'g');
     let cursor = 0;
     let found: RegExpExecArray | null;
-    while ((found = picture.exec(text))) {
+    while ((found = embed.exec(text))) {
       const before = text.slice(cursor, found.index);
       if (before.trim()) appendTextBlock(parent, before);
-      const path = safeChatPicture(found[2] ?? '');
-      if (path) appendPicture(parent, (found[1] || 'Картинка').trim() || 'Картинка', path);
+      const path = safeChatPicture(found[3] ?? '');
+      const title = (found[2] || '').trim();
+      if (path && found[1]) appendPicture(parent, title || 'Картинка', path);
+      else if (path) appendFile(parent, title || 'Файл', path);
       else appendTextBlock(parent, found[0]);
       cursor = found.index + found[0].length;
     }
     const rest = text.slice(cursor);
     if (rest.trim()) appendTextBlock(parent, rest);
+  }
+
+  function appendFile(parent: HTMLElement, title: string, path: string) {
+    const bar = doc.createElement('div');
+    bar.className = 'chat-picture-actions';
+    const save = doc.createElement('button');
+    save.type = 'button';
+    save.textContent = `Скачать «${title}»`;
+    save.onclick = () => {
+      save.disabled = true;
+      void pictureBlob(path).then((blob) => saveBlob(blob, title)).catch(() => {
+        save.textContent = 'Не вышло';
+      }).finally(() => {
+        save.disabled = false;
+        window.setTimeout(() => { save.textContent = `Скачать «${title}»`; }, 1400);
+      });
+    };
+    bar.append(save);
+    parent.append(bar);
   }
 
   function appendPicture(parent: HTMLElement, title: string, path: string) {
@@ -149,11 +177,25 @@ export function fillMarkdownContent(host: HTMLElement, raw: string): void {
     const block = doc.createElement('div');
     block.className = 'md-text';
     const paragraphs = text.split(/\n{2,}/);
-    for (const part of paragraphs) {
-      if (!part.trim()) continue;
+    const paragraph = (lines: string[]) => {
+      if (!lines.join('').trim()) return;
       const p = doc.createElement('p');
-      p.innerHTML = formatInline(escapeHtml(part)).replace(/\n/g, '<br>');
+      p.innerHTML = formatInline(escapeHtml(lines.join('\n'))).replace(/\n/g, '<br>');
       block.append(p);
+    };
+    for (const part of paragraphs) {
+      let run: string[] = [];
+      for (const line of part.split('\n')) {
+        const heading = /^(#{1,4})\s+(.+?)\s*#*$/.exec(line);
+        if (!heading) { run.push(line); continue; }
+        paragraph(run);
+        run = [];
+        const h = doc.createElement(`h${Math.min(heading[1].length + 2, 6)}`);
+        h.className = 'md-heading';
+        h.innerHTML = formatInline(escapeHtml(heading[2]));
+        block.append(h);
+      }
+      paragraph(run);
     }
     if (block.childElementCount) parent.append(block);
   }

@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "azrail-pulse-unified-1.5.0-rc.63-sbom",
-  "documentNamespace": "https://azrail.local/sbom/1.5.0-rc.63/886dd9e56720fcf7dbc34be43725570e29e73b1a8d12db7a8db70bf21edea823",
+  "documentNamespace": "https://azrail.local/sbom/1.5.0-rc.63/7ca7b7215446188ae62435bb5f8fd18ca9fb6628ae3ac482800b92737dd05f2d",
   "creationInfo": {
-    "created": "2026-10-29T00:08:02.666Z",
+    "created": "2026-11-13T11:10:33.708Z",
     "creators": [
       "Tool: AZRAIL build-sbom.mjs"
     ]
@@ -2965,10 +2965,10 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-398504df69b728f02b2a05ae",
+      "SPDXID": "SPDXRef-Package-128dd41317308f0ee04ba6fc",
       "name": "fast-xml-builder",
-      "versionInfo": "1.3.1",
-      "downloadLocation": "https://registry.npmjs.org/fast-xml-builder/-/fast-xml-builder-1.3.1.tgz",
+      "versionInfo": "1.3.2",
+      "downloadLocation": "https://registry.npmjs.org/fast-xml-builder/-/fast-xml-builder-1.3.2.tgz",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
@@ -2976,15 +2976,15 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:npm/fast-xml-builder@1.3.1"
+          "referenceLocator": "pkg:npm/fast-xml-builder@1.3.2"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-d0e494986df5b9ae6b76dda1",
+      "SPDXID": "SPDXRef-Package-8b9b4db6ecac4ab972b5dfaf",
       "name": "fast-xml-parser",
-      "versionInfo": "5.11.2",
-      "downloadLocation": "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-5.11.2.tgz",
+      "versionInfo": "5.12.1",
+      "downloadLocation": "https://registry.npmjs.org/fast-xml-parser/-/fast-xml-parser-5.12.1.tgz",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
@@ -2992,7 +2992,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:npm/fast-xml-parser@5.11.2"
+          "referenceLocator": "pkg:npm/fast-xml-parser@5.12.1"
         }
       ]
     },
@@ -3061,10 +3061,10 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-924f286efb70ec5184b2a9ff",
+      "SPDXID": "SPDXRef-Package-075410fc2e304d6e63214720",
       "name": "hono",
-      "versionInfo": "4.13.14",
-      "downloadLocation": "https://registry.npmjs.org/hono/-/hono-4.13.14.tgz",
+      "versionInfo": "4.13.18",
+      "downloadLocation": "https://registry.npmjs.org/hono/-/hono-4.13.18.tgz",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
@@ -3072,15 +3072,15 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:npm/hono@4.13.14"
+          "referenceLocator": "pkg:npm/hono@4.13.18"
         }
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-2d2d5a7dff943340373c18c5",
+      "SPDXID": "SPDXRef-Package-d04877bc6b06a653825c9be8",
       "name": "is-unsafe",
-      "versionInfo": "2.0.2",
-      "downloadLocation": "https://registry.npmjs.org/is-unsafe/-/is-unsafe-2.0.2.tgz",
+      "versionInfo": "2.0.3",
+      "downloadLocation": "https://registry.npmjs.org/is-unsafe/-/is-unsafe-2.0.3.tgz",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
@@ -3088,7 +3088,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:npm/is-unsafe@2.0.2"
+          "referenceLocator": "pkg:npm/is-unsafe@2.0.3"
         }
       ]
     },
@@ -3797,10 +3797,10 @@
       ]
     },
     {
-      "SPDXID": "SPDXRef-Package-6a66b39366647f25eaabf398",
+      "SPDXID": "SPDXRef-Package-6c1f5ab8c626595014afd797",
       "name": "strnum",
-      "versionInfo": "2.4.2",
-      "downloadLocation": "https://registry.npmjs.org/strnum/-/strnum-2.4.2.tgz",
+      "versionInfo": "2.5.1",
+      "downloadLocation": "https://registry.npmjs.org/strnum/-/strnum-2.5.1.tgz",
       "filesAnalyzed": false,
       "licenseConcluded": "NOASSERTION",
       "licenseDeclared": "NOASSERTION",
@@ -3808,7 +3808,7 @@
         {
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
-          "referenceLocator": "pkg:npm/strnum@2.4.2"
+          "referenceLocator": "pkg:npm/strnum@2.5.1"
         }
       ]
     },
@@ -5585,12 +5585,12 @@
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-398504df69b728f02b2a05ae"
+      "relatedSpdxElement": "SPDXRef-Package-128dd41317308f0ee04ba6fc"
     },
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-d0e494986df5b9ae6b76dda1"
+      "relatedSpdxElement": "SPDXRef-Package-8b9b4db6ecac4ab972b5dfaf"
     },
     {
       "spdxElementId": "SPDXRef-Root",
@@ -5615,12 +5615,12 @@
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-924f286efb70ec5184b2a9ff"
+      "relatedSpdxElement": "SPDXRef-Package-075410fc2e304d6e63214720"
     },
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-2d2d5a7dff943340373c18c5"
+      "relatedSpdxElement": "SPDXRef-Package-d04877bc6b06a653825c9be8"
     },
     {
       "spdxElementId": "SPDXRef-Root",
@@ -5845,7 +5845,7 @@
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-6a66b39366647f25eaabf398"
+      "relatedSpdxElement": "SPDXRef-Package-6c1f5ab8c626595014afd797"
     },
     {
       "spdxElementId": "SPDXRef-Root",

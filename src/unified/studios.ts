@@ -188,6 +188,11 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
  if(path==='/api/studio/pulse'&&request.method==='GET') {
   return json(await buildPulseControlReport(request,env,auth.principal!));
  }
+ if(path==='/api/studio/budget'&&request.method==='GET') {
+  const day=new Date().toISOString().slice(0,10);
+  const row=await env.AZRAIL_D1.prepare("SELECT limit_units,committed_units FROM resource_budgets WHERE scope=? AND unit='neuron'").bind(`neurons:${day}`).first<{limit_units:number;committed_units:number}>();
+  return json({day,neurons:row?{limit:Number(row.limit_units),committed:Number(row.committed_units)}:null});
+ }
  if(path==='/api/studio/ledger'&&request.method==='GET') {
   const filters=parseLedgerFilters(url);
   if(filters.projectId)await requireResource(env,auth.principal!,'project',filters.projectId);
@@ -270,15 +275,15 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
   const mime=request.headers.get('Content-Type')?.split(';')[0]??'application/octet-stream';
   let decoded:string;try{decoded=decodeURIComponent(request.headers.get('X-Filename')??'artifact.bin');}catch{throw new AccessError('Некорректная кодировка имени файла.',400);}
   const name=decoded.replace(/[\x00-\x1f/\\]/g,'_').slice(0,160).trim()||'artifact.bin';
-  const projectId=(request.headers.get('X-Project-Id')??'').trim();
+  let projectId=(request.headers.get('X-Project-Id')??'').trim();
   const studioId=normalizeStudioId(request.headers.get('X-Studio-Id'));
-  if(projectId)await requireResource(env,auth.principal!,'project',projectId);
+  if(projectId){await requireResource(env,auth.principal!,'project',projectId);projectId=await savedProjectId(env,projectId);}
   return json(await saveArtifactStream(env,account,projectId||null,studioId,name,mime,request,12*1024*1024),{status:201});
  }
  if(path==='/api/studio/image') {
   const body=await readJsonRecord(request,20000);
   const input=parseImageStudioRequest(body);
-  if(input.projectId)await requireResource(env,auth.principal!,'project',input.projectId);
+  if(input.projectId){await requireResource(env,auth.principal!,'project',input.projectId);input.projectId=await savedProjectId(env,input.projectId);}
   const reference=input.referenceArtifactId?await loadReferenceImage(env,account,input.referenceArtifactId):undefined;
   if(input.maskArtifactId)await loadReferenceImage(env,account,input.maskArtifactId); // ownership/type validation; provider dispatch stays fail-closed until a reviewed mask-capable model is wired.
   const jobId=crypto.randomUUID(),jobModel=selectImageModel(input),{width,height}=imageDimensions(input.aspectRatio,input.operation==='upscale'?1024:input.resolution);
@@ -330,6 +335,10 @@ function intelligentAssetKind(mime:string,name:string){
  if(/\.(?:ts|tsx|js|jsx|py|go|rs|java|c|cpp|h|css|html|vue|svelte)$/i.test(n))return 'code';
  return 'other';
 }
+async function savedProjectId(env:Env,id:string):Promise<string> {
+ return (await env.AZRAIL_D1.prepare('SELECT id FROM projects WHERE id=?').bind(id).first())?id:'';
+}
+
 function assetIntelligenceStatement(env:Env,id:string,account:string,studioId:ReturnType<typeof normalizeStudioId>,name:string,mime:string,bytes:number,projectId:string|null,now:number){
  const kind=intelligentAssetKind(mime,name),tags=[studioId,kind].filter(Boolean),metadata={name,mime,bytes,studioId,projectId,source:'artifact-save'};
  return env.AZRAIL_D1.prepare(`INSERT INTO asset_intelligence(artifact_id,account_id,kind,metadata_json,tags_json,embedding_ref,usage_count,updated_at) VALUES(?,?,?,?,?,NULL,0,?)`).bind(id,account,kind,JSON.stringify(metadata),JSON.stringify(tags),now);
@@ -345,18 +354,30 @@ async function saveArtifactStream(env:Env,account:string,projectId:string|null,s
  if(!request.body)throw new AccessError('Файл пуст.',400);
  const id=crypto.randomUUID(),key=`studio/${account}/${id}`;
  let bytes=0;
- const limiter=new TransformStream<Uint8Array,Uint8Array>({
-  transform(chunk,controller){
-   bytes+=chunk.byteLength;
-   if(bytes>maxBytes)throw new AccessError(`Файл больше ${Math.floor(maxBytes/1024/1024)}MB.`,413);
-   controller.enqueue(chunk);
-  },
- });
  try {
-  await env.AZRAIL_R2.put(key,request.body.pipeThrough(limiter),{httpMetadata:{contentType:mime}});
+  if(contentLengthRaw){
+   const stored=await env.AZRAIL_R2.put(key,request.body,{httpMetadata:{contentType:mime}});
+   bytes=stored?.size??0;
+  } else {
+   const chunks:Uint8Array[]=[],reader=request.body.getReader();
+   for(;;){
+    const {done,value}=await reader.read();
+    if(done)break;
+    bytes+=value.byteLength;
+    if(bytes>maxBytes){await reader.cancel().catch(()=>{});throw new AccessError(`Файл больше ${Math.floor(maxBytes/1024/1024)}MB.`,413);}
+    chunks.push(value);
+   }
+   const whole=new Uint8Array(bytes);let offset=0;
+   for(const chunk of chunks){whole.set(chunk,offset);offset+=chunk.byteLength;}
+   await env.AZRAIL_R2.put(key,whole,{httpMetadata:{contentType:mime}});
+  }
  } catch(error) {
   await deleteR2KeysBestEffort(env,[key],'studio.artifact_stream_stage_cleanup',{account,id});
   throw error;
+ }
+ if(bytes>maxBytes){
+  await deleteR2KeysBestEffort(env,[key],'studio.artifact_stream_oversize_cleanup',{account,id});
+  throw new AccessError(`Файл больше ${Math.floor(maxBytes/1024/1024)}MB.`,413);
  }
  if(bytes===0){
   await deleteR2KeysBestEffort(env,[key],'studio.artifact_stream_empty_cleanup',{account,id});

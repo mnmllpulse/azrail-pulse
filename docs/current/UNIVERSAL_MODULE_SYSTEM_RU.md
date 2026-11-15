@@ -1,5 +1,7 @@
 # Universal Module System 2.0 — Series F F81–F100
 
+Status: current
+
 Источник требований — блок F81–F100 пользовательского PDF. Цель: все модули AZRAIL используют один `ModuleDefinition` и один `ModuleFrame`, вместо собственных header/spinner/delete/error реализаций.
 
 ## Канонический контракт

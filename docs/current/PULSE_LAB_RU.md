@@ -1,5 +1,7 @@
 # Professional Pulse Lab / System Control Center — AZRAIL 1.5.0-rc.36
 
+Status: current
+
 Pulse Lab больше не является простым capability/readiness экраном. Stage 22 превращает его в read-only System Control Center.
 
 ## Контур
