@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T15:03:10.766Z",
+  "generated_at": "2026-11-15T15:06:01.825Z",
   "excludes_self": true,
-  "file_count": 1229,
+  "file_count": 1230,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -762,8 +762,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 10691,
-      "sha256": "14c95942509f454b20ff48a08c7ee1e995d39fe5e282503bda36d3073af4ff80"
+      "bytes": 10750,
+      "sha256": "65392aff64649adc8c5864468493b364b128b40f1fc250c497dd4a081a58b0ed"
     },
     {
       "path": "public/_headers",
@@ -2679,6 +2679,11 @@
       "path": "scripts/backup-restore-simulate.mjs",
       "bytes": 10537,
       "sha256": "92546e4c5b8b980cbf600543e295ad0a40fbe12b80e0aebadb3e04e7aa9f2e13"
+    },
+    {
+      "path": "scripts/backup-snapshot.mjs",
+      "bytes": 1431,
+      "sha256": "3b04cd3e0bbb91b5e2f1e72bd095aa26643b013eec2a9e3f4ae9d787123efc77"
     },
     {
       "path": "scripts/build-model-registry.mjs",

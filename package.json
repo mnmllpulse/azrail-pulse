@@ -100,6 +100,7 @@
     "production:drift:simulate": "node scripts/production-drift-simulate.mjs",
     "production:drift:plan": "node scripts/production-drift-plan.mjs",
     "production:drift:strict": "node scripts/check-production-drift-reconciliation.mjs --strict",
+    "backup:snapshot": "node scripts/backup-snapshot.mjs",
     "backup:restore:check": "node scripts/check-backup-restore-proof.mjs",
     "backup:restore:simulate": "node scripts/backup-restore-simulate.mjs",
     "backup:restore:plan": "node scripts/backup-restore-plan.mjs",
