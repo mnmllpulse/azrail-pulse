@@ -14,6 +14,7 @@ import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
 import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, positiveLimit } from "./lib/quota";
 import { enforceOperationLimit } from "./lib/operation-limit";
 import { speakRemote, spokenVoice } from "./lib/speech-remote";
+import { readPermissionMode, writePermissionMode } from "./lib/permission-setting";
 import { consumeTrial, readTrial, runTrialSandbox, trialView, writeTrialFlags } from "./lib/trial";
 import { readBoundedBody, BodyLimitError, validateJsonObject } from "./lib/request-body";
 import { getCors } from "./lib/cors";
@@ -437,6 +438,14 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     if (url.pathname === "/api/admin/routing-settings" && request.method === "POST") {
       try { return json({policy:await setModelPolicy(env,parsedBody.allowThirdPartyModels,parsedBody.monthlyBudgetUsd)},env); }
       catch (e) { if(e instanceof ModelPolicyError) return json({error:e.message},env,400); throw e; }
+    }
+    if (url.pathname === "/api/permission-mode" && request.method === "GET") {
+      return json({ mode: await readPermissionMode(env), options: ["ask", "trusted"] }, env);
+    }
+    if (url.pathname === "/api/admin/permission-mode" && request.method === "POST") {
+      if (principal.role !== "admin" && !principal.operator) return json({ error: "Режим меняет только владелец." }, env, 403);
+      try { return json({ mode: await writePermissionMode(env, parsedBody.mode) }, env); }
+      catch (error) { if (error instanceof RangeError) return json({ error: error.message }, env, 400); throw error; }
     }
     if (url.pathname === "/api/trial" && request.method === "GET") {
       return json(trialView(await readTrial(env)), env);
