@@ -18,11 +18,14 @@ describe("чат ставит задачи локальному агенту", (
     expect(APPROVE.test("разреши запись")).toBe(true);
     expect(REJECT.test("отклони")).toBe(true);
     expect(APPROVE.test("разреши мне войти")).toBe(false);
+    for (const ok of ["ок", "«ок»", "разреши»", "Да!", "OK", " «разреши» ", "разреши запуск"]) expect(APPROVE.test(ok), ok).toBe(true);
+    for (const no of ["ок, но сначала объясни", "да, расскажи про Cloudflare", "окно"]) expect(APPROVE.test(no), no).toBe(false);
+    for (const bad of ["нет", "«отмена»", "отклони запуск"]) expect(REJECT.test(bad), bad).toBe(true);
   });
   it("ответы по состояниям", () => {
     const job = { id: "1", kind: "read", path: "a.ts", status: "done", result: "x".repeat(7000), error: null };
     expect(jobReply(job)).toContain("показано 6000 из 7000");
-    expect(jobReply({ ...job, kind: "write", status: "awaiting_approval", bytes: 12 })).toContain("«разреши запись»");
+    expect(jobReply({ ...job, kind: "write", status: "awaiting_approval", bytes: 12 })).toContain("«разреши»");
     expect(jobReply({ ...job, status: "failed", error: "секретный файл" })).toContain("секретный файл");
     expect(jobReply({ ...job, status: "queued" })).toContain("PowerShell");
   });

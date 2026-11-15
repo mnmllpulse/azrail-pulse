@@ -3,7 +3,7 @@ import { WHERE, type AgentJobView } from './chat-agent';
 export const FIX_ROUNDS = 3;
 export const FIX_FILES = 3;
 const FIX_VERB = /(?:исправь|почини|поправь)\s/iu;
-export const FIX_APPROVE = /^\s*(?:разреши\s+цикл|запускай\s+цикл)[.!]?\s*$/iu;
+export const FIX_APPROVE = /^[\s«»"'“”]*(?:разреши(?:\s+цикл)?|запускай(?:\s+цикл)?|ок|окей|ok|да|подтверждаю|согласен)[\s«»"'“”.!]*$/iu;
 const SOURCE = /([\w./-]+\.(?:tsx?|mjs|cjs|jsx?|json|css|html|md))(?=[:(\s'"]|$)/g;
 
 export type FixDeps = {
@@ -24,7 +24,7 @@ export function fixIntent(message: string): string | null {
 }
 
 export function fixConsentText(command: string): string {
-  return `Цикл исправления для «${command}»: до ${FIX_ROUNDS} раундов (запуск → разбор лога → правка → повторный запуск). Правки только в файлах, названных в логе, не больше ${FIX_FILES} за раунд; перед записью оригинал копируется в .azrail-backup/. Запись идёт без отдельных вопросов. Напиши «разреши цикл» или проигнорируй.`;
+  return `Цикл исправления для «${command}»: до ${FIX_ROUNDS} раундов (запуск → разбор лога → правка → повторный запуск). Правки только в файлах, названных в логе, не больше ${FIX_FILES} за раунд; перед записью оригинал копируется в .azrail-backup/. Запись идёт без отдельных вопросов. Напиши «разреши» или проигнорируй.`;
 }
 
 export function pathsFromLog(log: string, limit = FIX_FILES): string[] {
