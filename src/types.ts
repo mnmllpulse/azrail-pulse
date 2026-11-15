@@ -28,6 +28,7 @@ export interface Env {
   AZRAIL_SWITCH_AI?: string;
   AZRAIL_SWITCH_SANDBOX?: string;
   AZRAIL_SWITCH_TOOLS?: string;
+  AZRAIL_PERMISSION_MODE?: string;
   AZRAIL_WORKERS_PLAN?: "free" | "paid";
   AZRAIL_METERING?: "observe" | "enforce";
   AZRAIL_MISSION_BUDGET_USD?: string;

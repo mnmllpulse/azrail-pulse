@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T15:01:54.639Z",
+  "generated_at": "2026-11-15T15:03:10.766Z",
   "excludes_self": true,
-  "file_count": 1227,
+  "file_count": 1229,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -562,8 +562,8 @@
     },
     {
       "path": "docs/runbooks/THREAT_MODEL_RU.md",
-      "bytes": 7114,
-      "sha256": "7813a58bfe2f20a1d45cf6d2da22234c12724bf4b8c3368966ede19b59f0fac7"
+      "bytes": 8002,
+      "sha256": "8d08c3719a51792a9fd9f7efecf562ef452b7e7e14bc31be20876e8ba9ac61ef"
     },
     {
       "path": "index.html",
@@ -3652,8 +3652,8 @@
     },
     {
       "path": "src/core/execution-engine.ts",
-      "bytes": 67383,
-      "sha256": "f7a8e2c508b570c2dd118f39109f502dd65da59b2c73c749c979352e6f794c4a"
+      "bytes": 68077,
+      "sha256": "f5ba6338cba6693ecc7d013d1a0731360b5ce40cd182eb5adcf7daf8af4a6987"
     },
     {
       "path": "src/core/execution-journal.ts",
@@ -4096,6 +4096,11 @@
       "sha256": "e0cbd5199c610f75a2903d257f848a36b1606ce658702ca05635c2be1a19e6a1"
     },
     {
+      "path": "src/lib/permission-levels.ts",
+      "bytes": 1733,
+      "sha256": "f28366a89339632f44fbd8cc1f00ae495561a1b71d2e8bb97a20a3a11ebfe523"
+    },
+    {
       "path": "src/lib/product-intelligence.ts",
       "bytes": 1415,
       "sha256": "96ae3c0015f2b4e49cae4df4a03d948d801342f993572e86fae2d4634dc3cd3e"
@@ -4312,8 +4317,8 @@
     },
     {
       "path": "src/types.ts",
-      "bytes": 13544,
-      "sha256": "661a3307f19b037c1c78c66324a75532b6fb7481f777f1fd6255b00941d688bf"
+      "bytes": 13579,
+      "sha256": "e817eff4deeb32315de416cf38fccf25fb0d8035cc5e62b0b9a2275ed4c3dcaf"
     },
     {
       "path": "src/unified/connector-adapter.ts",
@@ -4904,6 +4909,11 @@
       "path": "tests/performance-sample.test.ts",
       "bytes": 1325,
       "sha256": "8fa577cd70795975a8bcb83bd233aca689fc82cebfc4f5ab65f6811ccd6d0195"
+    },
+    {
+      "path": "tests/permission-levels.test.ts",
+      "bytes": 2003,
+      "sha256": "fb4c832d6883560147c287e7e95bec75f4cc487c10107378c356ed4d4def03b3"
     },
     {
       "path": "tests/plan-dedupe.test.ts",
