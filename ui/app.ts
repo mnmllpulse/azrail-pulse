@@ -30,6 +30,7 @@ import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
 import {formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
+import {modelIntent,proposalText,YES,ROLLBACK,type ModelProposal} from './chat-settings';
 import {studioIntent,ledgerSummary,pulseSummary,dataSummary,audioSummary} from './chat-studios';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
@@ -353,6 +354,8 @@ function syncChatAccount(){
 }
 type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;reviewed?:boolean;task?:string;capabilities?:string[];availability?:string;provider?:string;icon?:string|null;description?:string};
 let catalogModels:CatalogModel[]=[];
+let modelProposal:ModelProposal|null=null;
+let modelUndo:ModelProposal|null=null;
 /** Full registry for the Models picker (exactly the server catalog, no truncation). */
 function pickerModels(){return catalogModels.filter(m=>m.availability!=='unavailable'&&typeof m.slug==='string');}
 function modelLabel(m:CatalogModel){return m.displayName||modelDisplayName(m.slug);}
@@ -1729,6 +1732,23 @@ async function runChat(){
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
+ const switchTo=modelIntent(message,pickerModels().map(m=>({slug:m.slug,label:modelLabel(m),free:!!m.freeAllowlisted&&m.availability!=='unavailable'})));
+ if(switchTo){
+  const here=catalogModels.find(m=>m.slug===preferredModel);
+  modelProposal={to:switchTo.slug,toLabel:switchTo.label,from:preferredModel,fromLabel:here?modelLabel(here):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL')};
+  noteLocal(message,proposalText(modelProposal));
+  return;
+ }
+ if(modelProposal&&YES.test(message)){
+  const done=modelProposal;modelProposal=null;modelUndo=done;setPreferredModel(done.to);
+  noteLocal(message,`Применено: «${done.toLabel}». Вернуть «${done.fromLabel}» — напиши «откати».`);
+  return;
+ }
+ if(modelUndo&&ROLLBACK.test(message)){
+  const back=modelUndo;modelUndo=null;setPreferredModel(back.from);
+  noteLocal(message,`Вернул «${back.fromLabel}».`);
+  return;
+ }
  const studioKind=studioIntent(message,attachmentManager.files());
  if(studioKind){
   try{
