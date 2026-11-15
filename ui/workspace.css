@@ -278,3 +278,9 @@ html[data-expert="off"] .assignment-live { display: none !important; }
   .app-shell .chat-message[data-role="user"] { max-width: 93%; }
 }
 @media (max-height: 570px) { .app-shell .chat-welcome { padding-top: 0; } .app-shell .welcome-emblem { display: none; } .app-shell .chat-welcome .intro { margin-bottom: 12px; } .app-shell .composer textarea { max-height: 100px; } }
+
+.app-shell .home-terminal { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
+.app-shell .term-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.app-shell .term-bar select { min-height: 34px; background: #0c0b10; color: #efe8f6; border: 1px solid #302837; border-radius: 10px; padding: 4px 10px; }
+.app-shell .term-gate { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border: 1px solid #5b4a1f; border-radius: 12px; background: #1b1608; color: #f4e6bf; }
+.app-shell #term-log { flex: 1 1 auto; min-height: 0; margin: 0; padding: 14px; overflow: auto; white-space: pre-wrap; word-break: break-word; border: 1px solid #302837; border-radius: 14px; background: #0c0b10; color: #cfe7d2; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
