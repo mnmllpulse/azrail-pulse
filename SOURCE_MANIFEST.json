@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T15:15:35.182Z",
+  "generated_at": "2026-11-15T21:34:59.465Z",
   "excludes_self": true,
-  "file_count": 1231,
+  "file_count": 1233,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -67,8 +67,8 @@
     },
     {
       "path": ".gitignore",
-      "bytes": 288,
-      "sha256": "8b35475de46fb223f2276a3146f9f0c02f26c8f894055b697ed6c0fd2d722296"
+      "bytes": 336,
+      "sha256": "640f18c4ce0e782f37d68428d0786ca184ee3c39f55fa3b289764309703a59a3"
     },
     {
       "path": ".node-version",
@@ -127,8 +127,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 3655,
-      "sha256": "46c997414fc974a21095bd91380f49a5248da2e721e8a727169d8b795e41d6fe"
+      "bytes": 4728,
+      "sha256": "682d145f237a582a3650aeceb4c8a7284abd70dc37dc66d655df5ec8786b2aee"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -562,8 +562,8 @@
     },
     {
       "path": "docs/runbooks/THREAT_MODEL_RU.md",
-      "bytes": 9185,
-      "sha256": "5df6184ced8ed3bb277cae82ef27d1bb9b45ae6f58308d7b9a1ab6c201706282"
+      "bytes": 10254,
+      "sha256": "85718be0fd960657633edfbb601952b02a42742ca45035d0b2a32f3db5c1b30a"
     },
     {
       "path": "index.html",
@@ -4586,6 +4586,11 @@
       "sha256": "6e74404bb2f8adffd8790984575cdece0b093824280bdc7e6988c8b0ac4757fc"
     },
     {
+      "path": "tests/chat-fixloop.test.ts",
+      "bytes": 4529,
+      "sha256": "0c42cab8570d2f14931a1d66ef9fc4bdf0c01de472e573ef3b5955518f247643"
+    },
+    {
       "path": "tests/chat-markdown-headings.test.ts",
       "bytes": 1327,
       "sha256": "a4c84c164dad32b508ae580011cab0cdf3630d9a3f9e743a37b0f24f0e1dbf42"
@@ -5292,8 +5297,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 178972,
-      "sha256": "7a9cc55ada99e0cba4ca22b1402193ddec9e8107dd9fc51284944d065c391bda"
+      "bytes": 180859,
+      "sha256": "53ee3f41d5ae0fdab0ad4f43e9f2f0f4569c0a5271405c1ac052b6aa996b7326"
     },
     {
       "path": "ui/assignment.ts",
@@ -5322,8 +5327,13 @@
     },
     {
       "path": "ui/chat-agent.ts",
-      "bytes": 5579,
-      "sha256": "70d5f070b9e1b119f869f78a670b6017c7bde5fe462b96ece5a6137b5bf578c2"
+      "bytes": 5586,
+      "sha256": "f3a3bf4029358a007a2b3a08b72f5f43216dd864683f552c8a7be63e1cf16066"
+    },
+    {
+      "path": "ui/chat-fixloop.ts",
+      "bytes": 6082,
+      "sha256": "c92b1b7f6ab5cae28c408593df7671f1489e5c1c49cf6c64b0c505654c33842c"
     },
     {
       "path": "ui/chat-history.ts",

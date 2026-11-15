@@ -21,3 +21,6 @@ wrangler.generated.json
 # Python cache artifacts
 __pycache__/
 *.py[cod]
+
+# Local agent fix-loop backups
+.azrail-backup/
