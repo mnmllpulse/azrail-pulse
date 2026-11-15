@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T05:01:49.944Z",
+  "generated_at": "2026-11-15T05:16:26.906Z",
   "excludes_self": true,
-  "file_count": 1216,
+  "file_count": 1218,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -4656,6 +4656,11 @@
       "sha256": "9e34d129e97c3488035aa8cbd8d6a498236148efff2eccadfbf8984548631243"
     },
     {
+      "path": "tests/fixtures/router-cases.json",
+      "bytes": 1909,
+      "sha256": "20083e77b7f46cfd244b54161ddb366f5c4c154816856264a96802d42e01237d"
+    },
+    {
       "path": "tests/frontend.test.ts",
       "bytes": 14442,
       "sha256": "af31e729e4c7f00cde30e7f27172524808344ab4809451f8e23c61a9e145a79e"
@@ -5009,6 +5014,11 @@
       "path": "tests/rollout-gate.test.ts",
       "bytes": 1175,
       "sha256": "81e0ba854cf8de372823ade14158785c791c2a7a30f2b5f1dc31f489878280ed"
+    },
+    {
+      "path": "tests/router-regression.test.ts",
+      "bytes": 1052,
+      "sha256": "ba82d4ced6c854898bf262c02e274f916b630749c362191c8527970c895f3b84"
     },
     {
       "path": "tests/router.test.ts",
