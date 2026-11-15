@@ -5,9 +5,10 @@ const app=readFileSync(new URL('../ui/app.ts',import.meta.url),'utf8');
 const history=readFileSync(new URL('../ui/chat-history.ts',import.meta.url),'utf8');
 
 describe('attachments stay visible in chat history',()=>{
-  it('uploads each attachment once and shares the id with the image reference',()=>{
+  it('uploads each attachment once; the image reference is a separate shrunk copy cached per file',()=>{
     expect(app).toContain('async function uploadedAttachment');
-    expect(app).toContain('return file?uploadedAttachment(file):');
+    expect(app).toContain('const known=shrunkReferences.get(file);if(known)return known;');
+    expect(app).toContain('shrunkReferences.set(file,saved.id)');
   });
   it('adds markdown for attachments to the sent and saved user message',()=>{
     expect(app).toContain('message+await attachmentMarkup(message)');

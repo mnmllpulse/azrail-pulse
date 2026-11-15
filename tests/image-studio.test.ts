@@ -39,6 +39,10 @@ describe('Professional Image Studio contract',()=>{
  it('builds a controlled variation prompt and detects supported media signatures',()=>{
   const input=parseImageStudioRequest({prompt:'Cover',operation:'variation',referenceArtifactId:'123e4567-e89b-12d3-a456-426614174000',variations:2,style:'minimal'});
   expect(effectiveImagePrompt(input,1)).toContain('Variation 2 of 2');
+  expect(effectiveImagePrompt(input,1)).toContain('keep the same subject');
+  const follow=parseImageStudioRequest({prompt:'нарисуй такую же',operation:'edit',referenceArtifactId:'123e4567-e89b-12d3-a456-426614174000'});
+  expect(effectiveImagePrompt(follow,0)).toContain('Do not replace them with a different character.');
+  expect(effectiveImagePrompt(follow,0).startsWith('Use image 0 as the exact subject.')).toBe(true);
   const png=new Uint8Array(33);[137,80,78,71,13,10,26,10].forEach((v,i)=>png[i]=v);
   expect(detectImage(png)).toEqual({mime:'image/png',extension:'png'});
  });

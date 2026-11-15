@@ -85,8 +85,9 @@ export function effectiveImagePrompt(input:ImageStudioRequest,variationIndex:num
  if(input.operation==='variation')parts.push('Create a controlled variation of input image 0 while preserving the core subject and visual identity.');
  if(input.operation==='edit')parts.push('Edit input image 0 according to the instruction while preserving unrelated details.');
  if(input.operation==='upscale')parts.push('Recreate input image 0 at higher fidelity, preserving composition, subject identity and color relationships; add detail without inventing a new scene.');
+ if(input.referenceArtifactId&&input.operation!=='upscale')parts.unshift('Use image 0 as the exact subject. Keep the same person, face, costume, pose, colors and scene. Do not replace them with a different character.');
  parts.push(...advancedPromptDirectives(input));
- if(input.variations>1)parts.push(`Variation ${variationIndex+1} of ${input.variations}; make it meaningfully distinct without leaving the brief.`);
+ if(input.variations>1)parts.push(input.referenceArtifactId?`Variation ${variationIndex+1} of ${input.variations}; keep the same subject.`:`Variation ${variationIndex+1} of ${input.variations}; make it meaningfully distinct without leaving the brief.`);
  return parts.join('. ');
 }
 
@@ -120,6 +121,36 @@ export function detectImage(bytes:Uint8Array){
  return jpeg?{mime:'image/jpeg',extension:'jpg'}:png?{mime:'image/png',extension:'png'}:{mime:'image/webp',extension:'webp'};
 }
 
+const REFERENCE_SIDE=480;
+type FitBitmap={width:number;height:number;close:()=>void};
+type FitContext={drawImage:(bitmap:FitBitmap,x:number,y:number,width:number,height:number)=>void};
+type FitCanvas={getContext:(kind:'2d')=>FitContext|null;convertToBlob:(options:{type:string;quality:number})=>Promise<Blob>};
+function referenceCanvas(){
+ return globalThis as {createImageBitmap?:(blob:Blob)=>Promise<FitBitmap>;OffscreenCanvas?:new (width:number,height:number)=>FitCanvas};
+}
+async function fitReference(reference:{bytes:Uint8Array;mime:string}){
+ const scope=referenceCanvas();
+ if(!scope.createImageBitmap||!scope.OffscreenCanvas){
+  if(reference.bytes.byteLength>350_000)throw new Error('Образец больше, чем принимает модель. Нужна копия до 480 px.');
+  return reference;
+ }
+ const buffer=reference.bytes.buffer.slice(reference.bytes.byteOffset,reference.bytes.byteOffset+reference.bytes.byteLength) as ArrayBuffer;
+ const blob=new Blob([buffer],{type:reference.mime});
+ const bitmap=await scope.createImageBitmap(blob);
+ try{
+  const scale=Math.min(1,REFERENCE_SIDE/Math.max(bitmap.width,bitmap.height));
+  const width=Math.max(1,Math.round(bitmap.width*scale));
+  const height=Math.max(1,Math.round(bitmap.height*scale));
+  if(scale===1&&reference.mime==='image/jpeg')return reference;
+  const canvas=new scope.OffscreenCanvas(width,height);
+  const context=canvas.getContext('2d');
+  if(!context)throw new Error('Образец не удалось уменьшить.');
+  context.drawImage(bitmap,0,0,width,height);
+  const fitted=await canvas.convertToBlob({type:'image/jpeg',quality:0.85});
+  return {bytes:new Uint8Array(await fitted.arrayBuffer()),mime:'image/jpeg'};
+ }finally{bitmap.close();}
+}
+
 function imageForm(prompt:string,width:number,height:number,seed:number|null,reference?:{bytes:Uint8Array;mime:string}){
  const form=new FormData();
  form.append('prompt',prompt);
@@ -140,7 +171,8 @@ export async function runImageProvider(env:Env,input:ImageStudioRequest,variatio
  const model=selectImageModel(input),{width,height}=imageDimensions(input.aspectRatio,input.operation==='upscale'?1024:input.resolution);
  const prompt=effectiveImagePrompt(input,variationIndex);
  const variationSeed=input.seed===null?null:(input.seed+variationIndex)%2147483648;
- const first=imageForm(prompt,width,height,variationSeed,reference);
+ const fitted=reference?await fitReference(reference):undefined;
+ const first=imageForm(prompt,width,height,variationSeed,fitted);
  onDispatch?.();
  try {
   return await paint(env,model,width,height,variationSeed,first.body,first.contentType);
@@ -148,7 +180,7 @@ export async function runImageProvider(env:Env,input:ImageStudioRequest,variatio
   const message=error instanceof Error?error.message:String(error);
   if(!/3043|internal server error/i.test(message))throw error;
   const sideW=Math.min(width,768),sideH=Math.min(height,768);
-  const second=imageForm(prompt,sideW,sideH,variationSeed,reference);
+  const second=imageForm(prompt,sideW,sideH,variationSeed,fitted);
   return paint(env,'@cf/black-forest-labs/flux-2-klein-4b',sideW,sideH,variationSeed,second.body,second.contentType);
  }
 }

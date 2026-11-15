@@ -47,7 +47,14 @@ export function createAttachmentManager(deps:Deps){
   notify();
  }
  function validate(file:File){const e=ext(file.name);if(e&&BLOCKED.has(e))throw Error(`${file.name}: программы (.exe, .bat, .cmd, .msi, .dll) прикрепить нельзя.`);if(file.size>MAX_BYTES)throw Error(`${file.name}: максимум 50 MB.`);}
+ function isImage(file:File){return /^image\//i.test(file.type)||/\.(png|jpe?g|webp|gif)$/i.test(file.name);}
  async function upload(item:ManagedAttachment){
+  if(isImage(item.file)){
+   item.state='ready';item.progress=100;
+   item.ref={fileName:item.file.name,inputType:'image',size:item.file.size,mimeType:item.file.type||'image/png'};
+   render();
+   return;
+  }
   try{
    item.state='uploading';item.progress=15;item.error=undefined;render();
    const projectId=deps.getProjectId();if(!projectId)throw Error('Сначала выберите или создайте проект.');
