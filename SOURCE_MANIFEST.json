@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T09:42:41.561Z",
+  "generated_at": "2026-11-15T09:47:03.622Z",
   "excludes_self": true,
   "file_count": 1225,
   "files": [
@@ -4407,8 +4407,8 @@
     },
     {
       "path": "src/unified/studios.ts",
-      "bytes": 47969,
-      "sha256": "69fdc60129649b50b126512f85aa487959f2da6be5e3ba1c6e3e36e778be079d"
+      "bytes": 48399,
+      "sha256": "349a05b1b1d85f6579fa38aae8796090cbd58fc7e54b63751c86ba17d76a304d"
     },
     {
       "path": "src/unified/system-intelligence.ts",
@@ -4592,8 +4592,8 @@
     },
     {
       "path": "tests/chat-studios.test.ts",
-      "bytes": 2867,
-      "sha256": "c05a0601a225ef21a9f0a02934d13192bc034036a1700749c565306084738371"
+      "bytes": 4193,
+      "sha256": "aa551a3e8e11221decf13761049f80caba3183958360bdab34e6ed9d09f85cbe"
     },
     {
       "path": "tests/chat-zip.test.ts",
@@ -5262,8 +5262,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 177003,
-      "sha256": "b706dcff5456f78843dafddff5d3d07e9d8a3a043fa35f1af03a9f0150c79d84"
+      "bytes": 177117,
+      "sha256": "623d28eb921e07967fa0791e2039de50d78ddec096b1b8632ac5543e239e2f58"
     },
     {
       "path": "ui/assignment.ts",
@@ -5317,8 +5317,8 @@
     },
     {
       "path": "ui/chat-studios.ts",
-      "bytes": 5623,
-      "sha256": "9053ef574a4ce532348909814c7dcf0d65c7e00a8059ac2365de3078fedba15b"
+      "bytes": 6979,
+      "sha256": "20e0d184d68fe8aecd97e55b397475b59d5da85e0167b45bbb0313099a55b5a2"
     },
     {
       "path": "ui/chat-zip.ts",

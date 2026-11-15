@@ -1,7 +1,9 @@
 import type { AudioMeasurements } from './audio-analysis';
 import type { DataAnalysis } from './data';
 
-export type ChatStudioIntent = 'ledger' | 'pulse' | 'data' | 'audio' | null;
+export type ChatStudioIntent = 'ledger' | 'pulse' | 'budget' | 'data' | 'audio' | null;
+
+const BUDGET = /(?:осталось|остаток|остатк\p{L}*|сколько)\s+(?:ещё\s+|у\s+меня\s+)?(?:лимит\p{L}*|нейрон\p{L}*)|(?:лимит|баланс)\s+нейрон\p{L}*|нейрон\p{L}*\s+(?:осталось|сегодня)/iu;
 
 const LEDGER = /(?:сколько\s+(?:я\s+)?(?:потратил|потрачено|ушло|стоит)|расход|затрат|бюджет|ledger|леджер)/iu;
 const PULSE = /(?:состояни[ея]\s+системы|статус\s+системы|как\s+(?:там\s+)?систем|health|здоровь[ея]\s+системы|что\s+с\s+системой)/iu;
@@ -13,6 +15,7 @@ export function studioIntent(message: string, files: readonly { name: string }[]
   const text = message.trim();
   if (!text || text.length > 300) return null;
   if (PULSE.test(text)) return 'pulse';
+  if (BUDGET.test(text)) return 'budget';
   if (LEDGER.test(text) && !/(?:напиши|сделай|создай|нарисуй)\s/iu.test(text)) return 'ledger';
   if (ANALYZE.test(text)) {
     if (files.some((file) => TABLE.test(file.name))) return 'data';
@@ -54,6 +57,17 @@ export function pulseSummary(report: PulseLike): string {
     for (const item of bad.slice(0, 4)) lines.push(`- ${item.label}: ${item.value} (${item.status})`);
   }
   return lines.join('\n');
+}
+
+export function budgetSummary(report: { day?: string; neurons?: { limit: number; committed: number } | null }): string {
+  const n = report.neurons;
+  if (!n) return `За ${report.day ?? 'сегодня'} расхода нейронов ещё нет: платные модели не вызывались, счётчик не заведён.`;
+  if (n.limit === 0) return `Нейроны за ${report.day}: потолок обнулён. Один из вызовов вышел за резерв, платные модели закрыты до сверки; ответы идут на бесплатных.`;
+  const left = Math.max(0, n.limit - n.committed);
+  return [
+    `Нейроны за ${report.day}: потолок ${n.limit}, занято ${n.committed} (с резервами под идущие вызовы), осталось ${left}.`,
+    left === 0 ? 'Платные модели сейчас не вызываются, ответы идут на бесплатных.' : '',
+  ].filter(Boolean).join('\n');
 }
 
 export function dataSummary(name: string, analysis: DataAnalysis): string {
