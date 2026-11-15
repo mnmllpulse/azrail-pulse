@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T09:40:38.701Z",
+  "generated_at": "2026-11-15T09:50:09.086Z",
   "excludes_self": true,
   "file_count": 1224,
   "files": [
@@ -117,8 +117,8 @@
     },
     {
       "path": "config/environments.json",
-      "bytes": 4972,
-      "sha256": "84abea3041d55b568fc792711af704aa5b2c5a1ba269e669b41f17778e0771f8"
+      "bytes": 4971,
+      "sha256": "a95d574d703696ac2405faefca4525e60c501314e1d94e59bf5b388244984dad"
     },
     {
       "path": "docs/DOCS_RULES.md",
@@ -557,8 +557,8 @@
     },
     {
       "path": "docs/runbooks/THREAT_MODEL_RU.md",
-      "bytes": 6903,
-      "sha256": "97a32588cd0f23c4a318749f77c07bf1bcde46bbc08919783804495e856b8b6b"
+      "bytes": 7114,
+      "sha256": "7813a58bfe2f20a1d45cf6d2da22234c12724bf4b8c3368966ede19b59f0fac7"
     },
     {
       "path": "index.html",
@@ -4932,8 +4932,8 @@
     },
     {
       "path": "tests/pulse-deploy-config.test.ts",
-      "bytes": 1929,
-      "sha256": "90b2d64a7f9b75b004af70b32a369e5b909344a398c4e7d996f489b47999bc55"
+      "bytes": 1928,
+      "sha256": "73ae1e733d62f599d27b14b2159018b72d02b7dd3d02aac99a6a4953061cc816"
     },
     {
       "path": "tests/pulse-lab.test.ts",
@@ -6112,8 +6112,8 @@
     },
     {
       "path": "wrangler.jsonc",
-      "bytes": 2202,
-      "sha256": "2ca19a6bd3010b2ba19a4b8eb29c37745d99459280473b90bf8603df189d8256"
+      "bytes": 2201,
+      "sha256": "b326e87ff7799eb5a0b4f484074f2cd41126459409e08bf0027d61b9c9430f50"
     },
     {
       "path": "wrangler.production.json",
