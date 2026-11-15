@@ -216,3 +216,20 @@ describe("ZIP как вложение задачи", () => {
     expect(out[0].skipped).toContain("ZIP");
   });
 });
+
+describe("ярусы чтения архива", () => {
+  it("исходники читаются раньше legacy, lock и вспомогательных файлов", async () => {
+    const files = [
+      ...Array.from({ length: 30 }, (_, i) => ({ path: `references/legacy/l${i}.ts`, content: `// legacy ${i}` })),
+      ...Array.from({ length: 30 }, (_, i) => ({ path: `.cursor/rules/r${i}.md`, content: `r ${i}` })),
+      ...Array.from({ length: 30 }, (_, i) => ({ path: `src/s${i}.ts`, content: `// src ${i}` })),
+      { path: "package.json", content: "{}" },
+    ];
+    const out = await loadAttachments(r2zip("u/p.zip", makeZip(files)), zipRef());
+    const names = out.filter((a) => a.text && a.fileName.includes("→")).map((a) => a.fileName);
+
+    expect(names.some((n) => n.endsWith("package.json"))).toBe(true);
+    expect(names.filter((n) => n.includes("/src/") || n.includes("→ src/")).length).toBe(30);
+    expect(names.some((n) => n.includes("legacy"))).toBe(false);
+  });
+});

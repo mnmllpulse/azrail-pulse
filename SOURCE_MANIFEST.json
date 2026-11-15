@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T04:15:28.216Z",
+  "generated_at": "2026-11-15T04:49:54.620Z",
   "excludes_self": true,
   "file_count": 1214,
   "files": [
@@ -3517,8 +3517,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 22288,
-      "sha256": "53d6f1a08ef9b6c405cea64404bb3b363c3fa6ca6d59f3f78c26ad8a69889490"
+      "bytes": 22765,
+      "sha256": "8496fa2152f8d206697b7a139cb6ef7eae788ecf76df1ad3a40038dc2e64388b"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -3772,8 +3772,8 @@
     },
     {
       "path": "src/lib/attachments.ts",
-      "bytes": 20114,
-      "sha256": "8d6eea532770aeabb92ebed3c5dc69e457b406a7e06a5ac40632d28f893b2170"
+      "bytes": 20923,
+      "sha256": "612be40ade659df929b3e444b0c2d655373726faea17f482bab8623a11675d8d"
     },
     {
       "path": "src/lib/auth.ts",
@@ -5187,8 +5187,8 @@
     },
     {
       "path": "tests/zip.test.ts",
-      "bytes": 10466,
-      "sha256": "826e6e4de66009479172ab710db699215bff860afae7ad9c7c978cb4260b66a8"
+      "bytes": 11471,
+      "sha256": "f8199ba9dee82d02a7b327a84af7bb3628c1a93417b444ba7c32bcd0b1c22736"
     },
     {
       "path": "tsconfig.json",
