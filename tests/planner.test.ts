@@ -234,3 +234,29 @@ describe('Планировщик поручения', () => {
     expect(fileNameFromPhrase('???', 'png')).toBe('файл.png');
   });
 });
+
+import { switchPartKind, planWork as planForSwitch } from "../ui/planner";
+
+describe("Другая студия", () => {
+  it("часть уходит в другую студию с той же фразой, результат прошлой остаётся в версиях", () => {
+    const plan = planForSwitch("нарисуй логотип студии");
+    const part = plan.parts[0];
+    part.state = "done";
+    part.thing = { type: "image", url: "/a.png" };
+    expect(switchPartKind(plan, part.id, "web")).toBe(true);
+    expect(part.kind).toBe("web");
+    expect(part.text).toBe("нарисуй логотип студии");
+    expect(part.state).toBe("waiting");
+    expect(part.thing).toBeUndefined();
+    expect(part.versions?.[0].url).toBe("/a.png");
+  });
+
+  it("та же студия и идущая часть не меняются", () => {
+    const plan = planForSwitch("нарисуй логотип студии");
+    const part = plan.parts[0];
+    expect(switchPartKind(plan, part.id, "image")).toBe(false);
+    part.state = "running";
+    expect(switchPartKind(plan, part.id, "web")).toBe(false);
+    expect(switchPartKind(plan, "нет-такой", "web")).toBe(false);
+  });
+});
