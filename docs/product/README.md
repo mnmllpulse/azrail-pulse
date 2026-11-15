@@ -10,3 +10,5 @@
 - `AZRAIL_2_DATA_MODEL.md` — current schema domains. No new tables in this pass.
 - `AZRAIL_2_RELEASE_ROADMAP.md` — package order. Version targets are not a calendar.
 - `AZRAIL_2_ACCEPTANCE_CRITERIA.md` — what would close each package. Scenarios A–F are not passed.
+- `MASTER_SPECIFICATION.md` — спецификация гибридной коммерческой платформы (чат, Desktop Agent, sandbox, GitHub, Cloudflare, SaaS). Принята владельцем, не реализована.
+- `COMMERCIAL_ROADMAP.md` — что нужно для коммерческого продукта и продажи: приоритеты P0–P2, безопасность, метрики. Принята владельцем, не реализована.
