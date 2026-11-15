@@ -3,7 +3,7 @@
 // AI-ревью классов уязвимостей (XSS/SQLi/SSRF) уже живёт в Code Agent — здесь
 // делается ровно то, чего модель сделать не может надёжно.
 
-import type { GeneratedFile } from "../types";
+type GeneratedFile = { path: string; content: string };
 
 interface SecretPattern {
   name: string;
@@ -98,4 +98,18 @@ function dedupe(findings: SecretFinding[]): SecretFinding[] {
     }
   }
   return [...byLocation.values()];
+}
+
+/** Закрывает секреты в тексте перед показом или отправкой модели: «[СКРЫТО: тип]». */
+export function redactSecrets(text: string): string {
+  let out = text;
+  for (const pattern of PATTERNS) {
+    pattern.re.lastIndex = 0;
+    out = out.replace(pattern.re, (match: string, group?: unknown) => {
+      const value = typeof group === "string" ? group : match;
+      if (PLACEHOLDER_RE.test(value)) return match;
+      return typeof group === "string" ? match.replace(group, `[СКРЫТО: ${pattern.name}]`) : `[СКРЫТО: ${pattern.name}]`;
+    });
+  }
+  return out;
 }

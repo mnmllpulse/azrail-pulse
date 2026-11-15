@@ -1,4 +1,6 @@
 import type { Env } from "../types";
+import { redactSecrets } from "./secret-scan";
+import { fenceUntrusted, UNTRUSTED_RULE } from "./untrusted";
 import { listZip, readEntry } from "./zip-reader";
 import { TEXT_EXT, ZIP_NOISE, extOf, zipTier } from "./attachments";
 
@@ -78,10 +80,11 @@ export function parseAuditProgress(history: string): number {
 const numbered = (t: string) => t.split("\n").map((l, i) => `${i + 1}| ${l}`).join("\n");
 
 export function partPrompt(label: string, files: Map<string, string>): string {
-  const body = [...files.entries()].map(([p, t]) => `--- ${p} ---\n${numbered(t)}`).join("\n\n");
+  const body = [...files.entries()].map(([p, t]) => fenceUntrusted(p, numbered(redactSecrets(t)))).join("\n\n");
   return `Роль: аудитор кода. Часть архива: «${label}». Файлы с номерами строк ниже.
 Найди реальные дефекты: ошибки логики, гонки, небезопасные места, мёртвый код, расхождения между файлами.
 Формат, одна находка на строку: путь:строка — проблема — «дословная цитата из файла, до 100 знаков».
+${UNTRUSTED_RULE}
 Правила: только то, что видно в этих файлах; без дословной цитаты находку не пиши; о других файлах и проекте в целом не рассуждай; нет находок — одна строка «Находок нет.».
 
 ${body}`;
