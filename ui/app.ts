@@ -32,7 +32,7 @@ import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,g
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
 import {agentIntent,AGENT_OFF,APPROVE as AGENT_APPROVE,REJECT as AGENT_REJECT,approvalText,jobReply,waitJob,type AgentJobView} from './chat-agent';
 import {modelIntent,proposalText,YES,ROLLBACK,type ModelProposal} from './chat-settings';
-import {studioIntent,ledgerSummary,pulseSummary,dataSummary,audioSummary} from './chat-studios';
+import {studioIntent,budgetSummary,ledgerSummary,pulseSummary,dataSummary,audioSummary} from './chat-studios';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
 import {diagramLines,diagramModel,diagramSvg} from './diagram';
@@ -1801,6 +1801,7 @@ async function runChat(){
   try{
    if(!account)throw Error('Войдите, чтобы открыть этот отчёт.');
    if(studioKind==='ledger')noteLocal(message,ledgerSummary(await api('/api/studio/ledger?limit=200')));
+   else if(studioKind==='budget')noteLocal(message,budgetSummary(await api('/api/studio/budget')));
    else if(studioKind==='pulse')noteLocal(message,pulseSummary(await api('/api/studio/pulse')));
    else if(studioKind==='data'){
     const file=attachmentManager.files().find(item=>/\.(?:csv|tsv)$/i.test(item.name))!;

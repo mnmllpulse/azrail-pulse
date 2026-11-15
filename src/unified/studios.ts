@@ -188,6 +188,11 @@ export async function studioRoute(request:Request,env:Env,onProviderDispatch?:()
  if(path==='/api/studio/pulse'&&request.method==='GET') {
   return json(await buildPulseControlReport(request,env,auth.principal!));
  }
+ if(path==='/api/studio/budget'&&request.method==='GET') {
+  const day=new Date().toISOString().slice(0,10);
+  const row=await env.AZRAIL_D1.prepare("SELECT limit_units,committed_units FROM resource_budgets WHERE scope=? AND unit='neuron'").bind(`neurons:${day}`).first<{limit_units:number;committed_units:number}>();
+  return json({day,neurons:row?{limit:Number(row.limit_units),committed:Number(row.committed_units)}:null});
+ }
  if(path==='/api/studio/ledger'&&request.method==='GET') {
   const filters=parseLedgerFilters(url);
   if(filters.projectId)await requireResource(env,auth.principal!,'project',filters.projectId);

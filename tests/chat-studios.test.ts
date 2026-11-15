@@ -44,3 +44,23 @@ describe("студии в чате: тексты", () => {
     expect(text).toContain("A minor");
   });
 });
+
+import { budgetSummary as budgetText, studioIntent as intentOf } from "../ui/chat-studios";
+
+describe("остаток нейронов в чате", () => {
+  it("фразы распознаются раньше отчёта о расходах", () => {
+    for (const m of ["сколько осталось нейронов", "остаток лимита нейронов", "лимит нейронов", "сколько нейронов сегодня"]) expect(intentOf(m, [])).toBe("budget");
+    expect(intentOf("сколько я потратил", [])).toBe("ledger");
+  });
+  it("остаток считается от потолка; нулевой остаток назван", () => {
+    expect(budgetText({ day: "2026-11-15", neurons: { limit: 6000, committed: 5032 } })).toContain("осталось 968");
+    expect(budgetText({ day: "2026-11-15", neurons: { limit: 6000, committed: 6100 } })).toContain("бесплатных");
+    expect(budgetText({ day: "2026-11-15", neurons: null })).toContain("ещё нет");
+  });
+});
+
+describe("остаток нейронов: обнулённый потолок", () => {
+  it("называется причина", () => {
+    expect(budgetText({ day: "2026-11-15", neurons: { limit: 0, committed: 900 } })).toContain("потолок обнулён");
+  });
+});
