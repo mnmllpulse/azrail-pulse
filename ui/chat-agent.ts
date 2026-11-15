@@ -16,8 +16,9 @@ const RUN: Array<[RegExp, string]> = [
 export const WHERE = /(?:на\s+(?:(?:моём|моем|этом)\s+)?компьютере|на\s+(?:моём|моем)\s+пк|в\s+(?:моей\s+)?(?:локальной\s+)?папке|локальн\p{L}*\s+(?:файл|папк)\p{L}*)/iu;
 const PATH = /((?:[\w.-]+\/)*[\w.-]+\.[A-Za-z0-9]{1,8})(?![\w/])/u;
 const LIST = /^\s*(?:покажи|выведи|дай|открой)?\s*(?:список\s+)?файл\p{L}*(?:\s+(?:в|из)\s+((?:[\w.-]+\/?)+))?/iu;
-export const APPROVE = /^\s*(?:разреши(?:\s+запись)?|разрешаю|одобряю)[.!]?\s*$/iu;
-export const REJECT = /^\s*(?:отклони(?:\s+запись)?|отклоняю|не\s+записывай)[.!]?\s*$/iu;
+const QUOTES = '[\\s«»"\'“”„]*';
+export const APPROVE = new RegExp(`^${QUOTES}(?:разреши(?:\\s+(?:запись|запуск))?|разрешаю|одобряю|подтверждаю|согласен|ок|окей|ok|okay|да|yes)${QUOTES}[.!]*${QUOTES}$`, 'iu');
+export const REJECT = new RegExp(`^${QUOTES}(?:отклони(?:\\s+(?:запись|запуск))?|отклоняю|не\\s+записывай|отмена|нет|no)${QUOTES}[.!]*${QUOTES}$`, 'iu');
 
 /** Только явная просьба про компьютер: «прочитай src/a.ts на компьютере». Остальное остаётся обычным чатом. */
 export function agentIntent(message: string): AgentIntent {
@@ -46,8 +47,8 @@ export function agentIntent(message: string): AgentIntent {
 export const AGENT_OFF = 'Агент на компьютере выключен. Включи его в настройках: «Агент на компьютере» → «Включить на 1 час».';
 
 export function approvalText(job: AgentJobView): string {
-  if (job.kind === 'run') return `Жду твоё «ок»: запуск «${job.command ?? job.path}» в папке агента. Скрипты из package.json выполнятся на твоём компьютере, лимит 2 минуты. Напиши «разреши» или «отклони».`;
-  return `Жду твоё «ок»: запись ${job.bytes ?? 0} симв. в ${job.path}. Напиши «разреши запись» или «отклони».`;
+  if (job.kind === 'run') return `Жду подтверждения: запуск «${job.command ?? job.path}» в папке агента. Скрипты из package.json выполнятся на твоём компьютере, лимит 2 минуты. Напиши «разреши» или «отклони».`;
+  return `Жду подтверждения: запись ${job.bytes ?? 0} симв. в ${job.path}. Напиши «разреши» или «отклони».`;
 }
 
 export function jobReply(job: AgentJobView, shown = 6000): string {

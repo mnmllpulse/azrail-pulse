@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T22:03:46.627Z",
+  "generated_at": "2026-11-15T22:25:53.836Z",
   "excludes_self": true,
   "file_count": 1233,
   "files": [
@@ -127,8 +127,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 4728,
-      "sha256": "682d145f237a582a3650aeceb4c8a7284abd70dc37dc66d655df5ec8786b2aee"
+      "bytes": 4790,
+      "sha256": "6ef427edc81f40f7e4f2ae0deeb5ffd430122bb763108e2d0313126ebdf9e38b"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -567,8 +567,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1269961,
-      "sha256": "d9195815e762f2a29ebb219421eb7ba01e681cab1757f0e84567ff64574418e6"
+      "bytes": 1270855,
+      "sha256": "965ad062c0a7984aaa5d42298bee663832e0fb70a7fd4500c7552a5cb62e3a8a"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3248,7 +3248,7 @@
     {
       "path": "site/app.html",
       "bytes": 23143,
-      "sha256": "63ac731e1cd42d88da24ea1f3beb02cc9edb203226fa37f45af00f6b8aecafd4"
+      "sha256": "f2ff479ef5e920db08767f464ab30f74dc878a04b8f14fd694bcfaceb4ad293c"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3262,8 +3262,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 389390,
-      "sha256": "1148cd98b3b3b646a580c758ebb7a8e5572f40d3dd4fa7a55ecf1d75a158a76d"
+      "bytes": 390282,
+      "sha256": "2c7ac0f3a303d8bfedfb5152daa23bad8521748b52a248b8497730b063a5c01c"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3538,7 +3538,7 @@
     {
       "path": "site/index.html",
       "bytes": 23143,
-      "sha256": "63ac731e1cd42d88da24ea1f3beb02cc9edb203226fa37f45af00f6b8aecafd4"
+      "sha256": "f2ff479ef5e920db08767f464ab30f74dc878a04b8f14fd694bcfaceb4ad293c"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4572,8 +4572,8 @@
     },
     {
       "path": "tests/chat-agent.test.ts",
-      "bytes": 2566,
-      "sha256": "e484359ae8eb58af9d657d5feb9241df192a6c336e8b6fd07e0f95d6767d7e87"
+      "bytes": 3019,
+      "sha256": "30bb472bbc4247f9bab24a47cfb7b470cc0c22b3b9bf39d3a798d4044ab563a7"
     },
     {
       "path": "tests/chat-attachments-history.test.ts",
@@ -4587,8 +4587,8 @@
     },
     {
       "path": "tests/chat-fixloop.test.ts",
-      "bytes": 4529,
-      "sha256": "0c42cab8570d2f14931a1d66ef9fc4bdf0c01de472e573ef3b5955518f247643"
+      "bytes": 5001,
+      "sha256": "05b35bebf9f7cdfb029dd48fb56edb338247e8277764ee3349dfb3c312f3b111"
     },
     {
       "path": "tests/chat-markdown-headings.test.ts",
@@ -5297,8 +5297,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 180859,
-      "sha256": "53ee3f41d5ae0fdab0ad4f43e9f2f0f4569c0a5271405c1ac052b6aa996b7326"
+      "bytes": 181114,
+      "sha256": "35731f3197e3671e8c5bd83e467b7af2f9ac266086968ba3671abfc5e9e40715"
     },
     {
       "path": "ui/assignment.ts",
@@ -5327,13 +5327,13 @@
     },
     {
       "path": "ui/chat-agent.ts",
-      "bytes": 5586,
-      "sha256": "f3a3bf4029358a007a2b3a08b72f5f43216dd864683f552c8a7be63e1cf16066"
+      "bytes": 5837,
+      "sha256": "6853e5f89644d4be6e8524ca689e95bd3c5fe5bd7236fb9988994ef58c8d03b0"
     },
     {
       "path": "ui/chat-fixloop.ts",
-      "bytes": 6082,
-      "sha256": "c92b1b7f6ab5cae28c408593df7671f1489e5c1c49cf6c64b0c505654c33842c"
+      "bytes": 6170,
+      "sha256": "1619abb80841f9d2e4367ea3effb2628aeb226aa5fd2aa597d8a0ae1e57558ce"
     },
     {
       "path": "ui/chat-history.ts",

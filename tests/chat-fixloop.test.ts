@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { fixIntent, parseEdits, pathsFromLog, runFixLoop, FIX_ROUNDS, type FixDeps } from "../ui/chat-fixloop";
+import { FIX_APPROVE, fixIntent, parseEdits, pathsFromLog, runFixLoop, FIX_ROUNDS, type FixDeps } from "../ui/chat-fixloop";
 import type { AgentJobView } from "../ui/chat-agent";
 
 const job = (status: string, result: string): AgentJobView => ({ id: "1", kind: "run", path: "npm_build", status, result, error: null });
@@ -10,6 +10,10 @@ describe("цикл исправления: намерение и разбор", 
     expect(fixIntent("почини тесты на компьютере")).toBe("npm_test");
     expect(fixIntent("исправь ошибки сборки")).toBeNull();
     expect(fixIntent("запусти тесты на компьютере")).toBeNull();
+  });
+  it("согласие на цикл принимает «ок» и кавычки, но не фразы с продолжением", () => {
+    for (const ok of ["разреши цикл", "«ок»", "разреши»", "да"]) expect(FIX_APPROVE.test(ok), ok).toBe(true);
+    for (const no of ["да, но не трогай src", "исправь ошибки сборки на компьютере"]) expect(FIX_APPROVE.test(no), no).toBe(false);
   });
   it("пути из лога: без выхода из папки и служебных каталогов", () => {
     const log = "src/a.ts(12,3): error TS2304\n../evil/x.ts:1\nnode_modules/p/i.js:2\n/etc/passwd.json:1\nui/app.ts:40:5";

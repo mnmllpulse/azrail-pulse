@@ -1789,6 +1789,9 @@ async function runChat(){
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
+ if(!agentWaiting&&!fixPending&&account&&(AGENT_APPROVE.test(message)||AGENT_REJECT.test(message))){
+  try{const st=await api('/api/agent/status') as {jobs?:AgentJobView[]};agentWaiting=st.jobs?.find(j=>j.status==='awaiting_approval')?.id??'';}catch{}
+ }
  if(agentWaiting&&(AGENT_APPROVE.test(message)||AGENT_REJECT.test(message))){
   const id=agentWaiting;agentWaiting='';
   try{
