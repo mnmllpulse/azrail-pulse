@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-15T22:25:53.836Z",
+  "generated_at": "2026-11-15T22:45:49.472Z",
   "excludes_self": true,
-  "file_count": 1233,
+  "file_count": 1235,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -127,8 +127,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 4790,
-      "sha256": "6ef427edc81f40f7e4f2ae0deeb5ffd430122bb763108e2d0313126ebdf9e38b"
+      "bytes": 5275,
+      "sha256": "236a280f7c0703b706e92f543bdd2a49de7105e88ebe88a3e7874c78dd0e7378"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -567,8 +567,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1270855,
-      "sha256": "965ad062c0a7984aaa5d42298bee663832e0fb70a7fd4500c7552a5cb62e3a8a"
+      "bytes": 1276936,
+      "sha256": "e7cc1e56254f4d43f42179b4f5cb3d9d4733196485dcb67cb7830a7901ca5d84"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3247,8 +3247,8 @@
     },
     {
       "path": "site/app.html",
-      "bytes": 23143,
-      "sha256": "f2ff479ef5e920db08767f464ab30f74dc878a04b8f14fd694bcfaceb4ad293c"
+      "bytes": 24166,
+      "sha256": "84b026bbe74dd56184349aaeb3ff1504368d1da7ad5d86f2d0553a51aca5872f"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3257,13 +3257,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 128295,
-      "sha256": "2bbdb0b8120a25156daf891312aca4fc61d4af3377c1402d2c938bc63e55c900"
+      "bytes": 129045,
+      "sha256": "4768e08faef36e3428f63a184d85e5ecd2d934a9cd8b60d3f7ab04e49046369b"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 390282,
-      "sha256": "2c7ac0f3a303d8bfedfb5152daa23bad8521748b52a248b8497730b063a5c01c"
+      "bytes": 394587,
+      "sha256": "23fe23c51a11209772a0772070fa9c5f81b1f886a85fed65085928861ed13d6d"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3537,8 +3537,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 23143,
-      "sha256": "f2ff479ef5e920db08767f464ab30f74dc878a04b8f14fd694bcfaceb4ad293c"
+      "bytes": 24166,
+      "sha256": "84b026bbe74dd56184349aaeb3ff1504368d1da7ad5d86f2d0553a51aca5872f"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5186,6 +5186,11 @@
       "sha256": "89eadcf322978ce601f68c3741c602638e006848d4b94db5c679d8678313431e"
     },
     {
+      "path": "tests/terminal-panel.test.ts",
+      "bytes": 2771,
+      "sha256": "3be6b2bfa009e5c306d4b51f65ff2deac7914e1afca31ad8e6058937f264f2e7"
+    },
+    {
       "path": "tests/threat-model.test.ts",
       "bytes": 1236,
       "sha256": "f157d76f57799c8485e29603f856801be4bb40d8e836b9f455b491333aa5f182"
@@ -5292,13 +5297,13 @@
     },
     {
       "path": "ui/app.html",
-      "bytes": 23117,
-      "sha256": "7f1525c3a46b920ad803726b0547fc40da6be28b463d84a98bb6409e7ebd84e9"
+      "bytes": 24140,
+      "sha256": "9b49c862b32f58f5dc27f2c5d018cc31403b12ff23e0659dadcdd48ff7b56572"
     },
     {
       "path": "ui/app.ts",
-      "bytes": 181114,
-      "sha256": "35731f3197e3671e8c5bd83e467b7af2f9ac266086968ba3671abfc5e9e40715"
+      "bytes": 181206,
+      "sha256": "4f5e6b7433eebbd532463efaa153e604b34a7d796e0ae2278e405fac0936010f"
     },
     {
       "path": "ui/assignment.ts",
@@ -5467,8 +5472,8 @@
     },
     {
       "path": "ui/home-canvas.ts",
-      "bytes": 7222,
-      "sha256": "007c917ab70615d4373ba0f4a8248029ce90ee53225e0f620f0f9eb57ce5d611"
+      "bytes": 7620,
+      "sha256": "2d9e6921e24c7632057d19b9fd1ee53c9fc866d55289c1c81005231f8ba18789"
     },
     {
       "path": "ui/image-request.ts",
@@ -5666,6 +5671,11 @@
       "sha256": "bf8af4fb8658cfab8628025e1c4360c3cf08ebbc031d689b87fb8eb5171728f0"
     },
     {
+      "path": "ui/terminal-panel.ts",
+      "bytes": 4932,
+      "sha256": "1af2e04c9e0dc6f2b4c48ad603a8b82f0eee5248de954e5a059c0b039b111966"
+    },
+    {
       "path": "ui/tokens.css",
       "bytes": 219,
       "sha256": "7e0961444071731a5654a7c21b54ed712359ebbc6f644e7b7a31d0d4cd086830"
@@ -5697,8 +5707,8 @@
     },
     {
       "path": "ui/workspace.css",
-      "bytes": 30898,
-      "sha256": "175bb686ff57a20a2d789e730139fea45a95a170c966ca9ae93d8e64d2e5fc11"
+      "bytes": 31744,
+      "sha256": "fd0e999cd08a361f9268edab3c85519a7ec777ee255dd00eb564cf3d52bae6fc"
     },
     {
       "path": "ui/zip-site.ts",

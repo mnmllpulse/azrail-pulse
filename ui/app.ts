@@ -11,6 +11,7 @@ import {renderProjectCenter,type ProjectSummary} from './projects';
 import {createAttachmentManager} from './attachment-manager';
 import {mountSuggestionBar,type Suggestion,type SuggestionContext} from './components/suggestions';
 import {mountHomeCanvas} from './home-canvas';
+import {mountTerminal} from './terminal-panel';
 import {mountStudioToolbar} from './components/studio-toolbar';
 import {createStudioStateController} from './components/studio-state';
 import {renderSmartEmptyState} from './components/smart-empty';
@@ -822,6 +823,7 @@ navigation.link($<HTMLAnchorElement>('close-studio'),{page:'studios'});
 for(const meta of studios){const link=document.createElement('a');link.textContent=meta.title;link.dataset.studio=meta.id;navigation.link(link,{page:'studio',studio:meta.id});$('context-studios').append(link);}
 document.addEventListener('azrail:open-studio',(event:Event)=>{const id=(event as CustomEvent<{studio?:string}>).detail?.studio;if(id&&studioById(id))navigation.navigate({page:'studio',studio:id as StudioId});});
 mountHomeCanvas();
+mountTerminal(api,()=>project||'',failure);
 bind('attach',()=>{if(!project){project=crypto.randomUUID();remember();}$<HTMLInputElement>('attachments').click();});
 const openTokenLogin=()=>{
  dialog('Вход по ключу','<label for="login-token">Ключ</label><input id="login-token" type="password" autocomplete="off" spellcheck="false"><button id="login-save" class="primary">Войти</button>');

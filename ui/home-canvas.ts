@@ -41,6 +41,8 @@ export function mountHomeCanvas(){
  const kind=document.querySelector<HTMLElement>('#home-canvas-kind');
  const codeTab=document.querySelector<HTMLButtonElement>('#home-mode-code');
  const screenTab=document.querySelector<HTMLButtonElement>('#home-mode-screen');
+ const termTab=document.querySelector<HTMLButtonElement>('#home-mode-terminal');
+ const term=document.querySelector<HTMLElement>('#home-terminal');
  const fileLabel=document.querySelector<HTMLElement>('#home-files-label');
  const filePick=document.querySelector<HTMLSelectElement>('#home-files');
  const saveFile=document.querySelector<HTMLButtonElement>('#home-save-file');
@@ -71,14 +73,18 @@ export function mountHomeCanvas(){
   screen.removeAttribute('src');
   screen.srcdoc=linked;
  };
- const show=(mode:'code'|'screen')=>{
+ const show=(mode:'code'|'screen'|'terminal')=>{
   const preview=mode==='screen';
-  code.hidden=preview;
+  const shell=mode==='terminal';
+  code.hidden=preview||shell;
   screen.hidden=!preview;
-  codeTab.setAttribute('aria-selected',String(!preview));
+  if(term)term.hidden=!shell;
+  codeTab.setAttribute('aria-selected',String(mode==='code'));
   screenTab.setAttribute('aria-selected',String(preview));
-  codeTab.classList.toggle('active',!preview);
+  termTab?.setAttribute('aria-selected',String(shell));
+  codeTab.classList.toggle('active',mode==='code');
   screenTab.classList.toggle('active',preview);
+  termTab?.classList.toggle('active',shell);
   paint();
  };
  let armed:{path:string;text:string}|null=null;
@@ -95,6 +101,7 @@ export function mountHomeCanvas(){
  });
  codeTab.addEventListener('click',()=>show('code'));
  screenTab.addEventListener('click',()=>show('screen'));
+ termTab?.addEventListener('click',()=>show('terminal'));
  document.addEventListener('azrail:preview-open',()=>paint());
  document.addEventListener('azrail:site-preview',(event)=>{
   const html=(event as CustomEvent<string>).detail;
