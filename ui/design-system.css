@@ -1,20 +1,4 @@
-/* Дизайн-система: единые токены и правила поверх app.css и workspace.css.
-   Радиусы: 12px — контейнеры и карточки, 8px — элементы внутри. Цель нажатия — от 32px.
-   Сайдбар: 256px развёрнутый, 64px рейл в свёрнутом виде (на широких экранах). */
-:root {
-  --radius-card: 12px;
-  --radius-control: 8px;
-  --sidebar-w: 256px;
-  --rail-w: 64px;
-  --target: 32px;
-  --surface: #121118;
-  --surface-raised: #17151e;
-  --border: #2a2733;
-  --accent-soft: color-mix(in srgb, var(--accent) 8%, transparent);
-  --accent-hover: color-mix(in srgb, var(--accent) 14%, transparent);
-  --ease: 160ms cubic-bezier(.2, .8, .2, 1);
-}
-
+/* Shared interaction, focus, card and responsive layout rules. Tokens live in tokens.css. */
 /* Фокус виден всегда и не зависит от цвета фона. */
 :where(button, a, input, textarea, select, summary, [role="tab"], [tabindex]):focus-visible {
   outline: 2px solid #c4abff;
