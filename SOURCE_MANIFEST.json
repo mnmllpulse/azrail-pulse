@@ -5667,8 +5667,8 @@
     },
     {
       "path": "ui/settings-center.ts",
-      "bytes": 10925,
-      "sha256": "e4a93f0c4773e315f018ea070e98aeae5127230d0fa5bc5289362cb863e74db6"
+      "bytes": 11779,
+      "sha256": "43852a73d9832ac164a6ebcd13f98c8d415989eb61c4272d3913df402ae68c92"
     },
     {
       "path": "ui/studio-chat.ts",
