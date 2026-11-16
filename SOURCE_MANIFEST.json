@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T12:50:00.000Z",
+  "generated_at": "2026-11-16T12:51:00.000Z",
   "excludes_self": true,
-  "file_count": 1254,
+  "file_count": 1253,
   "files": [
     {
       "path": ".cursor/mcp.json",
