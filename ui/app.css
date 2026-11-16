@@ -177,6 +177,13 @@ td, th { padding: 10px; border-bottom: 1px solid var(--line); text-align: left; 
 .model-picker-badge { font-size: 10px; letter-spacing: .06em; text-transform: uppercase; color: #b9a1cb; white-space: nowrap; flex: 0 0 auto; }
 .model-picker-badge.free { color: #8fd0a8; }
 .model-picker-badge.paid { color: #d2b48c; }
+.model-picker-badge.external { color: #9ec5ff; border: 1px solid #9ec5ff55; border-radius: 999px; padding: 2px 6px; }
+.model-picker-badge.locked { color: #8f839c; }
+.model-picker-filters { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.model-picker-chip { padding: 5px 10px; font-size: 11px; border: 1px solid var(--line, #292934); border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+.model-picker-chip[aria-pressed="true"] { border-color: var(--accent, #8b6bb8); background: color-mix(in srgb, var(--accent, #8b6bb8) 18%, transparent); }
+.model-picker-locked { margin-left: auto; display: inline-flex; gap: 6px; align-items: center; font-size: 11px; color: #8f839c; cursor: pointer; }
+.model-picker-item[data-locked] { opacity: .55; cursor: not-allowed; }
 .model-picker-badge.neuron { color: #f0c36a; border: 1px solid #f0c36a55; border-radius: 999px; padding: 2px 6px; }
 .mission-history { display: grid; gap: 8px; margin: 0 0 18px; }
 .mission-history-item { display: grid; gap: 4px; text-align: left; padding: 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: #15111d; color: inherit; cursor: pointer; }
