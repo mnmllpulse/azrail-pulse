@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T06:00:00.000Z",
+  "generated_at": "2026-11-16T04:38:14.758Z",
   "excludes_self": true,
   "file_count": 1247,
   "files": [
@@ -5498,7 +5498,7 @@
     {
       "path": "ui/design-system.css",
       "bytes": 5374,
-      "sha256": "111153ac4609ac6ba4f52d03c76265ad86dee500a467dfbed24f5af3ca649a70"
+      "sha256": "73a229773220fd9a7d237539d03c4ffb27d3c4326f08bc1776d2acd7cbbc177f"
     },
     {
       "path": "ui/diagram.ts",
@@ -5613,7 +5613,7 @@
     {
       "path": "ui/premium-workspace.css",
       "bytes": 17238,
-      "sha256": "a579b46c0cd698a2972aead91d7fa43b61abec1ba8272ef2e7cb7170d4e5e624"
+      "sha256": "2dda9e94d07b9fe80907705d261c0b467671bc9cd7ba32baccb4d8c1fd99ee91"
     },
     {
       "path": "ui/projects.ts",
@@ -5738,7 +5738,7 @@
     {
       "path": "ui/tokens.css",
       "bytes": 666,
-      "sha256": "2f18d37051e7e0647b5408f10b5f8cd1f8932e2d6c52f3ac1c96540eb55d59b0"
+      "sha256": "4d1d14418e032c461b358ff10d7b331321828040632fbd4d2668ffc00d5de1ab"
     },
     {
       "path": "ui/tool-form.ts",
