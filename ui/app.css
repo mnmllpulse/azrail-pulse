@@ -510,3 +510,5 @@ html[data-settings-text-scale="large"] #settings .settings-detail-content .muted
  .settings-category-card,.settings-provider-card {transition:none;}
  .settings-category-card:hover,.settings-provider-card:hover {transform:none;}
 }
+
+@media(max-width:600px){.notice{top:12px;bottom:auto;left:12px;right:12px;width:auto;max-width:none;}}
