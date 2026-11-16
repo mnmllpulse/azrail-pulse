@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T12:45:00.000Z",
+  "generated_at": "2026-11-16T12:47:00.000Z",
   "excludes_self": true,
   "file_count": 1253,
   "files": [
@@ -557,8 +557,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 0,
-      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      "bytes": 1311158,
+      "sha256": "cd15357147b5794eab6db092cd466b1f2846fb6612d1b91a7b2172e4ee14f337"
     },
     {
       "path": "migrations/002-mission-async.sql",
