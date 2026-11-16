@@ -905,6 +905,8 @@ function openSettings(){
  }).catch(()=>{limits.replaceChildren();const h=document.createElement('h3');h.textContent='Лимиты';const p=document.createElement('p');p.className='muted';p.textContent='Лимиты сейчас не прочитались.';limits.append(h,p);});
 }
 bind('settings',()=>openSettings());
+/* Чипы пустого чата только подставляют начало фразы: ничего не отправляют и студию не открывают. */
+document.querySelectorAll<HTMLElement>('[data-chip]').forEach(chip=>{chip.onclick=()=>{prompt.value=chip.dataset.chip??'';prompt.dispatchEvent(new Event('input',{bubbles:true}));workspace.resizePrompt();prompt.focus();prompt.setSelectionRange(prompt.value.length,prompt.value.length);};});
 function ensureEventStream(){
  if(local||!account||!project){stopEventStream();stopEventStream=()=>{};streamProject='';return;}
  if(streamProject===project)return;

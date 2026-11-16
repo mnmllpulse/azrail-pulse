@@ -426,3 +426,7 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .music-listen-transport input[type=range]{width:140px}
 .music-bench{margin-top:12px}
 .music-bench summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
+
+.chat-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 18px; }
+.chat-chip { padding: 8px 14px; font-size: 13px; border: 1px solid var(--line, #292934); border-radius: 999px; background: transparent; color: inherit; cursor: pointer; }
+.chat-chip:hover, .chat-chip:focus-visible { border-color: var(--accent, #8b6bb8); background: color-mix(in srgb, var(--accent, #8b6bb8) 14%, transparent); }
