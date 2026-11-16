@@ -114,6 +114,15 @@ describe("Применение кусков", () => {
 });
 
 describe("Разбор присланного моделью", () => {
+  it("parseHunks принимает hunks JSON-строкой, одиночным объектом и синонимами полей", () => {
+    expect(parseHunks('[{"search":"a","replace":"b"}]')).toEqual({ hunks: [{ search: "a", replace: "b" }] });
+    expect(parseHunks({ search: "a", replace: "b" })).toEqual({ hunks: [{ search: "a", replace: "b" }] });
+    expect(parseHunks([{ old_string: "x", new_string: "y" }])).toEqual({ hunks: [{ search: "x", replace: "y" }] });
+    expect(parseHunks([{ search: "x", replace: "" }])).toEqual({ hunks: [{ search: "x", replace: "" }] });
+    expect("error" in parseHunks("не json")).toBe(true);
+    expect("error" in parseHunks("42")).toBe(true);
+  });
+
   it("массив объектов принимается, replace необязателен", () => {
     const parsed = parseHunks([{ search: "a", replace: "b" }, { search: "c" }]);
     expect("hunks" in parsed && parsed.hunks).toEqual([
