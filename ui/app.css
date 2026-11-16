@@ -428,7 +428,7 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .music-bench summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
 
 /* Settings Center — routed workspace, not a modal settings sheet. */
-#settings.settings-view {max-width:none;min-height:100%;margin:0;padding:0;overflow:visible;}
+#settings-page.settings-view {max-width:none;min-height:100%;margin:0;padding:0;overflow:visible;}
 .settings-shell {display:grid;grid-template-columns:252px minmax(0,1fr);gap:30px;max-width:1440px;margin:0 auto;padding:24px 28px 48px;align-items:start;}
 .settings-sidebar {position:sticky;top:18px;align-self:start;min-width:0;padding:18px 14px;border:1px solid var(--border);border-radius:16px;background:color-mix(in srgb,var(--surface) 94%,transparent);}
 .settings-sidebar-head {display:grid;gap:5px;padding:4px 8px 16px;}
@@ -478,11 +478,11 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .settings-form-grid select {width:100%;min-height:44px;}
 .settings-actions {display:flex;flex-wrap:wrap;gap:10px;}
 .settings-shortcut-row {margin:0;padding:12px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface);font-size:13px;}
-#settings [data-settings-density="compact"] {}
-html[data-settings-density="compact"] #settings .settings-category-card,html[data-settings-density="compact"] #settings .settings-provider-card {min-height:116px;padding:14px;gap:7px;}
-html[data-settings-density="spacious"] #settings .settings-category-card,html[data-settings-density="spacious"] #settings .settings-provider-card {min-height:166px;padding:22px;gap:13px;}
-html[data-settings-text-scale="large"] #settings .settings-detail-content {font-size:16px;}
-html[data-settings-text-scale="large"] #settings .settings-detail-content .muted,html[data-settings-text-scale="large"] #settings .settings-detail-content label {font-size:14px;}
+#settings-page [data-settings-density="compact"] {}
+html[data-settings-density="compact"] #settings-page .settings-category-card,html[data-settings-density="compact"] #settings-page .settings-provider-card {min-height:116px;padding:14px;gap:7px;}
+html[data-settings-density="spacious"] #settings-page .settings-category-card,html[data-settings-density="spacious"] #settings-page .settings-provider-card {min-height:166px;padding:22px;gap:13px;}
+html[data-settings-text-scale="large"] #settings-page .settings-detail-content {font-size:16px;}
+html[data-settings-text-scale="large"] #settings-page .settings-detail-content .muted,html[data-settings-text-scale="large"] #settings-page .settings-detail-content label {font-size:14px;}
 @media (max-width:900px) {
  .settings-shell {grid-template-columns:1fr;gap:18px;padding:16px 18px 36px;}
  .settings-sidebar {position:static;padding:12px;}
@@ -511,6 +511,9 @@ html[data-settings-text-scale="large"] #settings .settings-detail-content .muted
  .settings-category-card:hover,.settings-provider-card:hover {transform:none;}
 }
 
+@media(max-width:600px){.notice{top:12px;bottom:auto;left:12px;right:12px;width:auto;max-width:none;}}
+
+ 
 /* Settings Center UX refinements */
 .settings-search-empty {margin:12px 0;padding:14px 16px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);font-size:13px;line-height:1.5;}
 .settings-search-empty[hidden] {display:none;}
