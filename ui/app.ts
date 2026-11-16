@@ -22,6 +22,7 @@ import {PROVIDER_TOKENS, clearProviderToken, hasProviderToken, saveProviderToken
 import {mountCommandPalette} from './components/command-palette';
 import {mountMetatronLab} from './metatron-lab';
 import {openUniversalCompareCenter} from './components/universal-compare';
+import {applyPicker,modelBadge,PICKER_FILTERS,type PickerFilter} from './model-picker';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
@@ -355,7 +356,7 @@ function syncChatAccount(){
  syncChatUI();workspace.resizePrompt();
  if(account&&!local)void syncServerChats();
 }
-type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;reviewed?:boolean;task?:string;capabilities?:string[];availability?:string;provider?:string;icon?:string|null;description?:string};
+type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;reviewed?:boolean;hosted?:boolean;task?:string;capabilities?:string[];availability?:string;provider?:string;icon?:string|null;description?:string};
 let catalogModels:CatalogModel[]=[];
 /** Full registry for the Models picker (exactly the server catalog, no truncation). */
 function pickerModels(){return catalogModels.filter(m=>m.availability!=='unavailable'&&typeof m.slug==='string');}
@@ -390,13 +391,16 @@ function fillComposerModels(){
  }
  select.value=preferredModel;syncModelsButton();
 }
+let pickerFilter:PickerFilter='chat';let pickerShowLocked=false;
 function openModelPicker(){
- const models=pickerModels();
- dialog('Models',`<div class="model-picker"><div class="model-picker-toolbar"><input id="model-picker-search" class="model-picker-search" type="search" placeholder="Поиск модели…" maxlength="120"><span id="model-picker-count" class="model-picker-count">${models.length} моделей</span></div><div id="model-picker-list" class="model-picker-list"></div></div>`);
- const list=$('model-picker-list'),search=$<HTMLInputElement>('model-picker-search'),count=$('model-picker-count');
+ const all=catalogModels.filter(m=>typeof m.slug==='string');
+ const chips=PICKER_FILTERS.map(f=>`<button type="button" class="model-picker-chip" data-filter="${f.id}" aria-pressed="false">${f.label}</button>`).join('');
+ dialog('Models',`<div class="model-picker"><div class="model-picker-toolbar"><input id="model-picker-search" class="model-picker-search" type="search" placeholder="Поиск модели…" maxlength="120"><span id="model-picker-count" class="model-picker-count"></span></div><div class="model-picker-filters">${chips}<label class="model-picker-locked"><input id="model-picker-locked" type="checkbox"> Недоступные</label></div><div id="model-picker-list" class="model-picker-list"></div></div>`);
+ const list=$('model-picker-list'),search=$<HTMLInputElement>('model-picker-search'),count=$('model-picker-count'),locked=$<HTMLInputElement>('model-picker-locked');
+ locked.checked=pickerShowLocked;
  const paint=()=>{
-  const q=search.value.trim().toLocaleLowerCase();
   list.replaceChildren();
+  document.querySelectorAll<HTMLElement>('.model-picker-chip').forEach(chip=>chip.setAttribute('aria-pressed',String(chip.dataset.filter===pickerFilter)));
   const auto=document.createElement('button');auto.type='button';auto.className='model-picker-item';if(!preferredModel)auto.setAttribute('aria-current','true');
   const autoBody=document.createElement('span');autoBody.className='model-picker-body';
   autoBody.innerHTML='<strong>Auto · AZRAIL</strong><small>Подберём сами</small>';
@@ -404,43 +408,44 @@ function openModelPicker(){
   auto.append(modelPickerMark('AZRAIL'),autoBody,autoBadge);
   auto.onclick=()=>{setPreferredModel('');$<HTMLDialogElement>('dialog').close();syncModelsButton();};
   list.append(auto);
+  const found=applyPicker(all,{filter:pickerFilter,query:search.value,showLocked:pickerShowLocked},modelLabel);
   let shown=0;
-  for(const group of groupModelsByProvider(models)){
-   const visible=group.models.filter(model=>{
-    const label=modelLabel(model),provider=model.provider||providerFromSlug(model.slug);
-    return !q||`${label} ${provider} ${model.slug} ${model.task||''}`.toLocaleLowerCase().includes(q);
-   });
-   if(!visible.length)continue;
+  for(const group of groupModelsByProvider(found)){
+   const visible=group.models as CatalogModel[];
    const section=document.createElement('div');section.className='model-picker-group';
    const heading=document.createElement('div');heading.className='model-picker-group-title';heading.textContent=`${group.provider} · ${visible.length}`;
    section.append(heading);
    for(const model of visible){
     const label=modelLabel(model),provider=model.provider||providerFromSlug(model.slug);
     const chatOk=isChatCapableModel(model);
+    const badgeInfo=modelBadge(model);
     const row=document.createElement('button');row.type='button';row.className='model-picker-item';
     if(preferredModel===model.slug)row.setAttribute('aria-current','true');
-    row.title=model.slug;
+    row.title=badgeInfo.hint;
+    if(badgeInfo.kind==='locked'){row.disabled=true;row.dataset.locked='';}
     const body=document.createElement('span');body.className='model-picker-body';
     const title=document.createElement('strong');title.textContent=label;
-    const neuron=isNeuronPaidModel(model.slug);
-    const meta=document.createElement('small');meta.textContent=`${provider}${model.task?` · ${model.task}`:''}${neuron?' · 7 Paid · лимит 10 000 нейронов':''}${chatOk?'':' · не для чата'}`;
+    const meta=document.createElement('small');meta.textContent=`${provider}${model.task?` · ${model.task}`:''}${badgeInfo.kind==='neuron'?' · лимит 10 000 нейронов в сутки':''}${chatOk||badgeInfo.kind==='locked'?'':' · не для чата'}`;
     body.append(title,meta);
-    const badge=document.createElement('span');badge.className=`model-picker-badge ${neuron?'neuron':model.freeAllowlisted?'free':'paid'}`;badge.textContent=neuron?'Нейроны':model.freeAllowlisted?'Free':'Paid';
+    const badge=document.createElement('span');badge.className=`model-picker-badge ${badgeInfo.kind}`;badge.textContent=badgeInfo.text;
     row.append(modelPickerMark(provider,resolveModelIcon(model)),body,badge);
     row.onclick=()=>{
      setPreferredModel(model.slug);
      $<HTMLDialogElement>('dialog').close();
      syncModelsButton();
-     if(neuron)notice('Это одна из 7 моделей Workers Paid. AZRAIL её не вызывает: после 10 000 нейронов в сутки идёт доплата.',true);
+     if(badgeInfo.kind==='neuron')notice('Это одна из 7 моделей Workers Paid. AZRAIL её не вызывает: после 10 000 нейронов в сутки идёт доплата.',true);
+     else if(badgeInfo.kind==='external')notice('Сторонняя модель: вызов идёт через AI Gateway и только если включены платные модели и есть бюджет.',true);
      else if(!chatOk)notice('Модель выбрана. Для чата AZRAIL подставит текстовую модель автоматически.',true);
     };
     section.append(row);shown++;
    }
    list.append(section);
   }
-  count.textContent=q?`${shown} из ${models.length}`:`${models.length} моделей`;
-  if(!shown){const empty=document.createElement('p');empty.className='muted';empty.textContent='Ничего не найдено.';list.append(empty);}
+  count.textContent=`${shown} из ${all.length}`;
+  if(!shown){const empty=document.createElement('p');empty.className='muted';empty.textContent=pickerFilter==='free'?'Бесплатных моделей по этому поиску нет.':'Ничего не найдено. Попробуй фильтр «Все» или «Недоступные».';list.append(empty);}
  };
+ document.querySelectorAll<HTMLElement>('.model-picker-chip').forEach(chip=>{chip.onclick=()=>{pickerFilter=chip.dataset.filter as PickerFilter;paint();};});
+ locked.onchange=()=>{pickerShowLocked=locked.checked;paint();};
  search.oninput=paint;paint();search.focus();
 }
 async function refreshComposerModels(){
