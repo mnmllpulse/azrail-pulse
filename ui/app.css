@@ -1,6 +1,7 @@
 @import url('./tokens.css');
 @import url('./workspace.css');
 @import url('./design-system.css');
+@import url('./premium-workspace.css');
 * { box-sizing: border-box; }
 html { color-scheme: dark; scroll-behavior: smooth; }
 body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.55 var(--font); }
