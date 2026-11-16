@@ -697,17 +697,17 @@ function renderRoute(route:Route,initial:boolean){
  const studioId=route.page==='studio'?route.studio:'';
  if(!expertOn()&&(route.page==='mission'||route.page==='metatron'||route.page==='connections'||expertStudios.has(studioId))){navigation.navigate({page:'create'});return;}
  currentRoute=route;
- leaveStudio();metatronCleanup();metatronCleanup=()=>{};const id=route.page==='studio'?'studio-page':route.page;
+ leaveStudio();metatronCleanup();metatronCleanup=()=>{};const id=route.page==='studio'?'studio-page':route.page==='connections'?'settings':route.page;
  document.querySelectorAll<HTMLElement>('.view').forEach(el=>el.hidden=el.id!==id);
- const nav=route.page==='studio'?'studios':route.page;
+ const nav=route.page==='studio'?'studios':route.page==='connections'?'settings':route.page;
  document.querySelectorAll('.nav').forEach(el=>{const active=el.getAttribute('data-view')===nav;el.classList.toggle('active',active);if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
  if(route.page==='studio')void renderStudio(route.studio).catch(failure);
  if(route.page==='projects')loadProjects().catch(failure);
- if(route.page==='connections')loadConnections().catch(failure);
+ if(route.page==='connections')navigation.navigate({page:'settings',section:'connections'});\n if(route.page==='settings')renderSettingsPage(route);
  if(route.page==='mission'){if(mission&&account){missionPanel.hidden=false;void poll(epoch).catch(failure);}void refreshMissionHistory().catch(failure);}
  if(route.page==='metatron')metatronCleanup=mountMetatronLab({root:$('metatron-page'),api,local,account,getProjectId:()=>project,getMissionId:()=>mission,setMissionId:id=>{mission=id;remember();},notice,failure});
  syncComposer(route);
- const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='create'?'Чат':route.page==='mission'?'Ход задачи':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Метратрон':route.page==='connections'?'Подключения':'Страница не найдена';
+ const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='settings'?settingsTitle(route.section,route.provider):route.page==='create'?'Чат':route.page==='mission'?'Ход задачи':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Метратрон':route.page==='connections'?'Подключения':'Страница не найдена';
  document.title=`${title} · AZRAIL MNMLL PULSE OS`;
  $('workspace-page-title').textContent=route.page==='create'?(chatHistory.current()?.title??'Новый чат'):title;
  workspace.routeChanged();syncChatUI();
@@ -715,7 +715,7 @@ function renderRoute(route:Route,initial:boolean){
 }
 function view(id:'create'|'projects'|'studios'){navigation.navigate({page:id});}
 navigation.link(document.querySelector<HTMLAnchorElement>('[data-home]')!,{page:'create'});
-document.querySelectorAll<HTMLAnchorElement>('[data-view]').forEach(el=>navigation.link(el,{page:el.dataset.view as 'create'|'mission'|'projects'|'studios'|'metatron'|'connections'}));
+document.querySelectorAll<HTMLAnchorElement>('a[data-view]').forEach(el=>navigation.link(el,{page:el.dataset.view as 'create'|'mission'|'projects'|'studios'|'metatron'|'connections'}));
 bind('expert-mode',()=>{
  const next=!expertOn();
  applyExpert(next);
@@ -1030,7 +1030,7 @@ function ensureEventStream(){
   if(event.missionId&&event.missionId===mission&&!document.hidden){clearTimeout(pollTimer);pollTimer=window.setTimeout(()=>void poll(epoch),120);}
  }});
 }
-bind('about',()=>dialog('AZRAIL × MNMLL PULSE','<p>Мультиагентное ядро AZRAIL и творческие инструменты PULSE в одном приложении. У каждого модуля студий своя страница.</p><p>Текст и голос → миссия → файлы проекта → проверка. Результат не получает статус готовности к публикации без успешной проверки кода.</p><p>Музыка здесь — локальный procedural synthesis. Video Studio использует AI только для Scene Builder, а preview/WebM рендерит локально через Canvas + MediaRecorder. Cloudflare Stream/Veo не выдаются за подключённые, пока binding не настроен и не проверен.</p>'));
+
 async function refreshMissionHistory(){
  const host=$('mission-history');
  if(!account||!project||local){host.replaceChildren();const note=document.createElement('p');note.className='muted';note.textContent=account?'Недавние миссии появятся после выбора проекта.':'Войдите, чтобы видеть недавние миссии.';host.append(note);return;}
@@ -2236,7 +2236,7 @@ const commandPalette=mountCommandPalette(()=>[
  {id:'series-g-readiness',label:'Open Browser QA / Real E2E readiness',keywords:['browser','qa','e2e','series g'],disabled:()=>!account,run:()=>openSystemReadiness().catch(failure)},
  {id:'compare-mode',label:'Open Compare Mode · A | B',keywords:['compare','a b','versions','before after'],disabled:()=>!account,run:()=>openCompareCenter().catch(failure)},
  {id:'professional-review',label:'Open Professional Review',keywords:['review','quality','critical','major','minor','safe fix'],disabled:()=>!account,run:()=>openReviewHistory().catch(failure)},
- {id:'shortcuts',label:'Open shortcuts',keywords:['help','keyboard','settings'],run:()=>openSettings()},
+ {id:'shortcuts',label:'Open shortcuts',keywords:['help','keyboard','settings'],run:()=>navigation.navigate({page:'settings',section:'shortcuts'})},
 ]);
 bind('commands',()=>commandPalette.open());
 navigation.render(true);
