@@ -162,21 +162,37 @@ export function applyHunks(content: string, hunks: Hunk[]): PatchResult {
  * с внятными отказами: «Cannot read property of undefined» посреди миссии
  * не говорит модели ничего о том, что исправить.
  */
-export function parseHunks(raw: unknown): { hunks: Hunk[] } | { error: string } {
-  if (!Array.isArray(raw)) {
-    return { error: 'Поле "hunks" должно быть массивом вида [{"search": "...", "replace": "..."}].' };
+const HUNKS_SCHEMA = 'Поле "hunks" должно быть массивом вида [{"search": "...", "replace": "..."}].';
+
+/** Модели присылают hunks JSON-строкой или одиночным объектом: приводим к массиву, остальное отклоняем. */
+function coerceHunkList(raw: unknown): unknown[] | null {
+  let value = raw;
+  if (typeof value === "string") {
+    try {
+      value = JSON.parse(value);
+    } catch {
+      return null;
+    }
   }
+  if (Array.isArray(value)) return value;
+  return value && typeof value === "object" ? [value] : null;
+}
+
+export function parseHunks(raw: unknown): { hunks: Hunk[] } | { error: string } {
+  const list = coerceHunkList(raw);
+  if (!list) return { error: HUNKS_SCHEMA };
   const hunks: Hunk[] = [];
-  for (let i = 0; i < raw.length; i++) {
-    const item = raw[i] as { search?: unknown; replace?: unknown } | null;
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i] as Record<string, unknown> | null;
     if (!item || typeof item !== "object") {
       return { error: `Правка ${i + 1}: ожидался объект с полями search и replace.` };
     }
-    if (typeof item.search !== "string") {
+    const search = firstString(item, SEARCH_KEYS);
+    if (search === undefined) {
       return { error: `Правка ${i + 1}: поле search обязательно и должно быть строкой.` };
     }
     // replace может отсутствовать — это удаление фрагмента, законный случай.
-    hunks.push({ search: item.search, replace: typeof item.replace === "string" ? item.replace : "" });
+    hunks.push({ search, replace: firstString(item, REPLACE_KEYS) ?? "" });
   }
   return { hunks };
 }
