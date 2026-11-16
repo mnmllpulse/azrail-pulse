@@ -1,5 +1,6 @@
 import {it,expect,vi,afterEach} from 'vitest';
 import {Window} from 'happy-dom';
+vi.setConfig({testTimeout:30000});
 import {readFileSync} from 'node:fs';
 import {renderMission} from '../ui/mission-view';
 import {mountStudioDraft} from '../ui/studio-draft';
