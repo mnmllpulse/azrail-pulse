@@ -44,6 +44,7 @@ describe('Settings Center navigation and search',()=>{
     const visible=host.querySelectorAll('.settings-provider-card:not([hidden])');
     expect(visible).toHaveLength(1);
     expect(visible[0].textContent).toContain('Anthropic');
+    expect(host.querySelector('[data-settings-section="providers"]')?.hasAttribute('hidden')).toBe(false);
   });
   it('shows a useful empty state when the query has no matches',()=>{
     const {host}=mount('providers');
