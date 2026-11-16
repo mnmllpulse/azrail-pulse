@@ -18,6 +18,12 @@ describe("Worker HTTP security boundary", () => {
   it("does not reveal health details to anonymous callers", async () => {
     expect((await worker.fetch(request("/health", "GET", undefined, false),env(),context)).status).toBe(401);
   });
+  it("exposes only minimal liveness metadata without authentication", async () => {
+    const response = await worker.fetch(request("/health/live", "GET", undefined, false),env(),context);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ status: "ok", version: expect.any(String) });
+    expect((await worker.fetch(request("/health/live", "POST", undefined, false),env(),context)).status).toBe(405);
+  });
   it.each(["null", "[]", "{", '{"goal":1}', '{"attachments":[null]}'])("bad JSON shape gets 400: %s", async body => {
     const response = await worker.fetch(request("/api/mission", "POST", body),env(),context);
     expect(response.status).toBe(400);
