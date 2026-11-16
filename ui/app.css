@@ -496,6 +496,9 @@ html[data-settings-text-scale="large"] #settings .settings-detail-content .muted
 @media (max-width:600px) {
  .settings-shell {padding:10px 12px 28px;gap:14px;}
  .settings-nav {grid-template-columns:1fr 1fr;max-height:240px;}
+ .settings-nav-group {grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;}
+ .settings-nav-heading {grid-column:1/-1;margin:4px 8px;}
+ .settings-nav-item {min-width:0;overflow-wrap:anywhere;}
  .settings-nav-heading {font-size:9px;}
  .settings-nav-item {min-height:42px;padding:7px 8px;font-size:10px;line-height:1.35;}
  .settings-overview-grid,.settings-provider-grid,.settings-form-grid {grid-template-columns:1fr;}
@@ -512,3 +515,14 @@ html[data-settings-text-scale="large"] #settings .settings-detail-content .muted
 }
 
 @media(max-width:600px){.notice{top:12px;bottom:auto;left:12px;right:12px;width:auto;max-width:none;}}
+
+/* Settings Center UX refinements */
+.settings-search-empty {margin:12px 0;padding:14px 16px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);font-size:13px;line-height:1.5;}
+.settings-search-empty[hidden] {display:none;}
+.settings-nav-group[hidden],.settings-nav-item[hidden],.settings-category-card[hidden],.settings-provider-card[hidden] {display:none!important;}
+.settings-provider-back {width:max-content;min-height:40px;margin:0 0 2px;padding:8px 12px;border-color:var(--border);background:var(--surface);color:var(--text);}
+.settings-provider-back:hover {background:var(--surface-raised);border-color:color-mix(in srgb,var(--accent) 42%,var(--border));}
+.settings-category-card:focus-visible,.settings-provider-card:focus-visible,.settings-nav-item:focus-visible,.settings-provider-back:focus-visible {outline:2px solid var(--accent);outline-offset:2px;}
+@media (max-width:600px) {
+ .settings-provider-back {width:100%;}
+}
