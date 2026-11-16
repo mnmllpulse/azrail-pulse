@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 const read = (name: string) => readFileSync(`ui/${name}`, "utf8");
-const all = ["app.css", "workspace.css", "design-system.css"].map(read).join("\n");
+const all = ["app.css", "workspace.css", "design-system.css", "premium-workspace.css", "tokens.css"].map(read).join("\n");
 
 describe("дизайн-система", () => {
   it("радиусы одиночных значений: только 8px и 12px, пилюли и круг", () => {
