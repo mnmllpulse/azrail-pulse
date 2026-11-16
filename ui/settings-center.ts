@@ -106,6 +106,8 @@ export function mountSettingsCenter(
     const grid=node('div','','settings-provider-grid');
     for(const item of PROVIDER_TOKENS){
       const card=node('button','','settings-provider-card');card.type='button';
+      card.dataset.settingsSearch=[item.name,item.note,item.id,'провайдер api ключ'].join(' ').toLowerCase();
+      card.setAttribute('aria-label','Открыть настройки провайдера '+item.name);
       const top=node('div','','settings-provider-top');top.append(node('span',item.name,'settings-provider-name'),node('span','↗','settings-category-arrow'));
       const saved=hasProviderToken(item.id);
       card.append(top,node('span',item.note||'Внешний AI-провайдер.','settings-provider-note'),node('span',saved?'Ключ сохранён в этой вкладке':'Ключ не задан',saved?'settings-provider-status is-saved':'settings-provider-status'));
@@ -119,13 +121,29 @@ export function mountSettingsCenter(
     main.append(content);
   }
 
+  const empty=node('p','Ничего не найдено. Попробуйте другое название или очистите поиск.','settings-search-empty');
+  empty.hidden=true;
+  empty.setAttribute('role','status');
+  if(active==='providers'&&!provider)content.append(empty);
+  else if(!active)main.append(empty);
   search.addEventListener('input',()=>{
-    const query=search.value.trim().toLowerCase();
+    const query=search.value.trim().toLocaleLowerCase('ru');
+    let visible=0;
     for(const [key,button] of buttons){
       const item=bySection.get(key)!;
-      button.hidden=Boolean(query)&&!(item.title+' '+item.description+' '+item.group).toLowerCase().includes(query);
+      const matches=!query||(item.title+' '+item.description+' '+item.group).toLocaleLowerCase('ru').includes(query);
+      button.hidden=!matches;
+      if(matches)visible++;
     }
-    for(const card of gridCards(main))card.hidden=Boolean(query)&&!(card.dataset.settingsSearch??'').includes(query);
+    for(const group of Array.from(nav.querySelectorAll<HTMLElement>('.settings-nav-group'))){
+      group.hidden=!Array.from(group.querySelectorAll<HTMLButtonElement>('.settings-nav-item')).some(button=>!button.hidden);
+    }
+    for(const card of Array.from(main.querySelectorAll<HTMLButtonElement>('.settings-category-card,.settings-provider-card'))){
+      const matches=!query||(card.dataset.settingsSearch??'').toLocaleLowerCase('ru').includes(query);
+      card.hidden=!matches;
+      if(matches)visible++;
+    }
+    empty.hidden=!query||visible>0;
   });
   shell.append(sidebar,main);host.append(shell);
   return content;
