@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T03:30:00.301Z",
+  "generated_at": "2026-11-16T04:23:29.702Z",
   "excludes_self": true,
   "file_count": 1247,
   "files": [
@@ -3192,8 +3192,8 @@
     },
     {
       "path": "scripts/staging-auto-health.mjs",
-      "bytes": 1002,
-      "sha256": "74eb79855533716d08b3a084379d4ca98a6fac3ceb412c7a36603c8f45da647e"
+      "bytes": 1178,
+      "sha256": "9faee324b10a242ded255e016a55cff1c1071a1f481719226c7dd66453c164b3"
     },
     {
       "path": "scripts/staging-deploy-apply.mjs",
@@ -3752,8 +3752,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 102366,
-      "sha256": "4d2087ad231b2d3030ff0f541a21d544d7f99d4c634183cc716124528236b599"
+      "bytes": 102575,
+      "sha256": "9e63bc47ca6aa4c0ac56574766ab19c0dc20e3146ac680cb14e10d1a42aee592"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4512,8 +4512,8 @@
     },
     {
       "path": "tests/api-security.test.ts",
-      "bytes": 3071,
-      "sha256": "2a790511e86b4b2505087c16e1667eea173a561b9d88f2dd7d01021045bb9a64"
+      "bytes": 3511,
+      "sha256": "eb603d9e1f7bb965c408967502592d4ae5dc80d17d85a44f10654917ddfa2b89"
     },
     {
       "path": "tests/approval-engine.test.ts",
