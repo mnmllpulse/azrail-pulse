@@ -1,6 +1,8 @@
 import type { Env, AttachmentRef } from "../types";
 import { officePlain } from "./office-text";
-import { listZip, readEntry, ZipError } from "./zip-reader";
+import { listZip, readEntry, ZipError, type ZipEntry, type ZipListing } from "./zip-reader";
+import { gunzip, isGzip, listTar, looksLikeTar, readTarEntry } from "./tar-reader";
+import { redactSecrets } from "./secret-scan";
 
 /**
  * ЧТЕНИЕ ВЛОЖЕНИЙ ОБРАТНО ИЗ R2
@@ -62,10 +64,33 @@ export const TEXT_EXT = new Set([
   "ts", "tsx", "js", "jsx", "mjs", "cjs", "json", "md", "txt", "css", "html",
   "yml", "yaml", "toml", "sql", "sh", "py", "rs", "go", "java", "kt", "swift",
   "c", "h", "cpp", "hpp", "rb", "php", "xml", "svg", "csv", "env", "gitignore",
+  "tsv", "ini", "cfg", "conf", "log", "vue", "svelte", "scss", "sass", "less", "lua", "ps1",
+  "kts", "gradle", "dart", "scala", "r", "tex", "rst", "srt", "vtt", "jsonl", "ndjson",
+  "graphql", "gql", "proto", "prisma", "properties", "dockerfile", "makefile", "mk", "ipynb",
 ]);
 
 /** Архивы: распознаём, чтобы сказать правду, а не молчать. */
 const ARCHIVE_EXT = new Set(["zip", "tar", "gz", "tgz", "rar", "7z", "bz2", "xz"]);
+const TAR_FAMILY = new Set(["tar", "gz", "tgz"]);
+
+/** Сколько байт начала файла смотреть, чтобы понять, текст это или двоичное. */
+const SNIFF_BYTES = 8192;
+
+/** Текст ли это: нет нулевых байт и начало декодируется как UTF-8 (обрезанный хвост символа допускается). */
+export function looksLikeText(head: Uint8Array): boolean {
+  if (head.length === 0) return true;
+  if (head.includes(0)) return false;
+  const decoder = new TextDecoder("utf-8", { fatal: true, ignoreBOM: false });
+  for (let cut = 0; cut <= 3 && cut < head.length; cut++) {
+    try {
+      decoder.decode(head.subarray(0, head.length - cut));
+      return true;
+    } catch {
+      /* возможно, обрезан многобайтовый символ на границе — пробуем короче */
+    }
+  }
+  return false;
+}
 
 /** Офисные пакеты — это ZIP с XML. PDF и картинки идут через Workers AI. */
 const OFFICE_EXT = new Set(["docx", "xlsx", "pptx"]);
@@ -111,7 +136,36 @@ export interface LoadedAttachment {
  * файлов, а не один толстый.
  */
 async function readZip(buf: ArrayBuffer, archiveName: string): Promise<LoadedAttachment[]> {
-  const { entries, total } = listZip(buf, ZIP_MAX_LISTED);
+  return readArchive(listZip(buf, ZIP_MAX_LISTED), (entry, max) => readEntry(buf, entry, max), archiveName);
+}
+
+/** tar, tar.gz, tgz и одиночный gz: распаковка в память под жёстким потолком, дальше тот же бюджет, что у ZIP. */
+async function readTarLike(buf: ArrayBuffer, archiveName: string): Promise<LoadedAttachment[]> {
+  let bytes: Uint8Array = new Uint8Array(buf);
+  if (isGzip(bytes)) bytes = await gunzip(bytes);
+  if (bytes.byteLength === 0) return [{ fileName: archiveName, skipped: "файл пуст" }];
+  if (looksLikeTar(bytes)) {
+    return readArchive(listTar(bytes, ZIP_MAX_LISTED), async (entry, max) => readTarEntry(bytes, entry, max), archiveName);
+  }
+  if (!looksLikeText(bytes.subarray(0, SNIFF_BYTES))) {
+    return [{ fileName: archiveName, skipped: "после распаковки это не tar и не текст" }];
+  }
+  const inner = archiveName.replace(/\.gz$/i, "");
+  const cut = bytes.byteLength > MAX_TEXT_BYTES;
+  return [{
+    fileName: `${archiveName} → ${inner}`,
+    text: new TextDecoder("utf-8").decode(cut ? bytes.subarray(0, MAX_TEXT_BYTES) : bytes),
+    bytes: bytes.byteLength,
+    ...(cut ? { skipped: `показаны первые ${Math.round(MAX_TEXT_BYTES / 1024)} КБ из ${Math.round(bytes.byteLength / 1024)} КБ` } : {}),
+  }];
+}
+
+async function readArchive(
+  parsed: ZipListing,
+  readOne: (entry: ZipEntry, max: number) => Promise<Uint8Array>,
+  archiveName: string,
+): Promise<LoadedAttachment[]> {
+  const { entries, total } = parsed;
   const visible = entries.filter((e) => !ZIP_NOISE.test(e.path));
 
   if (visible.length === 0) {
@@ -147,7 +201,7 @@ async function readZip(buf: ArrayBuffer, archiveName: string): Promise<LoadedAtt
     if (entry.size > Math.min(ZIP_MAX_ONE, budget)) continue;
 
     try {
-      const bytes = await readEntry(buf, entry, Math.min(ZIP_MAX_ONE, budget));
+      const bytes = await readOne(entry, Math.min(ZIP_MAX_ONE, budget));
       const text = new TextDecoder("utf-8").decode(bytes);
       out.push({ fileName: `${archiveName} → ${entry.path}`, text, bytes: bytes.byteLength });
       budget -= bytes.byteLength;
@@ -198,10 +252,11 @@ export async function loadAttachments(
     const ext = extOf(name);
 
     if (ARCHIVE_EXT.has(ext)) {
-      if (ext !== "zip") {
-        // tar/gz/rar/7z — другие форматы, каждый со своей распаковкой.
+      const readable = ext === "zip" || TAR_FAMILY.has(ext);
+      if (!readable) {
+        // rar/7z/bz2/xz — другие форматы, каждый со своей распаковкой.
         // Честный отказ лучше молчаливого пустого результата.
-        out.push({ fileName: name, skipped: `формат «${ext}» не распаковывается; пришли ZIP` });
+        out.push({ fileName: name, skipped: `формат «${ext}» не распаковывается; пришли ZIP, tar или tar.gz` });
         continue;
       }
       if (!ref.r2Key) {
@@ -215,7 +270,8 @@ export async function loadAttachments(
           continue;
         }
         if (obj.size > 50 * 1024 * 1024) throw new ZipError("архив превышает 50 МБ");
-        out.push(...(await readZip(await obj.arrayBuffer(), name)));
+        const buf = await obj.arrayBuffer();
+        out.push(...(ext === "zip" ? await readZip(buf, name) : await readTarLike(buf, name)));
       } catch (err) {
         const why = err instanceof ZipError ? err.message : err instanceof Error ? err.message : String(err);
         out.push({ fileName: name, skipped: why });
@@ -268,9 +324,15 @@ export async function loadAttachments(
 
       // Двоичное читать как текст бессмысленно: модель получит мусор и
       // будет рассуждать о нём как о коде.
-      const looksText = TEXT_EXT.has(ext) || (ref.mimeType ?? "").startsWith("text/");
+      let looksText = TEXT_EXT.has(ext) || (ref.mimeType ?? "").startsWith("text/");
       if (!looksText) {
-        out.push({ fileName: name, skipped: `тип «${ext || "неизвестен"}» не читается как текст` });
+        // Расширение не решает: Dockerfile, LICENSE, .rc-файлы и любой текст
+        // с чужим суффиксом определяются по содержимому начала файла.
+        const head = await env.AZRAIL_R2.get(ref.r2Key, { range: { offset: 0, length: SNIFF_BYTES } });
+        looksText = !!head && looksLikeText(new Uint8Array(await head.arrayBuffer()));
+      }
+      if (!looksText) {
+        out.push({ fileName: name, skipped: `двоичный файл${ext ? ` (тип «${ext}»)` : ""}: как текст не читается` });
         continue;
       }
 
@@ -324,7 +386,7 @@ export function attachmentsToText(loaded: LoadedAttachment[]): string {
   const parts = loaded.map((a) => {
     if (a.text) {
       const note = a.skipped ? `\n[${a.skipped}]` : "";
-      return `--- ФАЙЛ: ${a.fileName} ---${note}\n${a.text}`;
+      return `--- ФАЙЛ: ${a.fileName} ---${note}\n${redactSecrets(a.text)}`;
     }
     return `--- ФАЙЛ: ${a.fileName} — НЕ ПРОЧИТАН: ${a.skipped ?? "причина неизвестна"} ---`;
   });
