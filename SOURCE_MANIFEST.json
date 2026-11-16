@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T12:51:00.000Z",
+  "generated_at": "2026-11-16T12:55:00.000Z",
   "excludes_self": true,
   "file_count": 1253,
   "files": [
@@ -4822,8 +4822,8 @@
     },
     {
       "path": "tests/main-screen.test.ts",
-      "bytes": 2337,
-      "sha256": "41cec4b0a575dd3eaa72ab39c3ff9b8089446a6a58dd3efaa184df9f3ad71a20"
+      "bytes": 2389,
+      "sha256": "9a87249f11328842500ae8c88be97597ab8eb5f023a54628101700ed75f44c71"
     },
     {
       "path": "tests/memory-recall.test.ts",
@@ -5347,18 +5347,18 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 115656,
-      "sha256": "1eeba2db68c6ea4788f06a76bbec7b6e0fbfbe352283875707e67e1b87c95228"
+      "bytes": 115760,
+      "sha256": "93919da9446d0959e7c1f90b2b6c63f9c73e9cdfa568d1790dc24bb71ca0169d"
     },
     {
       "path": "ui/app.html",
-      "bytes": 24119,
-      "sha256": "20fb9b7e29f1e073562303f0e56c17b1044f60d3b00561c86ad14a0f758fe629"
+      "bytes": 24124,
+      "sha256": "3df9fd58bbe42e09044cddec728bcd93aff7c1841a7471b336c3df6927a7570f"
     },
     {
       "path": "ui/app.ts",
-      "bytes": 183833,
-      "sha256": "32354ad074c7fe89ebddc712f1892b0189ccf3283eb8b4a04e8d7845813ff8de"
+      "bytes": 183863,
+      "sha256": "529906b61f07a7e30c0127872efde46776232cca77d9b9adb716758016aef7f1"
     },
     {
       "path": "ui/assignment.ts",
