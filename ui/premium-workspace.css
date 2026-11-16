@@ -1,0 +1,785 @@
+/* AZRAIL · Dark Premium Workspace
+   A presentation-only layer. Keeps the existing HTML hooks and application behavior intact. */
+:root {
+  --bg: #090a0f;
+  --text: #eef0f6;
+  --muted: #969baa;
+  --line: #252936;
+  --accent: #a995f7;
+  --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --surface: #10131b;
+  --surface-raised: #171b26;
+  --border: #292e3c;
+  --accent-soft: color-mix(in srgb, var(--accent) 9%, transparent);
+  --accent-hover: color-mix(in srgb, var(--accent) 15%, transparent);
+  --radius-card: 16px;
+  --radius-control: 11px;
+  --sidebar-w: 264px;
+  --target: 40px;
+  --ease: 180ms cubic-bezier(.2,.75,.25,1);
+}
+
+html,
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font);
+}
+
+body {
+  background:
+    radial-gradient(1000px 620px at 72% -12%, rgba(100, 78, 160, .14), transparent 58%),
+    radial-gradient(780px 500px at 8% 100%, rgba(45, 65, 105, .08), transparent 60%),
+    var(--bg);
+}
+
+.app-shell {
+  --sidebar-width: var(--sidebar-w);
+  color: var(--text);
+  background:
+    radial-gradient(920px 580px at 70% -12%, rgba(92, 72, 145, .11), transparent 62%),
+    #090b11;
+}
+
+.app-shell .workspace-sidebar {
+  padding: 24px 15px 14px;
+  background: linear-gradient(180deg, #0d1017 0%, #0a0c12 58%, #090a0f 100%);
+  border-right: 1px solid rgba(151, 157, 180, .13);
+}
+
+.app-shell .sidebar-brand {
+  margin: 0 5px 25px;
+}
+
+.app-shell .brand {
+  gap: 12px;
+  color: #f0edf8;
+  font-size: 16px;
+  letter-spacing: .17em;
+}
+
+.app-shell .brand-sub {
+  color: #777d8e;
+  font-size: 7px;
+  letter-spacing: .2em;
+}
+
+.app-shell .mark,
+.app-shell .welcome-emblem {
+  color: #b5a1ff;
+  filter: drop-shadow(0 0 12px rgba(160, 135, 245, .18));
+}
+
+.app-shell .new-chat {
+  min-height: 44px;
+  padding: 10px 13px;
+  border: 1px solid rgba(169, 149, 247, .28);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(83, 65, 126, .28), rgba(29, 28, 43, .72));
+  color: #eee9ff;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+}
+
+.app-shell .new-chat:hover {
+  border-color: rgba(181, 161, 255, .52);
+  background: linear-gradient(135deg, rgba(97, 75, 150, .36), rgba(35, 32, 51, .9));
+}
+
+.app-shell .workspace-nav {
+  gap: 5px;
+  margin: 18px 0 26px;
+}
+
+.app-shell .workspace-nav .nav,
+.app-shell .sidebar-footer .nav {
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 11px;
+  color: #a1a6b5;
+  font-size: 12px;
+  transition: background var(--ease), border-color var(--ease), color var(--ease), transform var(--ease);
+}
+
+.app-shell .workspace-nav .nav > span:first-child,
+.app-shell .sidebar-footer .nav > span:first-child {
+  color: #858b9e;
+}
+
+.app-shell .workspace-nav .nav:hover,
+.app-shell .sidebar-footer .nav:hover {
+  color: #f1eff8;
+  background: rgba(255,255,255,.035);
+  border-color: rgba(255,255,255,.045);
+}
+
+.app-shell .workspace-nav .nav.active,
+.app-shell .workspace-nav .nav[aria-current="page"] {
+  color: #f1edff;
+  border-color: rgba(169,149,247,.22);
+  background: linear-gradient(100deg, rgba(121, 94, 185, .2), rgba(58, 51, 81, .13));
+  box-shadow: inset 2px 0 0 #a995f7;
+}
+
+.app-shell .workspace-nav .nav.active > span:first-child,
+.app-shell .workspace-nav .nav[aria-current="page"] > span:first-child {
+  color: #c5b5ff;
+}
+
+.app-shell .nav-count {
+  border-color: rgba(169,149,247,.2);
+  background: rgba(169,149,247,.08);
+  color: #c6baff;
+}
+
+.app-shell .history-heading {
+  margin-inline: 10px;
+  color: #7e8494;
+}
+
+.app-shell .history-heading h2 {
+  font-size: 9px;
+  font-weight: 650;
+  letter-spacing: .16em;
+}
+
+.app-shell .chat-search {
+  min-height: 40px;
+  margin-bottom: 9px;
+  padding: 9px 12px;
+  border: 1px solid rgba(145,151,172,.16);
+  border-radius: 10px;
+  background: rgba(255,255,255,.025);
+  color: #e8eaf1;
+}
+
+.app-shell .chat-search:focus {
+  border-color: rgba(169,149,247,.55);
+  background: rgba(255,255,255,.04);
+}
+
+.app-shell .chat-archive-toggle,
+.app-shell .history-scope {
+  color: #777e8e;
+}
+
+.app-shell .chat-row {
+  border: 1px solid transparent;
+  border-radius: 10px;
+}
+
+.app-shell .chat-row:hover,
+.app-shell .chat-row:focus-within,
+.app-shell .chat-row[data-active="true"] {
+  border-color: rgba(169,149,247,.16);
+  background: rgba(169,149,247,.075);
+}
+
+.app-shell .chat-row > button.chat-open {
+  color: #aeb3c1;
+}
+
+.app-shell .chat-row[data-active="true"] > button.chat-open {
+  color: #f1eff8;
+}
+
+.app-shell .chat-row-actions button {
+  color: #9da3b4;
+}
+
+.app-shell .sidebar-footer {
+  border-top-color: rgba(151,157,180,.13);
+}
+
+.app-shell .sidebar-account {
+  border-top-color: rgba(151,157,180,.13);
+}
+
+.app-shell .account-avatar {
+  border: 1px solid rgba(169,149,247,.22);
+  background: linear-gradient(145deg, #29233b, #171b27);
+  color: #d8ceff;
+}
+
+.app-shell .workspace-topbar {
+  border-bottom: 1px solid rgba(151,157,180,.14);
+  background: rgba(11, 13, 19, .84);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+.app-shell .workspace-topbar-row {
+  min-height: 68px;
+  padding-inline: clamp(16px, 2.3vw, 30px);
+  gap: 10px;
+}
+
+.app-shell .workspace-product {
+  color: #e0d9f4;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .17em;
+}
+
+.app-shell .workspace-product > span {
+  color: #777e8e;
+  font-size: 8px;
+  letter-spacing: .14em;
+}
+
+.app-shell #workspace-page-title {
+  border-left-color: rgba(151,157,180,.2);
+  color: #8f96a7;
+  font-size: 11px;
+}
+
+.app-shell .shell-icon {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #a3a9b9;
+}
+
+.app-shell .shell-icon:hover {
+  border-color: rgba(169,149,247,.18);
+  background: rgba(169,149,247,.09);
+  color: #f2edff;
+}
+
+.app-shell .context-toggle {
+  min-height: 38px;
+  padding: 7px 12px;
+  border: 1px solid rgba(151,157,180,.16);
+  border-radius: 10px;
+  background: rgba(255,255,255,.025);
+  color: #aeb4c3;
+  font-size: 11px;
+}
+
+.app-shell .context-toggle:hover,
+.app-shell .context-toggle[aria-expanded="true"] {
+  border-color: rgba(169,149,247,.3);
+  background: rgba(169,149,247,.09);
+  color: #e8e2ff;
+}
+
+.app-shell .workspace-main > .view {
+  padding: clamp(22px, 3vw, 42px);
+}
+
+.app-shell .workspace-main > #create {
+  padding: 0;
+  background: transparent;
+}
+
+.app-shell .chat-scroll {
+  scrollbar-color: #34394a transparent;
+}
+
+.app-shell .chat-content {
+  width: min(100%, 860px);
+  padding: clamp(24px, 4vh, 48px) clamp(18px, 3vw, 32px) 18px;
+}
+
+.app-shell #create[data-chat="empty"] .chat-scroll {
+  align-items: center;
+}
+
+.app-shell #create[data-chat="empty"] .chat-content {
+  padding-top: 0;
+}
+
+.app-shell .chat-welcome {
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.app-shell .welcome-emblem {
+  width: 64px;
+  height: 70px;
+  margin-bottom: 22px;
+}
+
+.app-shell .welcome-emblem svg {
+  width: 48px;
+  height: 52px;
+}
+
+.app-shell .chat-welcome .kicker {
+  margin-bottom: 14px;
+  color: #9b91b6;
+  font-size: 9px;
+  letter-spacing: .24em;
+}
+
+.app-shell .chat-welcome h1 {
+  margin-bottom: 13px;
+  color: #f3f1fa;
+  font-size: clamp(34px, 4.5vw, 54px);
+  font-weight: 650;
+  letter-spacing: .12em;
+  text-shadow: 0 8px 40px rgba(150,125,225,.12);
+}
+
+.app-shell .chat-welcome .intro {
+  max-width: 460px;
+  margin-inline: auto;
+  color: #969bab;
+  font-size: 13px;
+  line-height: 1.75;
+}
+
+.app-shell .chat-messages {
+  gap: 18px;
+  width: min(100%, 760px);
+}
+
+.app-shell .chat-message {
+  font-size: 14px;
+  line-height: 1.72;
+}
+
+.app-shell .chat-message .message-heading {
+  color: #c4c0d0;
+  font-size: 10px;
+  letter-spacing: .08em;
+}
+
+.app-shell .chat-message[data-role="user"] {
+  max-width: min(84%, 38rem);
+  padding: 13px 17px;
+  border: 1px solid rgba(169,149,247,.18);
+  border-radius: 17px 17px 5px 17px;
+  background: linear-gradient(145deg, rgba(72, 62, 102, .46), rgba(28, 30, 43, .88));
+  color: #f1eff8;
+  box-shadow: 0 10px 28px rgba(0,0,0,.12);
+}
+
+.app-shell .chat-message[data-role="assistant"] {
+  max-width: min(94%, 44rem);
+  padding: 8px 2px 12px;
+  color: #dfe2eb;
+}
+
+.app-shell .assistant-mark {
+  border-color: rgba(169,149,247,.35);
+  border-radius: 9px;
+  background: rgba(169,149,247,.09);
+  color: #c9bcff;
+}
+
+.app-shell .chat-message .md-inline-code {
+  border: 1px solid rgba(169,149,247,.14);
+  background: rgba(169,149,247,.09);
+  color: #e5ddff;
+}
+
+.app-shell .chat-message .code-block {
+  border-color: rgba(151,157,180,.18);
+  border-radius: 12px;
+  background: #0c0f16;
+}
+
+.app-shell .chat-message .code-block-bar {
+  border-bottom-color: rgba(151,157,180,.14);
+  background: #121621;
+}
+
+.app-shell .chat-message .code-block pre {
+  color: #e0e5f0;
+}
+
+.app-shell .composer-dock {
+  width: min(100%, 900px);
+  padding: 12px 28px max(12px, env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, rgba(9,11,17,0), rgba(9,11,17,.96) 22%);
+}
+
+.app-shell .composer {
+  padding: 15px 16px 11px;
+  border: 1px solid rgba(151,157,180,.23);
+  border-radius: 17px;
+  background: linear-gradient(145deg, rgba(20,23,34,.98), rgba(13,16,24,.98));
+  box-shadow: 0 20px 60px rgba(0,0,0,.32), inset 0 1px 0 rgba(255,255,255,.035);
+  transition: border-color var(--ease), box-shadow var(--ease), background var(--ease);
+}
+
+.app-shell .composer:focus-within {
+  border-color: rgba(169,149,247,.56);
+  box-shadow: 0 0 0 3px rgba(169,149,247,.08), 0 22px 65px rgba(0,0,0,.34);
+}
+
+.app-shell .composer textarea {
+  min-height: 52px;
+  padding: 5px 7px 8px;
+  color: #f1f2f7;
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+.app-shell .composer textarea::placeholder {
+  color: #858c9d;
+}
+
+.app-shell .composer .icon-button {
+  border: 1px solid transparent;
+  border-radius: 10px;
+  color: #a5adbf;
+  transition: background var(--ease), border-color var(--ease), color var(--ease);
+}
+
+.app-shell .composer .icon-button:hover {
+  border-color: rgba(169,149,247,.2);
+  background: rgba(169,149,247,.09);
+  color: #eee9ff;
+}
+
+.app-shell .composer-models-btn {
+  border-color: rgba(151,157,180,.2);
+  border-radius: 999px;
+  background: rgba(255,255,255,.035);
+}
+
+.app-shell .composer-models-current {
+  color: #e1dded;
+}
+
+.app-shell .send-button,
+.app-shell .composer .primary {
+  min-width: 44px;
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 1px solid rgba(205,190,255,.28);
+  border-radius: 13px;
+  background: linear-gradient(145deg, #c0b0ff, #9582e8);
+  color: #15111f;
+  box-shadow: 0 8px 24px rgba(142,119,224,.2);
+}
+
+.app-shell .send-button:hover,
+.app-shell .composer .primary:hover {
+  background: linear-gradient(145deg, #d1c6ff, #a995f7);
+  box-shadow: 0 10px 28px rgba(142,119,224,.28);
+}
+
+.app-shell .send-button span {
+  margin: 0;
+  font-size: 20px;
+}
+
+.app-shell .composer-footnote {
+  margin: 9px 8px 0;
+  color: #737b8c;
+  font-size: 9px;
+}
+
+.app-shell .composer-footnote .text-button {
+  color: #a99ae0;
+}
+
+.app-shell .workspace-footer {
+  color: #626a7a;
+  padding-inline: 28px;
+}
+
+.app-shell :is(.card, .cards > *, .project-card, .studio-card, .thing-card, .project-toolbar, .work, .mission) {
+  border: 1px solid rgba(151,157,180,.17);
+  border-radius: 16px;
+  background: linear-gradient(150deg, rgba(19,22,32,.96), rgba(13,16,23,.96));
+  box-shadow: 0 14px 38px rgba(0,0,0,.12);
+}
+
+.app-shell :is(.card, .cards > *, .project-card, .studio-card):hover {
+  border-color: rgba(169,149,247,.36);
+  background: linear-gradient(150deg, rgba(24,27,40,.98), rgba(15,18,27,.98));
+  transform: translateY(-2px);
+}
+
+.app-shell .card,
+.app-shell .studio-card {
+  min-height: 188px;
+  padding: 22px;
+  transition: transform var(--ease), border-color var(--ease), background var(--ease), box-shadow var(--ease);
+}
+
+.app-shell .card h3,
+.app-shell .studio-card h3,
+.app-shell .project-card h3 {
+  color: #eef0f7;
+}
+
+.app-shell .card p,
+.app-shell .studio-card p,
+.app-shell .project-description {
+  color: #9ba2b2;
+}
+
+.app-shell .card small,
+.app-shell .card-action {
+  color: #b8a8f5;
+}
+
+.app-shell .project-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr));
+  gap: 14px;
+}
+
+.app-shell .project-card {
+  min-height: 260px;
+  padding: 21px;
+  transition: transform var(--ease), border-color var(--ease), background var(--ease);
+}
+
+.app-shell .project-card[data-selected="true"] {
+  border-color: rgba(169,149,247,.48);
+  box-shadow: inset 0 0 0 1px rgba(169,149,247,.12), 0 14px 38px rgba(0,0,0,.16);
+}
+
+.app-shell .project-toolbar {
+  padding: 17px;
+  background: rgba(16,19,28,.88);
+}
+
+.app-shell .project-tags span {
+  border-color: rgba(169,149,247,.16);
+  background: rgba(169,149,247,.07);
+  color: #c5baf2;
+}
+
+.app-shell .project-status {
+  border-radius: 999px;
+  letter-spacing: .08em;
+}
+
+.app-shell .work,
+.app-shell .mission {
+  padding: clamp(17px, 2vw, 26px);
+}
+
+.app-shell .page-title {
+  padding-top: clamp(22px, 3vw, 42px);
+}
+
+.app-shell .page-title .kicker {
+  color: #a79bbf;
+  letter-spacing: .2em;
+}
+
+.app-shell .page-title h1 {
+  color: #f0eff7;
+  letter-spacing: -.045em;
+}
+
+.app-shell .page-title .intro {
+  max-width: 680px;
+  color: #989eae;
+}
+
+.app-shell .section-heading h2 {
+  color: #eef0f6;
+}
+
+.app-shell .context-panel,
+.app-shell .preview-panel {
+  border-left-color: rgba(151,157,180,.16);
+  background: linear-gradient(180deg, #10131c, #0b0e15);
+}
+
+.app-shell .context-heading,
+.app-shell .preview-heading {
+  border-bottom-color: rgba(151,157,180,.15);
+}
+
+.app-shell .context-heading h2,
+.app-shell .preview-heading h2 {
+  color: #eff0f7;
+}
+
+.app-shell .context-section {
+  border-bottom-color: rgba(151,157,180,.13);
+}
+
+.app-shell .context-section h3 {
+  color: #c8c2d9;
+  font-weight: 650;
+  letter-spacing: .04em;
+}
+
+.app-shell .context-project-actions button,
+.app-shell .home-canvas .segmented button {
+  border-radius: 9px;
+}
+
+.app-shell #home-code,
+.app-shell #home-screen {
+  border-color: rgba(151,157,180,.18);
+  border-radius: 12px;
+}
+
+.app-shell .home-canvas {
+  padding: 16px;
+}
+
+.app-shell .notice {
+  border-color: rgba(169,149,247,.28);
+  border-radius: 14px;
+  background: rgba(22,24,36,.96);
+  box-shadow: 0 18px 55px rgba(0,0,0,.42);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+}
+
+.app-shell dialog {
+  border-color: rgba(169,149,247,.25);
+  border-radius: 18px;
+  background: #11141d;
+  box-shadow: 0 28px 90px rgba(0,0,0,.55);
+}
+
+.app-shell :is(input, textarea, select) {
+  border-color: rgba(151,157,180,.2);
+  border-radius: 10px;
+  background-color: rgba(7,9,14,.55);
+  color: #eceef5;
+}
+
+.app-shell :is(input, textarea, select):focus {
+  border-color: rgba(169,149,247,.55);
+}
+
+.app-shell :is(button, a, input, textarea, select) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.app-shell ::selection {
+  color: #fff;
+  background: rgba(145,119,224,.45);
+}
+
+.app-shell :is(.chat-scroll, .workspace-sidebar, .context-scroll, .preview-panel, .workspace-main) {
+  scrollbar-color: #34394a transparent;
+  scrollbar-width: thin;
+}
+
+.app-shell :is(.chat-scroll, .workspace-sidebar, .context-scroll, .preview-panel, .workspace-main)::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.app-shell :is(.chat-scroll, .workspace-sidebar, .context-scroll, .preview-panel, .workspace-main)::-webkit-scrollbar-thumb {
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background: #34394a;
+  background-clip: padding-box;
+}
+
+@media (max-width: 1199px) and (min-width: 761px) {
+  .app-shell { --sidebar-width: 248px; }
+  .app-shell .workspace-topbar-row { padding-inline: 18px; }
+  .app-shell .composer-dock { width: min(100%, 860px); }
+}
+
+@media (max-width: 760px) {
+  .app-shell .workspace-sidebar {
+    padding-inline: 15px;
+    background: linear-gradient(180deg, #10131c, #0a0c12);
+  }
+
+  .app-shell .workspace-topbar-row {
+    min-height: 58px;
+    padding-inline: 8px;
+  }
+
+  .app-shell .workspace-product > span,
+  .app-shell #workspace-page-title {
+    display: none;
+  }
+
+  .app-shell .context-toggle {
+    min-width: 38px;
+    padding-inline: 9px;
+  }
+
+  .app-shell .context-toggle .nav-label {
+    display: none;
+  }
+
+  .app-shell .chat-content {
+    padding: 18px 14px 10px;
+  }
+
+  .app-shell .chat-welcome {
+    margin-bottom: 18px;
+  }
+
+  .app-shell .chat-welcome h1 {
+    font-size: clamp(30px, 9vw, 42px);
+  }
+
+  .app-shell .chat-message[data-role="user"] {
+    max-width: 94%;
+  }
+
+  .app-shell .composer-dock {
+    width: 100%;
+    padding: 8px 12px max(10px, env(safe-area-inset-bottom));
+  }
+
+  .app-shell .composer {
+    padding: 12px 12px 9px;
+    border-radius: 15px;
+  }
+
+  .app-shell .composer textarea {
+    min-height: 46px;
+    font-size: 16px;
+  }
+
+  .app-shell .composer-footnote {
+    justify-content: center;
+    gap: 6px 10px;
+    font-size: 8px;
+  }
+
+  .app-shell .workspace-footer {
+    display: none;
+  }
+
+  .app-shell .cards,
+  .app-shell .project-grid {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .app-shell .card,
+  .app-shell .studio-card {
+    min-height: 0;
+    padding: 18px;
+  }
+
+  .app-shell .project-toolbar {
+    grid-template-columns: 1fr;
+    padding: 13px;
+  }
+
+  .app-shell .project-toolbar-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .app-shell .work,
+  .app-shell .mission {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-shell *,
+  .app-shell *::before,
+  .app-shell *::after {
+    scroll-behavior: auto !important;
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+  }
+}
