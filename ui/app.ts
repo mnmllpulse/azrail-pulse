@@ -703,7 +703,7 @@ function renderRoute(route:Route,initial:boolean){
  document.querySelectorAll('.nav').forEach(el=>{const active=el.getAttribute('data-view')===nav;el.classList.toggle('active',active);if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
  if(route.page==='studio')void renderStudio(route.studio).catch(failure);
  if(route.page==='projects')loadProjects().catch(failure);
- if(route.page==='connections')navigation.navigate({page:'settings',section:'connections'});\n if(route.page==='settings')renderSettingsPage(route);
+ if(route.page==='settings')renderSettingsPage(route);
  if(route.page==='mission'){if(mission&&account){missionPanel.hidden=false;void poll(epoch).catch(failure);}void refreshMissionHistory().catch(failure);}
  if(route.page==='metatron')metatronCleanup=mountMetatronLab({root:$('metatron-page'),api,local,account,getProjectId:()=>project,getMissionId:()=>mission,setMissionId:id=>{mission=id;remember();},notice,failure});
  syncComposer(route);
@@ -2248,8 +2248,7 @@ void lastBlob;
 document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.isComposing||e.keyCode===229)return;if(e.key==='Enter'&&!e.shiftKey&&!e.altKey&&document.activeElement===prompt){e.preventDefault();$<HTMLFormElement>('composer').requestSubmit();}if(e.altKey&&['1','2','3'].includes(e.key)){e.preventDefault();view((['create','projects','studios'] as const)[Number(e.key)-1]);}});
 
 
-async function loadConnections(){
- const host=$('connections-page');
+async function loadConnections(host:HTMLElement=$('connections-page')){
  if(local){host.replaceChildren(document.createTextNode('Connections доступны в развёрнутом приложении.'));return;}
  if(!account){const p=document.createElement('p');p.className='context-note';p.textContent='Войдите, чтобы управлять подключениями вашего аккаунта.';host.replaceChildren(p);return;}
  const {renderConnections}=await import('./connectors');await renderConnections(host,api,{role:account.role});
