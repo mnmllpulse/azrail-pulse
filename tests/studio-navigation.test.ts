@@ -72,6 +72,22 @@ it('Mission Control route is readable and home no longer owns the mission panel'
  expect(html).toMatch(/id="mission"[\s\S]*?id="mission-panel"/);
  expect(html.match(/id="create"[\s\S]*?<\/section>/)?.[0]??'').not.toContain('mission-panel');
 });
+it('Settings Center has a root route and dedicated category/provider routes',()=>{
+ expect(readRoute(new URL('https://example.com/settings'))).toEqual({page:'settings'});
+ expect(readRoute(new URL('https://example.com/settings/providers'))).toEqual({page:'settings',section:'providers'});
+ expect(readRoute(new URL('https://example.com/settings/providers/openai'))).toEqual({page:'settings',section:'providers',provider:'openai'});
+ expect(readRoute(new URL('https://example.com/settings/connections'))).toEqual({page:'settings',section:'connections'});
+ expect(readRoute(new URL('https://example.com/settings/providers/openai/extra'))).toEqual({page:'not-found'});
+ expect(routePath({page:'settings'})).toBe('/settings');
+ expect(routePath({page:'settings',section:'providers'})).toBe('/settings/providers');
+ expect(routePath({page:'settings',section:'providers',provider:'openai'})).toBe('/settings/providers/openai');
+ expect(routePath({page:'settings',section:'connections'})).toBe('/settings/connections');
+ const source=readFileSync('ui/app.html','utf8');
+ expect(source).toContain('id="settings-root"');
+ expect(source).toContain('data-view="settings"');
+ expect(source).not.toContain('id="connections-link"');
+});
+
 it('each studio keeps its own bottom chat and a prompt there feeds that studio',async()=>{
  const w=open('file:///preview/index.html#/studios/image');await settle();
  const prompt=w.document.getElementById('prompt') as any;

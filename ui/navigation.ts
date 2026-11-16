@@ -1,8 +1,16 @@
 import {studioById,type StudioId} from './studios';
-export type Route = {page:'create'|'mission'|'projects'|'studios'|'metatron'|'connections'|'not-found'} | {page:'studio';studio:StudioId};
+
+export type Route =
+ | {page:'create'|'mission'|'projects'|'studios'|'metatron'|'connections'|'not-found'}
+ | {page:'settings';section?:string;provider?:string}
+ | {page:'studio';studio:StudioId};
+
 export function routePath(route:Route):string {
- return route.page==='studio'?`/studios/${route.studio}`:route.page==='create'?'/':route.page==='connections'?'/settings/connections':route.page==='not-found'?'/404':`/${route.page}`;
+ if(route.page==='studio')return `/studios/${route.studio}`;
+ if(route.page==='settings')return route.section?'/settings/'+route.section+(route.provider?'/'+route.provider:''):'/settings';
+ return route.page==='create'?'/':route.page==='connections'?'/settings/connections':route.page==='not-found'?'/404':'/'+route.page;
 }
+
 export function readRoute(url:URL):Route {
  const offline=!/^https?:$/.test(url.protocol);
  let path=offline?(url.hash.slice(1)||'/'):url.pathname;
@@ -14,9 +22,17 @@ export function readRoute(url:URL):Route {
  if(['/projects','projects'].includes(path))return {page:'projects'};
  if(['/studios','studios'].includes(path))return {page:'studios'};
  if(['/metatron','metatron'].includes(path))return {page:'metatron'};
- if(['/settings/connections','settings/connections'].includes(path))return {page:'connections'};
+ if(path==='/settings')return {page:'settings'};
+ const parts=path.split('/').filter(Boolean);
+ if(parts[0]==='settings'){
+  const section=parts[1],provider=parts[2];
+  const allowed=new Set(['account','appearance','voice','models','providers','connections','permissions','agent','usage','data','shortcuts','about']);
+  if(parts.length>3||(section&&!allowed.has(section))||(provider&&section!=='providers'))return {page:'not-found'};
+  return {page:'settings',...(section?{section}:{}),...(provider?{provider}:{})};
+ }
  return {page:'not-found'};
 }
+
 /** Real URLs on the host; portable hash URLs for the standalone file. */
 export function createNavigation(onRoute:(route:Route,initial:boolean)=>void) {
  const offline=!/^https?:$/.test(location.protocol);
@@ -36,8 +52,7 @@ export function createNavigation(onRoute:(route:Route,initial:boolean)=>void) {
    event.preventDefault();navigate(route);
   });
  };
- // Popstate also covers Back/Forward between hash routes. Only render a
- // hashchange that was not already handled, preserving the mounted draft.
+ // Popstate also covers Back/Forward between hash routes.
  let lastURL=location.href;
  const change=()=>{if(location.href!==lastURL){lastURL=location.href;render();}};
  window.addEventListener('popstate',change);

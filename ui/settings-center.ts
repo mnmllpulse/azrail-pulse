@@ -1,0 +1,136 @@
+import {PROVIDER_TOKENS,hasProviderToken} from './provider-tokens';
+
+export type SettingsSection =
+  | 'account' | 'appearance' | 'voice' | 'models' | 'providers' | 'connections'
+  | 'permissions' | 'agent' | 'usage' | 'data' | 'shortcuts' | 'about';
+
+type Destination = {section:SettingsSection;provider?:string};
+type Navigate = (destination:Destination|{page:'create'})=>void;
+type Item = {section:SettingsSection;title:string;description:string;icon:string;group:string};
+
+export const SETTINGS_ITEMS:Item[] = [
+  {section:'account',title:'Аккаунт и профиль',description:'Имя, роль, вход и управление сессией.',icon:'◉',group:'Рабочее пространство'},
+  {section:'appearance',title:'Внешний вид',description:'Плотность интерфейса и читаемость.',icon:'◈',group:'Рабочее пространство'},
+  {section:'models',title:'AI и модели',description:'Текущая модель, каталог и автовыбор.',icon:'✳',group:'AI и модели'},
+  {section:'voice',title:'Голос',description:'Голос для следующего ответа.',icon:'◖',group:'AI и модели'},
+  {section:'providers',title:'Провайдеры и API',description:'Каталог поставщиков и локальные ключи.',icon:'⌘',group:'AI и модели'},
+  {section:'connections',title:'Подключения',description:'MCP, OAuth, scopes, credentials и вызовы.',icon:'⎓',group:'Подключения'},
+  {section:'permissions',title:'Безопасность и разрешения',description:'Режим подтверждения действий агентов.',icon:'◇',group:'Контроль и безопасность'},
+  {section:'agent',title:'Локальный агент',description:'Связь с компьютером и разрешённые задачи.',icon:'⌁',group:'Контроль и безопасность'},
+  {section:'usage',title:'Использование и лимиты',description:'Лимиты, бюджет и пробные возможности.',icon:'◷',group:'Использование и данные'},
+  {section:'data',title:'Данные и память',description:'Библиотека файлов и проектная память.',icon:'▤',group:'Использование и данные'},
+  {section:'shortcuts',title:'Горячие клавиши',description:'Управление приложением с клавиатуры.',icon:'⌨',group:'Система'},
+  {section:'about',title:'О системе и диагностика',description:'Версия, принципы работы и сведения о продукте.',icon:'ⓘ',group:'Система'},
+];
+
+const bySection = new Map(SETTINGS_ITEMS.map(item=>[item.section,item]));
+const node = <K extends keyof HTMLElementTagNameMap>(tag:K,text='',className='')=>{
+  const element=document.createElement(tag);
+  if(text)element.textContent=text;
+  if(className)element.className=className;
+  return element;
+};
+
+export function settingsTitle(section?:string,provider?:string):string {
+  if(section==='providers'&&provider){
+    return PROVIDER_TOKENS.find(item=>item.id===provider)?.name??'Провайдер';
+  }
+  return bySection.get((section||'') as SettingsSection)?.title??'Настройки';
+}
+
+export function mountSettingsCenter(
+  host:HTMLElement,
+  section:string|undefined,
+  provider:string|undefined,
+  navigate:Navigate,
+):HTMLElement {
+  host.replaceChildren();
+  const active=(bySection.has(section as SettingsSection)?section:'') as SettingsSection|'';
+  const shell=node('div','','settings-shell');
+  const sidebar=node('aside','','settings-sidebar');
+  const sidebarHead=node('div','','settings-sidebar-head');
+  sidebarHead.append(node('p','PULSE SETTINGS','settings-eyebrow'),node('strong','Настройки'),node('span','Все параметры AZRAIL в одном месте.','muted'));
+  const searchLabel=node('label','Поиск настроек','settings-search-label');
+  const search=node('input');search.type='search';search.placeholder='Найти настройку…';search.maxLength=80;search.setAttribute('aria-label','Поиск по настройкам');
+  searchLabel.append(search);
+  const nav=node('nav','','settings-nav');nav.setAttribute('aria-label','Категории настроек');
+  const buttons=new Map<SettingsSection,HTMLButtonElement>();
+  const groups=[...new Set(SETTINGS_ITEMS.map(item=>item.group))];
+  for(const groupName of groups){
+    const group=node('section','','settings-nav-group');
+    group.append(node('h2',groupName,'settings-nav-heading'));
+    for(const item of SETTINGS_ITEMS.filter(candidate=>candidate.group===groupName)){
+      const button=node('button',item.icon+'  '+item.title,'settings-nav-item');
+      button.type='button';button.dataset.settingsSection=item.section;
+      button.title=item.description;
+      if(active===item.section)button.setAttribute('aria-current','page');
+      button.onclick=()=>navigate({section:item.section});
+      buttons.set(item.section,button);group.append(button);
+    }
+    nav.append(group);
+  }
+  const sidebarFoot=node('div','','settings-sidebar-foot');
+  const back=node('button','← Вернуться в чат','settings-back');
+  back.type='button';back.onclick=()=>navigate({page:'create'});
+  sidebarFoot.append(back);
+  sidebar.append(sidebarHead,searchLabel,nav,sidebarFoot);
+
+  const main=node('div','','settings-main');
+  const heading=node('div','','settings-page-heading');
+  const crumb=node('p',provider?'Настройки / Провайдеры / '+settingsTitle(section,provider):active?'Настройки / '+settingsTitle(active):'Настройки','settings-breadcrumb');
+  heading.append(crumb);
+  const title=node('h1',active?settingsTitle(active,provider):'Настройки');
+  title.tabIndex=-1;
+  const description=active
+    ? (provider?'Параметры выбранного провайдера.':'Управление выбранным разделом AZRAIL PULSE.')
+    : 'Управляйте аккаунтом, моделями, подключениями и рабочим пространством.';
+  heading.append(title,node('p',description,'settings-description'));
+  main.append(heading);
+
+  const content=node('div','','settings-detail-content');
+  content.id='settings-content';
+  if(!active){
+    const welcome=node('div','','settings-welcome');
+    welcome.append(node('p','DARK PREMIUM WORKSPACE','settings-eyebrow'),node('h2','Всё на своих местах.'),node('p','Выберите категорию. Каждый раздел открывается отдельно, а навигация остаётся рядом.','muted'));
+    main.append(welcome);
+    const grid=node('div','','settings-overview-grid');
+    for(const item of SETTINGS_ITEMS){
+      const card=node('button','','settings-category-card');card.type='button';card.dataset.settingsSearch=[item.title,item.description,item.group].join(' ').toLowerCase();
+      const top=node('div','','settings-category-top');top.append(node('span',item.icon,'settings-category-icon'),node('span','↗','settings-category-arrow'));
+      card.append(top,node('strong',item.title),node('span',item.description,'settings-category-description'));
+      card.onclick=()=>navigate({section:item.section});grid.append(card);
+    }
+    main.append(grid);
+  }else if(active==='providers'&&!provider){
+    const intro=node('p','Выберите провайдера, чтобы открыть его отдельную страницу. Наличие локального ключа не означает, что вызовы этого провайдера включены.','settings-inline-note');
+    const grid=node('div','','settings-provider-grid');
+    for(const item of PROVIDER_TOKENS){
+      const card=node('button','','settings-provider-card');card.type='button';
+      const top=node('div','','settings-provider-top');top.append(node('span',item.name,'settings-provider-name'),node('span','↗','settings-category-arrow'));
+      const saved=hasProviderToken(item.id);
+      card.append(top,node('span',item.note||'Внешний AI-провайдер.','settings-provider-note'),node('span',saved?'Ключ сохранён в этой вкладке':'Ключ не задан',saved?'settings-provider-status is-saved':'settings-provider-status'));
+      card.onclick=()=>navigate({section:'providers',provider:item.id});grid.append(card);
+    }
+    content.append(intro,grid);main.append(content);
+  }else{
+    if(active==='providers'&&provider&&!PROVIDER_TOKENS.some(item=>item.id===provider)){
+      content.append(node('p','Провайдер не найден. Вернитесь в каталог и выберите доступный вариант.','context-note'));
+    }
+    main.append(content);
+  }
+
+  search.addEventListener('input',()=>{
+    const query=search.value.trim().toLowerCase();
+    for(const [key,button] of buttons){
+      const item=bySection.get(key)!;
+      button.hidden=Boolean(query)&&!(item.title+' '+item.description+' '+item.group).toLowerCase().includes(query);
+    }
+    for(const card of gridCards(main))card.hidden=Boolean(query)&&!(card.dataset.settingsSearch??'').includes(query);
+  });
+  shell.append(sidebar,main);host.append(shell);
+  return content;
+}
+
+function gridCards(main:HTMLElement):HTMLButtonElement[] {
+  return Array.from(main.querySelectorAll<HTMLButtonElement>('.settings-category-card'));
+}

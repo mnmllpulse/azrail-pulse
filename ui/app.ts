@@ -31,6 +31,7 @@ import {readPendingImage,requestImage,type ImageRequestBody} from './image-reque
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
 import {permissionSettings} from './permission-settings';
+import {mountSettingsCenter,settingsTitle,type SettingsSection} from './settings-center';
 import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
 import {createChatCommands} from './chat-commands';
@@ -695,17 +696,17 @@ function renderRoute(route:Route,initial:boolean){
  const studioId=route.page==='studio'?route.studio:'';
  if(!expertOn()&&(route.page==='mission'||route.page==='metatron'||route.page==='connections'||expertStudios.has(studioId))){navigation.navigate({page:'create'});return;}
  currentRoute=route;
- leaveStudio();metatronCleanup();metatronCleanup=()=>{};const id=route.page==='studio'?'studio-page':route.page;
+ leaveStudio();metatronCleanup();metatronCleanup=()=>{};const id=route.page==='studio'?'studio-page':route.page==='connections'?'settings':route.page;
  document.querySelectorAll<HTMLElement>('.view').forEach(el=>el.hidden=el.id!==id);
- const nav=route.page==='studio'?'studios':route.page;
+ const nav=route.page==='studio'?'studios':route.page==='connections'?'settings':route.page;
  document.querySelectorAll('.nav').forEach(el=>{const active=el.getAttribute('data-view')===nav;el.classList.toggle('active',active);if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
  if(route.page==='studio')void renderStudio(route.studio).catch(failure);
  if(route.page==='projects')loadProjects().catch(failure);
- if(route.page==='connections')loadConnections().catch(failure);
+ if(route.page==='settings')renderSettingsPage(route);
  if(route.page==='mission'){if(mission&&account){missionPanel.hidden=false;void poll(epoch).catch(failure);}void refreshMissionHistory().catch(failure);}
  if(route.page==='metatron')metatronCleanup=mountMetatronLab({root:$('metatron-page'),api,local,account,getProjectId:()=>project,getMissionId:()=>mission,setMissionId:id=>{mission=id;remember();},notice,failure});
  syncComposer(route);
- const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='create'?'Чат':route.page==='mission'?'Ход задачи':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Метратрон':route.page==='connections'?'Подключения':'Страница не найдена';
+ const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='settings'?settingsTitle(route.section,route.provider):route.page==='create'?'Чат':route.page==='mission'?'Ход задачи':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Метратрон':route.page==='connections'?'Подключения':'Страница не найдена';
  document.title=`${title} · AZRAIL MNMLL PULSE OS`;
  $('workspace-page-title').textContent=route.page==='create'?(chatHistory.current()?.title??'Новый чат'):title;
  workspace.routeChanged();syncChatUI();
@@ -713,7 +714,7 @@ function renderRoute(route:Route,initial:boolean){
 }
 function view(id:'create'|'projects'|'studios'){navigation.navigate({page:id});}
 navigation.link(document.querySelector<HTMLAnchorElement>('[data-home]')!,{page:'create'});
-document.querySelectorAll<HTMLAnchorElement>('[data-view]').forEach(el=>navigation.link(el,{page:el.dataset.view as 'create'|'mission'|'projects'|'studios'|'metatron'|'connections'}));
+document.querySelectorAll<HTMLAnchorElement>('a[data-view]').forEach(el=>navigation.link(el,{page:el.dataset.view as 'create'|'mission'|'projects'|'studios'|'metatron'|'connections'}));
 bind('expert-mode',()=>{
  const next=!expertOn();
  applyExpert(next);
@@ -838,72 +839,187 @@ function currentModelLabel(){
  const hit=preferredModel?catalogModels.find(m=>m.slug===preferredModel):undefined;
  return hit?modelLabel(hit):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL');
 }
-function openSettings(){
- const root=dialog('Настройки','');
- root.replaceChildren();
- root.className='settings-sheet';
- const block=(title:string)=>{const section=document.createElement('section');section.className='settings-block';const h=document.createElement('h3');h.textContent=title;section.append(h);root.append(section);return section;};
- const voiceBox=block('Голос');
- const voiceNote=document.createElement('p');voiceNote.className='muted';voiceNote.textContent='Один голос на следующий ответ. Прошлый тон чата он не копирует.';voiceBox.append(voiceNote);
- (Object.keys(VOICES) as ChatVoice[]).forEach(id=>{
-  const button=document.createElement('button');button.type='button';button.className='settings-choice';
-  button.textContent=`${chatVoice===id?'✓ ':''}${VOICES[id].name} · ${VOICES[id].line}`;
-  if(chatVoice===id)button.setAttribute('aria-current','true');
-  button.onclick=()=>{setChatVoice(id);openSettings();};
-  voiceBox.append(button);
- });
- const modelBox=block('Модель');
- const modelButton=document.createElement('button');modelButton.type='button';modelButton.className='settings-choice';
- modelButton.textContent=`Выбрать модель · ${currentModelLabel()}`;
- modelButton.onclick=()=>{if(!account){notice('Войдите, чтобы открыть каталог моделей.',true);return;}openModelPicker();};
- modelBox.append(modelButton);
- const keys=block('Клавиши');
- for(const line of ['Ctrl / ⌘ + K — поиск команд.','Enter или Ctrl / ⌘ + Enter — отправить. Shift + Enter — новая строка.','Alt + 1 — диалог. Alt + 2 — проекты. Alt + 3 — студии.','Escape — закрыть окно или боковую панель.']){const p=document.createElement('p');p.textContent=line;keys.append(p);}
- const tokens=block('Токены сторонних моделей');
- const tokenNote=document.createElement('p');tokenNote.className='muted';tokenNote.textContent='Ключ остаётся только в этой вкладке и не уходит в чат. Вызовы этих провайдеров сейчас выключены, чтобы не списать деньги. OpenRouter одним ключом открывает длинный список чужих моделей.';tokens.append(tokenNote);
- for(const provider of PROVIDER_TOKENS){
-  const row=document.createElement('div');row.className='provider-token';
-  const title=document.createElement('strong');title.textContent=provider.name;
-  const status=document.createElement('small');status.textContent=hasProviderToken(provider.id)?'Ключ сохранён в этой вкладке':'Ключ не задан';
-  row.append(title,status);
-  if(provider.note){const note=document.createElement('p');note.className='muted';note.textContent=provider.note;row.append(note);}
-  const input=document.createElement('input');input.type='password';input.autocomplete='off';input.maxLength=400;input.placeholder=hasProviderToken(provider.id)?'Новый ключ заменит сохранённый':'Вставьте ключ';input.setAttribute('aria-label',`Ключ ${provider.name}`);
-  const actions=document.createElement('div');actions.className='toolbar';
-  const save=document.createElement('button');save.type='button';save.textContent='Сохранить ключ';
-  save.onclick=()=>{const value=input.value.trim();if(!value){notice('Вставьте ключ в поле.',true);return;}saveProviderToken(provider.id,value);input.value='';notice(`Ключ ${provider.name} сохранён в этой вкладке. Вызовы провайдера остаются выключены.`);openSettings();};
-  const clear=document.createElement('button');clear.type='button';clear.textContent='Удалить';clear.disabled=!hasProviderToken(provider.id);
-  clear.onclick=()=>{clearProviderToken(provider.id);notice(`Ключ ${provider.name} удалён из этой вкладки.`);openSettings();};
-  actions.append(save,clear);row.append(input,actions);tokens.append(row);
- }
- if(!account)return;
- const trial=block('Пробный лимит');
- const trialNote=document.createElement('p');trialNote.className='muted';trialNote.textContent='Сейчас всё выключено. Озвучка — 10 раз, потом сама гаснет и говорит браузер. Тесты в контейнере — 3 раза, потом гаснут. Выкладка из чата не включается.';trial.append(trialNote);
- void api('/api/trial').then(r=>{
-  const canSave=account?.role==='admin'||!!account?.operator;
-  const speech=document.createElement('label');const speechBox=document.createElement('input');speechBox.type='checkbox';speechBox.checked=!!r.speech;speech.append(speechBox,document.createTextNode(` Озвучка ElevenLabs, осталось ${r.speechLeft} из ${r.limits.speech}`));
-  const sandbox=document.createElement('label');const sandboxBox=document.createElement('input');sandboxBox.type='checkbox';sandboxBox.checked=!!r.sandbox;sandbox.append(sandboxBox,document.createTextNode(` Тесты в контейнере, осталось ${r.sandboxLeft} из ${r.limits.sandbox}`));
-  const closed=document.createElement('p');closed.textContent='Выкладка из чата закрыта. Лимит — 0.';
-  const save=document.createElement('button');save.type='button';save.className='primary';save.textContent='Сохранить пробный лимит';save.disabled=!canSave;
-  save.onclick=()=>{void api('/api/admin/trial',{method:'POST',body:JSON.stringify({speech:speechBox.checked,sandbox:sandboxBox.checked})}).then(()=>{notice('Пробный лимит сохранён.');openSettings();}).catch(failure);};
-  trial.append(speech,sandbox,closed,save);
- }).catch(()=>{const p=document.createElement('p');p.className='muted';p.textContent='Пробный лимит сейчас не прочитался.';trial.append(p);});
- if(account?.role==='admin'){root.append(permissionSettings(api,notice,failure));root.append(agentSettings(api,notice,failure));}
- const limits=block('Лимиты');
- limits.append(document.createTextNode('Загрузка…'));
- void refreshMode().then(r=>{
-  limits.replaceChildren();
-  const h=document.createElement('h3');h.textContent='Лимиты';limits.append(h);
-  const label=document.createElement('label');const box=document.createElement('input');box.type='checkbox';box.id='third-party';box.checked=!!r.policy.allowThirdPartyModels;label.append(box,document.createTextNode(' Сторонние AI-модели'));
-  const budgetLabel=document.createElement('label');budgetLabel.htmlFor='budget';budgetLabel.textContent='Месячный лимит платных моделей, USD';
-  const budget=document.createElement('input');budget.id='budget';budget.type='number';budget.min='0';budget.step='1';budget.value=String(r.policy.monthlyBudgetUsd);
-  const info=document.createElement('p');info.id='budget-info';info.textContent=`Учтено и зарезервировано: $${r.committedUsd.toFixed(4)}. План: ${r.workersPlan}.`;
-  const warn=document.createElement('p');warn.className='muted';warn.textContent='OFF блокирует сторонние модели. Семь моделей Workers Paid AZRAIL не вызывает.';
-  const save=document.createElement('button');save.type='button';save.className='primary';save.id='save-mode';save.textContent='Сохранить лимиты';save.disabled=!account?.operator;
-  if(!account?.operator)info.textContent+=' Изменения доступны оператору платформы.';
-  save.onclick=()=>{void api('/api/admin/routing-settings',{method:'POST',body:JSON.stringify({allowThirdPartyModels:box.checked,monthlyBudgetUsd:Number(budget.value)})}).then(()=>refreshMode()).then(()=>notice('Настройки сохранены на сервере.')).catch(failure);};
-  limits.append(label,budgetLabel,budget,info,warn,save);
- }).catch(()=>{limits.replaceChildren();const h=document.createElement('h3');h.textContent='Лимиты';const p=document.createElement('p');p.className='muted';p.textContent='Лимиты сейчас не прочитались.';limits.append(h,p);});
+function openSettings(){navigation.navigate({page:'settings'});}
+
+function settingsText(host:HTMLElement,text:string,className='muted'){
+ const p=document.createElement('p');p.className=className;p.textContent=text;host.append(p);return p;
 }
+function settingsHeading(host:HTMLElement,title:string,description?:string){
+ const h=document.createElement('h2');h.textContent=title;host.append(h);
+ if(description)settingsText(host,description);
+}
+function settingsButton(host:HTMLElement,label:string,action:()=>void,primary=false){
+ const button=document.createElement('button');button.type='button';button.textContent=label;
+ if(primary)button.className='primary';button.addEventListener('click',action);host.append(button);return button;
+}
+
+function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
+ const content=mountSettingsCenter($('settings-root'),route.section,route.provider,destination=>{
+  if('page' in destination){navigation.navigate(destination);return;}
+  navigation.navigate({page:'settings',section:destination.section,provider:destination.provider});
+ });
+ const section=route.section as SettingsSection|undefined;
+ if(!section)return;
+
+ if(section==='account'){
+  settingsHeading(content,'Аккаунт','Профиль и доступ к AZRAIL.');
+  if(!account){
+   settingsText(content,'Вы ещё не вошли. Войдите, чтобы синхронизировать чаты, проекты и подключения.','context-note');
+   settingsButton(content,'Войти в аккаунт',()=>$('account').click(),true);
+  }else{
+   const card=document.createElement('section');card.className='settings-info-card';
+   const row=(label:string,value:string)=>{const line=document.createElement('div');line.className='settings-info-row';const key=document.createElement('span');key.textContent=label;const val=document.createElement('strong');val.textContent=value;line.append(key,val);card.append(line);};
+   row('Имя',account.name);row('ID аккаунта',account.id);row('Роль',account.role??'Не указана');row('Уровень оператора',account.operator?'Да':'Нет');
+   content.append(card);
+   settingsButton(content,'Управление входом и выходом',()=>$('account').click());
+  }
+  return;
+ }
+
+ if(section==='appearance'){
+  settingsHeading(content,'Внешний вид','Сохраняются только локальные предпочтения этого браузера.');
+  const densityLabel=document.createElement('label');densityLabel.textContent='Плотность интерфейса';
+  const density=document.createElement('select');density.id='settings-density';
+  for(const [value,label] of [['comfortable','Комфортная'],['compact','Компактная'],['spacious','Свободная']] as const){const option=document.createElement('option');option.value=value;option.textContent=label;density.append(option);}
+  const textLabel=document.createElement('label');textLabel.textContent='Размер текста';
+  const textScale=document.createElement('select');textScale.id='settings-text-scale';
+  for(const [value,label] of [['normal','Обычный'],['large','Увеличенный']] as const){const option=document.createElement('option');option.value=value;option.textContent=label;textScale.append(option);}
+  try{density.value=localStorage.getItem('pulse.uiDensity')??'comfortable';textScale.value=localStorage.getItem('pulse.uiTextScale')??'normal';}catch{}
+  document.documentElement.dataset.settingsDensity=density.value;
+  document.documentElement.dataset.settingsTextScale=textScale.value;
+  const form=document.createElement('div');form.className='settings-form-grid';form.append(densityLabel,density,textLabel,textScale);content.append(form);
+  settingsText(content,'Цветовая тема AZRAIL остаётся Dark Premium. Типографика использует единый sans-serif стек; локальный файл Inter пока не включён в поставку.');
+  settingsButton(content,'Сохранить внешний вид',()=>{
+   try{localStorage.setItem('pulse.uiDensity',density.value);localStorage.setItem('pulse.uiTextScale',textScale.value);}catch{notice('Браузер не разрешил сохранить предпочтения.',true);return;}
+   document.documentElement.dataset.settingsDensity=density.value;
+   document.documentElement.dataset.settingsTextScale=textScale.value;
+   notice('Внешний вид сохранён на этом устройстве.');
+  },true);
+  return;
+ }
+
+ if(section==='voice'){
+  settingsHeading(content,'Голос','Выбор применяется к следующему озвученному ответу.');
+  for(const id of Object.keys(VOICES) as ChatVoice[]){
+   const button=document.createElement('button');button.type='button';button.className='settings-choice';
+   button.textContent=(chatVoice===id?'✓ ':'')+VOICES[id].name+' · '+VOICES[id].line;
+   if(chatVoice===id)button.setAttribute('aria-current','true');
+   button.onclick=()=>{setChatVoice(id);renderSettingsPage(route);};
+   content.append(button);
+  }
+  return;
+ }
+
+ if(section==='models'){
+  settingsHeading(content,'AI и модели','Каталог моделей, автовыбор и модель для текущего чата.');
+  const card=document.createElement('section');card.className='settings-info-card';
+  const current=document.createElement('strong');current.textContent='Сейчас выбрана: '+currentModelLabel();card.append(current);
+  settingsText(card,preferredModel?'Выбор модели хранится в этой вкладке.':'Включён автоматический выбор AZRAIL.');
+  content.append(card);
+  settingsButton(content,account?'Открыть каталог моделей':'Войдите, чтобы открыть каталог',()=>{
+   if(!account){notice('Войдите, чтобы открыть каталог моделей.',true);return;}
+   openModelPicker();
+  },true);
+  return;
+ }
+
+ if(section==='providers'){
+  if(!route.provider)return;
+  const provider=PROVIDER_TOKENS.find(item=>item.id===route.provider);
+  if(!provider)return;
+  settingsHeading(content,provider.name,provider.note||'Управление ключом этого провайдера на текущем устройстве.');
+  const status=document.createElement('p');status.className=hasProviderToken(provider.id)?'settings-provider-status is-saved':'settings-provider-status';
+  const paintStatus=()=>{status.textContent=hasProviderToken(provider.id)?'Ключ сохранён в этой вкладке':'Ключ не задан';};paintStatus();content.append(status);
+  const note=document.createElement('p');note.className='context-note';
+  note.textContent='Важно: этот локальный ключ пока не включает вызовы провайдера. Не вставляйте его в чат. Значение хранится только в sessionStorage текущей вкладки и исчезает после её закрытия.';
+  content.append(note);
+  const label=document.createElement('label');label.textContent='API key';
+  const input=document.createElement('input');input.type='password';input.autocomplete='off';input.spellcheck=false;input.maxLength=400;
+  input.placeholder=hasProviderToken(provider.id)?'Новый ключ заменит сохранённый':'Вставьте ключ';input.setAttribute('aria-label','API key '+provider.name);label.append(input);content.append(label);
+  const actions=document.createElement('div');actions.className='settings-actions';
+  const save=document.createElement('button');save.type='button';save.className='primary';save.textContent='Сохранить ключ';
+  save.onclick=()=>{const value=input.value.trim();if(!value){notice('Вставьте ключ в поле.',true);return;}try{saveProviderToken(provider.id,value);}catch{notice('Не удалось сохранить ключ в этой вкладке.',true);return;}input.value='';notice('Ключ '+provider.name+' сохранён локально. Вызовы провайдера не включены.');renderSettingsPage(route);};
+  const clear=document.createElement('button');clear.type='button';clear.textContent='Удалить ключ';clear.disabled=!hasProviderToken(provider.id);
+  clear.onclick=()=>{clearProviderToken(provider.id);notice('Локальный ключ '+provider.name+' удалён.');renderSettingsPage(route);};
+  actions.append(save,clear);content.append(actions);
+  return;
+ }
+
+ if(section==='connections'){
+  void loadConnections(content).catch(failure);
+  return;
+ }
+
+ if(section==='permissions'){
+  settingsHeading(content,'Безопасность и разрешения','Кто и какие действия может выполнять в рабочем пространстве.');
+  if(account?.role==='admin')content.append(permissionSettings(api,notice,failure));
+  else settingsText(content,'Настройка режима разрешений доступна администраторам. Здесь она не показывается пользователям с обычной ролью.','context-note');
+  return;
+ }
+
+ if(section==='agent'){
+  settingsHeading(content,'Локальный агент','Безопасный доступ к одной папке на твоём компьютере.');
+  if(account?.role==='admin')content.append(agentSettings(api,notice,failure));
+  else settingsText(content,'Управление локальным агентом доступно администраторам.','context-note');
+  return;
+ }
+
+ if(section==='usage'){
+  settingsHeading(content,'Использование и лимиты','Сводка текущего плана и доступных ограничений.');
+  if(!account){settingsText(content,'Войдите, чтобы посмотреть лимиты аккаунта.','context-note');return;}
+  const trial=document.createElement('section');trial.className='settings-info-card';trial.append(document.createElement('p'));
+  trial.firstElementChild!.textContent='Загружаю пробные возможности…';content.append(trial);
+  void Promise.all([api('/api/trial'),refreshMode()]).then(([trialState,routing])=>{
+   trial.replaceChildren();
+   settingsHeading(trial,'Пробные возможности');
+   settingsText(trial,'Озвучка: '+(trialState.speech?'включена':'выключена')+' · осталось '+trialState.speechLeft+' из '+trialState.limits.speech+'.');
+   settingsText(trial,'Тесты в контейнере: '+(trialState.sandbox?'включены':'выключены')+' · осталось '+trialState.sandboxLeft+' из '+trialState.limits.sandbox+'.');
+   settingsText(trial,'Выкладка из чата выключена. Лимит — 0.');
+   if(account?.role==='admin'||account?.operator){
+    const speechLabel=document.createElement('label');const speech=document.createElement('input');speech.type='checkbox';speech.checked=!!trialState.speech;speechLabel.append(speech,document.createTextNode(' Озвучка ElevenLabs'));
+    const sandboxLabel=document.createElement('label');const sandbox=document.createElement('input');sandbox.type='checkbox';sandbox.checked=!!trialState.sandbox;sandboxLabel.append(sandbox,document.createTextNode(' Тесты в контейнере'));
+    const save=document.createElement('button');save.type='button';save.textContent='Сохранить пробные лимиты';save.onclick=()=>{save.disabled=true;void api('/api/admin/trial',{method:'POST',body:JSON.stringify({speech:speech.checked,sandbox:sandbox.checked})}).then(()=>{notice('Пробные лимиты сохранены.');renderSettingsPage(route);}).catch(failure).finally(()=>{save.disabled=false;});};
+    trial.append(speechLabel,sandboxLabel,save);
+   }
+   const budget=document.createElement('section');budget.className='settings-info-card';
+   settingsHeading(budget,'Бюджет маршрутизации');
+   settingsText(budget,'План: '+routing.workersPlan+' · учтено и зарезервировано: $'+Number(routing.committedUsd).toFixed(4)+'.');
+   settingsText(budget,'Сторонние модели: '+(routing.policy.allowThirdPartyModels?'разрешены политикой':'заблокированы политикой')+'.');
+   if(account?.operator){
+    const allowLabel=document.createElement('label');const allow=document.createElement('input');allow.type='checkbox';allow.checked=!!routing.policy.allowThirdPartyModels;allowLabel.append(allow,document.createTextNode(' Разрешить сторонние AI-модели'));
+    const amountLabel=document.createElement('label');amountLabel.textContent='Месячный бюджет платных моделей, USD';
+    const amount=document.createElement('input');amount.type='number';amount.min='0';amount.step='1';amount.value=String(routing.policy.monthlyBudgetUsd);amountLabel.append(amount);
+    const save=document.createElement('button');save.type='button';save.textContent='Сохранить бюджет';save.onclick=()=>{save.disabled=true;void api('/api/admin/routing-settings',{method:'POST',body:JSON.stringify({allowThirdPartyModels:allow.checked,monthlyBudgetUsd:Number(amount.value)})}).then(()=>{notice('Бюджет сохранён.');renderSettingsPage(route);}).catch(failure).finally(()=>{save.disabled=false;});};
+    budget.append(allowLabel,amountLabel,save);
+   }
+   content.append(budget);
+  }).catch(error=>{trial.replaceChildren();settingsText(trial,error instanceof Error?error.message:'Не удалось загрузить лимиты.','context-note');});
+  return;
+ }
+
+ if(section==='data'){
+  settingsHeading(content,'Данные и память','Текущие инструменты управления файлами и контекстом проекта.');
+  if(!account){settingsText(content,'Войдите, чтобы открывать библиотеку файлов и память проекта.','context-note');return;}
+  settingsButton(content,'Открыть библиотеку файлов',()=>{void openAssetIntelligence().catch(failure);});
+  settingsButton(content,'Открыть Global Memory',()=>{void openGlobalMemory().catch(failure);});
+  settingsText(content,'История чатов и проекты управляются из основной навигации. Экспорт и управление сроком хранения будут добавлены после отдельной проверки соответствующих API.');
+  return;
+ }
+
+ if(section==='shortcuts'){
+  settingsHeading(content,'Горячие клавиши','Быстрые действия в AZRAIL PULSE.');
+  for(const line of ['Ctrl / ⌘ + K — поиск команд.','Enter или Ctrl / ⌘ + Enter — отправить. Shift + Enter — новая строка.','Alt + 1 — чат. Alt + 2 — проекты. Alt + 3 — студии.','Escape — закрыть диалог или боковую панель.'])settingsText(content,line,'settings-shortcut-row');
+  return;
+ }
+
+ if(section==='about'){
+  settingsHeading(content,'AZRAIL × MNMLL PULSE','Мультиагентное ядро AZRAIL и творческие инструменты PULSE в одном рабочем пространстве.');
+  settingsText(content,'Текст и голос → миссия → файлы проекта → проверка. Результат не получает статус готовности к публикации без успешной проверки кода.');
+  settingsText(content,'Музыка здесь — локальный procedural synthesis. Video Studio использует AI для Scene Builder, а preview/WebM рендерит локально через Canvas + MediaRecorder.');
+  settingsText(content,'Система не выдаёт Cloudflare Stream или Veo за подключённые, пока соответствующий binding не настроен и не проверен.');
+ }
+}
+
 bind('settings',()=>openSettings());
 function ensureEventStream(){
  if(local||!account||!project){stopEventStream();stopEventStream=()=>{};streamProject='';return;}
@@ -913,7 +1029,7 @@ function ensureEventStream(){
   if(event.missionId&&event.missionId===mission&&!document.hidden){clearTimeout(pollTimer);pollTimer=window.setTimeout(()=>void poll(epoch),120);}
  }});
 }
-bind('about',()=>dialog('AZRAIL × MNMLL PULSE','<p>Мультиагентное ядро AZRAIL и творческие инструменты PULSE в одном приложении. У каждого модуля студий своя страница.</p><p>Текст и голос → миссия → файлы проекта → проверка. Результат не получает статус готовности к публикации без успешной проверки кода.</p><p>Музыка здесь — локальный procedural synthesis. Video Studio использует AI только для Scene Builder, а preview/WebM рендерит локально через Canvas + MediaRecorder. Cloudflare Stream/Veo не выдаются за подключённые, пока binding не настроен и не проверен.</p>'));
+
 async function refreshMissionHistory(){
  const host=$('mission-history');
  if(!account||!project||local){host.replaceChildren();const note=document.createElement('p');note.className='muted';note.textContent=account?'Недавние миссии появятся после выбора проекта.':'Войдите, чтобы видеть недавние миссии.';host.append(note);return;}
@@ -2108,7 +2224,7 @@ const commandPalette=mountCommandPalette(()=>[
  {id:'open-mission',label:'Ход задачи',keywords:['mission','azrail','control','goal'],run:()=>navigation.navigate({page:'mission'})},
  {id:'open-projects',label:'Open Projects',keywords:['projects','project'],run:()=>navigation.navigate({page:'projects'})},
  {id:'open-metatron',label:'Open Metatron Lab',keywords:['metatron','agents','mission graph','operations'],run:()=>navigation.navigate({page:'metatron'})},
- {id:'open-connections',label:'Open Connections',keywords:['connectors','integrations'],run:()=>navigation.navigate({page:'connections'})},
+ {id:'open-connections',label:'Open Connections',keywords:['connectors','integrations'],run:()=>navigation.navigate({page:'settings',section:'connections'})},
  ...(expertOn()?studios.filter(meta=>meta.id!=='audio'&&meta.id!=='als').map(meta=>({id:`studio-${meta.id}`,label:`Open ${meta.title}`,keywords:[meta.description,meta.id],run:()=>navigation.navigate({page:'studio',studio:meta.id})})):[]),
  {id:'run-mission',label:'Начать ход задачи',keywords:['run','mission','start'],disabled:()=>!prompt.value.trim(),run:()=>{if(composerPage!=='mission')navigation.navigate({page:'mission'});composer.dispatchEvent(new Event('submit',{cancelable:true}));}},
  {id:'stop-mission',label:'Stop mission',keywords:['cancel','abort'],disabled:()=>!mission,run:()=>$( 'cancel' ).click()},
@@ -2119,7 +2235,7 @@ const commandPalette=mountCommandPalette(()=>[
  {id:'series-g-readiness',label:'Open Browser QA / Real E2E readiness',keywords:['browser','qa','e2e','series g'],disabled:()=>!account,run:()=>openSystemReadiness().catch(failure)},
  {id:'compare-mode',label:'Open Compare Mode · A | B',keywords:['compare','a b','versions','before after'],disabled:()=>!account,run:()=>openCompareCenter().catch(failure)},
  {id:'professional-review',label:'Open Professional Review',keywords:['review','quality','critical','major','minor','safe fix'],disabled:()=>!account,run:()=>openReviewHistory().catch(failure)},
- {id:'shortcuts',label:'Open shortcuts',keywords:['help','keyboard','settings'],run:()=>openSettings()},
+ {id:'shortcuts',label:'Open shortcuts',keywords:['help','keyboard','settings'],run:()=>navigation.navigate({page:'settings',section:'shortcuts'})},
 ]);
 bind('commands',()=>commandPalette.open());
 navigation.render(true);
@@ -2131,8 +2247,7 @@ void lastBlob;
 document.addEventListener('keydown',e=>{if(e.defaultPrevented||e.isComposing||e.keyCode===229)return;if(e.key==='Enter'&&!e.shiftKey&&!e.altKey&&document.activeElement===prompt){e.preventDefault();$<HTMLFormElement>('composer').requestSubmit();}if(e.altKey&&['1','2','3'].includes(e.key)){e.preventDefault();view((['create','projects','studios'] as const)[Number(e.key)-1]);}});
 
 
-async function loadConnections(){
- const host=$('connections-page');
+async function loadConnections(host:HTMLElement=$('connections-page')){
  if(local){host.replaceChildren(document.createTextNode('Connections доступны в развёрнутом приложении.'));return;}
  if(!account){const p=document.createElement('p');p.className='context-note';p.textContent='Войдите, чтобы управлять подключениями вашего аккаунта.';host.replaceChildren(p);return;}
  const {renderConnections}=await import('./connectors');await renderConnections(host,api,{role:account.role});
