@@ -696,7 +696,7 @@ function renderRoute(route:Route,initial:boolean){
  const studioId=route.page==='studio'?route.studio:'';
  if(!expertOn()&&(route.page==='mission'||route.page==='metatron'||route.page==='connections'||expertStudios.has(studioId))){navigation.navigate({page:'create'});return;}
  currentRoute=route;
- leaveStudio();metatronCleanup();metatronCleanup=()=>{};const id=route.page==='studio'?'studio-page':route.page==='connections'?'settings':route.page;
+ leaveStudio();metatronCleanup();metatronCleanup=()=>{};const id=route.page==='studio'?'studio-page':route.page==='settings'||route.page==='connections'?'settings-page':route.page;
  document.querySelectorAll<HTMLElement>('.view').forEach(el=>el.hidden=el.id!==id);
  const nav=route.page==='studio'?'studios':route.page==='connections'?'settings':route.page;
  document.querySelectorAll('.nav').forEach(el=>{const active=el.getAttribute('data-view')===nav;el.classList.toggle('active',active);if(active)el.setAttribute('aria-current','page');else el.removeAttribute('aria-current');});
