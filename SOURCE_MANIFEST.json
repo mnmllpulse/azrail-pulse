@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T03:17:55.267Z",
+  "generated_at": "2026-11-16T03:21:45.313Z",
   "excludes_self": true,
-  "file_count": 1242,
+  "file_count": 1243,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -127,8 +127,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 6800,
-      "sha256": "e746bc5655286d6ce87854bb9d5cfd1b7e8bb90587df305edfac36392dda7403"
+      "bytes": 7473,
+      "sha256": "20d4c1897104e685afe1c2ff0dfb4bd275cd3cd0ba572fa82e942f1c0e8dfae4"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -4779,6 +4779,11 @@
       "path": "tests/ledger-studio.test.ts",
       "bytes": 5347,
       "sha256": "1bcbe822546474a473d162562bacf4831078ad372a5aeb9401dfa56cb2e2640c"
+    },
+    {
+      "path": "tests/local-agent-e2e.test.ts",
+      "bytes": 7992,
+      "sha256": "3485ecbf83e875e49bd014d26f347133340a15870273c820908c64fa27f5e745"
     },
     {
       "path": "tests/local-agent-terminal.test.ts",
