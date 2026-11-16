@@ -72,7 +72,7 @@ function prompt(command: string, log: string, files: ReadonlyMap<string, string>
   return `Команда «${command}» упала. Ниже хвост лога и файлы из него. Исправь причину ошибки.\n${UNTRUSTED_RULE}\nОтвет: только JSON-массив [{"path":"...","content":"полное новое содержимое файла"}], не больше ${FIX_FILES} файлов, только из списка ниже, без пояснений. Если причина не в этих файлах — верни [].\n\n${fenceUntrusted('лог команды', redactSecrets(log.slice(-6000)))}\n\nФАЙЛЫ:\n${body}`;
 }
 
-export async function runFixLoop(deps: FixDeps, command: string): Promise<string> {
+export async function runFixLoop(deps: FixDeps, command: string, restore: Map<string, string> = new Map()): Promise<string> {
   const lines: string[] = [];
   const changed = new Set<string>();
   for (let round = 1; round <= FIX_ROUNDS; round++) {
@@ -98,8 +98,10 @@ export async function runFixLoop(deps: FixDeps, command: string): Promise<string
     const edits = parseEdits(await deps.ask(prompt(command, log, files)), [...files.keys()], files);
     if (!edits) { lines.push('Модель не предложила допустимой правки. Останавливаюсь.'); lines.push(`Хвост лога:\n\`\`\`\n${redactSecrets(log.slice(-1500))}\n\`\`\``); break; }
     for (const edit of edits) {
-      const saved = (await deps.write(`.azrail-backup/r${round}/${edit.path}`, files.get(edit.path) ?? '')) && (await deps.write(edit.path, edit.content));
-      if (!saved) { lines.push(`Запись ${edit.path} не удалась. Останавливаюсь.`); return lines.join('\n'); }
+      const backup = `.azrail-backup/r${round}/${edit.path}`;
+      if (!(await deps.write(backup, files.get(edit.path) ?? ''))) { lines.push(`Копия ${edit.path} не записалась, файл не тронут. Останавливаюсь.`); return lines.join('\n'); }
+      if (!restore.has(edit.path)) restore.set(edit.path, backup);
+      if (!(await deps.write(edit.path, edit.content))) { lines.push(`Запись ${edit.path} не удалась. Останавливаюсь.`); return lines.join('\n'); }
       changed.add(edit.path);
     }
     lines.push(`Правки раунда ${round}: ${edits.map((edit) => edit.path).join(', ')}.`);
@@ -107,4 +109,29 @@ export async function runFixLoop(deps: FixDeps, command: string): Promise<string
   if (changed.size) lines.push(`Изменены: ${[...changed].join(', ')}. Оригиналы в .azrail-backup/.`);
   lines.push('Результат не подтверждён: успехом считается только код выхода 0.');
   return lines.join('\n');
+}
+
+export const ROLLBACK_ASK = /(?:откати|верни|отмени)\s+(?:мои\s+|последние\s+)?(?:правки|изменени\w*|исправлени\w*)/iu;
+
+export function rollbackIntent(message: string): boolean {
+  const head = message.trim().split('\n')[0];
+  return WHERE.test(head) && ROLLBACK_ASK.test(head);
+}
+
+export function rollbackConsentText(restore: ReadonlyMap<string, string>): string {
+  return `Верну ${restore.size} файл(ов) к состоянию до цикла исправления: ${[...restore.keys()].join(', ')}. Файлы будут перезаписаны копиями из .azrail-backup/. Напиши «разреши» или проигнорируй.`;
+}
+
+export async function runRollback(deps: Pick<FixDeps, 'read' | 'write'>, restore: ReadonlyMap<string, string>): Promise<{ text: string; failed: string[] }> {
+  const restored: string[] = [];
+  const failed: string[] = [];
+  for (const [path, backup] of restore) {
+    const original = await deps.read(backup);
+    if (original === null || !(await deps.write(path, original))) failed.push(path);
+    else restored.push(path);
+  }
+  const lines = [];
+  if (restored.length) lines.push(`Возвращено: ${restored.join(', ')}.`);
+  if (failed.length) lines.push(`Не удалось вернуть: ${failed.join(', ')}. Копии лежат в .azrail-backup/, верни их вручную.`);
+  return { text: lines.join('\n') || 'Откатывать нечего.', failed };
 }
