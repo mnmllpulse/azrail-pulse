@@ -1,0 +1,97 @@
+/* Дизайн-система: единые токены и правила поверх app.css и workspace.css.
+   Радиусы: 12px — контейнеры и карточки, 8px — элементы внутри. Цель нажатия — от 32px.
+   Сайдбар: 256px развёрнутый, 64px рейл в свёрнутом виде (на широких экранах). */
+:root {
+  --radius-card: 12px;
+  --radius-control: 8px;
+  --sidebar-w: 256px;
+  --rail-w: 64px;
+  --target: 32px;
+  --surface: #121118;
+  --surface-raised: #17151e;
+  --border: #2a2733;
+  --accent-soft: color-mix(in srgb, var(--accent) 8%, transparent);
+  --accent-hover: color-mix(in srgb, var(--accent) 14%, transparent);
+  --ease: 160ms cubic-bezier(.2, .8, .2, 1);
+}
+
+/* Фокус виден всегда и не зависит от цвета фона. */
+:where(button, a, input, textarea, select, summary, [role="tab"], [tabindex]):focus-visible {
+  outline: 2px solid #c4abff;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px color-mix(in srgb, #c4abff 22%, transparent);
+}
+
+/* Кнопки: единые отступы, радиус и мягкий отклик. Размер иконок задают собственные правила. */
+:where(.app-shell) :where(button:not(.shell-icon, .chat-menu-item, .nav, .chat-open, .account, [class*="icon"]), .context-toggle, .assignment-continue) {
+  min-height: var(--target);
+  padding-inline: 16px;
+  border-radius: var(--radius-control);
+}
+.app-shell button, .app-shell .nav, .app-shell .chat-row, .app-shell .shell-icon {
+  transition: background-color var(--ease), border-color var(--ease), color var(--ease), box-shadow var(--ease);
+}
+.app-shell .nav:hover, .app-shell .shell-icon:hover, .app-shell .chat-row:hover { background: var(--accent-soft); }
+.app-shell .nav.active, .app-shell .nav[aria-current="page"], .app-shell .chat-row[data-active="true"] { background: var(--accent-hover); }
+.app-shell .nav, .app-shell .new-chat, .app-shell .shell-icon { border-radius: var(--radius-control); min-height: 40px; }
+.app-shell .shell-icon { min-width: 40px; }
+.app-shell button:disabled { opacity: .5; cursor: not-allowed; }
+
+/* Мелкие элементы управления получают область нажатия ≥24px за счёт подписи-обёртки. */
+.app-shell .chat-archive-toggle { min-height: 28px; }
+.app-shell .chat-archive-toggle input { width: 16px; height: 16px; }
+
+/* Контейнеры и карточки: плоская поверхность, тонкая рамка 1px, без тяжёлых теней. */
+.app-shell :is(.card, .cards > *, .project-card, .project-toolbar, .project-detail-grid > *, .studio-card, .thing-card) {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-card);
+  background: var(--surface);
+  box-shadow: none;
+  transition: border-color var(--ease), background-color var(--ease);
+}
+.app-shell :is(.card, .cards > *, .project-card, .studio-card):hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); background: var(--surface-raised); }
+
+/* Бенто-сетка: адаптивные колонки без медиазапросов, ячейки одной высоты по строке. */
+.app-shell :is(.cards, .project-grid) {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+.app-shell :is(.cards, .project-grid) > * { min-width: 0; }
+
+/* Развёрнутый сайдбар — 256px на широких экранах. */
+@media (min-width: 1200px) {
+  .app-shell { --sidebar-width: var(--sidebar-w); }
+}
+
+/* Свёрнутый сайдбар на широких экранах — рейл 64px: иконки остаются, подписи скрыты, сдвига контента нет. */
+@media (min-width: 761px) {
+  .app-shell[data-sidebar-open="false"] { grid-template-columns: var(--rail-w) minmax(0, 1fr); }
+  .app-shell[data-context-open="true"][data-sidebar-open="false"] { grid-template-columns: var(--rail-w) minmax(0, 1fr) var(--context-width); }
+  .app-shell[data-preview-open="true"][data-sidebar-open="false"] { grid-template-columns: var(--rail-w) minmax(0, 1fr) var(--preview-width); }
+  .app-shell[data-sidebar-open="false"] .workspace-sidebar { visibility: visible; padding: 16px 0 12px; align-items: center; border-right: 1px solid #24232b; }
+  .app-shell[data-sidebar-open="false"] .sidebar-brand { margin: 0 0 20px; justify-content: center; }
+  .app-shell[data-sidebar-open="false"] .brand > span:not(.mark),
+  .app-shell[data-sidebar-open="false"] #sidebar-close,
+  .app-shell[data-sidebar-open="false"] .new-chat kbd,
+  .app-shell[data-sidebar-open="false"] .nav-count,
+  .app-shell[data-sidebar-open="false"] .history-heading,
+  .app-shell[data-sidebar-open="false"] .chat-search,
+  .app-shell[data-sidebar-open="false"] .chat-archive-toggle,
+  .app-shell[data-sidebar-open="false"] .history-scroll,
+  .app-shell[data-sidebar-open="false"] .history-scope,
+  .app-shell[data-sidebar-open="false"] #expert-mode,
+  .app-shell[data-sidebar-open="false"] .sidebar-account .account { display: none; }
+  .app-shell[data-sidebar-open="false"] .new-chat,
+  .app-shell[data-sidebar-open="false"] .workspace-nav .nav,
+  .app-shell[data-sidebar-open="false"] .sidebar-footer .nav { width: 44px; min-height: 44px; padding: 0; gap: 0; justify-content: center; font-size: 0; }
+  .app-shell[data-sidebar-open="false"] .workspace-nav,
+  .app-shell[data-sidebar-open="false"] .sidebar-footer { justify-items: center; width: 100%; }
+  .app-shell[data-sidebar-open="false"] .sidebar-footer { display: grid; gap: 6px; }
+  .app-shell[data-sidebar-open="false"] .sidebar-account { justify-content: center; padding-inline: 0; border-top: 0; }
+  .app-shell[data-sidebar-open="false"] .nav > span:first-child,
+  .app-shell[data-sidebar-open="false"] .new-chat > span { width: auto; font-size: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-shell * { transition: none !important; }
+}
