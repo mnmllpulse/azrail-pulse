@@ -512,3 +512,19 @@ html[data-settings-text-scale="large"] #settings-page .settings-detail-content .
 }
 
 @media(max-width:600px){.notice{top:12px;bottom:auto;left:12px;right:12px;width:auto;max-width:none;}}
+
+ 
+/* Settings Center UX refinements */
+.settings-search-empty {margin:12px 0;padding:14px 16px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);font-size:13px;line-height:1.5;}
+.settings-search-empty[hidden] {display:none;}
+.settings-nav-group[hidden],.settings-nav-item[hidden],.settings-category-card[hidden],.settings-provider-card[hidden] {display:none!important;}
+.settings-provider-back {width:max-content;min-height:40px;margin:0 0 2px;padding:8px 12px;border-color:var(--border);background:var(--surface);color:var(--text);}
+.settings-provider-back:hover {background:var(--surface-raised);border-color:color-mix(in srgb,var(--accent) 42%,var(--border));}
+.settings-category-card:focus-visible,.settings-provider-card:focus-visible,.settings-nav-item:focus-visible,.settings-provider-back:focus-visible {outline:2px solid var(--accent);outline-offset:2px;}
+@media (max-width:600px) {
+ .settings-nav-group {grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;}
+ .settings-nav-heading {grid-column:1/-1;margin:4px 8px;}
+ .settings-nav-item {min-width:0;overflow-wrap:anywhere;}
+ .settings-provider-back {width:100%;}
+ .notice{top:12px;bottom:auto;}
+}
