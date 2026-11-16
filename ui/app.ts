@@ -927,6 +927,7 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
   if(!route.provider)return;
   const provider=PROVIDER_TOKENS.find(item=>item.id===route.provider);
   if(!provider)return;
+  const back=document.createElement('button');back.type='button';back.className='settings-back settings-provider-back';back.textContent='← Все провайдеры';back.onclick=()=>navigation.navigate({page:'settings',section:'providers'});content.append(back);
   settingsHeading(content,provider.name,provider.note||'Управление ключом этого провайдера на текущем устройстве.');
   const status=document.createElement('p');status.className=hasProviderToken(provider.id)?'settings-provider-status is-saved':'settings-provider-status';
   const paintStatus=()=>{status.textContent=hasProviderToken(provider.id)?'Ключ сохранён в этой вкладке':'Ключ не задан';};paintStatus();content.append(status);
