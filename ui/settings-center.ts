@@ -35,7 +35,7 @@ export const SETTINGS_ITEMS: Item[] = [
   { section: 'agent', title: 'Локальный агент', description: 'Связь с компьютером и разрешённые задачи.', icon: '⌁', group: 'Контроль и безопасность' },
   { section: 'usage', title: 'Использование и лимиты', description: 'Лимиты, бюджет и пробные возможности.', icon: '◷', group: 'Использование и данные' },
   { section: 'data', title: 'Данные и память', description: 'Библиотека файлов и проектная память.', icon: '▤', group: 'Использование и данные' },
-  { section: 'shortcuts', title: 'Горячие клавиши', description: 'Управление приложением с клавиатуры.', icon: '⌨', group: 'Система' },
+  { section: 'shortcuts', title: 'Управление и доступность', description: 'Горячие клавиши, анимации, контраст и язык.', icon: '⌨', group: 'Система' },
   { section: 'about', title: 'О системе и диагностика', description: 'Версия, принципы работы и сведения о продукте.', icon: 'ⓘ', group: 'Система' },
 ];
 
@@ -165,7 +165,7 @@ export function mountSettingsCenter(
       card.type = 'button';
       card.dataset.settingsSearch = [item.name, item.note, item.id, 'провайдер api ключ'].join(' ').toLocaleLowerCase('ru');
       const saved = hasProviderToken(item.id);
-      const status = saved ? 'Ключ сохранён в этой вкладке' : 'Ключ не задан';
+      const status = saved ? 'Локальный ключ (не подключение)' : 'Подробнее: статус маршрута';
       card.setAttribute('aria-label', [item.name, item.note || 'Внешний AI-провайдер', status, 'Открыть'].join('. '));
       const top = node('div', '', 'settings-provider-top');
       top.append(
@@ -175,7 +175,7 @@ export function mountSettingsCenter(
       card.append(
         top,
         node('span', item.note || 'Внешний AI-провайдер.', 'settings-provider-note'),
-        node('span', status, saved ? 'settings-provider-status is-saved' : 'settings-provider-status'),
+        node('span', status, 'settings-provider-status'),
       );
       card.onclick = () => navigate({ section: 'providers', provider: item.id });
       grid.append(card);

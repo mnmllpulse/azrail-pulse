@@ -18,7 +18,6 @@ import {renderSmartEmptyState} from './components/smart-empty';
 import {mountModuleFrameActions} from './components/module-frame';
 import {renderRecoveryError} from './components/error-recovery';
 import {mountVoiceInput} from './components/voice-input';
-import {PROVIDER_TOKENS, clearProviderToken, hasProviderToken, saveProviderToken} from './provider-tokens';
 import {mountCommandPalette} from './components/command-palette';
 import {mountMetatronLab} from './metatron-lab';
 import {openUniversalCompareCenter} from './components/universal-compare';
@@ -31,6 +30,9 @@ import {readPendingImage,requestImage,type ImageRequestBody} from './image-reque
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
 import {permissionSettings} from './permission-settings';
+import {renderProviderPage,type Routing} from './settings-providers';
+import {applyDisplayPrefs,readDisplayPrefs,saveDisplayPrefs,type Density,type TextScale} from './display-preferences';
+import {renderDiagnostics,type Health} from './settings-diagnostics';
 import {mountSettingsCenter,settingsTitle,type SettingsSection} from './settings-center';
 import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
@@ -57,6 +59,7 @@ if(typeof window!=='undefined'){
 }
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const local=!/^https?:$/.test(location.protocol);
+applyDisplayPrefs(readDisplayPrefs());
 type Account={id:string;name:string;operator?:boolean;role?:'viewer'|'editor'|'admin'};
 let account:Account|null=null,project='',mission='',pollTimer=0,epoch=0,studioEpoch=0,mediaCleanup=()=>{},lastBlob:Blob|null=null;
 let draftCleanup=()=>{},studioChromeCleanup=()=>{},pollFailures=0,missionSubmitting=false,studioRun=0;
@@ -877,23 +880,20 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
  }
 
  if(section==='appearance'){
-  settingsHeading(content,'Внешний вид','Сохраняются только локальные предпочтения этого браузера.');
-  const densityLabel=document.createElement('label');densityLabel.textContent='Плотность интерфейса';
-  const density=document.createElement('select');density.id='settings-density';
-  for(const [value,label] of [['comfortable','Комфортная'],['compact','Компактная'],['spacious','Свободная']] as const){const option=document.createElement('option');option.value=value;option.textContent=label;density.append(option);}
-  const textLabel=document.createElement('label');textLabel.textContent='Размер текста';
-  const textScale=document.createElement('select');textScale.id='settings-text-scale';
-  for(const [value,label] of [['normal','Обычный'],['large','Увеличенный']] as const){const option=document.createElement('option');option.value=value;option.textContent=label;textScale.append(option);}
-  try{density.value=localStorage.getItem('pulse.uiDensity')??'comfortable';textScale.value=localStorage.getItem('pulse.uiTextScale')??'normal';}catch{}
-  document.documentElement.dataset.settingsDensity=density.value;
-  document.documentElement.dataset.settingsTextScale=textScale.value;
-  const form=document.createElement('div');form.className='settings-form-grid';form.append(densityLabel,density,textLabel,textScale);content.append(form);
-  settingsText(content,'Цветовая тема AZRAIL остаётся Dark Premium. Типографика использует единый sans-serif стек; локальный файл Inter пока не включён в поставку.');
+  settingsHeading(content,'Внешний вид','Предпочтения сохраняются только в этом браузере и применяются сразу после загрузки.');
+  const prefs=readDisplayPrefs();
+  const field=(text:string,control:HTMLElement)=>{const label=document.createElement('label');label.textContent=text;return [label,control];};
+  const select=(id:string,options:ReadonlyArray<readonly [string,string]>,value:string)=>{const el=document.createElement('select');el.id=id;for(const [v,l] of options){const option=document.createElement('option');option.value=v;option.textContent=l;el.append(option);}el.value=value;return el;};
+  const density=select('settings-density',[['comfortable','Комфортная'],['compact','Компактная'],['spacious','Свободная']],prefs.density);
+  const textScale=select('settings-text-scale',[['normal','Обычный'],['large','Увеличенный (110%)']],prefs.textScale);
+  const preview=()=>applyDisplayPrefs({...prefs,density:density.value as Density,textScale:textScale.value as TextScale});
+  density.onchange=preview;textScale.onchange=preview;
+  const form=document.createElement('div');form.className='settings-form-grid';form.append(...field('Плотность интерфейса',density),...field('Размер текста',textScale));content.append(form);
+  settingsText(content,'Цветовая тема AZRAIL — только Dark Premium: светлой темы в продукте нет. Шрифт — системный sans-serif; Inter не поставляется.');
   settingsButton(content,'Сохранить внешний вид',()=>{
-   try{localStorage.setItem('pulse.uiDensity',density.value);localStorage.setItem('pulse.uiTextScale',textScale.value);}catch{notice('Браузер не разрешил сохранить предпочтения.',true);return;}
-   document.documentElement.dataset.settingsDensity=density.value;
-   document.documentElement.dataset.settingsTextScale=textScale.value;
-   notice('Внешний вид сохранён на этом устройстве.');
+   const next={...prefs,density:density.value as Density,textScale:textScale.value as TextScale};
+   if(!saveDisplayPrefs(next)){notice('Браузер не разрешил сохранить предпочтения.',true);return;}
+   applyDisplayPrefs(next);notice('Внешний вид сохранён на этом устройстве.');
   },true);
   return;
  }
@@ -925,24 +925,13 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
 
  if(section==='providers'){
   if(!route.provider)return;
-  const provider=PROVIDER_TOKENS.find(item=>item.id===route.provider);
-  if(!provider)return;
-  const back=document.createElement('button');back.type='button';back.className='settings-back settings-provider-back';back.textContent='← Все провайдеры';back.onclick=()=>navigation.navigate({page:'settings',section:'providers'});content.append(back);
-  settingsHeading(content,provider.name,provider.note||'Управление ключом этого провайдера на текущем устройстве.');
-  const status=document.createElement('p');status.className=hasProviderToken(provider.id)?'settings-provider-status is-saved':'settings-provider-status';
-  const paintStatus=()=>{status.textContent=hasProviderToken(provider.id)?'Ключ сохранён в этой вкладке':'Ключ не задан';};paintStatus();content.append(status);
-  const note=document.createElement('p');note.className='context-note';
-  note.textContent='Важно: этот локальный ключ пока не включает вызовы провайдера. Не вставляйте его в чат. Значение хранится только в sessionStorage текущей вкладки и исчезает после её закрытия.';
-  content.append(note);
-  const label=document.createElement('label');label.textContent='API key';
-  const input=document.createElement('input');input.type='password';input.autocomplete='off';input.spellcheck=false;input.maxLength=400;
-  input.placeholder=hasProviderToken(provider.id)?'Новый ключ заменит сохранённый':'Вставьте ключ';input.setAttribute('aria-label','API key '+provider.name);label.append(input);content.append(label);
-  const actions=document.createElement('div');actions.className='settings-actions';
-  const save=document.createElement('button');save.type='button';save.className='primary';save.textContent='Сохранить ключ';
-  save.onclick=()=>{const value=input.value.trim();if(!value){notice('Вставьте ключ в поле.',true);return;}try{saveProviderToken(provider.id,value);}catch{notice('Не удалось сохранить ключ в этой вкладке.',true);return;}input.value='';notice('Ключ '+provider.name+' сохранён локально. Вызовы провайдера не включены.');renderSettingsPage(route);};
-  const clear=document.createElement('button');clear.type='button';clear.textContent='Удалить ключ';clear.disabled=!hasProviderToken(provider.id);
-  clear.onclick=()=>{clearProviderToken(provider.id);notice('Локальный ключ '+provider.name+' удалён.');renderSettingsPage(route);};
-  actions.append(save,clear);content.append(actions);
+  renderProviderPage(content,{
+   providerId:route.provider,
+   loadCatalog:async()=>{if(!account)throw Error('Нужен вход.');const r=await api('/api/model-catalog');return Array.isArray(r.models)?r.models:[];},
+   loadRouting:async()=>{if(!account)return null;return await api('/api/routing-settings') as Routing;},
+   notice,failure,
+   back:()=>navigation.navigate({page:'settings',section:'providers'}),
+  });
   return;
  }
 
@@ -1008,8 +997,20 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
  }
 
  if(section==='shortcuts'){
-  settingsHeading(content,'Горячие клавиши','Быстрые действия в AZRAIL PULSE.');
+  settingsHeading(content,'Управление и доступность','Клавиатура, анимации, контраст и язык интерфейса.');
   for(const line of ['Ctrl / ⌘ + K — поиск команд.','Enter или Ctrl / ⌘ + Enter — отправить. Shift + Enter — новая строка.','Alt + 1 — чат. Alt + 2 — проекты. Alt + 3 — студии.','Escape — закрыть диалог или боковую панель.'])settingsText(content,line,'settings-shortcut-row');
+  const prefs=readDisplayPrefs();
+  const toggle=(text:string,checked:boolean)=>{const label=document.createElement('label');label.className='settings-toggle';const box=document.createElement('input');box.type='checkbox';box.checked=checked;label.append(box,document.createTextNode(' '+text));content.append(label);return box;};
+  const motion=toggle('Уменьшить анимации',prefs.reduceMotion);
+  const contrast=toggle('Повышенный контраст',prefs.highContrast);
+  const collect=()=>({...readDisplayPrefs(),reduceMotion:motion.checked,highContrast:contrast.checked});
+  motion.onchange=contrast.onchange=()=>applyDisplayPrefs(collect());
+  settingsText(content,'Язык интерфейса: русский. Других локализаций в продукте нет.','context-note');
+  settingsButton(content,'Сохранить доступность',()=>{
+   const next=collect();
+   if(!saveDisplayPrefs(next)){notice('Браузер не разрешил сохранить предпочтения.',true);return;}
+   applyDisplayPrefs(next);notice('Настройки доступности сохранены на этом устройстве.');
+  },true);
   return;
  }
 
@@ -1018,6 +1019,11 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
   settingsText(content,'Текст и голос → миссия → файлы проекта → проверка. Результат не получает статус готовности к публикации без успешной проверки кода.');
   settingsText(content,'Музыка здесь — локальный procedural synthesis. Video Studio использует AI для Scene Builder, а preview/WebM рендерит локально через Canvas + MediaRecorder.');
   settingsText(content,'Система не выдаёт Cloudflare Stream или Veo за подключённые, пока соответствующий binding не настроен и не проверен.');
+  if(local)settingsText(content,'Диагностика доступна в развёрнутом приложении.','context-note');
+  else renderDiagnostics(content,{failure,loadHealth:async()=>{
+   if(!account){const live=await api('/health/live') as Health;return {version:live.version};}
+   try{return await api('/health') as Health;}catch(error){if(error instanceof APIError&&error.body&&Array.isArray(error.body.services))return error.body as Health;throw error;}
+  }});
  }
 }
 
