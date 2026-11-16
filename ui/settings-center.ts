@@ -131,7 +131,8 @@ export function mountSettingsCenter(
     let visible=0;
     for(const [key,button] of buttons){
       const item=bySection.get(key)!;
-      const matches=!query||(item.title+' '+item.description+' '+item.group).toLocaleLowerCase('ru').includes(query);
+      const providerMatch=key==='providers'&&PROVIDER_TOKENS.some(provider=>(provider.name+' '+provider.note+' '+provider.id).toLocaleLowerCase('ru').includes(query));
+      const matches=!query||(item.title+' '+item.description+' '+item.group).toLocaleLowerCase('ru').includes(query)||providerMatch;
       button.hidden=!matches;
       if(matches)visible++;
     }
