@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { FIX_APPROVE, fixIntent, parseEdits, pathsFromLog, runFixLoop, FIX_ROUNDS, type FixDeps } from "../ui/chat-fixloop";
+import { FIX_APPROVE, rollbackIntent, runRollback, fixIntent, parseEdits, pathsFromLog, runFixLoop, FIX_ROUNDS, type FixDeps } from "../ui/chat-fixloop";
 import type { AgentJobView } from "../ui/chat-agent";
 
 const job = (status: string, result: string): AgentJobView => ({ id: "1", kind: "run", path: "npm_build", status, result, error: null });
@@ -79,5 +79,55 @@ describe("цикл исправления: ход", () => {
   it("лог без файлов проекта: остановка", async () => {
     const { deps } = base({}, [job("failed", "npm ERR! network")]);
     expect(await runFixLoop(deps, "npm_build")).toContain("нет читаемых файлов");
+  });
+});
+
+describe("откат правок", () => {
+  it("фраза требует «на компьютере»", () => {
+    expect(rollbackIntent("откати правки на компьютере")).toBe(true);
+    expect(rollbackIntent("верни последние изменения на моём компьютере")).toBe(true);
+    expect(rollbackIntent("откати правки")).toBe(false);
+    expect(rollbackIntent("исправь ошибки сборки на компьютере")).toBe(false);
+  });
+  it("цикл запоминает самую раннюю копию файла", async () => {
+    const restore = new Map<string, string>();
+    const runs = [job("failed", "src/a.ts(1,1): error"), job("failed", "src/a.ts(1,1): error"), job("done", "ok")];
+    let i = 0;
+    const deps: FixDeps = {
+      run: async () => runs[i++],
+      read: async () => "old",
+      write: async () => true,
+      ask: async () => `[{"path":"src/a.ts","content":"v${i}"}]`,
+      say: () => {},
+    };
+    await runFixLoop(deps, "npm_build", restore);
+    expect([...restore]).toEqual([["src/a.ts", ".azrail-backup/r1/src/a.ts"]]);
+  });
+  it("если копию записать не удалось, файл не трогается", async () => {
+    const writes: string[] = [];
+    const restore = new Map<string, string>();
+    const deps: FixDeps = {
+      run: async () => job("failed", "src/a.ts(1,1): error"),
+      read: async () => "old",
+      write: async (p) => { writes.push(p); return false; },
+      ask: async () => '[{"path":"src/a.ts","content":"new"}]',
+      say: () => {},
+    };
+    const out = await runFixLoop(deps, "npm_build", restore);
+    expect(writes).toEqual([".azrail-backup/r1/src/a.ts"]);
+    expect(restore.size).toBe(0);
+    expect(out).toContain("не тронут");
+  });
+  it("откат пишет оригинал обратно; недоступная копия попадает в failed", async () => {
+    const written = new Map<string, string>();
+    const deps = {
+      read: async (p: string) => (p.includes("b.ts") ? null : `orig:${p}`),
+      write: async (p: string, c: string) => { written.set(p, c); return true; },
+    };
+    const { text, failed } = await runRollback(deps, new Map([["src/a.ts", ".azrail-backup/r1/src/a.ts"], ["src/b.ts", ".azrail-backup/r1/src/b.ts"]]));
+    expect(written.get("src/a.ts")).toBe("orig:.azrail-backup/r1/src/a.ts");
+    expect(failed).toEqual(["src/b.ts"]);
+    expect(text).toContain("Возвращено: src/a.ts");
+    expect(text).toContain("Не удалось вернуть: src/b.ts");
   });
 });

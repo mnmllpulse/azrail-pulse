@@ -32,7 +32,7 @@ import {agentSettings} from './local-agent';
 import {permissionSettings} from './permission-settings';
 import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
-import {fixIntent,fixConsentText,runFixLoop,FIX_APPROVE} from './chat-fixloop';
+import {fixIntent,fixConsentText,runFixLoop,FIX_APPROVE,rollbackIntent,rollbackConsentText,runRollback} from './chat-fixloop';
 import {agentIntent,AGENT_OFF,APPROVE as AGENT_APPROVE,REJECT as AGENT_REJECT,approvalText,jobReply,waitJob,type AgentJobView} from './chat-agent';
 import {modelIntent,proposalText,YES,ROLLBACK,type ModelProposal} from './chat-settings';
 import {studioIntent,budgetSummary,ledgerSummary,pulseSummary,dataSummary,audioSummary} from './chat-studios';
@@ -360,6 +360,10 @@ type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;revi
 let catalogModels:CatalogModel[]=[];
 let agentWaiting='';
 let fixPending='';
+let rollbackPending=false;
+const FIX_RESTORE_KEY='azrail.fixRestore.v1';
+const loadRestore=():Map<string,string>=>{try{return new Map(JSON.parse(localStorage.getItem(FIX_RESTORE_KEY)||'[]') as Array<[string,string]>);}catch{return new Map();}};
+const saveRestore=(m:Map<string,string>)=>{try{m.size?localStorage.setItem(FIX_RESTORE_KEY,JSON.stringify([...m])):localStorage.removeItem(FIX_RESTORE_KEY);}catch{}};
 let modelProposal:ModelProposal|null=null;
 let modelUndo:ModelProposal|null=null;
 /** Full registry for the Models picker (exactly the server catalog, no truncation). */
@@ -1792,7 +1796,7 @@ async function runChat(){
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
- if(!agentWaiting&&!fixPending&&account&&(AGENT_APPROVE.test(message)||AGENT_REJECT.test(message))){
+ if(!agentWaiting&&!fixPending&&!rollbackPending&&account&&(AGENT_APPROVE.test(message)||AGENT_REJECT.test(message))){
   try{const st=await api('/api/agent/status') as {jobs?:AgentJobView[]};agentWaiting=st.jobs?.find(j=>j.status==='awaiting_approval')?.id??'';}catch{}
  }
  if(agentWaiting&&(AGENT_APPROVE.test(message)||AGENT_REJECT.test(message))){
@@ -1803,24 +1807,50 @@ async function runChat(){
   }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент не ответил.');}
   return;
  }
+ const agentJob=async(kind:string,path:string,content?:string)=>{
+  const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
+  const made=(await api('/api/agent/jobs',{method:'POST',body:JSON.stringify({kind,path,...(content===undefined?{}:{content})})})).job as AgentJobView;
+  if(made.status==='awaiting_approval')await api(`/api/agent/jobs/${made.id}/approve`,{method:'POST',body:'{}'});
+  return waitJob(api,made.id,sleep,kind==='run'?90:30);
+ };
+ const fileOps={
+  read:async(p:string)=>{try{const j=await agentJob('read',p);return j.status==='done'?j.result??'':null;}catch{return null;}},
+  write:async(p:string,c:string)=>{try{return (await agentJob('write',p,c)).status==='done';}catch{return false;}},
+ };
+ if(rollbackPending&&FIX_APPROVE.test(message)){
+  rollbackPending=false;
+  try{
+   const restore=loadRestore();
+   const {text,failed}=await runRollback(fileOps,restore);
+   saveRestore(new Map([...restore].filter(([p])=>failed.includes(p))));
+   noteLocal(message,text);
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Откат прерван.');}
+  return;
+ }
  if(fixPending&&FIX_APPROVE.test(message)){
   const command=fixPending;fixPending='';
-  const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
-  const job=async(kind:string,path:string,content?:string)=>{
-   const made=(await api('/api/agent/jobs',{method:'POST',body:JSON.stringify({kind,path,...(content===undefined?{}:{content})})})).job as AgentJobView;
-   if(made.status==='awaiting_approval')await api(`/api/agent/jobs/${made.id}/approve`,{method:'POST',body:'{}'});
-   return waitJob(api,made.id,sleep,kind==='run'?90:30);
-  };
   try{
+   const restore=loadRestore();
    const out=await runFixLoop({
-    run:c=>job('run',c),
-    read:async p=>{try{const j=await job('read',p);return j.status==='done'?j.result??'':null;}catch{return null;}},
-    write:async(p,c)=>{try{return (await job('write',p,c)).status==='done';}catch{return false;}},
+    run:c=>agentJob('run',c),
+    ...fileOps,
     ask:async q=>{const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({message:q,projectId:project||crypto.randomUUID(),conversationId:crypto.randomUUID(),voice:chatVoice,...(preferredModel?{preferredModel}:{})})});return String(r.result?.summary||'');},
     say:t=>notice(t,false),
-   },command);
+   },command,restore);
+   saveRestore(restore);
    noteLocal(message,out);
   }catch(e){noteLocal(message,e instanceof Error?e.message:'Цикл прерван.');}
+  return;
+ }
+ if(rollbackIntent(message)){
+  try{
+   if(!account)throw Error('Войдите, чтобы работать с компьютером.');
+   const state=await api('/api/agent/status') as {enabled?:boolean};
+   if(!state.enabled){noteLocal(message,AGENT_OFF);return;}
+   const restore=loadRestore();
+   if(!restore.size){noteLocal(message,'Откатывать нечего: цикл исправления на этом браузере правок не делал.');return;}
+   rollbackPending=true;noteLocal(message,rollbackConsentText(restore));
+  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент недоступен.');}
   return;
  }
  const fixCommand=fixIntent(message);
