@@ -1,7 +1,7 @@
 import {studioById,type StudioId} from './studios';
-export type Route = {page:'create'|'mission'|'projects'|'studios'|'metatron'|'connections'|'not-found'} | {page:'studio';studio:StudioId};
+export type Route = {page:'create'|'mission'|'projects'|'studios'|'metatron'|'connections'|'not-found'} | {page:'settings';section?:string;provider?:string} | {page:'studio';studio:StudioId};
 export function routePath(route:Route):string {
- return route.page==='studio'?`/studios/${route.studio}`:route.page==='create'?'/':route.page==='connections'?'/settings/connections':route.page==='not-found'?'/404':`/${route.page}`;
+ if(route.page==='studio')return `/studios/${route.studio}`;\n if(route.page==='settings')return route.section?`/settings/${route.section}${route.provider?`/${route.provider}`:''}`:'/settings';\n return route.page==='create'?'/':route.page==='connections'?'/settings/connections':route.page==='not-found'?'/404':`/${route.page}`;
 }
 export function readRoute(url:URL):Route {
  const offline=!/^https?:$/.test(url.protocol);
@@ -14,7 +14,7 @@ export function readRoute(url:URL):Route {
  if(['/projects','projects'].includes(path))return {page:'projects'};
  if(['/studios','studios'].includes(path))return {page:'studios'};
  if(['/metatron','metatron'].includes(path))return {page:'metatron'};
- if(['/settings/connections','settings/connections'].includes(path))return {page:'connections'};
+ const settings=path.match(/^\\/settings(?:\\/([a-z-]+))?(?:\\/([a-z0-9-]+))?$/);\n if(settings){\n  const section=settings[1]||undefined,provider=settings[2]||undefined;\n  const allowed=new Set(['account','appearance','voice','models','providers','connections','permissions','agent','usage','data','shortcuts','about']);\n  if(section&&!allowed.has(section))return {page:'not-found'};\n  if(provider&&section!=='providers')return {page:'not-found'};\n  return {page:'settings',...(section?{section}:{}),...(provider?{provider}:{})};\n }
  return {page:'not-found'};
 }
 /** Real URLs on the host; portable hash URLs for the standalone file. */
