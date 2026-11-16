@@ -107,7 +107,7 @@ export function mountSettingsCenter(
     for(const item of PROVIDER_TOKENS){
       const card=node('button','','settings-provider-card');card.type='button';
       card.dataset.settingsSearch=[item.name,item.note,item.id,'провайдер api ключ'].join(' ').toLowerCase();
-      card.setAttribute('aria-label','Открыть настройки провайдера '+item.name);
+      card.setAttribute('aria-label',[item.name,item.note||'Внешний AI-провайдер',saved?'Ключ сохранён в этой вкладке':'Ключ не задан','Открыть настройки'].join('. '));
       const top=node('div','','settings-provider-top');top.append(node('span',item.name,'settings-provider-name'),node('span','↗','settings-category-arrow'));
       const saved=hasProviderToken(item.id);
       card.append(top,node('span',item.note||'Внешний AI-провайдер.','settings-provider-note'),node('span',saved?'Ключ сохранён в этой вкладке':'Ключ не задан',saved?'settings-provider-status is-saved':'settings-provider-status'));
