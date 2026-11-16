@@ -557,8 +557,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 0,
-      "sha256": "4d8b27b42df7f2309eb90ae00be5aadb79025818e066e8ac3587baa752540002"
+      "bytes": 1311158,
+      "sha256": "4f39c065572bbb9a42d6f1657757b1101789959d6eae91f22f5c8ae12a82edf7"
     },
     {
       "path": "migrations/002-mission-async.sql",
