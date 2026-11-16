@@ -125,11 +125,12 @@ describe("локальный агент", () => {
     await expect(runJob(root, { kind: "write", path: ".git/hooks/pre-commit", content: "x" })).rejects.toThrow(/закрыт/);
   });
 
-  it("симлинк наружу отклоняется", async () => {
+  it("симлинк наружу отклоняется", async (ctx) => {
     const root = await folder();
     const outside = await mkdtemp(join(tmpdir(), "azrail-outside-"));
     await writeFile(join(outside, "secret.txt"), "x");
-    await symlink(outside, join(root, "link"), "dir").catch(() => undefined);
+    const linked = await symlink(outside, join(root, "link"), "dir").then(() => true, () => false);
+    if (!linked) ctx.skip("символические ссылки недоступны в этой системе (Windows без режима разработчика)");
     await expect(resolveInside(root, "link/secret.txt")).rejects.toThrow();
   });
 });
