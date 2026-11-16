@@ -208,9 +208,9 @@ describe("ZIP как вложение задачи", () => {
     expect(out[0].skipped).toContain("не найден");
   });
 
-  it("tar и rar получают честный отказ, а не молчание", async () => {
+  it("rar и 7z получают честный отказ, а не молчание", async () => {
     const out = await loadAttachments(r2zip("u/p.zip", new ArrayBuffer(0)), [
-      { r2Key: "u/p.zip", fileName: "project.tar.gz", inputType: "zip" },
+      { r2Key: "u/p.zip", fileName: "project.rar", inputType: "unknown" },
     ]);
     expect(out[0].text).toBeUndefined();
     expect(out[0].skipped).toContain("ZIP");
