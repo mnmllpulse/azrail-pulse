@@ -75,7 +75,7 @@ export function mountSettingsCenter(
   sidebarFoot.append(back);
   sidebar.append(sidebarHead,searchLabel,nav,sidebarFoot);
 
-  const main=node('main','','settings-main');
+  const main=node('div','','settings-main');
   const heading=node('div','','settings-page-heading');
   const crumb=node('p',provider?'Настройки / Провайдеры / '+settingsTitle(section,provider):active?'Настройки / '+settingsTitle(active):'Настройки','settings-breadcrumb');
   heading.append(crumb);
