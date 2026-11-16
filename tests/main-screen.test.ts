@@ -33,11 +33,12 @@ describe('главный экран по умолчанию', () => {
     }
   });
 
-  it('настройки и «О системе» остались достижимы из шторки', () => {
+  it('Settings Center and account remain reachable from the drawer; About lives inside Settings', () => {
     const doc = mainScreen();
     const sidebar = doc.getElementById('workspace-sidebar')!;
     expect(sidebar.querySelector('#settings')).not.toBeNull();
-    expect(sidebar.querySelector('#about')).not.toBeNull();
+    expect(sidebar.querySelector('#about')).toBeNull();
+    expect(doc.getElementById('settings-root')).not.toBeNull();
     expect(sidebar.querySelector('#account')).not.toBeNull();
   });
 });
