@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T05:00:00.000Z",
+  "generated_at": "2026-11-16T05:10:00.000Z",
   "excludes_self": true,
   "file_count": 1247,
   "files": [
@@ -4692,8 +4692,8 @@
     },
     {
       "path": "tests/design-system.test.ts",
-      "bytes": 2373,
-      "sha256": "c7aa02971ef9704f59d1da70727cf40257e4150850e417adfbfbf8497cd14494"
+      "bytes": 2468,
+      "sha256": "a80a5b75aa6ffeed14a9f240666b911f414d3f06e2bf53f2202cbfbd0972e8bc"
     },
     {
       "path": "tests/diagram-chain.test.ts",
