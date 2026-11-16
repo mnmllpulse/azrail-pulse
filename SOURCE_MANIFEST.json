@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T12:45:00.000Z",
+  "generated_at": "2026-11-16T10:55:00.000Z",
   "excludes_self": true,
-  "file_count": 1253,
+  "file_count": 1254,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -5176,6 +5176,11 @@
       "sha256": "56cd5791c756cd887b359ac875f97379d7f9eaff0a3bb625922e85106f41f3b4"
     },
     {
+      "path": "tests/settings-center.test.ts",
+      "bytes": 3196,
+      "sha256": "f5fd79d7f187eb141f05299a1effa063894812bd887a635213f9fc61b97cdf31"
+    },
+    {
       "path": "tests/slo-contract.test.ts",
       "bytes": 965,
       "sha256": "6896813cb6ffa4fd02c90359906e39b433b4aff321d73fde49077b2d12405c44"
@@ -5347,8 +5352,8 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 115656,
-      "sha256": "1eeba2db68c6ea4788f06a76bbec7b6e0fbfbe352283875707e67e1b87c95228"
+      "bytes": 116832,
+      "sha256": "6a9b93b82521024b9757154a9f6578282ccadfd68a13ce9a7fe0d01311d6a3ce"
     },
     {
       "path": "ui/app.html",
@@ -5357,8 +5362,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 183833,
-      "sha256": "32354ad074c7fe89ebddc712f1892b0189ccf3283eb8b4a04e8d7845813ff8de"
+      "bytes": 184101,
+      "sha256": "cabdd438e65973184a9713fbf9686add2f234f453d0167050fccccea79ed8c01"
     },
     {
       "path": "ui/assignment.ts",
@@ -5662,8 +5667,8 @@
     },
     {
       "path": "ui/settings-center.ts",
-      "bytes": 9657,
-      "sha256": "7583e8af5e4ed399dcdd2179888e9176343f6cfe053ce5164ff8fc9397c2c5f5"
+      "bytes": 10925,
+      "sha256": "e4a93f0c4773e315f018ea070e98aeae5127230d0fa5bc5289362cb863e74db6"
     },
     {
       "path": "ui/studio-chat.ts",
