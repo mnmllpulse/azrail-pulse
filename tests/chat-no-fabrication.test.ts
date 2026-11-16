@@ -24,11 +24,13 @@ describe("история чата не содержит служебных бл�
 describe("картинка из вложения чата становится образцом для рисования", () => {
   const source = readFileSync("ui/app.ts", "utf8");
   it("вложенное изображение загружается как образец и вложение очищается после сборки", () => {
-    expect(source).toContain("async function attachedImageReference()");
+    const uploads = readFileSync("ui/attachment-upload.ts", "utf8");
+    expect(uploads).toContain("async function attachedImageReference()");
+    expect(uploads).toContain("shrinkReference(file)");
     expect(source).toContain("const chosen=attachedId||imageReference;");
     expect(source).toContain("if(attachedId){clearAttachments();imageReference='';}");
     expect(source).toContain("identityConsistency:true");
-    expect(source).toContain("shrinkReference");
+    expect(source).toContain("attachedImageReference()");
     expect(source).not.toContain("attachedImageReference().catch");
   });
 });

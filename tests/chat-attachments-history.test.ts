@@ -2,13 +2,15 @@ import {readFileSync} from 'node:fs';
 import {describe,expect,it} from 'vitest';
 
 const app=readFileSync(new URL('../ui/app.ts',import.meta.url),'utf8');
+const uploads=readFileSync(new URL('../ui/attachment-upload.ts',import.meta.url),'utf8');
 const history=readFileSync(new URL('../ui/chat-history.ts',import.meta.url),'utf8');
 
 describe('attachments stay visible in chat history',()=>{
   it('uploads each attachment once; the image reference is a separate shrunk copy cached per file',()=>{
-    expect(app).toContain('async function uploadedAttachment');
-    expect(app).toContain('const known=shrunkReferences.get(file);if(known)return known;');
-    expect(app).toContain('shrunkReferences.set(file,saved.id)');
+    expect(uploads).toContain('async function uploadedAttachment');
+    expect(uploads).toMatch(/const known = shrunkReferences\.get\(file\);\s*if \(known\) return known;/);
+    expect(uploads).toContain('shrunkReferences.set(file, saved.id)');
+    expect(app).toContain('createAttachmentUploads(');
   });
   it('adds markdown for attachments to the sent and saved user message',()=>{
     expect(app).toContain('message+await attachmentMarkup(message)');

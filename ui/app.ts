@@ -32,9 +32,8 @@ import {agentSettings} from './local-agent';
 import {permissionSettings} from './permission-settings';
 import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
-import {fixIntent,fixConsentText,runFixLoop,FIX_APPROVE,rollbackIntent,rollbackConsentText,runRollback} from './chat-fixloop';
-import {agentIntent,AGENT_OFF,APPROVE as AGENT_APPROVE,REJECT as AGENT_REJECT,approvalText,jobReply,waitJob,type AgentJobView} from './chat-agent';
-import {modelIntent,proposalText,YES,ROLLBACK,type ModelProposal} from './chat-settings';
+import {createChatCommands} from './chat-commands';
+import {createAttachmentUploads,isImageFile,shrinkReference} from './attachment-upload';
 import {studioIntent,budgetSummary,ledgerSummary,pulseSummary,dataSummary,audioSummary} from './chat-studios';
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
@@ -358,14 +357,6 @@ function syncChatAccount(){
 }
 type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;reviewed?:boolean;task?:string;capabilities?:string[];availability?:string;provider?:string;icon?:string|null;description?:string};
 let catalogModels:CatalogModel[]=[];
-let agentWaiting='';
-let fixPending='';
-let rollbackPending=false;
-const FIX_RESTORE_KEY='azrail.fixRestore.v1';
-const loadRestore=():Map<string,string>=>{try{return new Map(JSON.parse(localStorage.getItem(FIX_RESTORE_KEY)||'[]') as Array<[string,string]>);}catch{return new Map();}};
-const saveRestore=(m:Map<string,string>)=>{try{m.size?localStorage.setItem(FIX_RESTORE_KEY,JSON.stringify([...m])):localStorage.removeItem(FIX_RESTORE_KEY);}catch{}};
-let modelProposal:ModelProposal|null=null;
-let modelUndo:ModelProposal|null=null;
 /** Full registry for the Models picker (exactly the server catalog, no truncation). */
 function pickerModels(){return catalogModels.filter(m=>m.availability!=='unavailable'&&typeof m.slug==='string');}
 function modelLabel(m:CatalogModel){return m.displayName||modelDisplayName(m.slug);}
@@ -751,47 +742,7 @@ $('assignment-frame').addEventListener('click',event=>{
  markFrame();
 });
 let imageReference='';
-const attachedReferences=new WeakMap<File,string>();
-const REFERENCE_SIDE=480;
-async function shrinkReference(file:Blob):Promise<Blob>{
- const bitmap=await createImageBitmap(file);
- try{
-  const scale=Math.min(1,REFERENCE_SIDE/Math.max(bitmap.width,bitmap.height));
-  const width=Math.max(1,Math.round(bitmap.width*scale));
-  const height=Math.max(1,Math.round(bitmap.height*scale));
-  const canvas=document.createElement('canvas');
-  canvas.width=width;canvas.height=height;
-  const context=canvas.getContext('2d');
-  if(!context)throw Error('Образец не удалось подготовить.');
-  context.drawImage(bitmap,0,0,width,height);
-  const blob=await new Promise<Blob|null>(resolve=>canvas.toBlob(result=>resolve(result),'image/jpeg',0.85));
-  if(!blob||blob.size<1)throw Error('Образец не удалось подготовить.');
-  return blob;
- }finally{bitmap.close();}
-}
-const isImageFile=(file:File)=>/^image\//i.test(file.type)||/\.(png|jpe?g|webp|gif)$/i.test(file.name);
-async function uploadedAttachment(file:File):Promise<string>{
- const known=attachedReferences.get(file);if(known)return known;
- if(file.size>12*1024*1024)return '';
- const image=isImageFile(file);
- const headers:Record<string,string>={'Content-Type':file.type||(image?'image/png':'application/octet-stream'),'X-Filename':encodeURIComponent(file.name.slice(0,120)),'X-Studio-Id':image?'image':'data'};
- const saved=await api('/api/studio/artifacts',{method:'POST',headers,body:file}) as {id?:string};
- if(!saved?.id)return '';
- attachedReferences.set(file,saved.id);
- return saved.id;
-}
-const shrunkReferences=new WeakMap<File,string>();
-async function attachedImageReference():Promise<string>{
- const file=attachmentManager.files().find(isImageFile);
- if(!file)return '';
- const known=shrunkReferences.get(file);if(known)return known;
- const fitted=await shrinkReference(file);
- const headers:Record<string,string>={'Content-Type':'image/jpeg','X-Filename':encodeURIComponent(file.name.replace(/\.\w+$/,'.jpg').slice(0,120)),'X-Studio-Id':'image'};
- const saved=await api('/api/studio/artifacts',{method:'POST',headers,body:fitted}) as {id?:string};
- if(!saved?.id)throw Error('Вложенная картинка не сохранилась, поэтому рисовать по ней нельзя.');
- shrunkReferences.set(file,saved.id);
- return saved.id;
-}
+const {uploadedAttachment,attachedImageReference}=createAttachmentUploads((path,init)=>api(path,init),()=>attachmentManager.files());
 let sentMarkup={for:'',text:''};
 async function attachmentMarkup(message:string):Promise<string>{
  const files=account?attachmentManager.files():[];
@@ -1787,6 +1738,13 @@ function revealHeld(message:string){
  workspace.setPreview(true);
  return path;
 }
+const chatCommands=createChatCommands({
+ api:(path,init)=>api(path,init),noteLocal:(m,r)=>noteLocal(m,r),notice:(t,p)=>notice(t,p),
+ signedIn:()=>!!account,project:()=>project,voice:()=>chatVoice,preferredModel:()=>preferredModel,
+ setPreferredModel:slug=>setPreferredModel(slug),
+ models:()=>pickerModels().map(m=>({slug:m.slug,label:modelLabel(m),free:!!m.freeAllowlisted&&m.availability!=='unavailable'})),
+ labelOf:slug=>{const here=catalogModels.find(m=>m.slug===slug);return here?modelLabel(here):(slug?modelDisplayName(slug):'Auto · AZRAIL');},
+});
 async function runChat(){
  if(missionSubmitting)return;
  const message=prompt.value.trim();if(!message)return;
@@ -1796,102 +1754,7 @@ async function runChat(){
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
  if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
- if(!agentWaiting&&!fixPending&&!rollbackPending&&account&&(AGENT_APPROVE.test(message)||AGENT_REJECT.test(message))){
-  try{const st=await api('/api/agent/status') as {jobs?:AgentJobView[]};agentWaiting=st.jobs?.find(j=>j.status==='awaiting_approval')?.id??'';}catch{}
- }
- if(agentWaiting&&(AGENT_APPROVE.test(message)||AGENT_REJECT.test(message))){
-  const id=agentWaiting;agentWaiting='';
-  try{
-   await api(`/api/agent/jobs/${id}/${AGENT_APPROVE.test(message)?'approve':'reject'}`,{method:'POST',body:'{}'});
-   noteLocal(message,jobReply(await waitJob(api,id,ms=>new Promise(r=>setTimeout(r,ms)),90)));
-  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент не ответил.');}
-  return;
- }
- const agentJob=async(kind:string,path:string,content?:string)=>{
-  const sleep=(ms:number)=>new Promise<void>(r=>setTimeout(r,ms));
-  const made=(await api('/api/agent/jobs',{method:'POST',body:JSON.stringify({kind,path,...(content===undefined?{}:{content})})})).job as AgentJobView;
-  if(made.status==='awaiting_approval')await api(`/api/agent/jobs/${made.id}/approve`,{method:'POST',body:'{}'});
-  return waitJob(api,made.id,sleep,kind==='run'?90:30);
- };
- const fileOps={
-  read:async(p:string)=>{try{const j=await agentJob('read',p);return j.status==='done'?j.result??'':null;}catch{return null;}},
-  write:async(p:string,c:string)=>{try{return (await agentJob('write',p,c)).status==='done';}catch{return false;}},
- };
- if(rollbackPending&&FIX_APPROVE.test(message)){
-  rollbackPending=false;
-  try{
-   const restore=loadRestore();
-   const {text,failed}=await runRollback(fileOps,restore);
-   saveRestore(new Map([...restore].filter(([p])=>failed.includes(p))));
-   noteLocal(message,text);
-  }catch(e){noteLocal(message,e instanceof Error?e.message:'Откат прерван.');}
-  return;
- }
- if(fixPending&&FIX_APPROVE.test(message)){
-  const command=fixPending;fixPending='';
-  try{
-   const restore=loadRestore();
-   const out=await runFixLoop({
-    run:c=>agentJob('run',c),
-    ...fileOps,
-    ask:async q=>{const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:JSON.stringify({message:q,projectId:project||crypto.randomUUID(),conversationId:crypto.randomUUID(),voice:chatVoice,...(preferredModel?{preferredModel}:{})})});return String(r.result?.summary||'');},
-    say:t=>notice(t,false),
-   },command,restore);
-   saveRestore(restore);
-   noteLocal(message,out);
-  }catch(e){noteLocal(message,e instanceof Error?e.message:'Цикл прерван.');}
-  return;
- }
- if(rollbackIntent(message)){
-  try{
-   if(!account)throw Error('Войдите, чтобы работать с компьютером.');
-   const state=await api('/api/agent/status') as {enabled?:boolean};
-   if(!state.enabled){noteLocal(message,AGENT_OFF);return;}
-   const restore=loadRestore();
-   if(!restore.size){noteLocal(message,'Откатывать нечего: цикл исправления на этом браузере правок не делал.');return;}
-   rollbackPending=true;noteLocal(message,rollbackConsentText(restore));
-  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент недоступен.');}
-  return;
- }
- const fixCommand=fixIntent(message);
- if(fixCommand){
-  try{
-   if(!account)throw Error('Войдите, чтобы работать с компьютером.');
-   const state=await api('/api/agent/status') as {enabled?:boolean};
-   if(!state.enabled){noteLocal(message,AGENT_OFF);return;}
-   fixPending=fixCommand;noteLocal(message,fixConsentText(fixCommand));
-  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент недоступен.');}
-  return;
- }
- const forAgent=agentIntent(message);
- if(forAgent){
-  try{
-   if(!account)throw Error('Войдите, чтобы работать с компьютером.');
-   const state=await api('/api/agent/status') as {enabled?:boolean};
-   if(!state.enabled){noteLocal(message,AGENT_OFF);return;}
-   const made=(await api('/api/agent/jobs',{method:'POST',body:JSON.stringify(forAgent)})).job as AgentJobView;
-   if(made.status==='awaiting_approval'){agentWaiting=made.id;noteLocal(message,approvalText(made));return;}
-   noteLocal(message,jobReply(await waitJob(api,made.id,ms=>new Promise(r=>setTimeout(r,ms)))));
-  }catch(e){noteLocal(message,e instanceof Error?e.message:'Агент недоступен.');}
-  return;
- }
- const switchTo=modelIntent(message,pickerModels().map(m=>({slug:m.slug,label:modelLabel(m),free:!!m.freeAllowlisted&&m.availability!=='unavailable'})));
- if(switchTo){
-  const here=catalogModels.find(m=>m.slug===preferredModel);
-  modelProposal={to:switchTo.slug,toLabel:switchTo.label,from:preferredModel,fromLabel:here?modelLabel(here):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL')};
-  noteLocal(message,proposalText(modelProposal));
-  return;
- }
- if(modelProposal&&YES.test(message)){
-  const done=modelProposal;modelProposal=null;modelUndo=done;setPreferredModel(done.to);
-  noteLocal(message,`Применено: «${done.toLabel}». Вернуть «${done.fromLabel}» — напиши «откати».`);
-  return;
- }
- if(modelUndo&&ROLLBACK.test(message)){
-  const back=modelUndo;modelUndo=null;setPreferredModel(back.from);
-  noteLocal(message,`Вернул «${back.fromLabel}».`);
-  return;
- }
+ if(await chatCommands(message))return;
  const studioKind=studioIntent(message,attachmentManager.files());
  if(studioKind){
   try{
