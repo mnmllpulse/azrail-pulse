@@ -5352,8 +5352,8 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 117015,
-      "sha256": "3223e4511540da543369242a49f4d5779e3954566a53c2edd5f913e29983d3c4"
+      "bytes": 117014,
+      "sha256": "aba22029ae6b369830193c113971b17c479187eb337cb32f065fc7cc311515d9"
     },
     {
       "path": "ui/app.html",
