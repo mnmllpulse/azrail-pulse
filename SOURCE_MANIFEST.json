@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T11:05:00.000Z",
+  "generated_at": "2026-11-16T11:10:00.000Z",
   "excludes_self": true,
   "file_count": 1254,
   "files": [
@@ -5353,7 +5353,7 @@
     {
       "path": "ui/app.css",
       "bytes": 116864,
-      "sha256": "666bb768708773160b735f8f0e1a0390fdb2aee046e8ac5249646b5741058243"
+      "sha256": "7068cd8984422e414ee093aec19a053e61aefe219ea9279f3265a05c0bfb0fab"
     },
     {
       "path": "ui/app.html",
