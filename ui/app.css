@@ -523,4 +523,5 @@ html[data-settings-text-scale="large"] #settings .settings-detail-content .muted
  .settings-nav-heading {grid-column:1/-1;margin:4px 8px;}
  .settings-nav-item {min-width:0;overflow-wrap:anywhere;}
  .settings-provider-back {width:100%;}
+ .notice{top:12px;bottom:auto;}
 }
