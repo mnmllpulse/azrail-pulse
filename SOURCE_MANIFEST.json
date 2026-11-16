@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T05:10:00.000Z",
+  "generated_at": "2026-11-16T12:40:00.000Z",
   "excludes_self": true,
-  "file_count": 1247,
+  "file_count": 1248,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -86,31 +86,6 @@
       "sha256": "55075b5ec4e8b31936cbbc282b8829116d1fd48f2f2f1856dee592a6650700ce"
     },
     {
-      "path": "DEPLOY.md",
-      "bytes": 6109,
-      "sha256": "1583f0f7d5679848b2e413c02d2117cda38ce8f6f01ba2544fb353ebc2ffaf72"
-    },
-    {
-      "path": "DEPLOY_RU.md",
-      "bytes": 7422,
-      "sha256": "3059b7944be7e4c4439ebf8dc6b0c10f361559f2d6d06e4aa04182dfbd5a17a8"
-    },
-    {
-      "path": "Dockerfile",
-      "bytes": 1521,
-      "sha256": "f9ff8016f9f1463ab4fba70e32cbb57ea11ef7a2bc0d64082df40a8b079ac029"
-    },
-    {
-      "path": "README.md",
-      "bytes": 7651,
-      "sha256": "80a7891d567c1fbd89f7ee810b7c6114b7aad7795da934d71f1c9763989c5611"
-    },
-    {
-      "path": "START_HERE_RU.md",
-      "bytes": 2280,
-      "sha256": "0018cccfe04743a7b3d1847cad4b73ae6a2004a63e36fdca5429b324c14753ef"
-    },
-    {
       "path": "config/ai-model-registry.json",
       "bytes": 173354,
       "sha256": "4756a312d6e5f2c7663cc270cdfff6e52299920865d2e3d071e9a9a449d2ad67"
@@ -121,24 +96,19 @@
       "sha256": "a95d574d703696ac2405faefca4525e60c501314e1d94e59bf5b388244984dad"
     },
     {
-      "path": "docs/DOCS_RULES.md",
-      "bytes": 1513,
-      "sha256": "864aafea2af4ee3572cbd942423267e3419494264399baee77b71118cf941fbb"
+      "path": "DEPLOY_RU.md",
+      "bytes": 7422,
+      "sha256": "3059b7944be7e4c4439ebf8dc6b0c10f361559f2d6d06e4aa04182dfbd5a17a8"
     },
     {
-      "path": "docs/LOCAL_AGENT.md",
-      "bytes": 7473,
-      "sha256": "20d4c1897104e685afe1c2ff0dfb4bd275cd3cd0ba572fa82e942f1c0e8dfae4"
+      "path": "DEPLOY.md",
+      "bytes": 6109,
+      "sha256": "1583f0f7d5679848b2e413c02d2117cda38ce8f6f01ba2544fb353ebc2ffaf72"
     },
     {
-      "path": "docs/NEURON_BUDGET.md",
-      "bytes": 3525,
-      "sha256": "b25865c243d791d61462344d81cabc74772f63cd2091960ff25fe44f2ed5b79b"
-    },
-    {
-      "path": "docs/README.md",
-      "bytes": 661,
-      "sha256": "0ce44216f2319fa9230ce110ecde8f75395b99fc483b104cd7d8fcac2d925ebd"
+      "path": "Dockerfile",
+      "bytes": 1521,
+      "sha256": "f9ff8016f9f1463ab4fba70e32cbb57ea11ef7a2bc0d64082df40a8b079ac029"
     },
     {
       "path": "docs/current/ABLETON_LAB_RU.md",
@@ -231,14 +201,14 @@
       "sha256": "bd992fabe1845c242bf6e14b3b6ba5204da46ee637d4a2346e2338c4bab000d7"
     },
     {
-      "path": "docs/current/PRODUCTION_READINESS.md",
-      "bytes": 3173,
-      "sha256": "4da244fe5077b5a3d76e2f9fd6fc4ed0fbef7b48078529777f1d65c98b1da7ce"
-    },
-    {
       "path": "docs/current/PRODUCT_INTELLIGENCE_RU.md",
       "bytes": 2132,
       "sha256": "2dc879f3e72b696aa14462002fdec251197354ae1ffcbbc72293f1c0f5490ecc"
+    },
+    {
+      "path": "docs/current/PRODUCTION_READINESS.md",
+      "bytes": 3173,
+      "sha256": "4da244fe5077b5a3d76e2f9fd6fc4ed0fbef7b48078529777f1d65c98b1da7ce"
     },
     {
       "path": "docs/current/PROJECTS_RU.md",
@@ -271,14 +241,14 @@
       "sha256": "04e35a814155570f97b7f9761bf05dffc38fbf99159a08ec45fcdf3f04fb6df8"
     },
     {
-      "path": "docs/current/REPOSITORY_AUDIT_RU.md",
-      "bytes": 7560,
-      "sha256": "98f862ffebd7cd48a0b7e55e7f83adf8c4065ca45cc45fb57513924195812b0f"
-    },
-    {
       "path": "docs/current/REPO_LAYOUT_RU.md",
       "bytes": 1889,
       "sha256": "5510f7c0ce1cf06043f636f4c0471824689d2d382ea21eb7665265dda5306d4e"
+    },
+    {
+      "path": "docs/current/REPOSITORY_AUDIT_RU.md",
+      "bytes": 7560,
+      "sha256": "98f862ffebd7cd48a0b7e55e7f83adf8c4065ca45cc45fb57513924195812b0f"
     },
     {
       "path": "docs/current/SERIES_G_SYSTEM_INTELLIGENCE_RU.md",
@@ -304,6 +274,11 @@
       "path": "docs/current/WEB_STUDIO_RU.md",
       "bytes": 4681,
       "sha256": "4241f566ca1718340ab047426e0c65b2efeacb67ebe2f6dd33951deecd0a7c6e"
+    },
+    {
+      "path": "docs/DOCS_RULES.md",
+      "bytes": 1513,
+      "sha256": "864aafea2af4ee3572cbd942423267e3419494264399baee77b71118cf941fbb"
     },
     {
       "path": "docs/history/AUDITS_SUMMARY.md",
@@ -334,6 +309,16 @@
       "path": "docs/history/SERIES_F_G_PROGRESS_RU.md",
       "bytes": 2554,
       "sha256": "12befda1168d5c7fc615c13646b01d64ca0b12a72fd8f3e7f588dcc7fe06b28d"
+    },
+    {
+      "path": "docs/LOCAL_AGENT.md",
+      "bytes": 7473,
+      "sha256": "20d4c1897104e685afe1c2ff0dfb4bd275cd3cd0ba572fa82e942f1c0e8dfae4"
+    },
+    {
+      "path": "docs/NEURON_BUDGET.md",
+      "bytes": 3525,
+      "sha256": "b25865c243d791d61462344d81cabc74772f63cd2091960ff25fe44f2ed5b79b"
     },
     {
       "path": "docs/product/ARCHITECTURE-v2.md",
@@ -404,6 +389,11 @@
       "path": "docs/product/SERIES_E_F_G_UPDATE_SCENARIO.pdf",
       "bytes": 576013,
       "sha256": "3bf46425d883db3ac7c8ffc203f95697a10b05f6f72dd7e7a0ac1f438e959e0b"
+    },
+    {
+      "path": "docs/README.md",
+      "bytes": 661,
+      "sha256": "0ce44216f2319fa9230ce110ecde8f75395b99fc483b104cd7d8fcac2d925ebd"
     },
     {
       "path": "docs/releases/CHANGELOG_1.5.0-rc.48.md",
@@ -896,24 +886,9 @@
       "sha256": "f8259b12bfd139b328ba5d47337549209b84623b0bdb29cf904f77e37b9495ad"
     },
     {
-      "path": "references/README.md",
-      "bytes": 1315,
-      "sha256": "653887794409a3759b0d5f3067857b9daf70f6e53eb6caed99b304e3d71e0ed3"
-    },
-    {
-      "path": "references/THREE-LICENSE.txt",
-      "bytes": 1081,
-      "sha256": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d"
-    },
-    {
-      "path": "references/WORLD-ATLAS-LICENSE.txt",
-      "bytes": 734,
-      "sha256": "8048290dfdb6e83fbed17e8985c8cfc4ce9da9b842642f3d3e497280790cfa31"
-    },
-    {
-      "path": "references/WORLD-ATLAS-README.md",
-      "bytes": 5403,
-      "sha256": "6fb00482638ef8f6618099e71e3422713c2dd60c7deedcd96d4b95f61d124b9b"
+      "path": "README.md",
+      "bytes": 7651,
+      "sha256": "80a7891d567c1fbd89f7ee810b7c6114b7aad7795da934d71f1c9763989c5611"
     },
     {
       "path": "references/cloudflare/azrail-original-wrangler.toml",
@@ -934,11 +909,6 @@
       "path": "references/legacy/pulse-source/DEPLOY_CLOUDFLARE_RU.md",
       "bytes": 14120,
       "sha256": "db9a5d9ec80463609f7795712d3448ccd52f03a3e882ea2fc0609e69fd7b5c5c"
-    },
-    {
-      "path": "references/legacy/pulse-source/README.md",
-      "bytes": 5156,
-      "sha256": "4f82b3ce261c30918d116b9fc99b5aec8975b00cb179e733870a1713b16cba11"
     },
     {
       "path": "references/legacy/pulse-source/docs/cloudflare-2026-09-26/API_REFERENCES.json",
@@ -1011,31 +981,6 @@
       "sha256": "f6f28f1c44e31374fac3556e82b9ded763ed8e9b0d4c5ad11fdbe8281c2184fc"
     },
     {
-      "path": "references/legacy/pulse-source/legacy/DeployStudioPanel.tsx",
-      "bytes": 9906,
-      "sha256": "a0633263642a83d78059827c35d7c4a7569a58ad79885eca5e3fd2ca8614ae99"
-    },
-    {
-      "path": "references/legacy/pulse-source/legacy/PricingModal.tsx",
-      "bytes": 14679,
-      "sha256": "99540a40928acff234b34d0f01798fbdd0995ed3e26da6363eedadd1cdbdcc62"
-    },
-    {
-      "path": "references/legacy/pulse-source/legacy/README.md",
-      "bytes": 1112,
-      "sha256": "b36caa86f9b212ce5f697ed9ca6acb556adad3b4794cefb58d8ff284bc93b783"
-    },
-    {
-      "path": "references/legacy/pulse-source/legacy/README.original.md",
-      "bytes": 559,
-      "sha256": "545b073cb2675022c4bcbdfd6b38014e1c8d5c08c4e8846258020b19eb8d99ff"
-    },
-    {
-      "path": "references/legacy/pulse-source/legacy/WebContainerContext.tsx",
-      "bytes": 13309,
-      "sha256": "f6b291c1bcdc21fd4e35aa8980d2c635ee448beff7fe8a0dc485ac67bef73846"
-    },
-    {
       "path": "references/legacy/pulse-source/legacy/cloudflare/src/index.ts",
       "bytes": 3006,
       "sha256": "f75d125fd3e357129464755de957c53512b12639475816334de12c527d2f2cfe"
@@ -1049,6 +994,11 @@
       "path": "references/legacy/pulse-source/legacy/cloudflare/wrangler.toml",
       "bytes": 672,
       "sha256": "2dd5af26730f53f3a5f6fcf49350695866547001162c5f847d1ed0cf7bfe1677"
+    },
+    {
+      "path": "references/legacy/pulse-source/legacy/DeployStudioPanel.tsx",
+      "bytes": 9906,
+      "sha256": "a0633263642a83d78059827c35d7c4a7569a58ad79885eca5e3fd2ca8614ae99"
     },
     {
       "path": "references/legacy/pulse-source/legacy/env.example",
@@ -1126,16 +1076,6 @@
       "sha256": "d4a4772ac87c10b18bf2d1e82f329aff5468d0c4113939dcb43fd0c085448846"
     },
     {
-      "path": "references/legacy/pulse-source/legacy/patches/fix.py",
-      "bytes": 11566,
-      "sha256": "0b8f855cc668acf17e5972b28e444b1a0a8a833bb111125f5fbc358067caf0dc"
-    },
-    {
-      "path": "references/legacy/pulse-source/legacy/patches/fix2.py",
-      "bytes": 591,
-      "sha256": "5b2f06363c1b837c3f358c0ef0473f53a8317cd40c24d2d4e19c73b01196d04e"
-    },
-    {
       "path": "references/legacy/pulse-source/legacy/patches/fix_import.py",
       "bytes": 470,
       "sha256": "c030ea3677d6727bffc1da616c3de8965af5135e75a764ac4bb2e4415766e011"
@@ -1144,6 +1084,16 @@
       "path": "references/legacy/pulse-source/legacy/patches/fix_suite2026.py",
       "bytes": 10395,
       "sha256": "6a022cd857a8dd2cab62fcf782dd4bdac46881a2e45b9f0e2255cba647733eaf"
+    },
+    {
+      "path": "references/legacy/pulse-source/legacy/patches/fix.py",
+      "bytes": 11566,
+      "sha256": "0b8f855cc668acf17e5972b28e444b1a0a8a833bb111125f5fbc358067caf0dc"
+    },
+    {
+      "path": "references/legacy/pulse-source/legacy/patches/fix2.py",
+      "bytes": 591,
+      "sha256": "5b2f06363c1b837c3f358c0ef0473f53a8317cd40c24d2d4e19c73b01196d04e"
     },
     {
       "path": "references/legacy/pulse-source/legacy/patches/patch_admin.cjs",
@@ -1226,6 +1176,21 @@
       "sha256": "a27f4d8a60c651b03fbaeaec5ec7ad96ba884be125fe984867438a440016d7c0"
     },
     {
+      "path": "references/legacy/pulse-source/legacy/PricingModal.tsx",
+      "bytes": 14679,
+      "sha256": "99540a40928acff234b34d0f01798fbdd0995ed3e26da6363eedadd1cdbdcc62"
+    },
+    {
+      "path": "references/legacy/pulse-source/legacy/README.md",
+      "bytes": 1112,
+      "sha256": "b36caa86f9b212ce5f697ed9ca6acb556adad3b4794cefb58d8ff284bc93b783"
+    },
+    {
+      "path": "references/legacy/pulse-source/legacy/README.original.md",
+      "bytes": 559,
+      "sha256": "545b073cb2675022c4bcbdfd6b38014e1c8d5c08c4e8846258020b19eb8d99ff"
+    },
+    {
       "path": "references/legacy/pulse-source/legacy/server.ts",
       "bytes": 57912,
       "sha256": "046ca49a8188e5c59bb4b9ec8a5966fc6d6a5942eb51f33096b9194621327ec2"
@@ -1261,6 +1226,11 @@
       "sha256": "ca023a7b7bb57876090cfcc1f5e6dd7b9775c28c22642efdd083f8ca9b40c0ca"
     },
     {
+      "path": "references/legacy/pulse-source/legacy/WebContainerContext.tsx",
+      "bytes": 13309,
+      "sha256": "f6b291c1bcdc21fd4e35aa8980d2c635ee448beff7fe8a0dc485ac67bef73846"
+    },
+    {
       "path": "references/legacy/pulse-source/package-lock.json",
       "bytes": 320591,
       "sha256": "913da1a93c5e3634691e60f19ee6defa904873c51cc0111e4546ffefaf237b9a"
@@ -1271,19 +1241,14 @@
       "sha256": "cb9415f1a65023933a843cdfb150b9b0797cdb8028f5dc66ef2180deed05a19d"
     },
     {
+      "path": "references/legacy/pulse-source/README.md",
+      "bytes": 5156,
+      "sha256": "4f82b3ce261c30918d116b9fc99b5aec8975b00cb179e733870a1713b16cba11"
+    },
+    {
       "path": "references/legacy/pulse-source/shared/platform.ts",
       "bytes": 1462,
       "sha256": "f3e7bfcd574413cf1ec4e03a4bf320ba003a96a6b5d872351aa50ecb1562d1f5"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/App.tsx",
-      "bytes": 802,
-      "sha256": "8e131691dc61a42a50459715942ea46f4ef5c0df84979a7650e569e30acebf4a"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/WorkspaceApp.tsx",
-      "bytes": 4679,
-      "sha256": "b16204b26ce097bd277f3a967f00a47adc483883e5905ce541634f97a68cb695"
     },
     {
       "path": "references/legacy/pulse-source/src/agents/OrchestratorAgent.tsx",
@@ -1291,19 +1256,14 @@
       "sha256": "acab1a5a639b65e29a1387d88be9bafbf51c5f7addf92d2875bd93a95831371d"
     },
     {
+      "path": "references/legacy/pulse-source/src/App.tsx",
+      "bytes": 802,
+      "sha256": "8e131691dc61a42a50459715942ea46f4ef5c0df84979a7650e569e30acebf4a"
+    },
+    {
       "path": "references/legacy/pulse-source/src/assets/images/dark_purple_planet_1784739121226.jpg",
       "bytes": 913796,
       "sha256": "47304bf6b9d7b003429fa6743a9a1af339eb14c9fe78d97408ec5539d6bbe1ca"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/AIGatewayStats.tsx",
-      "bytes": 15863,
-      "sha256": "98fe318052f7f8d114d722f90643b2cac5015c32fa4ebd5782e50af744dad77d"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/AIPreview.tsx",
-      "bytes": 662,
-      "sha256": "0120f86f33a9c577e56a36eca588e12b0b6145e224a879348e6cec14ac031907"
     },
     {
       "path": "references/legacy/pulse-source/src/components/AdminPanel.tsx",
@@ -1314,6 +1274,16 @@
       "path": "references/legacy/pulse-source/src/components/AgentConfigurationPanel.tsx",
       "bytes": 14107,
       "sha256": "d5115389de90d3cd2a00898a932bdd75e59d7fe4c7e8f8c3a75cfa58c73622d4"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/AIGatewayStats.tsx",
+      "bytes": 15863,
+      "sha256": "98fe318052f7f8d114d722f90643b2cac5015c32fa4ebd5782e50af744dad77d"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/AIPreview.tsx",
+      "bytes": 662,
+      "sha256": "0120f86f33a9c577e56a36eca588e12b0b6145e224a879348e6cec14ac031907"
     },
     {
       "path": "references/legacy/pulse-source/src/components/AnimatedPlanet.tsx",
@@ -1356,9 +1326,14 @@
       "sha256": "af4a29bb67df96a9566cd61abd77013fe267662d8d065da7dd4963d3da3cf601"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/CRTOverlay.tsx",
-      "bytes": 1118,
-      "sha256": "944d8edf036af7b78b5f147c9f8e03896fd94bf81bcd05ec0127127320ebf2ef"
+      "path": "references/legacy/pulse-source/src/components/bots/BotManager.tsx",
+      "bytes": 5587,
+      "sha256": "8a054a485c75bc46a66aa333ff4f4da006cc92b2eb6d834634fe2cfefaf99c80"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/bots/MultiAgentChat.tsx",
+      "bytes": 56837,
+      "sha256": "552430b0e23c48e6cc0185e9e1b77a480ea4f99d91572094a21f256bef3c54b0"
     },
     {
       "path": "references/legacy/pulse-source/src/components/CloudflareWorkspaceBar.tsx",
@@ -1369,6 +1344,66 @@
       "path": "references/legacy/pulse-source/src/components/CommandPalette.tsx",
       "bytes": 12206,
       "sha256": "aac96be0e2972e4cc1ef515a5e3a6a168a2ac1157ff7bd39a98a894e59b8a69e"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/AgeGate.tsx",
+      "bytes": 3227,
+      "sha256": "da92bf8eea638436631f839e010f890200272d27dca517744a26661f13a26dce"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/Button.tsx",
+      "bytes": 2824,
+      "sha256": "e7256c77b6727729fd4f615bb7217649cfaebd3972a6cffd293a7d2a66415be7"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/DocumentationModal.tsx",
+      "bytes": 42415,
+      "sha256": "c4cbc7d235ad89bf887b7c16bfca6203b74b093a78bc692773253af01d2c6e48"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/ErrorBoundary.tsx",
+      "bytes": 2562,
+      "sha256": "0c05e218d7496bc79c4728aa7342c63d936270b2b8588d48f4dd21f37aaf157d"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/GestureNavigationIndicator.tsx",
+      "bytes": 7339,
+      "sha256": "a75326571dab16e785f6d963c024acef1f5f5d3f1c60d4bde9bd1b5380aa93c7"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/GlobalMotionController.tsx",
+      "bytes": 17295,
+      "sha256": "a6e79f35da075afa2998b6e131d07fad9d14e86a86cb83cf7ac22354e66c8018"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/LayoutEngine.tsx",
+      "bytes": 1707,
+      "sha256": "8ebd7791e587e48117a4c2d9ef66ddc91a2b71fbe053b54e50291db73b8c73db"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/NeuralTimeline.tsx",
+      "bytes": 27054,
+      "sha256": "f160ea6a19d20c328f8917b5ad16661558f76c907dd9435d0c5b5b63ca88e9ae"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/ShortcutOverlay.tsx",
+      "bytes": 5471,
+      "sha256": "04d894ee39337e926000355563d33e2653cedaaeb263b317a3556d9ecfd427b9"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/SmartTranslator.tsx",
+      "bytes": 5754,
+      "sha256": "e7bb2adef341449e22fd77425c3bb8714b841e514664d9593b2f4676ef9a281e"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/StudioHeader.tsx",
+      "bytes": 6521,
+      "sha256": "3904d062066c75528ea3bd7230cffd6daf8436fa2e1b9189e2d486d8105a1886"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/common/Tooltip.tsx",
+      "bytes": 6474,
+      "sha256": "634f458b2eff7bd3c2d9bfe5fe3a6fa453cdc468cea97f5c96744632eaeb193d"
     },
     {
       "path": "references/legacy/pulse-source/src/components/ComponentMarketplace.tsx",
@@ -1384,6 +1419,11 @@
       "path": "references/legacy/pulse-source/src/components/CreativeStudio.tsx",
       "bytes": 1588,
       "sha256": "0f47ce0dfd38d4790bd63a6004ef71fd69c11dd99fad416b3710fbd5c7b79298"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/CRTOverlay.tsx",
+      "bytes": 1118,
+      "sha256": "944d8edf036af7b78b5f147c9f8e03896fd94bf81bcd05ec0127127320ebf2ef"
     },
     {
       "path": "references/legacy/pulse-source/src/components/Dashboard/DashboardWidget.tsx",
@@ -1429,6 +1469,16 @@
       "path": "references/legacy/pulse-source/src/components/DragonStorm.tsx",
       "bytes": 3247,
       "sha256": "ba8da82e7d96dadb3708daef931542fa5673fe709156de842e0d8c41274c00f0"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/editor/CodeEditor.tsx",
+      "bytes": 547,
+      "sha256": "6320180e3a95e4bf69ba4c4188edd368b8b1d90202551efe0b331c0779c0a995"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/editor/FileTree.tsx",
+      "bytes": 923,
+      "sha256": "e84b8ba739f155346633fcf9ee6e04ddcd04b8af8f1f8360bb01457116bc8cfa"
     },
     {
       "path": "references/legacy/pulse-source/src/components/FigmaSync.tsx",
@@ -1531,276 +1581,6 @@
       "sha256": "c4dfad351c5d437c1fca24bfbf452f8eeebe8635a57411026dd6053c088e386d"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/PlanetCanvas.tsx",
-      "bytes": 661,
-      "sha256": "59d4df03f10a0fcd74c32ba23aa68d5f555e158432ae85fb668e7a06e1c655d6"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/PricingModal.tsx",
-      "bytes": 1139,
-      "sha256": "badedb7768723a82f53f2836e7dc1d9ec1dda9dcda3760a4f1979710e2e1dffa"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/PulseActivityLog.tsx",
-      "bytes": 7715,
-      "sha256": "5498a5e5835e3e8364718e801c8ee9b666b8f4ae9eabeddf927ee06134953d45"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/PulseBackground.tsx",
-      "bytes": 1647,
-      "sha256": "f4356610659ad50a0c4ca62421fb65347f30b227724a0b484cccb930e290c30a"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/PulseMonitor.tsx",
-      "bytes": 4241,
-      "sha256": "4caa71fd3fce7d2068de11b74a823c57b6fd5cb82ee1adec96f760890c60292c"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/PulsePersonalization.tsx",
-      "bytes": 7546,
-      "sha256": "c065e0ec40800cb3a761c5c52e8de10f576da2dfee86d31cb43ab2e7933b74cc"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/QuickActions.tsx",
-      "bytes": 14962,
-      "sha256": "8dbedb1c73ad0011b45d02381b42a390311af7cd5f0cb69b8d52a645d8a3aaa9"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/RealityDataStreamVisualizer.tsx",
-      "bytes": 3836,
-      "sha256": "526863c275959e85a91e2fde8b746e8a228b9cb7b1b312532be761f912cd9497"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/Sidebar.tsx",
-      "bytes": 22440,
-      "sha256": "f7629c4472919be4df3095a53085ea66c9046bc85a7c3f9df3528dbefde52b8b"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/Skeleton.tsx",
-      "bytes": 4761,
-      "sha256": "5bedf2962b9efa90bd1fd7d27f9c9994a75b5febb1e06dc4768267d03fb91972"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SocialTemplates.tsx",
-      "bytes": 802,
-      "sha256": "f648ba1e3a43fd852dae96163f62a4885f4598d9e545bff04a87b60125caa3db"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SpectralAnalyzer.tsx",
-      "bytes": 2573,
-      "sha256": "03e6cbe872b31c3d1c8502a2e26e61f57a3ddf508b27ddfdfb0a7766f5e27e04"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/StudioActions.tsx",
-      "bytes": 11862,
-      "sha256": "0486eb8e37b2d37ec05d2e6f483c22dc518ee18e7c72627c416746c691f71f7e"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/StudioCard.tsx",
-      "bytes": 2308,
-      "sha256": "4344eac160da3003a750b3f7c4e039d85c00a7443b4cbf6968d2ef16c7759347"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SwarmStatusIndicator.tsx",
-      "bytes": 8404,
-      "sha256": "663a3f0ac395318744b6585ddb775afc3342503b6276f7e124df5656dc96bd3f"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemConsciousness.tsx",
-      "bytes": 1546,
-      "sha256": "f93adb9a09b4b8d33cbb009cd18cbe07bcb9bc0d02a8e312fde93d8433039f4f"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemConsole.tsx",
-      "bytes": 29518,
-      "sha256": "65a6c11f7c70270b4769c5cbc97bb24902f11ff88510ae195f80bff08de5aa73"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemIntro.tsx",
-      "bytes": 4387,
-      "sha256": "bf188d938f021e2eb4919decd828f2246ff848b869fd7560d414c366cd0d7ef4"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemLog.tsx",
-      "bytes": 6291,
-      "sha256": "1952933609b290bd50958396aedc544bc07adb33f56109ab88c49b5b10dff360"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemLogExporter.tsx",
-      "bytes": 6194,
-      "sha256": "e80adfb20479144a3fa91dc8ec98084670b0d504163465f09afbdf9c71b0405b"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemPulseHeaderIndicator.tsx",
-      "bytes": 4735,
-      "sha256": "798a89e9667a6dc8babb33d4b7f88d8749585408fe8e5cccda586f01c360cbdc"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemPulseIndicator.tsx",
-      "bytes": 4731,
-      "sha256": "eebd4173c764f638e8c2c106ef11e583b2cbe552cafb2d32dfe207084b7028d7"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemStatusMonitor.tsx",
-      "bytes": 5220,
-      "sha256": "f897e5774a0c8b8ce1305ee2d7c30b458524d0d5778dc139ab4970000965f32a"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemSyncIndicator.tsx",
-      "bytes": 7184,
-      "sha256": "367d88b1aedd306537cc70dd53c6c15a876f4a9c749eea7495b65ec7252f896f"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemTelemetry.tsx",
-      "bytes": 3473,
-      "sha256": "964c4af7cbf0e59b92d84b6c7c54c352f7f781da0a9c437b7e15e7b274eb5d14"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/SystemTelemetryLog.tsx",
-      "bytes": 15661,
-      "sha256": "24bb21e7e700c69aa11cbb76ddd3370361379afb45d0b0ab8fa94ec0f04be89b"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/TelegramBotsPortal.tsx",
-      "bytes": 26334,
-      "sha256": "0f4c9d3f69b7b5920375176f17ac901f878d5491a41460b32a2804a8c9d8d5a1"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/TelemetryWidget.tsx",
-      "bytes": 4994,
-      "sha256": "8ccbf7b1e72bb3a971bcbd1b0eac56683429e53d2ee4bb0de22edda741d78d33"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/ThorButton.tsx",
-      "bytes": 9910,
-      "sha256": "2e9a21cd7209edc4e6b675006a10e8ba33032b5d2ed1d4bcb2befc4bf77166f7"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/ThorQuickAccess.tsx",
-      "bytes": 11505,
-      "sha256": "9cf2fac45b0b8b72f92520aca2143e8daeb427ff54bc3dd2ec495c0623e630d6"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/Tooltip.tsx",
-      "bytes": 6904,
-      "sha256": "20f27d236b32caa02e19a3dc74d4e9064b9b043a8b5e3ed1a0404d4bdc2518d0"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/UniversalFileAction.tsx",
-      "bytes": 11634,
-      "sha256": "c14fe447f42af10031dca8a99eb37dcf8583626263654d1328ff09e70dfcd33d"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/UserGuideDrawer.tsx",
-      "bytes": 13633,
-      "sha256": "52185032f6fae477803350d9e9d11f425a9c3fb02d2402bf80c7c2817b2065b0"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/VUMeter.tsx",
-      "bytes": 2360,
-      "sha256": "5c77e36f3f79473eef72f69664d416fd790e85f1e51b8c02dfb7e92933b6a8d7"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/VersionHistory.tsx",
-      "bytes": 562,
-      "sha256": "277eaa0d82f174f8137ed263f2518ef97f10799686a40c07ba836eacee49e2c2"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/VoiceInputButton.tsx",
-      "bytes": 8040,
-      "sha256": "3c6a298d849b9a76f6a77fe25b62ec119bbd3be7418c91709e4ecd8b2261976f"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/VoiceOutputButton.tsx",
-      "bytes": 4444,
-      "sha256": "bf3d4c2cf669cfccd3a188c96d653a96bce8d2c83e55b8bbc7e35a8e40c49aec"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/WorkspaceTemplatesModal.tsx",
-      "bytes": 28307,
-      "sha256": "0fb5d0f138b1eb68600f47dbae2f9951fc723e52b632d7c9bea7f7a1c49cb0af"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/bots/BotManager.tsx",
-      "bytes": 5587,
-      "sha256": "8a054a485c75bc46a66aa333ff4f4da006cc92b2eb6d834634fe2cfefaf99c80"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/bots/MultiAgentChat.tsx",
-      "bytes": 56837,
-      "sha256": "552430b0e23c48e6cc0185e9e1b77a480ea4f99d91572094a21f256bef3c54b0"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/AgeGate.tsx",
-      "bytes": 3227,
-      "sha256": "da92bf8eea638436631f839e010f890200272d27dca517744a26661f13a26dce"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/Button.tsx",
-      "bytes": 2824,
-      "sha256": "e7256c77b6727729fd4f615bb7217649cfaebd3972a6cffd293a7d2a66415be7"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/DocumentationModal.tsx",
-      "bytes": 42415,
-      "sha256": "c4cbc7d235ad89bf887b7c16bfca6203b74b093a78bc692773253af01d2c6e48"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/ErrorBoundary.tsx",
-      "bytes": 2562,
-      "sha256": "0c05e218d7496bc79c4728aa7342c63d936270b2b8588d48f4dd21f37aaf157d"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/GestureNavigationIndicator.tsx",
-      "bytes": 7339,
-      "sha256": "a75326571dab16e785f6d963c024acef1f5f5d3f1c60d4bde9bd1b5380aa93c7"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/GlobalMotionController.tsx",
-      "bytes": 17295,
-      "sha256": "a6e79f35da075afa2998b6e131d07fad9d14e86a86cb83cf7ac22354e66c8018"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/LayoutEngine.tsx",
-      "bytes": 1707,
-      "sha256": "8ebd7791e587e48117a4c2d9ef66ddc91a2b71fbe053b54e50291db73b8c73db"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/NeuralTimeline.tsx",
-      "bytes": 27054,
-      "sha256": "f160ea6a19d20c328f8917b5ad16661558f76c907dd9435d0c5b5b63ca88e9ae"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/ShortcutOverlay.tsx",
-      "bytes": 5471,
-      "sha256": "04d894ee39337e926000355563d33e2653cedaaeb263b317a3556d9ecfd427b9"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/SmartTranslator.tsx",
-      "bytes": 5754,
-      "sha256": "e7bb2adef341449e22fd77425c3bb8714b841e514664d9593b2f4676ef9a281e"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/StudioHeader.tsx",
-      "bytes": 6521,
-      "sha256": "3904d062066c75528ea3bd7230cffd6daf8436fa2e1b9189e2d486d8105a1886"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/common/Tooltip.tsx",
-      "bytes": 6474,
-      "sha256": "634f458b2eff7bd3c2d9bfe5fe3a6fa453cdc468cea97f5c96744632eaeb193d"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/editor/CodeEditor.tsx",
-      "bytes": 547,
-      "sha256": "6320180e3a95e4bf69ba4c4188edd368b8b1d90202551efe0b331c0779c0a995"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/components/editor/FileTree.tsx",
-      "bytes": 923,
-      "sha256": "e84b8ba739f155346633fcf9ee6e04ddcd04b8af8f1f8360bb01457116bc8cfa"
-    },
-    {
       "path": "references/legacy/pulse-source/src/components/planet-core/animation.ts",
       "bytes": 3359,
       "sha256": "9fcc3b0f83e7c41a7230b95e8778afdcebbe57878353a4528ab8c8e3f576159d"
@@ -1901,9 +1681,79 @@
       "sha256": "8beef90686a1a720b0c0b3cba37f70d5dfb558118929f737478da1372e1ecf38"
     },
     {
+      "path": "references/legacy/pulse-source/src/components/PlanetCanvas.tsx",
+      "bytes": 661,
+      "sha256": "59d4df03f10a0fcd74c32ba23aa68d5f555e158432ae85fb668e7a06e1c655d6"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/PricingModal.tsx",
+      "bytes": 1139,
+      "sha256": "badedb7768723a82f53f2836e7dc1d9ec1dda9dcda3760a4f1979710e2e1dffa"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/PulseActivityLog.tsx",
+      "bytes": 7715,
+      "sha256": "5498a5e5835e3e8364718e801c8ee9b666b8f4ae9eabeddf927ee06134953d45"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/PulseBackground.tsx",
+      "bytes": 1647,
+      "sha256": "f4356610659ad50a0c4ca62421fb65347f30b227724a0b484cccb930e290c30a"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/PulseMonitor.tsx",
+      "bytes": 4241,
+      "sha256": "4caa71fd3fce7d2068de11b74a823c57b6fd5cb82ee1adec96f760890c60292c"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/PulsePersonalization.tsx",
+      "bytes": 7546,
+      "sha256": "c065e0ec40800cb3a761c5c52e8de10f576da2dfee86d31cb43ab2e7933b74cc"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/QuickActions.tsx",
+      "bytes": 14962,
+      "sha256": "8dbedb1c73ad0011b45d02381b42a390311af7cd5f0cb69b8d52a645d8a3aaa9"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/RealityDataStreamVisualizer.tsx",
+      "bytes": 3836,
+      "sha256": "526863c275959e85a91e2fde8b746e8a228b9cb7b1b312532be761f912cd9497"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/Sidebar.tsx",
+      "bytes": 22440,
+      "sha256": "f7629c4472919be4df3095a53085ea66c9046bc85a7c3f9df3528dbefde52b8b"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/Skeleton.tsx",
+      "bytes": 4761,
+      "sha256": "5bedf2962b9efa90bd1fd7d27f9c9994a75b5febb1e06dc4768267d03fb91972"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/SocialTemplates.tsx",
+      "bytes": 802,
+      "sha256": "f648ba1e3a43fd852dae96163f62a4885f4598d9e545bff04a87b60125caa3db"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/SpectralAnalyzer.tsx",
+      "bytes": 2573,
+      "sha256": "03e6cbe872b31c3d1c8502a2e26e61f57a3ddf508b27ddfdfb0a7766f5e27e04"
+    },
+    {
       "path": "references/legacy/pulse-source/src/components/studio/FileExplorer.tsx",
       "bytes": 12801,
       "sha256": "097758ba88bc197e58a1cd155d805df4e7d48ed250cee31b89a38ab36e12cebb"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/StudioActions.tsx",
+      "bytes": 11862,
+      "sha256": "0486eb8e37b2d37ec05d2e6f483c22dc518ee18e7c72627c416746c691f71f7e"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/StudioCard.tsx",
+      "bytes": 2308,
+      "sha256": "4344eac160da3003a750b3f7c4e039d85c00a7443b4cbf6968d2ef16c7759347"
     },
     {
       "path": "references/legacy/pulse-source/src/components/studios/AuthGuard.tsx",
@@ -1956,6 +1806,36 @@
       "sha256": "aea599b6792ff768b52040ae1ea34af929fa8159a6cbc39cf58ace540b15b1ce"
     },
     {
+      "path": "references/legacy/pulse-source/src/components/studios/image-studio/ConsolePanel.tsx",
+      "bytes": 13210,
+      "sha256": "9ca37268b2246c6752baeef560adbc2fabd5d27715a92588428bf008534095df"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/image-studio/ImageStudioContext.tsx",
+      "bytes": 14115,
+      "sha256": "18883261a20150c5c3859b285991c26bd071cfef0965db4195c0e4b06f1f34b9"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/image-studio/ImageStudioX.tsx",
+      "bytes": 5105,
+      "sha256": "c786b313c966978705c125b8da6fc1433e838b08926bd3efaaf0535ff1b59121"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/image-studio/ProjectsSidebar.tsx",
+      "bytes": 6599,
+      "sha256": "9e8de2a7923d278af4ce5cbbe2156e36ee69c0c43d28266e3f8304d119da037d"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/image-studio/PropertiesPanel.tsx",
+      "bytes": 15556,
+      "sha256": "77be9f0f239a68f5eb7d0330625af1eb7f0b28343ee1eb8cac38f00f9289053c"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/image-studio/Workspace.tsx",
+      "bytes": 12447,
+      "sha256": "ca545ca4fff73dc186996ccef1162d8e93b55e953c498cef68212468d79d6221"
+    },
+    {
       "path": "references/legacy/pulse-source/src/components/studios/InteractionLab.tsx",
       "bytes": 4436,
       "sha256": "149312fb9f97244c8bddab57e8f8c95faccbac3c7fcdfe7c74a1693bca05bd8c"
@@ -1969,6 +1849,46 @@
       "path": "references/legacy/pulse-source/src/components/studios/ManipulationParserUI.tsx",
       "bytes": 7812,
       "sha256": "f9034a7c3258aeaf2628a371cdb4b753a43e8f2d46ae5bb16bb369485742f9b4"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/music-os/AIAgents.tsx",
+      "bytes": 9811,
+      "sha256": "fc1472cf4585c9398c138615f47de73d328b3160da6a09047dc485aeaae52f6e"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/music-os/CognitiveFusionEngine.tsx",
+      "bytes": 4210,
+      "sha256": "72414b28d14bdc22c71be3086814a7679783c5d54a06bfcedb95182d0c3dbce1"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/music-os/DivergentEngine.tsx",
+      "bytes": 51431,
+      "sha256": "4ec2f1900a0476d83613aba6e2748e64778d9033ac930a1fbd9045fadab1072c"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/music-os/DJStudio.tsx",
+      "bytes": 7865,
+      "sha256": "14d3d3f35cb0b49af0fc34512621a0f32b6b1ec5b38873169d34cffaa9a1605e"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/music-os/MasteringSuite.tsx",
+      "bytes": 7544,
+      "sha256": "7e7562c495702031d11e9bde21bfdb6c88f71dabd4808669994ef43bce80c30d"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/music-os/MixerConsole.tsx",
+      "bytes": 9196,
+      "sha256": "25c0e26c2c7637bc6d2e28f93dab14cce63b88ca9c35aa6dcacd81981cd308f0"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/music-os/ModularLab.tsx",
+      "bytes": 9018,
+      "sha256": "0c0c986012d9fa1c149e276e8f670cd08fd084f202e98c433fe1e4844ef5e0f4"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/studios/music-os/OSKernel.tsx",
+      "bytes": 3011,
+      "sha256": "a684c9f14d99019e4aceb2f1a5206701bb265777c76e2206d87293e6b369d0ff"
     },
     {
       "path": "references/legacy/pulse-source/src/components/studios/MusicIntelligenceAgent.tsx",
@@ -2071,79 +1991,129 @@
       "sha256": "8fddebbd9864af2929f62b7261d7813d20d752d952c4dd5a23dad36d3ebe9d30"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/image-studio/ConsolePanel.tsx",
-      "bytes": 13210,
-      "sha256": "9ca37268b2246c6752baeef560adbc2fabd5d27715a92588428bf008534095df"
+      "path": "references/legacy/pulse-source/src/components/SwarmStatusIndicator.tsx",
+      "bytes": 8404,
+      "sha256": "663a3f0ac395318744b6585ddb775afc3342503b6276f7e124df5656dc96bd3f"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/image-studio/ImageStudioContext.tsx",
-      "bytes": 14115,
-      "sha256": "18883261a20150c5c3859b285991c26bd071cfef0965db4195c0e4b06f1f34b9"
+      "path": "references/legacy/pulse-source/src/components/SystemConsciousness.tsx",
+      "bytes": 1546,
+      "sha256": "f93adb9a09b4b8d33cbb009cd18cbe07bcb9bc0d02a8e312fde93d8433039f4f"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/image-studio/ImageStudioX.tsx",
-      "bytes": 5105,
-      "sha256": "c786b313c966978705c125b8da6fc1433e838b08926bd3efaaf0535ff1b59121"
+      "path": "references/legacy/pulse-source/src/components/SystemConsole.tsx",
+      "bytes": 29518,
+      "sha256": "65a6c11f7c70270b4769c5cbc97bb24902f11ff88510ae195f80bff08de5aa73"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/image-studio/ProjectsSidebar.tsx",
-      "bytes": 6599,
-      "sha256": "9e8de2a7923d278af4ce5cbbe2156e36ee69c0c43d28266e3f8304d119da037d"
+      "path": "references/legacy/pulse-source/src/components/SystemIntro.tsx",
+      "bytes": 4387,
+      "sha256": "bf188d938f021e2eb4919decd828f2246ff848b869fd7560d414c366cd0d7ef4"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/image-studio/PropertiesPanel.tsx",
-      "bytes": 15556,
-      "sha256": "77be9f0f239a68f5eb7d0330625af1eb7f0b28343ee1eb8cac38f00f9289053c"
+      "path": "references/legacy/pulse-source/src/components/SystemLog.tsx",
+      "bytes": 6291,
+      "sha256": "1952933609b290bd50958396aedc544bc07adb33f56109ab88c49b5b10dff360"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/image-studio/Workspace.tsx",
-      "bytes": 12447,
-      "sha256": "ca545ca4fff73dc186996ccef1162d8e93b55e953c498cef68212468d79d6221"
+      "path": "references/legacy/pulse-source/src/components/SystemLogExporter.tsx",
+      "bytes": 6194,
+      "sha256": "e80adfb20479144a3fa91dc8ec98084670b0d504163465f09afbdf9c71b0405b"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/music-os/AIAgents.tsx",
-      "bytes": 9811,
-      "sha256": "fc1472cf4585c9398c138615f47de73d328b3160da6a09047dc485aeaae52f6e"
+      "path": "references/legacy/pulse-source/src/components/SystemPulseHeaderIndicator.tsx",
+      "bytes": 4735,
+      "sha256": "798a89e9667a6dc8babb33d4b7f88d8749585408fe8e5cccda586f01c360cbdc"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/music-os/CognitiveFusionEngine.tsx",
-      "bytes": 4210,
-      "sha256": "72414b28d14bdc22c71be3086814a7679783c5d54a06bfcedb95182d0c3dbce1"
+      "path": "references/legacy/pulse-source/src/components/SystemPulseIndicator.tsx",
+      "bytes": 4731,
+      "sha256": "eebd4173c764f638e8c2c106ef11e583b2cbe552cafb2d32dfe207084b7028d7"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/music-os/DJStudio.tsx",
-      "bytes": 7865,
-      "sha256": "14d3d3f35cb0b49af0fc34512621a0f32b6b1ec5b38873169d34cffaa9a1605e"
+      "path": "references/legacy/pulse-source/src/components/SystemStatusMonitor.tsx",
+      "bytes": 5220,
+      "sha256": "f897e5774a0c8b8ce1305ee2d7c30b458524d0d5778dc139ab4970000965f32a"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/music-os/DivergentEngine.tsx",
-      "bytes": 51431,
-      "sha256": "4ec2f1900a0476d83613aba6e2748e64778d9033ac930a1fbd9045fadab1072c"
+      "path": "references/legacy/pulse-source/src/components/SystemSyncIndicator.tsx",
+      "bytes": 7184,
+      "sha256": "367d88b1aedd306537cc70dd53c6c15a876f4a9c749eea7495b65ec7252f896f"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/music-os/MasteringSuite.tsx",
-      "bytes": 7544,
-      "sha256": "7e7562c495702031d11e9bde21bfdb6c88f71dabd4808669994ef43bce80c30d"
+      "path": "references/legacy/pulse-source/src/components/SystemTelemetry.tsx",
+      "bytes": 3473,
+      "sha256": "964c4af7cbf0e59b92d84b6c7c54c352f7f781da0a9c437b7e15e7b274eb5d14"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/music-os/MixerConsole.tsx",
-      "bytes": 9196,
-      "sha256": "25c0e26c2c7637bc6d2e28f93dab14cce63b88ca9c35aa6dcacd81981cd308f0"
+      "path": "references/legacy/pulse-source/src/components/SystemTelemetryLog.tsx",
+      "bytes": 15661,
+      "sha256": "24bb21e7e700c69aa11cbb76ddd3370361379afb45d0b0ab8fa94ec0f04be89b"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/music-os/ModularLab.tsx",
-      "bytes": 9018,
-      "sha256": "0c0c986012d9fa1c149e276e8f670cd08fd084f202e98c433fe1e4844ef5e0f4"
+      "path": "references/legacy/pulse-source/src/components/TelegramBotsPortal.tsx",
+      "bytes": 26334,
+      "sha256": "0f4c9d3f69b7b5920375176f17ac901f878d5491a41460b32a2804a8c9d8d5a1"
     },
     {
-      "path": "references/legacy/pulse-source/src/components/studios/music-os/OSKernel.tsx",
-      "bytes": 3011,
-      "sha256": "a684c9f14d99019e4aceb2f1a5206701bb265777c76e2206d87293e6b369d0ff"
+      "path": "references/legacy/pulse-source/src/components/TelemetryWidget.tsx",
+      "bytes": 4994,
+      "sha256": "8ccbf7b1e72bb3a971bcbd1b0eac56683429e53d2ee4bb0de22edda741d78d33"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/ThorButton.tsx",
+      "bytes": 9910,
+      "sha256": "2e9a21cd7209edc4e6b675006a10e8ba33032b5d2ed1d4bcb2befc4bf77166f7"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/ThorQuickAccess.tsx",
+      "bytes": 11505,
+      "sha256": "9cf2fac45b0b8b72f92520aca2143e8daeb427ff54bc3dd2ec495c0623e630d6"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/Tooltip.tsx",
+      "bytes": 6904,
+      "sha256": "20f27d236b32caa02e19a3dc74d4e9064b9b043a8b5e3ed1a0404d4bdc2518d0"
     },
     {
       "path": "references/legacy/pulse-source/src/components/ui/Button.tsx",
       "bytes": 2396,
       "sha256": "0ef82e9047f44a5722a0a7f6a2f54ffb3067839b4e1dde1b4b95205fa3665eda"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/UniversalFileAction.tsx",
+      "bytes": 11634,
+      "sha256": "c14fe447f42af10031dca8a99eb37dcf8583626263654d1328ff09e70dfcd33d"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/UserGuideDrawer.tsx",
+      "bytes": 13633,
+      "sha256": "52185032f6fae477803350d9e9d11f425a9c3fb02d2402bf80c7c2817b2065b0"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/VersionHistory.tsx",
+      "bytes": 562,
+      "sha256": "277eaa0d82f174f8137ed263f2518ef97f10799686a40c07ba836eacee49e2c2"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/VoiceInputButton.tsx",
+      "bytes": 8040,
+      "sha256": "3c6a298d849b9a76f6a77fe25b62ec119bbd3be7418c91709e4ecd8b2261976f"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/VoiceOutputButton.tsx",
+      "bytes": 4444,
+      "sha256": "bf3d4c2cf669cfccd3a188c96d653a96bce8d2c83e55b8bbc7e35a8e40c49aec"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/VUMeter.tsx",
+      "bytes": 2360,
+      "sha256": "5c77e36f3f79473eef72f69664d416fd790e85f1e51b8c02dfb7e92933b6a8d7"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/components/WorkspaceTemplatesModal.tsx",
+      "bytes": 28307,
+      "sha256": "0fb5d0f138b1eb68600f47dbae2f9951fc723e52b632d7c9bea7f7a1c49cb0af"
     },
     {
       "path": "references/legacy/pulse-source/src/contexts/AudioContext.tsx",
@@ -2286,11 +2256,6 @@
       "sha256": "ffc2fd6e10d9b58a49fcfc51fff6073d95ecebd9d91fa5c677c5992fd80140f1"
     },
     {
-      "path": "references/legacy/pulse-source/src/lib/PulseKernel.tsx",
-      "bytes": 776,
-      "sha256": "762a5e73029ce1f5f57c0724c34410f56b6615ba6747dc0378fc8dcee6737b27"
-    },
-    {
       "path": "references/legacy/pulse-source/src/lib/pulse/core/CodeGraph.ts",
       "bytes": 516,
       "sha256": "e099d707bf749103f70378d0c53f962d1fd733e20ffade0875a74568eb18e5d1"
@@ -2351,6 +2316,11 @@
       "sha256": "9b218fed99374882ca52e4787540b18f781697cb79b0897a23b9ccbfb1257f13"
     },
     {
+      "path": "references/legacy/pulse-source/src/lib/PulseKernel.tsx",
+      "bytes": 776,
+      "sha256": "762a5e73029ce1f5f57c0724c34410f56b6615ba6747dc0378fc8dcee6737b27"
+    },
+    {
       "path": "references/legacy/pulse-source/src/main.tsx",
       "bytes": 322,
       "sha256": "e2679d485645b6d6e8ff47e2bcf372aa4dcfb82df88401b835fde128b397da65"
@@ -2386,14 +2356,14 @@
       "sha256": "967adbe9c00cd654898f0837a69cfd260c397138dd4c6ef3eba8ea787ad56480"
     },
     {
-      "path": "references/legacy/pulse-source/src/pages/DNASequencer.tsx",
-      "bytes": 10625,
-      "sha256": "590ceb34908e0b2dd9b87c41fee749d131177d880e4552bb0420d44515a70b0b"
-    },
-    {
       "path": "references/legacy/pulse-source/src/pages/Dashboard.tsx",
       "bytes": 35001,
       "sha256": "8d24637dec167baf2e5e7b2a5951726ba629383f4c5eedd0861b85bdf897f047"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/pages/DNASequencer.tsx",
+      "bytes": 10625,
+      "sha256": "590ceb34908e0b2dd9b87c41fee749d131177d880e4552bb0420d44515a70b0b"
     },
     {
       "path": "references/legacy/pulse-source/src/pages/History.tsx",
@@ -2429,16 +2399,6 @@
       "path": "references/legacy/pulse-source/src/pages/Studio.tsx",
       "bytes": 19670,
       "sha256": "d539f671749f3e6f63d77713d0374b35bf0be12f68e33506b26e4fe39115239c"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/pages/SwarmChat.tsx",
-      "bytes": 13704,
-      "sha256": "83c75f9c0e788d57f641d4cb90c22309f5b273d8a350ba5c241023a1f1a77e21"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/pages/SystemBook.tsx",
-      "bytes": 49925,
-      "sha256": "af946ec7e3b84c7f9155958397f959189bce48e8918d307cd427db9af13eefd9"
     },
     {
       "path": "references/legacy/pulse-source/src/pages/studios/AgentChatSimulator.tsx",
@@ -2541,9 +2501,24 @@
       "sha256": "35696deca8d35be511018a5f748e195d2e6aa274171bd1bc1c1d55e5851dac1e"
     },
     {
+      "path": "references/legacy/pulse-source/src/pages/SwarmChat.tsx",
+      "bytes": 13704,
+      "sha256": "83c75f9c0e788d57f641d4cb90c22309f5b273d8a350ba5c241023a1f1a77e21"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/pages/SystemBook.tsx",
+      "bytes": 49925,
+      "sha256": "af946ec7e3b84c7f9155958397f959189bce48e8918d307cd427db9af13eefd9"
+    },
+    {
       "path": "references/legacy/pulse-source/src/services/AuditService.ts",
       "bytes": 511,
       "sha256": "d9e1b709ea5bb5c5b7cfcee9c670f1d768d39259c333686cfe077cee5bc77345"
+    },
+    {
+      "path": "references/legacy/pulse-source/src/services/cloudflareService.ts",
+      "bytes": 1471,
+      "sha256": "86f59bbafb708fb81a902fe11a7750a74fb854081c86a471bf263b196e72c644"
     },
     {
       "path": "references/legacy/pulse-source/src/services/ConfigService.ts",
@@ -2554,11 +2529,6 @@
       "path": "references/legacy/pulse-source/src/services/TelegramBotService.ts",
       "bytes": 5396,
       "sha256": "eec20cda06d5df675442d5cc5f00ae352dd5b7b5e83c91dab211057a6e776bab"
-    },
-    {
-      "path": "references/legacy/pulse-source/src/services/cloudflareService.ts",
-      "bytes": 1471,
-      "sha256": "86f59bbafb708fb81a902fe11a7750a74fb854081c86a471bf263b196e72c644"
     },
     {
       "path": "references/legacy/pulse-source/src/styles/cloudflare-entry.css",
@@ -2601,6 +2571,11 @@
       "sha256": "65996936fbb042915f7b74a200fcdde7e410f32a669b1ab9597cfaa4b0faddb5"
     },
     {
+      "path": "references/legacy/pulse-source/src/WorkspaceApp.tsx",
+      "bytes": 4679,
+      "sha256": "b16204b26ce097bd277f3a967f00a47adc483883e5905ce541634f97a68cb695"
+    },
+    {
       "path": "references/legacy/pulse-source/worker/ai.ts",
       "bytes": 10703,
       "sha256": "fc94397d079e5fed4ce7cc7cdb87acbb386d1da8d68ddf5b12a11b8f7207d56a"
@@ -2641,9 +2616,29 @@
       "sha256": "510265cf76d37b45fa79548f1298595d2f3890e5d02deb99efdd17bd48345d22"
     },
     {
+      "path": "references/README.md",
+      "bytes": 1315,
+      "sha256": "653887794409a3759b0d5f3067857b9daf70f6e53eb6caed99b304e3d71e0ed3"
+    },
+    {
+      "path": "references/THREE-LICENSE.txt",
+      "bytes": 1081,
+      "sha256": "852e0e8699169bf9f6fdc6bda3e682d078dcbc738b5d33e74df594721bff271d"
+    },
+    {
       "path": "references/ui/globe.html",
       "bytes": 39857,
       "sha256": "8c941798ababb38f94283c69075cb3eb6fdf1d7ed0b9b9d2a80a2a9d4e163ae6"
+    },
+    {
+      "path": "references/WORLD-ATLAS-LICENSE.txt",
+      "bytes": 734,
+      "sha256": "8048290dfdb6e83fbed17e8985c8cfc4ce9da9b842642f3d3e497280790cfa31"
+    },
+    {
+      "path": "references/WORLD-ATLAS-README.md",
+      "bytes": 5403,
+      "sha256": "6fb00482638ef8f6618099e71e3422713c2dd60c7deedcd96d4b95f61d124b9b"
     },
     {
       "path": "references/world-geo-README.md",
@@ -3266,11 +3261,6 @@
       "sha256": "cbaab1d3c33aaa27a98aa22778b3abaebded95149cf076e885b3a0721c5c93e7"
     },
     {
-      "path": "site/assets/audio-GVYI4XJG.js",
-      "bytes": 6355,
-      "sha256": "2b0df799adce07bce2cc598e48f05a8472e272c4ae84978c0aca71fe5aadbef8"
-    },
-    {
       "path": "site/assets/audio-analysis-RTUCC34S.js",
       "bytes": 133,
       "sha256": "575c15502c42a99d0a6bc641585dac2629480c270fdf9f0aaa22812710b6a3a2"
@@ -3279,6 +3269,11 @@
       "path": "site/assets/audio-codecs-D4WLOL7F.js",
       "bytes": 192,
       "sha256": "fa447d04901bd28aede445c059ba44c60b61b9a8ce73960fde30eb709feee388"
+    },
+    {
+      "path": "site/assets/audio-GVYI4XJG.js",
+      "bytes": 6355,
+      "sha256": "2b0df799adce07bce2cc598e48f05a8472e272c4ae84978c0aca71fe5aadbef8"
     },
     {
       "path": "site/assets/chunk-2LM2EUFS.js",
@@ -3416,14 +3411,14 @@
       "sha256": "49f0e7c80a5441831b088b3dc3385c97af13a0c6082c728deb660e8208101ced"
     },
     {
-      "path": "site/assets/music-DZITKBGC.js",
-      "bytes": 61415,
-      "sha256": "e24bdb22badb7c470ee3ecafadc7d69dbd5ed41c92a003fab1e1bef9ab9f8e5c"
-    },
-    {
       "path": "site/assets/music-direction-RW3EY4XH.js",
       "bytes": 437,
       "sha256": "31c8e260ee55c7e174aa87dff453aa8da835799eebc7ae31d1910276abdf8389"
+    },
+    {
+      "path": "site/assets/music-DZITKBGC.js",
+      "bytes": 61415,
+      "sha256": "e24bdb22badb7c470ee3ecafadc7d69dbd5ed41c92a003fab1e1bef9ab9f8e5c"
     },
     {
       "path": "site/assets/music-intelligence-runtime-DZUZI2U5.js",
@@ -4471,6 +4466,11 @@
       "sha256": "12bbf3dce190061968dd42b8afbd5aad1eeb75a327961ae73e034163a2798aee"
     },
     {
+      "path": "START_HERE_RU.md",
+      "bytes": 2280,
+      "sha256": "0018cccfe04743a7b3d1847cad4b73ae6a2004a63e36fdca5429b324c14753ef"
+    },
+    {
       "path": "tests/ableton-lab.test.ts",
       "bytes": 6819,
       "sha256": "1b4fafca4dfdfdae61c4057e899a4870fd98b621dd6b1f82252218d72d44bab1"
@@ -5187,8 +5187,8 @@
     },
     {
       "path": "tests/studio-navigation.test.ts",
-      "bytes": 20316,
-      "sha256": "40a79efcaadc762439e4d25aa7de5c2528dcba8d5a09da5ea3b7980c69d6656a"
+      "bytes": 21540,
+      "sha256": "e357fefcc3f77990ef58bd0d5945a4f1664d993b670cc9c23b78c2b45139b358"
     },
     {
       "path": "tests/studio-orphan-project.test.ts",
@@ -5327,18 +5327,18 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 107173,
-      "sha256": "fe7df1a2b629dce64d03977304fed472ad5e8e082bd2ebc796fa2129d7349746"
+      "bytes": 115656,
+      "sha256": "1eeba2db68c6ea4788f06a76bbec7b6e0fbfbe352283875707e67e1b87c95228"
     },
     {
       "path": "ui/app.html",
-      "bytes": 24140,
-      "sha256": "9b49c862b32f58f5dc27f2c5d018cc31403b12ff23e0659dadcdd48ff7b56572"
+      "bytes": 24119,
+      "sha256": "20fb9b7e29f1e073562303f0e56c17b1044f60d3b00561c86ad14a0f758fe629"
     },
     {
       "path": "ui/app.ts",
-      "bytes": 175242,
-      "sha256": "7ae5392c2e7959e969040139baafd7cb70a9b8d29306470536ea04d581c4cbab"
+      "bytes": 183833,
+      "sha256": "32354ad074c7fe89ebddc712f1892b0189ccf3283eb8b4a04e8d7845813ff8de"
     },
     {
       "path": "ui/assignment.ts",
@@ -5597,8 +5597,8 @@
     },
     {
       "path": "ui/navigation.ts",
-      "bytes": 2622,
-      "sha256": "da829cc1402471bb4e9419435b73113a2ac932d010af1aa34d5ebc163317b85c"
+      "bytes": 3155,
+      "sha256": "ee5767f5188645097d80a8597e32d3771209fdbb0ef87fc49844835f4ab2af24"
     },
     {
       "path": "ui/permission-settings.ts",
@@ -5634,6 +5634,11 @@
       "path": "ui/pulse-lab.ts",
       "bytes": 5250,
       "sha256": "8855b740d2d3eee24443e63882f0078c1a2f4eb1d8d4922dd4477e016f749cc5"
+    },
+    {
+      "path": "ui/settings-center.ts",
+      "bytes": 9657,
+      "sha256": "7583e8af5e4ed399dcdd2179888e9176343f6cfe053ce5164ff8fc9397c2c5f5"
     },
     {
       "path": "ui/studio-chat.ts",
@@ -5776,16 +5781,6 @@
       "sha256": "ab569095815c12040a4876bcc7127599bbdda628f886ac3f1f74edc6d76b120b"
     },
     {
-      "path": "verification/GITHUB_PR_TEMPLATE.md",
-      "bytes": 1259,
-      "sha256": "f00a41645623620defe97958a896a584e373e785cfa419ca104a799962831ce5"
-    },
-    {
-      "path": "verification/README.md",
-      "bytes": 444,
-      "sha256": "295d0a1c53c317a80e0a6b8829a844c3c4cb88884cd7e10c16fc4d0a0269d121"
-    },
-    {
       "path": "verification/backup-restore-contract.json",
       "bytes": 1093,
       "sha256": "a71bf9135682ab2acace724b92b951d5e17b056c1f506ca6a711d9b1c1d28dcc"
@@ -5859,6 +5854,11 @@
       "path": "verification/current/VERIFICATION_RC63.json",
       "bytes": 1961,
       "sha256": "728d38f44e933e63fa55331ddd4ee5b98451fab09b0534a7c0afd766bb55118b"
+    },
+    {
+      "path": "verification/GITHUB_PR_TEMPLATE.md",
+      "bytes": 1259,
+      "sha256": "f00a41645623620defe97958a896a584e373e785cfa419ca104a799962831ce5"
     },
     {
       "path": "verification/github-pr-contract.json",
@@ -6169,6 +6169,11 @@
       "path": "verification/production-release-readonly-snapshot.json",
       "bytes": 1889,
       "sha256": "76b0d0c57883dc50534d70b12d975503e91aa8c8d0cca15b0db50000476d4a23"
+    },
+    {
+      "path": "verification/README.md",
+      "bytes": 444,
+      "sha256": "295d0a1c53c317a80e0a6b8829a844c3c4cb88884cd7e10c16fc4d0a0269d121"
     },
     {
       "path": "verification/sbom.spdx.json",
