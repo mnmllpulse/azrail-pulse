@@ -225,6 +225,11 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     }
 
 
+    if (url.pathname === "/health/live") {
+      if (request.method !== "GET") return json({ error: "Method not allowed." }, env, 405);
+      return json({ status: "ok", version: BUILD_VERSION }, env);
+    }
+
     if (url.pathname === "/health") {
       const auth = await authenticate(request, env);
       if (!auth.ok) return json({ error: auth.error }, env, auth.status ?? 401);
