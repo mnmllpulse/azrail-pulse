@@ -513,7 +513,7 @@ html[data-settings-text-scale="large"] #settings-page .settings-detail-content .
 
 @media(max-width:600px){.notice{top:12px;bottom:auto;left:12px;right:12px;width:auto;max-width:none;}}
 
- 
+
 /* Settings Center UX refinements */
 .settings-search-empty {margin:12px 0;padding:14px 16px;border:1px dashed var(--border);border-radius:12px;color:var(--muted);font-size:13px;line-height:1.5;}
 .settings-search-empty[hidden] {display:none;}
