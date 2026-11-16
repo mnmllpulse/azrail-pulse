@@ -32,7 +32,6 @@ import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
 import {permissionSettings} from './permission-settings';
 import {mountSettingsCenter,settingsTitle,type SettingsSection} from './settings-center';
-import {mountSettingsCenter,settingsTitle,type SettingsSection} from './settings-center';
 import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
 import {wantsZipOfReply,filesFromReply,zipOfReply} from './chat-zip';
 import {createChatCommands} from './chat-commands';
@@ -2225,7 +2224,7 @@ const commandPalette=mountCommandPalette(()=>[
  {id:'open-mission',label:'Ход задачи',keywords:['mission','azrail','control','goal'],run:()=>navigation.navigate({page:'mission'})},
  {id:'open-projects',label:'Open Projects',keywords:['projects','project'],run:()=>navigation.navigate({page:'projects'})},
  {id:'open-metatron',label:'Open Metatron Lab',keywords:['metatron','agents','mission graph','operations'],run:()=>navigation.navigate({page:'metatron'})},
- {id:'open-connections',label:'Open Connections',keywords:['connectors','integrations'],run:()=>navigation.navigate({page:'connections'})},
+ {id:'open-connections',label:'Open Connections',keywords:['connectors','integrations'],run:()=>navigation.navigate({page:'settings',section:'connections'})},
  ...(expertOn()?studios.filter(meta=>meta.id!=='audio'&&meta.id!=='als').map(meta=>({id:`studio-${meta.id}`,label:`Open ${meta.title}`,keywords:[meta.description,meta.id],run:()=>navigation.navigate({page:'studio',studio:meta.id})})):[]),
  {id:'run-mission',label:'Начать ход задачи',keywords:['run','mission','start'],disabled:()=>!prompt.value.trim(),run:()=>{if(composerPage!=='mission')navigation.navigate({page:'mission'});composer.dispatchEvent(new Event('submit',{cancelable:true}));}},
  {id:'stop-mission',label:'Stop mission',keywords:['cancel','abort'],disabled:()=>!mission,run:()=>$( 'cancel' ).click()},
