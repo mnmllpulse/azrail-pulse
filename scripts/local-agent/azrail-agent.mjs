@@ -109,6 +109,7 @@ async function main() {
   }
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
   console.log(`AZRAIL agent: папка ${await realpath(root)}. Остановка: Ctrl+C.`);
+  let hotUntil = 0;
   for (;;) {
     try {
       const res = await fetch(`${url}/api/agent/poll`, { headers });
@@ -126,12 +127,13 @@ async function main() {
         }
         console.log(`${job.kind} ${job.path || "."} → ${body.ok ? "ok" : body.error}`);
         await fetch(`${url}/api/agent/jobs/${job.id}/result`, { method: "POST", headers, body: JSON.stringify(body) });
+        hotUntil = Date.now() + 30_000;
         continue;
       }
     } catch (error) {
       console.error(`Нет связи: ${error instanceof Error ? error.message : error}`);
     }
-    await new Promise((done) => setTimeout(done, 3000));
+    await new Promise((done) => setTimeout(done, Date.now() < hotUntil ? 700 : 3000));
   }
 }
 

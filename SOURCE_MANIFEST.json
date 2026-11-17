@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-17T03:22:40.424Z",
+  "generated_at": "2026-11-17T03:44:01.010Z",
   "excludes_self": true,
-  "file_count": 1263,
+  "file_count": 1265,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -127,8 +127,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 8036,
-      "sha256": "a194e05dad947c45a5576d5b36c3044d160ad438b275ad271d51ea12d6d20de7"
+      "bytes": 9089,
+      "sha256": "15a7c5499294b836dcd5ef67ee3e670d576e98cb7a0d66f420b9efe9e09b0ed8"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -567,8 +567,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1362550,
-      "sha256": "32a1014f432fd210dcec41f876fb95ff1271a479c46a261a1440b1e6b7beee28"
+      "bytes": 1370732,
+      "sha256": "7a5cdaf945646575114ebc99e8e1b386c393382eb1a76f1c92bc792494e714f1"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3072,8 +3072,8 @@
     },
     {
       "path": "scripts/local-agent/azrail-agent.mjs",
-      "bytes": 6589,
-      "sha256": "a4ca4ed38d0db4b768d17f6b3316e70f84174388bf31f54c30ac0cda9d4f22a1"
+      "bytes": 6679,
+      "sha256": "fd54a898b32cef181fa43c36cc2ef256aca85c33524bd0bc9bb1e32400fbc66e"
     },
     {
       "path": "scripts/local-contrast.mjs",
@@ -3248,7 +3248,7 @@
     {
       "path": "site/app.html",
       "bytes": 24150,
-      "sha256": "874a84e73355f1dbcc648e0ec9b8e60874eb275cd53cb2b952770794963fb04b"
+      "sha256": "188e5a9e8d88ab54c3aaad6917bbc41a659a366b2c7d1b81f3a4fd2956594ecd"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3257,13 +3257,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 158464,
-      "sha256": "35001bd62ba1009803a0e9dce150a84645946081e44d0771f359dcbcc1b9d40c"
+      "bytes": 159841,
+      "sha256": "62976d31edcadcb7c3330d165cc0a149e62a0ae6377188ff5f913bdec492b2a2"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 450850,
-      "sha256": "46d032dfd1ac1d2a12809ce0efc530cc7168d89a2ebaa1c1e8c94276e1cbb86b"
+      "bytes": 457655,
+      "sha256": "65b8cf8b3ec603bfc99553c40964d49efd961603b8fa8a430e6eefcfdb1c3a05"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3538,7 +3538,7 @@
     {
       "path": "site/index.html",
       "bytes": 24150,
-      "sha256": "874a84e73355f1dbcc648e0ec9b8e60874eb275cd53cb2b952770794963fb04b"
+      "sha256": "188e5a9e8d88ab54c3aaad6917bbc41a659a366b2c7d1b81f3a4fd2956594ecd"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4486,6 +4486,11 @@
       "sha256": "d93718bcfad86321412477f1d7afb9e4d6de6a046881f86714e4d7177d8cae71"
     },
     {
+      "path": "tests/agent-browser.test.ts",
+      "bytes": 8054,
+      "sha256": "36e95ec61609a6efcc97e0eaf88c51045477efc12688ad0e7d27d525c5a18608"
+    },
+    {
       "path": "tests/als-music-parser.test.ts",
       "bytes": 1054,
       "sha256": "f1b3bf9243ad8a2892aa7a9a923dc010e5f428d28df43c9c40239457cd5b8b63"
@@ -5371,9 +5376,14 @@
       "sha256": "9e45865480bff562af83742c4d55483c8db1656e3eb02161d0521d31b2597de2"
     },
     {
+      "path": "ui/agent-browser.ts",
+      "bytes": 7464,
+      "sha256": "02c0dea7891efb999564a84f65ac8beea1ba005cb0663b253d3eddb751fca30f"
+    },
+    {
       "path": "ui/app.css",
-      "bytes": 119681,
-      "sha256": "a63c39eb00d76e3c8d28d6432582243e0a53cb4efeac2f2d0b7137db2c6a815c"
+      "bytes": 121183,
+      "sha256": "5c38fa6823e4f5034d358e0fc557c5d339a4a603ce1f92dbab229ff5226da299"
     },
     {
       "path": "ui/app.html",
@@ -5602,8 +5612,8 @@
     },
     {
       "path": "ui/local-agent.ts",
-      "bytes": 5786,
-      "sha256": "4338212d405faf36566c79e1ecbfd7042019de8fe2efffb5115ccf62356a38aa"
+      "bytes": 7284,
+      "sha256": "993beaa85fc88807106d17b9c099892b42121e114b8a338fbde531593fde3e51"
     },
     {
       "path": "ui/media.ts",
