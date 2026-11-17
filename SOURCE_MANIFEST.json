@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-17T19:44:45.493Z",
+  "generated_at": "2026-11-17T20:03:33.513Z",
   "excludes_self": true,
-  "file_count": 1267,
+  "file_count": 1270,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -114,6 +114,11 @@
       "path": "config/ai-model-registry.json",
       "bytes": 173354,
       "sha256": "4756a312d6e5f2c7663cc270cdfff6e52299920865d2e3d071e9a9a449d2ad67"
+    },
+    {
+      "path": "config/audit-exceptions.json",
+      "bytes": 601,
+      "sha256": "6ef7773f171950aa2bccb9b7b3dffe13801ad496c5dc6dddc0312104c518e562"
     },
     {
       "path": "config/environments.json",
@@ -762,8 +767,8 @@
     },
     {
       "path": "package.json",
-      "bytes": 10750,
-      "sha256": "65392aff64649adc8c5864468493b364b128b40f1fc250c497dd4a081a58b0ed"
+      "bytes": 10755,
+      "sha256": "d4d921e5fd5f271472fd4fbb2b52f2ae8aee42d0fc5e44b80ca2c33bab73b801"
     },
     {
       "path": "public/_headers",
@@ -3006,6 +3011,11 @@
       "sha256": "1877b5a14b75590fb8f5045fffe9d085cc051854c746361545053fae1ecf0965"
     },
     {
+      "path": "scripts/dependency-audit.mjs",
+      "bytes": 4574,
+      "sha256": "c3d2f708820e28afa0549a800b45122645a8aacd08332b4193dddd53d2e71578"
+    },
+    {
       "path": "scripts/dependency-cve-audit.mjs",
       "bytes": 3952,
       "sha256": "3e6ceae975f8ddbe14e07ab3a8a5eec9d0818308493d77112d0a96dffabce5d4"
@@ -4709,6 +4719,11 @@
       "path": "tests/daw-import.test.ts",
       "bytes": 2585,
       "sha256": "ee9ae5469649cd44b5ec91c0b09e5706a34ac9707303c9454b39305169bcf6a0"
+    },
+    {
+      "path": "tests/dependency-audit.test.ts",
+      "bytes": 3547,
+      "sha256": "dba5d461e0977caac9e1483a2050835b76ba59c74aac7084819d339d1dcd2f91"
     },
     {
       "path": "tests/dependency-cve-audit.test.ts",
