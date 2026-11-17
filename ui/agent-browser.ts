@@ -48,13 +48,15 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className 
   return node;
 }
 
-export function createAgentBrowser(deps: BrowserDeps): { element: HTMLElement; open: (dir?: string) => Promise<void> } {
+export function createAgentBrowser(deps: BrowserDeps): { element: HTMLElement; open: (dir?: string) => Promise<void>; setRoot: (root: string | null) => void } {
   const root = el('section', '', 'agent-browser');
   const bar = el('div', '', 'agent-browser-bar');
   const list = el('div', '', 'agent-browser-list');
   const preview = el('div', '', 'agent-browser-preview');
   preview.hidden = true;
-  root.append(el('h4', 'Обзор папки'), bar, list, preview);
+  const rootLine = el('p', '', 'agent-browser-root');
+  rootLine.hidden = true;
+  root.append(el('h4', 'Обзор папки'), rootLine, bar, list, preview);
   list.append(el('p', 'Нажми «Показать папку», чтобы прочитать содержимое через агента.', 'muted'));
 
   let dir = '';
@@ -164,5 +166,10 @@ export function createAgentBrowser(deps: BrowserDeps): { element: HTMLElement; o
   list.append(start);
   paintBar();
 
-  return { element: root, open: (target = '') => load(target) };
+  const setRoot = (value: string | null) => {
+    rootLine.hidden = !value;
+    rootLine.textContent = value ? `Папка агента: ${value}` : '';
+  };
+
+  return { element: root, open: (target = '') => load(target), setRoot };
 }

@@ -139,7 +139,34 @@ describe("команда запуска", () => {
   it("не содержит личных путей", async () => {
     const { agentCommand } = await import("../ui/local-agent");
     const text = agentCommand("https://example.workers.dev", "azagent_x");
-    expect(text).toContain("AZRAIL_AGENT_TOKEN=\"azagent_x\"");
+    expect(text).toContain("AZRAIL_AGENT_TOKEN='azagent_x'");
+    expect(text).toContain("AZRAIL_ROOT=(Get-Location).Path");
     expect(text).not.toMatch(/Tech No/);
+  });
+});
+
+describe("папка агента в статусе", () => {
+  it("санитизирует заголовок и ограничивает длину", async () => {
+    const { sanitizeAgentRoot } = await import("../src/lib/local-agent");
+    expect(sanitizeAgentRoot(encodeURIComponent("C:\\Users\\Tech No\\azrail-pulse"))).toBe("C:\\Users\\Tech No\\azrail-pulse");
+    expect(sanitizeAgentRoot(encodeURIComponent("D:\\Проект"))).toBe("D:\\Проект");
+    expect(sanitizeAgentRoot(null)).toBeNull();
+    expect(sanitizeAgentRoot("")).toBeNull();
+    expect(sanitizeAgentRoot("%E0%A4%A")).toBeNull();
+    expect(sanitizeAgentRoot("a%00b")).toBeNull();
+    expect(sanitizeAgentRoot("a".repeat(301))).toBeNull();
+  });
+  it("статус показывает папку только у включённого агента и сбрасывает её при новом ключе", async () => {
+    const store = memoryStore();
+    const { token } = await enableAgent(store);
+    expect((await agentStatus(store)).root).toBeNull();
+    expect(await authenticateAgent(store, `Bearer ${token}`, Date.now(), encodeURIComponent("C:\\work"))).toBe(true);
+    expect((await agentStatus(store)).root).toBe("C:\\work");
+    expect(await authenticateAgent(store, `Bearer ${token}`)).toBe(true);
+    expect((await agentStatus(store)).root).toBe("C:\\work");
+    await enableAgent(store);
+    expect((await agentStatus(store)).root).toBeNull();
+    await disableAgent(store);
+    expect((await agentStatus(store)).root).toBeNull();
   });
 });

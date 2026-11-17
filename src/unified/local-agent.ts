@@ -50,7 +50,7 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
 
   if (path === "poll" && method === "GET") {
     const store = await openStore(env);
-    if (!(await authenticateAgent(store, request.headers.get("Authorization")))) throw new AccessError("Ключ агента недействителен.", 401);
+    if (!(await authenticateAgent(store, request.headers.get("Authorization"), Date.now(), request.headers.get("X-Agent-Root")))) throw new AccessError("Ключ агента недействителен.", 401);
     const job = await pollJob(store);
     return Response.json({ job: job ? { id: job.id, kind: job.kind, path: job.path, content: job.content } : null });
   }
@@ -58,7 +58,7 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
   const result = path.match(/^jobs\/([a-f0-9-]{36})\/result$/);
   if (result && method === "POST") {
     const store = await openStore(env);
-    if (!(await authenticateAgent(store, request.headers.get("Authorization")))) throw new AccessError("Ключ агента недействителен.", 401);
+    if (!(await authenticateAgent(store, request.headers.get("Authorization"), Date.now(), request.headers.get("X-Agent-Root")))) throw new AccessError("Ключ агента недействителен.", 401);
     await finishJob(store, result[1], await readJsonRecord(request, 400_000));
     return Response.json({ ok: true });
   }

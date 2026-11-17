@@ -1,4 +1,5 @@
 import { createAgentBrowser } from './agent-browser';
+import { agentCommand, toRelativePath } from './agent-paths';
 import { COMPUTER_COMMANDS } from './terminal-panel';
 
 type Api = (path: string, init?: RequestInit) => Promise<any>;
@@ -22,14 +23,7 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className 
   return node;
 }
 
-export function agentCommand(origin: string, token: string): string {
-  return [
-    `$env:AZRAIL_URL="${origin}"`,
-    `$env:AZRAIL_AGENT_TOKEN="${token}"`,
-    '$env:AZRAIL_ROOT="C:\\путь\\к\\папке"',
-    'node scripts\\local-agent\\azrail-agent.mjs',
-  ].join('\n');
-}
+export { agentCommand } from './agent-paths';
 
 export function agentSettings(api: Api, notice: (text: string, bad?: boolean) => void, failure: (error: unknown) => void): HTMLElement {
   const root = el('section', '', 'settings-block');
@@ -47,6 +41,8 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
   const path = el('input');
   path.placeholder = 'Путь внутри папки: выбери в обзоре ниже или введи вручную';
   path.maxLength = 300;
+  path.setAttribute('aria-label', 'Путь относительно папки агента');
+  const pathHint = el('p', 'Путь считается от папки агента, например src/index.ts. Абсолютный путь внутри этой папки (C:\\...\\src) пересчитается сам.', 'muted');
   const command = el('select');
   for (const [value, label] of COMPUTER_COMMANDS) {
     const option = el('option', label);
@@ -58,6 +54,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
   content.placeholder = 'Текст файла (только для записи)';
   const syncForm = () => {
     path.hidden = kind.value === 'run';
+    pathHint.hidden = kind.value === 'run';
     command.hidden = kind.value !== 'run';
     content.hidden = kind.value !== 'write';
   };
@@ -77,9 +74,40 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
     },
   });
   let autoOpened = false;
+  let token: string | null = null;
+  let agentRoot: string | null = null;
+  let known: { enabled: boolean; connected: boolean } | null = null;
+
+  const setup = el('div', '', 'agent-setup');
+  const rootInput = el('input');
+  rootInput.placeholder = 'Папка на компьютере (пусто — текущая папка PowerShell)';
+  rootInput.maxLength = 260;
+  rootInput.setAttribute('aria-label', 'Папка, которой сможет управлять агент');
+  try { rootInput.value = localStorage.getItem('pulse.agentRoot') ?? ''; } catch { /* хранилище недоступно */ }
+  const commandBox = el('textarea');
+  commandBox.readOnly = true;
+  commandBox.rows = 5;
+  const copy = el('button', 'Скопировать команду');
+  copy.type = 'button';
+  const refreshCommand = () => { if (token) commandBox.value = agentCommand(location.origin, token, rootInput.value); };
+  rootInput.oninput = () => {
+    try { localStorage.setItem('pulse.agentRoot', rootInput.value); } catch { /* хранилище недоступно */ }
+    refreshCommand();
+  };
+  copy.onclick = () => {
+    void navigator.clipboard.writeText(commandBox.value).then(() => notice('Команда скопирована.')).catch(() => { commandBox.select(); notice('Выдели текст и скопируй вручную (Ctrl+C).', true); });
+  };
+  setup.append(
+    el('strong', 'Запуск на компьютере'),
+    el('p', '1. Открой PowerShell в папке репозитория azrail-pulse (там, где scripts\\local-agent). 2. Вставь команду и оставь окно открытым. Ключ показан один раз.', 'muted'),
+    el('label', 'Папка, которой сможет управлять агент'),
+    rootInput,
+    commandBox,
+    copy,
+  );
 
   const paint = async () => {
-    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; jobs: JobView[] };
+    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; root?: string | null; jobs: JobView[] };
     try {
       state = await api('/api/agent/status');
     } catch {
@@ -87,10 +115,16 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       return;
     }
     const nodes: HTMLElement[] = [];
-    if (!state.enabled) autoOpened = false;
-    const status = state.enabled
-      ? `Включён до ${new Date(state.expiresAt ?? 0).toLocaleTimeString()}. ${state.connected ? 'Агент на компьютере подключён.' : 'Агент на компьютере ещё не подключился.'}`
-      : 'Выключен.';
+    if (!state.enabled) { autoOpened = false; token = null; }
+    agentRoot = state.root ?? null;
+    browser.setRoot(agentRoot);
+    known = { enabled: state.enabled, connected: state.connected };
+    const until = new Date(state.expiresAt ?? 0).toLocaleTimeString();
+    const status = !state.enabled
+      ? 'Выключен.'
+      : state.connected
+        ? `Включён до ${until}. Агент подключён${agentRoot ? `, папка: ${agentRoot}` : ''}.`
+        : `Включён до ${until}. Агент на компьютере ещё не подключился.`;
     nodes.push(el('p', status));
     const toggle = el('button', state.enabled ? 'Выключить' : 'Включить на 1 час');
     toggle.type = 'button';
@@ -100,28 +134,30 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         return;
       }
       void api('/api/agent/enable', { method: 'POST', body: '{}' }).then(async (r: { token: string }) => {
+        token = r.token;
+        refreshCommand();
         await paint();
-        const box = el('textarea');
-        box.readOnly = true;
-        box.rows = 5;
-        box.value = agentCommand(location.origin, r.token);
-        body.prepend(el('p', 'Вставь это в PowerShell на компьютере. Ключ показан один раз.'), box);
       }).catch(failure);
     };
     nodes.push(toggle);
+    if (state.enabled && !state.connected) {
+      if (token) nodes.push(setup);
+      else nodes.push(el('p', 'Ключ показывается один раз и после обновления страницы недоступен. Нажми «Выключить», затем «Включить на 1 час», чтобы получить новую команду.', 'context-note'));
+    }
 
     if (state.enabled) {
       const send = el('button', 'Поставить задачу');
       send.type = 'button';
       send.onclick = () => {
-        const target = kind.value === 'run' ? command.value : path.value;
-        void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: kind.value, path: target, ...(kind.value === 'write' ? { content: content.value } : {}) }) })
+        const target = kind.value === 'run' ? { path: command.value } : toRelativePath(path.value, agentRoot);
+        if ('error' in target) { notice(target.error, true); return; }
+        void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: kind.value, path: target.path, ...(kind.value === 'write' ? { content: content.value } : {}) }) })
           .then(() => { notice('Задача поставлена.'); return paint(); }).catch(failure);
       };
       nodes.push(
         el('p', 'Корневая папка задаётся при запуске агента переменной AZRAIL_ROOT. Обзор показывает только её содержимое, выше неё подняться нельзя. Чтобы выбрать другую папку, перезапусти агента с другим AZRAIL_ROOT.', 'muted'),
         browser.element,
-        kind, path, command, content, send,
+        kind, path, pathHint, command, content, send,
       );
       if (state.connected && !autoOpened) { autoOpened = true; void browser.open(''); }
       for (const job of state.jobs.filter((item) => !ownJobs.has(item.id))) {
@@ -154,5 +190,12 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
     body.replaceChildren(...nodes);
   };
   void paint();
+  const timer = setInterval(() => {
+    if (!root.isConnected) { clearInterval(timer); return; }
+    if (!known?.enabled || document.hidden) return;
+    void api('/api/agent/status')
+      .then((next: { enabled: boolean; connected: boolean }) => (next.enabled !== known?.enabled || next.connected !== known?.connected ? paint() : undefined))
+      .catch(() => undefined);
+  }, 3000);
   return root;
 }

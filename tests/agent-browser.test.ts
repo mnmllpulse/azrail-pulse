@@ -143,3 +143,84 @@ describe('agent settings form',()=>{
     expect(t.doc.querySelector('.agent-browser')).toBeNull();
   });
 });
+
+describe('agent setup and path conversion',()=>{
+  type S={enabled:boolean;connected:boolean;root:string|null;expiresAt:number|null;jobs:unknown[]};
+  const mountLive=async(initial:Partial<S>)=>{
+    const {agentSettings}=await import('../ui/local-agent');
+    win=new Window({url:'https://azrail.example/settings/agent'});
+    vi.stubGlobal('document',win.document);
+    vi.stubGlobal('location',win.location);
+    vi.stubGlobal('localStorage',win.localStorage);
+    const state:S={enabled:false,connected:false,root:null,expiresAt:null,jobs:[],...initial};
+    const posted:any[]=[];
+    const notice=vi.fn();
+    const api=vi.fn(async(path:string,init?:RequestInit)=>{
+      if(path==='/api/agent/status')return {...state};
+      if(path==='/api/agent/enable'){state.enabled=true;state.expiresAt=Date.now()+3600_000;return {token:'azagent_'+'a'.repeat(64)};}
+      if(path==='/api/agent/jobs'&&init?.method==='POST'){const b=JSON.parse(String(init.body));posted.push(b);return {job:{id:`j${posted.length}`,kind:b.kind,path:b.path,status:'queued',result:null,error:null}};}
+      const id=path.split('/').pop()!;
+      return {job:{id,kind:'list',path:'',status:'done',result:'src/\na.ts',error:null}};
+    });
+    const host=agentSettings(api,notice,vi.fn());
+    win.document.body.append(host as unknown as Node);
+    const tick=async(n=10)=>{for(let i=0;i<n;i++)await new Promise(r=>setTimeout(r,0));};
+    await tick();
+    const doc=win.document;
+    const button=(text:string)=>Array.from(doc.querySelectorAll<HTMLButtonElement>('button')).find(b=>b.textContent===text)!;
+    return {state,posted,notice,api,doc,tick,button};
+  };
+  it('after enabling shows the key once with a command that follows the typed folder',async()=>{
+    const t=await mountLive({});
+    t.button('Включить на 1 час').click();
+    await t.tick();
+    const setup=t.doc.querySelector('.agent-setup')!;
+    expect(setup).not.toBeNull();
+    const box=setup.querySelector('textarea')!;
+    expect(box.value).toContain('azagent_'+'a'.repeat(64));
+    expect(box.value).toContain('(Get-Location).Path');
+    const input=setup.querySelector<HTMLInputElement>('input')!;
+    input.value='C:\\Users\\Tech No\\azrail-pulse';
+    input.dispatchEvent(new win!.Event('input'));
+    expect(box.value).toContain("AZRAIL_ROOT='C:\\Users\\Tech No\\azrail-pulse'");
+    expect(win!.localStorage.getItem('pulse.agentRoot')).toBe('C:\\Users\\Tech No\\azrail-pulse');
+  });
+  it('without a fresh key explains that the key is shown once',async()=>{
+    const t=await mountLive({enabled:true,expiresAt:Date.now()+3600_000});
+    expect(t.doc.querySelector('.agent-setup')).toBeNull();
+    expect(t.doc.body.textContent).toContain('Ключ показывается один раз');
+  });
+  it('shows the agent folder once connected and hides the setup panel',async()=>{
+    const t=await mountLive({enabled:true,connected:true,root:'C:\\Users\\Tech No\\azrail-pulse',expiresAt:Date.now()+3600_000});
+    expect(t.doc.querySelector('.agent-setup')).toBeNull();
+    expect(t.doc.body.textContent).toContain('Агент подключён, папка: C:\\Users\\Tech No\\azrail-pulse');
+    expect(t.doc.querySelector('.agent-browser-root')?.textContent).toBe('Папка агента: C:\\Users\\Tech No\\azrail-pulse');
+  });
+  it('converts an absolute path inside the folder and blocks one outside it',async()=>{
+    const t=await mountLive({enabled:true,connected:true,root:'C:\\Users\\Tech No\\azrail-pulse',expiresAt:Date.now()+3600_000});
+    const [kind]=Array.from(t.doc.querySelectorAll<HTMLSelectElement>('.settings-block select'));
+    kind.value='read';kind.dispatchEvent(new win!.Event('change'));
+    const pathInput=t.doc.querySelector<HTMLInputElement>('input[aria-label="Путь относительно папки агента"]')!;
+    pathInput.value='C:\\Users\\Tech No\\azrail-pulse\\src\\a.ts';
+    t.button('Поставить задачу').click();
+    await t.tick();
+    expect(t.posted.at(-1)).toEqual({kind:'read',path:'src/a.ts'});
+    const before=t.posted.length;
+    pathInput.value='C:\\Windows\\System32';
+    t.button('Поставить задачу').click();
+    await t.tick();
+    expect(t.posted).toHaveLength(before);
+    expect(t.notice).toHaveBeenLastCalledWith(expect.stringContaining('вне папки агента'),true);
+  });
+  it('repaints by itself when the agent connects',async()=>{
+    vi.useFakeTimers({toFake:['setInterval','clearInterval']});
+    try{
+      const t=await mountLive({enabled:true,expiresAt:Date.now()+3600_000});
+      expect(t.doc.body.textContent).toContain('ещё не подключился');
+      t.state.connected=true;t.state.root='C:\\proj';
+      await vi.advanceTimersByTimeAsync(3100);
+      await t.tick();
+      expect(t.doc.body.textContent).toContain('Агент подключён, папка: C:\\proj');
+    }finally{vi.useRealTimers();}
+  });
+});
