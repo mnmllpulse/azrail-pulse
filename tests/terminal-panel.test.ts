@@ -21,10 +21,10 @@ describe("терминал", () => {
   });
   it("отказ не запускает команду и не ждёт вывода", async () => {
     const calls: string[] = [];
-    const api = async (path: string) => { calls.push(path); return path === "/api/agent/jobs" ? { job: job("awaiting_approval") } : {}; };
+    const api = async (path: string) => { calls.push(path); if (path === "/api/agent/status") return { enabled: true, connected: true }; return path === "/api/agent/jobs" ? { job: job("awaiting_approval") } : {}; };
     const out = await computerRun(api, "npm_test", async () => false, async () => {});
     expect(out).toContain("Отклонено");
-    expect(calls).toEqual(["/api/agent/jobs", "/api/agent/jobs/1/reject"]);
+    expect(calls).toEqual(["/api/agent/status", "/api/agent/jobs", "/api/agent/jobs/1/reject"]);
   });
   it("разрешение: одобрение, ожидание, вывод", async () => {
     const calls: string[] = [];
@@ -32,12 +32,25 @@ describe("терминал", () => {
     let i = 0;
     const api = async (path: string) => {
       calls.push(path);
+      if (path === "/api/agent/status") return { enabled: true, connected: true };
       if (path === "/api/agent/jobs") return { job: job("awaiting_approval") };
       if (path.endsWith("/approve")) return {};
       return { job: job(states[Math.min(i++, 1)], { result: "все тесты прошли" }) };
     };
     expect(await computerRun(api, "npm_test", async () => true, async () => {})).toBe("все тесты прошли");
     expect(calls).toContain("/api/agent/jobs/1/approve");
+  });
+  it("агент выключен или не подключён: команда не ставится в очередь", async () => {
+    for (const [state, text] of [[{ enabled: false }, "выключен"], [{ enabled: true, connected: false }, "не запущен"]] as const) {
+      const calls: string[] = [];
+      const api = async (path: string) => { calls.push(path); return state; };
+      expect(await computerRun(api, "npm_test", async () => true, async () => {})).toContain(text);
+      expect(calls).toEqual(["/api/agent/status"]);
+    }
+  });
+  it("неизвестное состояние connected не блокирует запуск", async () => {
+    const api = async (path: string) => path === "/api/agent/status" ? { enabled: true } : path === "/api/agent/jobs" ? { job: job("done", { result: "ok" }) } : { job: job("done", { result: "ok" }) };
+    expect(await computerRun(api, "npm_test", async () => true, async () => {})).toBe("ok");
   });
   it("песочница: вывод или заметка", async () => {
     expect(await sandboxRun(async () => ({ output: "ok" }), "p")).toBe("ok");
