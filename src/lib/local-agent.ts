@@ -19,6 +19,8 @@ export interface AgentState {
   tokenHash: string;
   expiresAt: number;
   lastSeen: number | null;
+  /** Папка агента, как её сообщил сам агент (только для показа в интерфейсе). */
+  root?: string | null;
 }
 
 export interface AgentStore {
@@ -79,7 +81,7 @@ export function newAgentToken(): string {
 export async function enableAgent(store: AgentStore, now = Date.now()): Promise<{ token: string; expiresAt: number }> {
   const token = newAgentToken();
   const expiresAt = now + AGENT_SESSION_MS;
-  await store.setState({ tokenHash: await sha256Hex(token), expiresAt, lastSeen: null });
+  await store.setState({ tokenHash: await sha256Hex(token), expiresAt, lastSeen: null, root: null });
   return { token, expiresAt };
 }
 
@@ -96,6 +98,7 @@ export async function agentStatus(store: AgentStore, now = Date.now()) {
     expiresAt: enabled ? state!.expiresAt : null,
     connected: enabled && !!state!.lastSeen && now - state!.lastSeen < 15_000,
     lastSeen: state?.lastSeen ?? null,
+    root: enabled ? state!.root ?? null : null,
     jobs: jobs.map(publicJob),
   };
 }
@@ -159,13 +162,23 @@ export async function decideJob(store: AgentStore, id: string, approve: boolean,
 }
 
 /** Токен агента: сравнение по хэшу, срок сессии и отметка присутствия. */
-export async function authenticateAgent(store: AgentStore, header: string | null, now = Date.now()): Promise<boolean> {
+/** Заголовок X-Agent-Root приходит в percent-encoding; управляющие символы и длина отсекаются. */
+export function sanitizeAgentRoot(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  let value: string;
+  try { value = decodeURIComponent(raw); } catch { return null; }
+  value = value.trim();
+  if (!value || value.length > 300 || /[\0-\x1f]/.test(value)) return null;
+  return value;
+}
+
+export async function authenticateAgent(store: AgentStore, header: string | null, now = Date.now(), root?: string | null): Promise<boolean> {
   const token = header?.match(/^Bearer (azagent_[a-f0-9]{64})$/)?.[1];
   if (!token) return false;
   const state = await store.getState();
   if (!state || state.expiresAt <= now) return false;
   if ((await sha256Hex(token)) !== state.tokenHash) return false;
-  await store.setState({ ...state, lastSeen: now });
+  await store.setState({ ...state, lastSeen: now, root: sanitizeAgentRoot(root) ?? state.root ?? null });
   return true;
 }
 

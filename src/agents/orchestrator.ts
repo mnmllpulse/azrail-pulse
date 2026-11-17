@@ -212,26 +212,32 @@ export class Orchestrator extends Agent<Env, OrchestratorState> {
    * видно: поднимается ли каждый агент, проходит ли запись в D1 по цепочке
    * внешних ключей, отвечают ли KV и R2.
    */
+  private agentSchemaReady = false;
+
   /**
    * Очередь локального агента: хранится в SQLite этого объекта (экземпляр
    * "local-agent"), без миграций D1. Задачи недолговечны по замыслу.
    */
   async agentStore(op: string, arg?: unknown): Promise<unknown> {
-    this.sql`CREATE TABLE IF NOT EXISTS agent_state (id INTEGER PRIMARY KEY CHECK (id=1), token_hash TEXT NOT NULL, expires_at INTEGER NOT NULL, last_seen INTEGER)`;
-    this.sql`CREATE TABLE IF NOT EXISTS agent_jobs (id TEXT PRIMARY KEY, kind TEXT NOT NULL, path TEXT NOT NULL, content TEXT, status TEXT NOT NULL, result TEXT, error TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)`;
+    if (!this.agentSchemaReady) {
+      this.sql`CREATE TABLE IF NOT EXISTS agent_state (id INTEGER PRIMARY KEY CHECK (id=1), token_hash TEXT NOT NULL, expires_at INTEGER NOT NULL, last_seen INTEGER, root TEXT)`;
+      try { this.sql`ALTER TABLE agent_state ADD COLUMN root TEXT`; } catch { /* колонка уже есть */ }
+      this.sql`CREATE TABLE IF NOT EXISTS agent_jobs (id TEXT PRIMARY KEY, kind TEXT NOT NULL, path TEXT NOT NULL, content TEXT, status TEXT NOT NULL, result TEXT, error TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)`;
+      this.agentSchemaReady = true;
+    }
     type Row = { id: string; kind: string; path: string; content: string | null; status: string; result: string | null; error: string | null; created_at: number; updated_at: number };
     const job = (r: Row) => ({ id: r.id, kind: r.kind, path: r.path, content: r.content, status: r.status, result: r.result, error: r.error, createdAt: r.created_at, updatedAt: r.updated_at });
     if (op === "getState") {
-      const r = this.sql<{ token_hash: string; expires_at: number; last_seen: number | null }>`SELECT token_hash, expires_at, last_seen FROM agent_state WHERE id=1`[0];
-      return r ? { tokenHash: r.token_hash, expiresAt: r.expires_at, lastSeen: r.last_seen } : null;
+      const r = this.sql<{ token_hash: string; expires_at: number; last_seen: number | null; root: string | null }>`SELECT token_hash, expires_at, last_seen, root FROM agent_state WHERE id=1`[0];
+      return r ? { tokenHash: r.token_hash, expiresAt: r.expires_at, lastSeen: r.last_seen, root: r.root } : null;
     }
     if (op === "setState") {
-      const s = arg as { tokenHash: string; expiresAt: number; lastSeen: number | null } | null;
+      const s = arg as { tokenHash: string; expiresAt: number; lastSeen: number | null; root?: string | null } | null;
       if (!s) {
         this.sql`DELETE FROM agent_state`;
         this.sql`DELETE FROM agent_jobs`;
       } else {
-        this.sql`INSERT INTO agent_state (id, token_hash, expires_at, last_seen) VALUES (1, ${s.tokenHash}, ${s.expiresAt}, ${s.lastSeen}) ON CONFLICT(id) DO UPDATE SET token_hash=excluded.token_hash, expires_at=excluded.expires_at, last_seen=excluded.last_seen`;
+        this.sql`INSERT INTO agent_state (id, token_hash, expires_at, last_seen, root) VALUES (1, ${s.tokenHash}, ${s.expiresAt}, ${s.lastSeen}, ${s.root ?? null}) ON CONFLICT(id) DO UPDATE SET token_hash=excluded.token_hash, expires_at=excluded.expires_at, last_seen=excluded.last_seen, root=excluded.root`;
       }
       return null;
     }

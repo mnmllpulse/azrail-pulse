@@ -107,8 +107,9 @@ async function main() {
     console.error("Нужны AZRAIL_URL и AZRAIL_AGENT_TOKEN.");
     process.exit(2);
   }
-  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json" };
-  console.log(`AZRAIL agent: папка ${await realpath(root)}. Остановка: Ctrl+C.`);
+  const rootReal = await realpath(root);
+  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "X-Agent-Root": encodeURIComponent(rootReal) };
+  console.log(`AZRAIL agent: папка ${rootReal}. Остановка: Ctrl+C.`);
   let hotUntil = 0;
   for (;;) {
     try {

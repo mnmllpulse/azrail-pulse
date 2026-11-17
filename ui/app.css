@@ -365,6 +365,12 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .studio-tools-menu{position:relative}.studio-tools-menu>summary{display:flex;align-items:center;min-height:34px;padding:6px 10px;border:1px solid var(--line);border-radius:8px;cursor:pointer;font-size:9px;list-style:none;background:#111018}.studio-tools-menu>summary::-webkit-details-marker{display:none}.studio-tools-menu-panel{position:absolute;right:0;top:calc(100% + 6px);z-index:20;display:grid;gap:5px;min-width:180px;padding:7px;border:1px solid var(--line);border-radius:8px;background:#0b0a10;box-shadow:0 16px 40px #0008}.studio-tools-menu-panel button{width:100%;justify-content:flex-start;text-align:left}.compare-center-controls{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end;margin:12px 0}.compare-center-controls label{display:grid;gap:5px}.compare-center-controls select{min-width:0;width:100%}@media(max-width:700px){.studio-tools-menu-panel{left:0;right:auto}.compare-center-controls{grid-template-columns:1fr}}
 
 /* Phone: keep every studio, chat and panel inside the screen. Wide pieces scroll inside their own box. */
+/* Phone/tablet: no nested scrolling lists. Cards and the back row replace the category list. */
+@media (max-width:900px) {
+ .settings-shell.has-section .settings-sidebar {display:none;}
+ .settings-nav {display:none;}
+ .settings-sidebar-foot {margin-top:0;padding-top:0;border-top:0;}
+}
 @media(max-width:760px){
   .app-shell .workspace-main > .view,
   .app-shell .work,
@@ -428,7 +434,7 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .music-bench summary{cursor:pointer;min-height:44px;display:flex;align-items:center}
 
 /* Settings Center — routed workspace, not a modal settings sheet. */
-#settings-page.settings-view {max-width:none;min-height:100%;margin:0;padding:0;overflow:visible;}
+#settings-page.settings-view {max-width:none;height:100%;margin:0;padding:0;overflow-x:hidden;overflow-y:auto;overscroll-behavior:contain;scroll-behavior:smooth;}
 .settings-shell {display:grid;grid-template-columns:252px minmax(0,1fr);gap:30px;max-width:1440px;margin:0 auto;padding:24px 28px 48px;align-items:start;}
 .settings-sidebar {position:sticky;top:18px;align-self:start;min-width:0;padding:18px 14px;border:1px solid var(--border);border-radius:16px;background:color-mix(in srgb,var(--surface) 94%,transparent);}
 .settings-sidebar-head {display:grid;gap:5px;padding:4px 8px 16px;}
@@ -579,3 +585,18 @@ html[data-settings-contrast="high"] button {border-color:#8089a6;}
 .agent-browser-preview-head {display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .agent-browser-preview-head strong {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;}
 .agent-browser-preview-head button {min-height:30px;padding:2px 10px;font-size:12px;}
+
+/* Settings navigation: back row and clickable breadcrumbs */
+.settings-page-heading {display:grid;gap:8px;}
+.settings-up {justify-self:start;min-height:34px;padding:4px 12px;font-size:12px;}
+.settings-breadcrumb {display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0;font-size:11px;color:var(--muted);}
+.settings-crumb {min-height:26px;padding:0 6px;border:1px solid transparent;border-radius:8px;background:transparent;color:var(--muted);font-size:11px;cursor:pointer;}
+.settings-crumb:hover:not(.is-current) {color:var(--text);border-color:var(--border);}
+.settings-crumb.is-current {color:var(--text);}
+.settings-crumb-sep {opacity:.5;}
+.agent-setup {display:grid;gap:8px;padding:14px 16px;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
+.agent-setup strong {font-size:13px;}
+.agent-setup p {margin:0;}
+.agent-browser-root {margin:0;font-size:12px;color:var(--muted);overflow-wrap:anywhere;}
+
+.settings-page-heading h1:focus,.settings-page-heading h1:focus-visible {outline:none;box-shadow:none;}

@@ -15,7 +15,7 @@ export type SettingsSection =
   | 'about';
 
 type Destination = { section: SettingsSection; provider?: string };
-type Navigate = (destination: Destination | { page: 'create' }) => void;
+type Navigate = (destination: Destination | { page: 'create' } | { page: 'settings' }) => void;
 type Item = {
   section: SettingsSection;
   title: string;
@@ -55,6 +55,8 @@ export function settingsTitle(section?: string, provider?: string): string {
   return bySection.get((section || '') as SettingsSection)?.title ?? 'Настройки';
 }
 
+let detachKeys: (() => void) | undefined;
+
 export function mountSettingsCenter(
   host: HTMLElement,
   section: string | undefined,
@@ -64,6 +66,7 @@ export function mountSettingsCenter(
   host.replaceChildren();
   const active = (bySection.has(section as SettingsSection) ? section : '') as SettingsSection | '';
   const shell = node('div', '', 'settings-shell');
+  shell.classList.toggle('has-section', !!active);
   const sidebar = node('aside', '', 'settings-sidebar');
   const sidebarHead = node('div', '', 'settings-sidebar-head');
   sidebarHead.append(
@@ -110,12 +113,26 @@ export function mountSettingsCenter(
 
   const main = node('div', '', 'settings-main');
   const heading = node('div', '', 'settings-page-heading');
-  const breadcrumbText = provider
-    ? `Настройки / Провайдеры / ${settingsTitle(section, provider)}`
-    : active
-      ? `Настройки / ${settingsTitle(active)}`
-      : 'Настройки';
-  heading.append(node('p', breadcrumbText, 'settings-breadcrumb'));
+  const up = node('button', provider ? '← Провайдеры' : active ? '← Все настройки' : '← Вернуться в чат', 'settings-back settings-up');
+  up.type = 'button';
+  up.onclick = () => navigate(provider ? { section: 'providers' } : active ? { page: 'settings' } : { page: 'create' });
+  const crumbs = node('nav', '', 'settings-breadcrumb');
+  crumbs.setAttribute('aria-label', 'Путь в настройках');
+  const crumb = (text: string, go?: () => void) => {
+    if (!go) return node('span', text, 'settings-crumb is-current');
+    const button = node('button', text, 'settings-crumb');
+    button.type = 'button';
+    button.onclick = go;
+    return button;
+  };
+  const sep = () => node('span', '/', 'settings-crumb-sep');
+  if (!active) crumbs.append(crumb('Настройки'));
+  else {
+    crumbs.append(crumb('Настройки', () => navigate({ page: 'settings' })), sep());
+    if (provider) crumbs.append(crumb('Провайдеры', () => navigate({ section: 'providers' })), sep(), crumb(settingsTitle(section, provider)));
+    else crumbs.append(crumb(settingsTitle(active)));
+  }
+  heading.append(up, crumbs);
   const title = node('h1', active ? settingsTitle(active, provider) : 'Настройки');
   title.tabIndex = -1;
   const description = active
@@ -224,5 +241,19 @@ export function mountSettingsCenter(
 
   shell.append(sidebar, main);
   host.append(shell);
+
+  detachKeys?.();
+  const onKey = (event: KeyboardEvent) => {
+    if (!host.isConnected || host.closest('[hidden]')) return;
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      search.focus();
+      search.select();
+    }
+  };
+  document.addEventListener('keydown', onKey);
+  detachKeys = () => document.removeEventListener('keydown', onKey);
+  const view = host.closest<HTMLElement>('#settings-page');
+  if (view) view.scrollTop = 0;
   return content;
 }
