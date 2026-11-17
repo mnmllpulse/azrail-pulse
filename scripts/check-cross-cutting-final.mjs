@@ -2,7 +2,7 @@ import {readFileSync} from 'node:fs';
 const read=(file)=>readFileSync(file,'utf8');
 let failed=false;const pass=[];const fail=(name)=>{console.error(`CROSS-CUTTING FAIL: ${name}`);failed=true;};const ok=(name,cond)=>cond?pass.push(name):fail(name);
 const manifest=read('ui/studio-manifest.ts');
-const app=read('ui/app.ts');
+const app=read('ui/app.ts')+read('ui/app-dialogs.ts');
 const toolbar=read('ui/components/studio-toolbar.ts');
 const compare=read('ui/components/universal-compare.ts');
 const compareCore=read('src/lib/compare-mode.ts');

@@ -243,7 +243,7 @@ for (const marker of ['remote-debugging-port=0','Accessibility.getFullAXTree','A
 const crossCutting = readFileSync('scripts/check-cross-cutting-final.mjs','utf8');
 const universalCompare = readFileSync('ui/components/universal-compare.ts','utf8');
 for (const marker of ['openUniversalCompareCenter','A и B должны быть разными','Web Studio → Changes/Versions']) if (!universalCompare.includes(marker)) fail(`Universal Compare invariant missing: ${marker}`);
-for (const marker of ['Fix critical','Fix all safe issues','Review manually','safeAutoFix===true']) if (!readFileSync('ui/app.ts','utf8').includes(marker)) fail(`Professional Review invariant missing: ${marker}`);
+for (const marker of ['Fix critical','Fix all safe issues','Review manually','safeAutoFix===true']) if (!(readFileSync('ui/app.ts','utf8')+readFileSync('ui/app-dialogs.ts','utf8')).includes(marker)) fail(`Professional Review invariant missing: ${marker}`);
 if (!crossCutting.includes('CROSS-CUTTING FINAL PASS')) fail('Final cross-cutting gate body is missing');
 
 const qualityGate = readFileSync('scripts/quality-gate.mjs','utf8');
