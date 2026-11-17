@@ -21,7 +21,8 @@ import {mountVoiceInput} from './components/voice-input';
 import {mountCommandPalette} from './components/command-palette';
 import {mountMetatronLab} from './metatron-lab';
 import {openUniversalCompareCenter} from './components/universal-compare';
-import {applyPicker,modelBadge,PICKER_FILTERS,type PickerFilter} from './model-picker';
+import {createComposerModels} from './composer-models';
+import {createChatMenu} from './chat-menu';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
@@ -64,6 +65,8 @@ type Account={id:string;name:string;operator?:boolean;role?:'viewer'|'editor'|'a
 let account:Account|null=null,project='',mission='',pollTimer=0,epoch=0,studioEpoch=0,mediaCleanup=()=>{},lastBlob:Blob|null=null;
 let draftCleanup=()=>{},studioChromeCleanup=()=>{},pollFailures=0,missionSubmitting=false,studioRun=0;
 let preferredModel='';
+const composerModels=createComposerModels({$,preferred:()=>preferredModel,setPreferred:setPreferredModel,dialog,notice,loadCatalog:()=>api('/api/model-catalog'),identity:()=>account?.id??null,local:()=>local});
+const {pickable:pickerModels,label:modelLabel,sync:syncModelsButton,fill:fillComposerModels,open:openModelPicker,refresh:refreshComposerModels}=composerModels;
 type ChatVoice='lumen'|'shade'|'aria';
 const VOICES:Record<ChatVoice,{name:string;line:string}>={
  lumen:{name:'Люмен',line:'Мужской · добрый, ясный, живой'},
@@ -105,12 +108,14 @@ function applyExpert(on:boolean){
  if(count)count.textContent=on?'8':'6';
 }
 applyExpert(false);
-function setPreferredModel(model:string){preferredModel=model;try{if(model)sessionStorage.setItem('pulse.preferredModel',model);else sessionStorage.removeItem('pulse.preferredModel');}catch{}const select=$<HTMLSelectElement>('composer-model');if(model&&!Array.from(select.options).some(o=>o.value===model)){const option=document.createElement('option');option.value=model;option.textContent=modelDisplayName(model);option.title=model;select.append(option);}select.value=model;if(typeof syncModelsButton==='function')syncModelsButton();syncContextPanel();}
+function setPreferredModel(model:string){preferredModel=model;try{if(model)sessionStorage.setItem('pulse.preferredModel',model);else sessionStorage.removeItem('pulse.preferredModel');}catch{}const select=$<HTMLSelectElement>('composer-model');if(model&&!Array.from(select.options).some(o=>o.value===model)){const option=document.createElement('option');option.value=model;option.textContent=modelDisplayName(model);option.title=model;select.append(option);}select.value=model;syncModelsButton();syncContextPanel();}
 function setChatVoice(voice:ChatVoice){chatVoice=voice;session(()=>sessionStorage.setItem('pulse.voice',voice));syncChatUI();notice(`Голос: ${VOICES[voice].name}. Серый говорит ниже, Люмен выше, Ария мягче.`);}
 
 let chatStorage:Storage|undefined;
 try{chatStorage={getItem:key=>deviceValue(key),setItem:(key,value)=>{deviceWrite(key,value);},removeItem:key=>deviceWrite(key,null),key:()=>null,length:0,clear(){}} as Storage;}catch{}
 const chatHistory=createChatHistory(chatStorage,()=>notice('История доступна в памяти, но хранилище устройства заполнено или недоступно.',true));
+const chatMenu=createChatMenu({chatHistory,api,signedIn:()=>!!account&&!local,notice,syncChatUI,openChat,newChat,getProject:()=>project,setProject:id=>{project=id;remember();}});
+const closeChatMenus=()=>chatMenu.close(),placeFloatingMenu=chatMenu.place,openChatMenu=chatMenu.open;
 const studioRooms=createStudioRooms(chatStorage);
 chatHistory.setScope(local?'local':'guest');
 let openContextPanel=()=>{};
@@ -137,100 +142,6 @@ async function previewAttachedSite(files:File[]){
 }
 let contextGeneration=0;
 let currentRoute:Route={page:'create'};
-async function persistChatMeta(id:string,patch:{title?:string;pinned?:boolean;archived?:boolean;projectId?:string|null}){
- if(!account||local)return;
- try{await api('/api/conversations',{method:'PATCH',body:JSON.stringify({id,...patch})});}catch{/* Local rename/pin still kept. */}
-}
-function renameChat(id:string){
- const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
- const next=window.prompt('Название чата',thread.title);
- if(next===null)return;
- const title=next.replace(/\s+/g,' ').trim().slice(0,90);if(!title){notice('Название не может быть пустым.',true);return;}
- chatHistory.rename(id,title);syncChatUI(false);void persistChatMeta(id,{title});
-}
-function togglePinChat(id:string){
- const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
- const pinned=!thread.pinned;chatHistory.setPinned(id,pinned);syncChatUI(false);void persistChatMeta(id,{pinned});
-}
-function toggleArchiveChat(id:string){
- const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
- const archived=!thread.archived;chatHistory.setArchived(id,archived);syncChatUI(false);void persistChatMeta(id,{archived});
- notice(archived?'Чат в архиве.':'Чат возвращён из архива.');
-}
-async function deleteChat(id:string){
- const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
- if(!window.confirm(`Удалить чат «${thread.title}»?`))return;
- chatHistory.remove(id);
- if(account&&!local){try{await api(`/api/chat?conversationId=${encodeURIComponent(id)}`,{method:'DELETE'});}catch{/* Local removal still applies. */}}
- if(chatHistory.current())openChat(chatHistory.current()!.id);else newChat();
- notice('Чат удалён.');
-}
-async function shareChat(id:string){
- const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
- const lines=thread.turns.flatMap(t=>[`Вы: ${t.user}`,t.reply?`AZRAIL: ${t.reply}`:null]).filter(Boolean) as string[];
- const text=`${thread.title}\n\n${lines.join('\n\n')}\n\n${location.origin}/?chat=${encodeURIComponent(id)}`;
- const ok=await shareText(text,thread.title);
- notice(ok?'Чат готов к отправке / скопирован.':'Не удалось поделиться чатом.',!ok);
-}
-function addChatToProject(id:string){
- const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
- const next=window.prompt('ID проекта (оставьте пустым, чтобы отвязать)',thread.projectId||project||'');
- if(next===null)return;
- const projectId=next.trim()||null;
- chatHistory.setProject(id,projectId??'');
- if(thread.id===chatHistory.current()?.id){project=projectId??'';remember();}
- syncChatUI(false);void persistChatMeta(id,{projectId});
- notice(projectId?'Чат добавлен в проект.':'Чат отвязан от проекта.');
-}
-let deferredInstallPrompt:any=null;
-window.addEventListener('beforeinstallprompt',(e)=>{e.preventDefault();deferredInstallPrompt=e;});
-async function addChatToHomeScreen(){
- if(deferredInstallPrompt){
-  deferredInstallPrompt.prompt();
-  try{await deferredInstallPrompt.userChoice;}catch{/* cancelled */}
-  deferredInstallPrompt=null;
-  notice('Ярлык AZRAIL можно добавить на главный экран.');
-  return;
- }
- const isIos=/iphone|ipad|ipod/i.test(navigator.userAgent);
- notice(isIos
-  ?'На iPhone: «Поделиться» → «На экран Домой».'
-  :'В меню браузера выберите «Установить приложение» / «Добавить на главный экран».',true);
-}
-function closeChatMenus(){document.querySelectorAll('.chat-menu').forEach(el=>el.remove());}
-function placeFloatingMenu(menu:HTMLElement,anchor:HTMLElement){
- document.body.append(menu);
- const rect=anchor.getBoundingClientRect();
- const width=Math.min(280,window.innerWidth-24);
- menu.style.position='fixed';
- menu.style.width=`${width}px`;
- menu.style.maxHeight='min(46dvh,280px)';
- menu.style.overflow='auto';
- menu.style.zIndex='80';
- menu.style.left=`${Math.max(12,Math.min(rect.left,window.innerWidth-width-12))}px`;
- if(rect.bottom+200>window.innerHeight-12){menu.style.top='auto';menu.style.bottom=`${Math.max(12,window.innerHeight-rect.top+6)}px`;}
- else{menu.style.top=`${rect.bottom+6}px`;menu.style.bottom='auto';}
-}
-function openChatMenu(id:string,anchor:HTMLElement){
- closeChatMenus();
- const thread=chatHistory.list().find(t=>t.id===id);if(!thread)return;
- const menu=document.createElement('div');menu.className='chat-menu';menu.setAttribute('role','menu');
- const item=(label:string,action:()=>void,danger=false)=>{
-  const btn=document.createElement('button');btn.type='button';btn.className=danger?'chat-menu-item danger':'chat-menu-item';btn.setAttribute('role','menuitem');btn.textContent=label;
-  btn.onclick=(e)=>{e.stopPropagation();closeChatMenus();action();};
-  menu.append(btn);
- };
- item('Переименовать чат',()=>renameChat(id));
- item('Удалить чат',()=>{void deleteChat(id);},true);
- item(thread.archived?'Разархивировать чат':'Архивировать чат',()=>toggleArchiveChat(id));
- item('Поделиться чатом',()=>{void shareChat(id);});
- item(thread.pinned?'Открепить чат':'Закрепить чат',()=>togglePinChat(id));
- item('Добавить в проект',()=>addChatToProject(id));
- item('Добавить на главный экран',()=>{void addChatToHomeScreen();});
- const row=anchor.closest('.chat-row')||anchor.parentElement;if(row)row.append(menu);
- const onDoc=(e:MouseEvent)=>{if(!menu.contains(e.target as Node)&&e.target!==anchor){closeChatMenus();document.removeEventListener('click',onDoc,true);}};
- window.setTimeout(()=>document.addEventListener('click',onDoc,true),0);
-}
 function syncChatUI(messages=true){
  closeChatMenus();
  const active=chatHistory.current(),query=$<HTMLInputElement>('chat-search').value.trim().toLocaleLowerCase();
@@ -359,108 +270,6 @@ function syncChatAccount(){
  else if(project||mission)chatHistory.attach(project,mission);
  syncChatUI();workspace.resizePrompt();
  if(account&&!local)void syncServerChats();
-}
-type CatalogModel={slug:string;displayName?:string;freeAllowlisted?:boolean;reviewed?:boolean;hosted?:boolean;task?:string;capabilities?:string[];availability?:string;provider?:string;icon?:string|null;description?:string};
-let catalogModels:CatalogModel[]=[];
-/** Full registry for the Models picker (exactly the server catalog, no truncation). */
-function pickerModels(){return catalogModels.filter(m=>m.availability!=='unavailable'&&typeof m.slug==='string');}
-function modelLabel(m:CatalogModel){return m.displayName||modelDisplayName(m.slug);}
-function syncModelsButton(){
- const current=$('composer-models-current'),icon=$<HTMLImageElement>('composer-models-icon');
- const hit=preferredModel?catalogModels.find(m=>m.slug===preferredModel):undefined;
- current.textContent=hit?modelLabel(hit):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL');
- const src=hit?resolveModelIcon(hit):(preferredModel?providerIconPath(providerFromSlug(preferredModel)):undefined);
- if(src){icon.src=src;icon.hidden=false;}else{icon.removeAttribute('src');icon.hidden=true;}
- $<HTMLSelectElement>('composer-model').value=preferredModel;
-}
-function modelPickerMark(provider:string,icon?:string){
- const mark=document.createElement('span');mark.className='model-picker-mark';mark.setAttribute('aria-hidden','true');
- if(icon){const img=document.createElement('img');img.alt='';img.width=18;img.height=18;img.src=icon;img.onerror=()=>{img.remove();mark.dataset.fallback='';mark.textContent=providerInitial(provider);};mark.append(img);}
- else{mark.dataset.fallback='';mark.textContent=providerInitial(provider);}
- return mark;
-}
-function fillComposerModels(){
- const select=$<HTMLSelectElement>('composer-model');select.replaceChildren();
- const auto=document.createElement('option');auto.value='';auto.textContent='Auto · AZRAIL';select.append(auto);
- for(const model of pickerModels()){
-  if(typeof model.slug!=='string'||Array.from(select.options).some(o=>o.value===model.slug))continue;
-  const option=document.createElement('option');
-  option.value=model.slug; // full slug in code/value
-  option.textContent=`${isNeuronPaidModel(model.slug)?'Нейроны':model.freeAllowlisted?'Free':'Paid'} · ${modelLabel(model)}`;
-  option.title=model.slug;
-  select.append(option);
- }
- if(preferredModel&&!Array.from(select.options).some(o=>o.value===preferredModel)){
-  const option=document.createElement('option');option.value=preferredModel;option.textContent=modelDisplayName(preferredModel);option.title=preferredModel;select.append(option);
- }
- select.value=preferredModel;syncModelsButton();
-}
-let pickerFilter:PickerFilter='chat';let pickerShowLocked=false;
-function openModelPicker(){
- const all=catalogModels.filter(m=>typeof m.slug==='string');
- const chips=PICKER_FILTERS.map(f=>`<button type="button" class="model-picker-chip" data-filter="${f.id}" aria-pressed="false">${f.label}</button>`).join('');
- dialog('Models',`<div class="model-picker"><div class="model-picker-toolbar"><input id="model-picker-search" class="model-picker-search" type="search" placeholder="Поиск модели…" maxlength="120"><span id="model-picker-count" class="model-picker-count"></span></div><div class="model-picker-filters">${chips}<label class="model-picker-locked"><input id="model-picker-locked" type="checkbox"> Недоступные</label></div><div id="model-picker-list" class="model-picker-list"></div></div>`);
- const list=$('model-picker-list'),search=$<HTMLInputElement>('model-picker-search'),count=$('model-picker-count'),locked=$<HTMLInputElement>('model-picker-locked');
- locked.checked=pickerShowLocked;
- const paint=()=>{
-  list.replaceChildren();
-  document.querySelectorAll<HTMLElement>('.model-picker-chip').forEach(chip=>chip.setAttribute('aria-pressed',String(chip.dataset.filter===pickerFilter)));
-  const auto=document.createElement('button');auto.type='button';auto.className='model-picker-item';if(!preferredModel)auto.setAttribute('aria-current','true');
-  const autoBody=document.createElement('span');autoBody.className='model-picker-body';
-  autoBody.innerHTML='<strong>Auto · AZRAIL</strong><small>Подберём сами</small>';
-  const autoBadge=document.createElement('span');autoBadge.className='model-picker-badge free';autoBadge.textContent='Auto';
-  auto.append(modelPickerMark('AZRAIL'),autoBody,autoBadge);
-  auto.onclick=()=>{setPreferredModel('');$<HTMLDialogElement>('dialog').close();syncModelsButton();};
-  list.append(auto);
-  const found=applyPicker(all,{filter:pickerFilter,query:search.value,showLocked:pickerShowLocked},modelLabel);
-  let shown=0;
-  for(const group of groupModelsByProvider(found)){
-   const visible=group.models as CatalogModel[];
-   const section=document.createElement('div');section.className='model-picker-group';
-   const heading=document.createElement('div');heading.className='model-picker-group-title';heading.textContent=`${group.provider} · ${visible.length}`;
-   section.append(heading);
-   for(const model of visible){
-    const label=modelLabel(model),provider=model.provider||providerFromSlug(model.slug);
-    const chatOk=isChatCapableModel(model);
-    const badgeInfo=modelBadge(model);
-    const row=document.createElement('button');row.type='button';row.className='model-picker-item';
-    if(preferredModel===model.slug)row.setAttribute('aria-current','true');
-    row.title=badgeInfo.hint;
-    if(badgeInfo.kind==='locked'){row.disabled=true;row.dataset.locked='';}
-    const body=document.createElement('span');body.className='model-picker-body';
-    const title=document.createElement('strong');title.textContent=label;
-    const meta=document.createElement('small');meta.textContent=`${provider}${model.task?` · ${model.task}`:''}${badgeInfo.kind==='neuron'?' · лимит 10 000 нейронов в сутки':''}${chatOk||badgeInfo.kind==='locked'?'':' · не для чата'}`;
-    body.append(title,meta);
-    const badge=document.createElement('span');badge.className=`model-picker-badge ${badgeInfo.kind}`;badge.textContent=badgeInfo.text;
-    row.append(modelPickerMark(provider,resolveModelIcon(model)),body,badge);
-    row.onclick=()=>{
-     setPreferredModel(model.slug);
-     $<HTMLDialogElement>('dialog').close();
-     syncModelsButton();
-     if(badgeInfo.kind==='neuron')notice('Это одна из 7 моделей Workers Paid. AZRAIL её не вызывает: после 10 000 нейронов в сутки идёт доплата.',true);
-     else if(badgeInfo.kind==='external')notice('Сторонняя модель: вызов идёт через AI Gateway и только если включены платные модели и есть бюджет.',true);
-     else if(!chatOk)notice('Модель выбрана. Для чата AZRAIL подставит текстовую модель автоматически.',true);
-    };
-    section.append(row);shown++;
-   }
-   list.append(section);
-  }
-  count.textContent=`${shown} из ${all.length}`;
-  if(!shown){const empty=document.createElement('p');empty.className='muted';empty.textContent=pickerFilter==='free'?'Бесплатных моделей по этому поиску нет.':'Ничего не найдено. Попробуй фильтр «Все» или «Недоступные».';list.append(empty);}
- };
- document.querySelectorAll<HTMLElement>('.model-picker-chip').forEach(chip=>{chip.onclick=()=>{pickerFilter=chip.dataset.filter as PickerFilter;paint();};});
- locked.onchange=()=>{pickerShowLocked=locked.checked;paint();};
- search.oninput=paint;paint();search.focus();
-}
-async function refreshComposerModels(){
- if(!account||local){catalogModels=[];fillComposerModels();$('composer-models-open').title='Автовыбор. Каталог моделей доступен после входа.';return;}
- const identity=account.id;
- try{
-  const catalog=await api('/api/model-catalog');if(account?.id!==identity)return;
-  catalogModels=Array.isArray(catalog.models)?catalog.models:[];
-  fillComposerModels();
-  $('composer-models-open').title=`Models · ${pickerModels().length}`;
- }catch{$('composer-models-open').title='Каталог недоступен. Вы можете выбрать Auto.';fillComposerModels();}
 }
 bind('composer-models-open',()=>openModelPicker());
 function contextFileHosts(){return ['context-files','context-panel-files'].map(id=>document.getElementById(id)).filter((el):el is HTMLElement=>!!el);}
@@ -839,7 +648,7 @@ async function refreshAccount(){
 }
 async function refreshMode(){return api('/api/routing-settings');}
 function currentModelLabel(){
- const hit=preferredModel?catalogModels.find(m=>m.slug===preferredModel):undefined;
+ const hit=preferredModel?composerModels.find(preferredModel):undefined;
  return hit?modelLabel(hit):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL');
 }
 function openSettings(){navigation.navigate({page:'settings'});}
@@ -1871,7 +1680,7 @@ const chatCommands=createChatCommands({
  signedIn:()=>!!account,project:()=>project,voice:()=>chatVoice,preferredModel:()=>preferredModel,
  setPreferredModel:slug=>setPreferredModel(slug),
  models:()=>pickerModels().map(m=>({slug:m.slug,label:modelLabel(m),free:!!m.freeAllowlisted&&m.availability!=='unavailable'})),
- labelOf:slug=>{const here=catalogModels.find(m=>m.slug===slug);return here?modelLabel(here):(slug?modelDisplayName(slug):'Auto · AZRAIL');},
+ labelOf:slug=>{const here=composerModels.find(slug);return here?modelLabel(here):(slug?modelDisplayName(slug):'Auto · AZRAIL');},
 });
 async function runChat(){
  if(missionSubmitting)return;
