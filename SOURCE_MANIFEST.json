@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-17T08:45:07.699Z",
+  "generated_at": "2026-11-17T19:44:45.493Z",
   "excludes_self": true,
   "file_count": 1267,
   "files": [
@@ -127,8 +127,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 10935,
-      "sha256": "80df30708c1bf827a4a064c3bca36110f643ef55d5800df3964f8849fb372440"
+      "bytes": 11600,
+      "sha256": "aa975c21f00089a4e1a844832a67eaa3627df1f70d0b629cdebd3a7e5ef9d840"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -567,8 +567,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1381775,
-      "sha256": "4a1de36feca4cb5a37261856a8a49a4146d51438568652dbf8a9df6b01837211"
+      "bytes": 1385436,
+      "sha256": "6568dd8f30c9349d2be8a93d4c88e8f0d3084ca71afe83fc841a4e05b9f82a55"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3247,8 +3247,8 @@
     },
     {
       "path": "site/app.html",
-      "bytes": 24150,
-      "sha256": "d9e1fcb24e9764c98c2d5eea6a96969e5a1f7c7ef373c339894003665b519c98"
+      "bytes": 24652,
+      "sha256": "119d52388c99046ab8d88956c86e94f14a62b1014a9524c480f87b63b54031b5"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3257,13 +3257,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 161008,
-      "sha256": "0549e6d868d121074c6cc6bf1e43fc3fa62ca27898f2ebeb0ad073fe794850ad"
+      "bytes": 161430,
+      "sha256": "c29672c8976a3f88d0df8b87191016f7003e1af70fdc4406600a7b9e43e3b6d4"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 467543,
-      "sha256": "d4dfd171f95a21b6e5d594b16eeec70a912de9bb479ecfaa5e793c2367b132c8"
+      "bytes": 470278,
+      "sha256": "d690c68afc62f4150b381c8ad070edb66772de137ffeface0bbe501d0de2ea27"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3537,8 +3537,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 24150,
-      "sha256": "d9e1fcb24e9764c98c2d5eea6a96969e5a1f7c7ef373c339894003665b519c98"
+      "bytes": 24652,
+      "sha256": "119d52388c99046ab8d88956c86e94f14a62b1014a9524c480f87b63b54031b5"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4487,8 +4487,8 @@
     },
     {
       "path": "tests/agent-browser.test.ts",
-      "bytes": 12979,
-      "sha256": "5ceec726a17684e4f8e9a10b271041387f1f33ae18637056866b5d63beedea8e"
+      "bytes": 14037,
+      "sha256": "6020f7947fa60391b714b2889d8c768ec8d6ee3ecbf97ffd3593c522f23c1153"
     },
     {
       "path": "tests/agent-paths.test.ts",
@@ -5272,8 +5272,8 @@
     },
     {
       "path": "tests/terminal-panel.test.ts",
-      "bytes": 3926,
-      "sha256": "ba7541331247e352e3adea1024e7315ab48576e49dc3dfc0b078f68f3469e6c0"
+      "bytes": 6220,
+      "sha256": "52dea4fe859458bac489bf9094b9fb32b963844cdc9a7d90ceeb96897551579a"
     },
     {
       "path": "tests/threat-model.test.ts",
@@ -5382,8 +5382,8 @@
     },
     {
       "path": "ui/agent-browser.ts",
-      "bytes": 7762,
-      "sha256": "949a03cf00174e983fed435097a6593adedcf13732bc1ff163a8881f02a5cf2d"
+      "bytes": 8569,
+      "sha256": "701421d84e3a1115cba6fecf7bfbdb53b2380cd05d93329ef0cf2660d9c4aac7"
     },
     {
       "path": "ui/agent-paths.ts",
@@ -5392,18 +5392,18 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 122576,
-      "sha256": "454210355568477a8786afff92efbd4b62604ceda5a7a456a4464278d776c5a8"
+      "bytes": 122697,
+      "sha256": "20df1235b99a0eb6f63894292bf102a712c75fadb24a40627a69fdcd7361374f"
     },
     {
       "path": "ui/app.html",
-      "bytes": 24124,
-      "sha256": "3df9fd58bbe42e09044cddec728bcd93aff7c1841a7471b336c3df6927a7570f"
+      "bytes": 24626,
+      "sha256": "acd83af7fe586ce39b5db2b8c35805fa883b6eefbe20b186e1a4a060b1fad053"
     },
     {
       "path": "ui/app.ts",
-      "bytes": 170027,
-      "sha256": "689d6d54d07466eb6bffae1a95408e8659ccf17b814697b6f9237fc705f9f7df"
+      "bytes": 170101,
+      "sha256": "93ab6bfdec26c31a01447c0178e4dd05bd6890264699d56100b8e8563341f245"
     },
     {
       "path": "ui/assignment.ts",
@@ -5832,8 +5832,8 @@
     },
     {
       "path": "ui/terminal-panel.ts",
-      "bytes": 5054,
-      "sha256": "284fc759b48f45efe64c5eb4ebb23d2392b1786e3a3c32ba9a7b827d61b74ec6"
+      "bytes": 6902,
+      "sha256": "be2667be0a8e3d0c33ca08b3e395114b31ae46d58f495b1929de54dd7b540393"
     },
     {
       "path": "ui/tokens.css",
@@ -5867,8 +5867,8 @@
     },
     {
       "path": "ui/workspace.css",
-      "bytes": 31741,
-      "sha256": "d01c5dc32bc5351914ce78336fca84a9404cf3eae491f2436daeae990e1bc68b"
+      "bytes": 32075,
+      "sha256": "73fee20fcdae62111d2ff23ad76d2e7050ba03a4368a31679c9f501f5a10caf4"
     },
     {
       "path": "ui/zip-site.ts",

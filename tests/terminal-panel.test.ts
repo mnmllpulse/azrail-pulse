@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { COMPUTER_COMMANDS, computerRun, logLine, outputOf, sandboxRun } from "../ui/terminal-panel";
+import { agentBadge, COMPUTER_COMMANDS, computerRun, logLine, outputOf, sandboxRun } from "../ui/terminal-panel";
 import { AGENT_COMMANDS } from "../src/lib/local-agent";
 import type { AgentJobView } from "../ui/chat-agent";
 
@@ -8,6 +8,13 @@ const job = (status: string, extra: Partial<AgentJobView> = {}): AgentJobView =>
 describe("терминал", () => {
   it("список команд совпадает с белым списком агента", () => {
     expect(COMPUTER_COMMANDS.map(([id]) => id).sort()).toEqual(Object.keys(AGENT_COMMANDS).sort());
+  });
+  it("статус агента в шапке терминала", () => {
+    expect(agentBadge(null).state).toBe("unknown");
+    expect(agentBadge({ enabled: false })).toMatchObject({ state: "off", text: expect.stringContaining("выключен") });
+    expect(agentBadge({ enabled: true, connected: false })).toMatchObject({ state: "offline", text: expect.stringContaining("не запущен") });
+    expect(agentBadge({ enabled: true, connected: true }).state).toBe("ready");
+    expect(agentBadge({ enabled: true }).state).toBe("ready");
   });
   it("вывод по статусам", () => {
     expect(outputOf(job("done", { result: "ok\n" }))).toBe("ok");
@@ -55,5 +62,31 @@ describe("терминал", () => {
   it("песочница: вывод или заметка", async () => {
     expect(await sandboxRun(async () => ({ output: "ok" }), "p")).toBe("ok");
     expect(await sandboxRun(async () => ({ note: "выключено" }), "p")).toBe("выключено");
+  });
+});
+
+describe("шапка терминала", () => {
+  it("показывает статус агента и открывает настройки", async () => {
+    const { Window } = await import("happy-dom");
+    const { vi } = await import("vitest");
+    const { mountTerminal } = await import("../ui/terminal-panel");
+    const win = new Window({ url: "https://azrail.example/" });
+    vi.stubGlobal("document", win.document);
+    win.document.body.innerHTML = `<section id="home-terminal"><select id="term-target"><option value="computer">К</option><option value="sandbox">П</option></select><select id="term-command"></select><button id="term-run"></button><button id="term-clear"></button><p id="term-agent"><span id="term-agent-text"></span><button id="term-agent-open"></button></p><div id="term-gate" hidden><span id="term-ask"></span><button id="term-yes"></button><button id="term-no"></button></div><pre id="term-log"></pre></section>`;
+    const api = vi.fn(async () => ({ enabled: true, connected: false }));
+    const open = vi.fn();
+    mountTerminal(api, () => "p1", () => {}, open);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    const badge = win.document.querySelector<HTMLElement>("#term-agent")!;
+    expect(badge.dataset.state).toBe("offline");
+    expect(badge.textContent).toContain("не запущен");
+    win.document.querySelector<HTMLButtonElement>("#term-agent-open")!.click();
+    expect(open).toHaveBeenCalledOnce();
+    const target = win.document.querySelector<HTMLSelectElement>("#term-target")!;
+    target.value = "sandbox";
+    target.dispatchEvent(new win.Event("change"));
+    expect(badge.hidden).toBe(true);
+    vi.unstubAllGlobals();
+    win.close();
   });
 });

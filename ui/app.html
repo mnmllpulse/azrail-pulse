@@ -194,6 +194,8 @@
           <button id="term-run" type="button" class="primary">Запустить</button>
           <button id="term-clear" type="button" class="text-button">Очистить</button>
         </div>
+        <p id="term-info" class="term-info">Это не PowerShell: запускаются только команды из списка, через агента на твоём компьютере. Сам агент стартует отдельно в Windows PowerShell.</p>
+        <p id="term-agent" class="term-agent" aria-live="polite"><span id="term-agent-text"></span> <button id="term-agent-open" type="button" class="text-button">Открыть настройки агента</button></p>
         <div id="term-gate" class="term-gate" hidden><span id="term-ask"></span><button id="term-yes" type="button" class="primary">Разрешить</button><button id="term-no" type="button">Отклонить</button></div>
         <pre id="term-log" aria-live="polite" tabindex="0"></pre>
       </section>

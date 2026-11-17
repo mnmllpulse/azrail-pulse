@@ -85,6 +85,24 @@ describe('agent browser',()=>{
       expect(t.calls).toEqual([]);
     }
   });
+  it('offline agent: shows launch steps and a retry button that re-checks the status',async()=>{
+    const t=setup({'':'src/\n'},{enabled:true,connected:false});
+    await t.browser.open('');
+    const steps=Array.from(t.doc.querySelectorAll('.agent-browser-steps li')).map(li=>li.textContent);
+    expect(steps).toHaveLength(4);
+    expect(steps.join(' ')).toContain('PowerShell');
+    const before=t.api.mock.calls.length;
+    const retry=Array.from(t.doc.querySelectorAll<HTMLButtonElement>('.agent-browser-list button')).find(b=>b.textContent==='Повторить')!;
+    retry.click();await t.flush();
+    expect(t.api.mock.calls.length).toBeGreaterThan(before);
+    expect(t.calls).toEqual([]);
+  });
+  it('disabled agent: retry button but no launch steps',async()=>{
+    const t=setup({'':''},{enabled:false});
+    await t.browser.open('');
+    expect(t.doc.querySelector('.agent-browser-steps')).toBeNull();
+    expect(Array.from(t.doc.querySelectorAll('.agent-browser-list button')).some(b=>b.textContent==='Повторить')).toBe(true);
+  });
   it('shows the agent error for a failed listing',async()=>{
     const t=setup({'':'x/'});
     await t.browser.open('missing');

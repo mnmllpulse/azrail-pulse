@@ -540,6 +540,7 @@ html[data-settings-text-scale="large"] #settings-page .settings-detail-content .
 .settings-provider-back {width:max-content;min-height:40px;margin:0 0 2px;padding:8px 12px;border-color:var(--border);background:var(--surface);color:var(--text);}
 .settings-provider-back:hover {background:var(--surface-raised);border-color:color-mix(in srgb,var(--accent) 42%,var(--border));}
 .settings-category-card:focus-visible,.settings-provider-card:focus-visible,.settings-nav-item:focus-visible,.settings-provider-back:focus-visible {outline:2px solid var(--accent);outline-offset:2px;}
+.agent-browser-steps{margin:6px 0 10px;padding-left:20px;display:grid;gap:4px;color:var(--muted,#b9aec6);font-size:13px}
 @media (max-width:600px) {
  .settings-nav-group {grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;}
  .settings-nav-heading {grid-column:1/-1;margin:4px 8px;}

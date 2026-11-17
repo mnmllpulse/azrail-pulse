@@ -1,4 +1,4 @@
-import { agentGap, waitJob, type AgentJobView, type AgentState } from './chat-agent';
+import { AGENT_OFFLINE, agentGap, waitJob, type AgentJobView, type AgentState } from './chat-agent';
 
 type Api = (path: string, init?: RequestInit) => Promise<any>;
 
@@ -88,7 +88,19 @@ export function createAgentBrowser(deps: BrowserDeps): { element: HTMLElement; o
     bar.append(refresh);
   };
 
-  const showError = (text: string) => list.replaceChildren(el('p', text, 'context-note'));
+  const showError = (text: string) => {
+    const nodes: HTMLElement[] = [el('p', text, 'context-note')];
+    if (text === AGENT_OFFLINE) {
+      const steps = el('ol', '', 'agent-browser-steps');
+      for (const step of ['«Выключить» → «Включить на 1 час» (ключ показывается один раз).', 'В блоке «Запуск на компьютере» нажми «Скопировать команду».', 'Открой PowerShell, вставь команду, окно не закрывай.', 'Дождись «Агент подключён» и нажми «Повторить».']) steps.append(el('li', step));
+      nodes.push(steps);
+    }
+    const retry = el('button', 'Повторить');
+    retry.type = 'button';
+    retry.onclick = () => void load(dir);
+    nodes.push(retry);
+    list.replaceChildren(...nodes);
+  };
 
   const load = async (target: string): Promise<void> => {
     const mine = ++turn;
