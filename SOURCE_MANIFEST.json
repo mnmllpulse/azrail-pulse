@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-16T21:40:10.804Z",
+  "generated_at": "2026-11-17T03:01:04.266Z",
   "excludes_self": true,
   "file_count": 1259,
   "files": [
@@ -5857,8 +5857,8 @@
     },
     {
       "path": "verification/cloudflare-snapshot.json",
-      "bytes": 9382,
-      "sha256": "d449d239354f326a38c8f78a92853c93d3e446f8ffaffac4a8cc187399cb0ae7"
+      "bytes": 9483,
+      "sha256": "071a2d519006f81cba470f67d6428800aebae6d4dd21897f009180bd37cad5fc"
     },
     {
       "path": "verification/current/PDF_IMPLEMENTATION_AUDIT_RC55_RU.md",
@@ -6218,7 +6218,7 @@
     {
       "path": "verification/production-drift-readonly-snapshot.json",
       "bytes": 9601,
-      "sha256": "b93b35ab3282f9ce5c9450d8354e81d09fd81360c4f062c9dbcba6db284840e6"
+      "sha256": "4fd3b57d4786074e861a19d650ec7b3d968cf0eb859b803dc7ee8501045ea1bf"
     },
     {
       "path": "verification/production-release-contract.json",
@@ -6257,8 +6257,8 @@
     },
     {
       "path": "verification/staging-deploy-readonly-snapshot.json",
-      "bytes": 3369,
-      "sha256": "1dc0c59229041ba15722062f269fc9853b3ce7825a6b291950b2340a4c5d89d7"
+      "bytes": 3453,
+      "sha256": "7fcf1001ab85731faafb5a975ec8587343ec2ea333534c5d60b47c1faf642e51"
     },
     {
       "path": "verification/staging-migration-contract.json",
