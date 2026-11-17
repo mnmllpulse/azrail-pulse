@@ -1,3 +1,6 @@
+import { createAgentBrowser } from './agent-browser';
+import { COMPUTER_COMMANDS } from './terminal-panel';
+
 type Api = (path: string, init?: RequestInit) => Promise<any>;
 
 type JobView = { id: string; kind: string; path: string; status: string; result: string | null; error: string | null; bytes?: number };
@@ -35,6 +38,46 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
   const body = el('div');
   root.append(body);
 
+  const kind = el('select');
+  for (const [value, label] of [['list', 'Список файлов'], ['read', 'Прочитать файл'], ['write', 'Записать файл'], ['run', 'Команда (белый список)']]) {
+    const option = el('option', label);
+    option.value = value;
+    kind.append(option);
+  }
+  const path = el('input');
+  path.placeholder = 'Путь внутри папки: выбери в обзоре ниже или введи вручную';
+  path.maxLength = 300;
+  const command = el('select');
+  for (const [value, label] of COMPUTER_COMMANDS) {
+    const option = el('option', label);
+    option.value = value;
+    command.append(option);
+  }
+  const content = el('textarea');
+  content.rows = 4;
+  content.placeholder = 'Текст файла (только для записи)';
+  const syncForm = () => {
+    path.hidden = kind.value === 'run';
+    command.hidden = kind.value !== 'run';
+    content.hidden = kind.value !== 'write';
+  };
+  kind.onchange = syncForm;
+  syncForm();
+  const ownJobs = new Set<string>();
+  const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+  const browser = createAgentBrowser({
+    api,
+    sleep,
+    ownJobs,
+    failure,
+    onSelect: (selection) => {
+      path.value = selection.path;
+      if (kind.value === 'list' || kind.value === 'read') kind.value = selection.kind;
+      syncForm();
+    },
+  });
+  let autoOpened = false;
+
   const paint = async () => {
     let state: { enabled: boolean; expiresAt: number | null; connected: boolean; jobs: JobView[] };
     try {
@@ -44,6 +87,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       return;
     }
     const nodes: HTMLElement[] = [];
+    if (!state.enabled) autoOpened = false;
     const status = state.enabled
       ? `Включён до ${new Date(state.expiresAt ?? 0).toLocaleTimeString()}. ${state.connected ? 'Агент на компьютере подключён.' : 'Агент на компьютере ещё не подключился.'}`
       : 'Выключен.';
@@ -67,26 +111,20 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
     nodes.push(toggle);
 
     if (state.enabled) {
-      const kind = el('select');
-      for (const [value, label] of [['list', 'Список файлов'], ['read', 'Прочитать файл'], ['write', 'Записать файл'], ['run', 'Команда (белый список)']]) {
-        const option = el('option', label);
-        option.value = value;
-        kind.append(option);
-      }
-      const path = el('input');
-      path.placeholder = 'путь внутри папки, для команды: git_status, git_diff, git_log, node_version, npm_test, npm_build, npm_lint, npm_typecheck';
-      path.maxLength = 300;
-      const content = el('textarea');
-      content.rows = 4;
-      content.placeholder = 'Текст файла (только для записи)';
       const send = el('button', 'Поставить задачу');
       send.type = 'button';
       send.onclick = () => {
-        void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: kind.value, path: path.value, ...(kind.value === 'write' ? { content: content.value } : {}) }) })
+        const target = kind.value === 'run' ? command.value : path.value;
+        void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: kind.value, path: target, ...(kind.value === 'write' ? { content: content.value } : {}) }) })
           .then(() => { notice('Задача поставлена.'); return paint(); }).catch(failure);
       };
-      nodes.push(kind, path, content, send);
-      for (const job of state.jobs) {
+      nodes.push(
+        el('p', 'Корневая папка задаётся при запуске агента переменной AZRAIL_ROOT. Обзор показывает только её содержимое, выше неё подняться нельзя. Чтобы выбрать другую папку, перезапусти агента с другим AZRAIL_ROOT.', 'muted'),
+        browser.element,
+        kind, path, command, content, send,
+      );
+      if (state.connected && !autoOpened) { autoOpened = true; void browser.open(''); }
+      for (const job of state.jobs.filter((item) => !ownJobs.has(item.id))) {
         const row = el('div', '', 'provider-token');
         row.append(el('strong', `${job.kind} ${job.path || '.'}`), el('small', STATUS[job.status] ?? job.status));
         if (job.error) row.append(el('p', job.error, 'muted'));

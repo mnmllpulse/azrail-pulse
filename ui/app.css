@@ -561,3 +561,21 @@ html[data-settings-contrast="high"] button {border-color:#8089a6;}
 .settings-diag-ok {color:#9ccfb1;}
 .settings-diag-error {color:#ef8f8f;}
 .settings-diag-muted {color:var(--muted);}
+
+/* Agent folder browser (Settings → Локальный агент) */
+.agent-browser {display:grid;gap:10px;margin:12px 0;padding:14px 16px;border:1px solid var(--border);border-radius:14px;background:var(--surface);}
+.agent-browser h4 {margin:0;font-size:13px;}
+.agent-browser-bar {display:flex;flex-wrap:wrap;align-items:center;gap:6px;}
+.agent-browser-crumb,.agent-browser-refresh {min-height:30px;padding:2px 10px;font-size:12px;}
+.agent-browser-crumb:not(:disabled)::after {content:"";}
+.agent-browser-crumb + .agent-browser-crumb::before {content:"/";margin-right:8px;color:var(--muted);}
+.agent-browser-refresh {margin-left:auto;}
+.agent-browser-list {display:grid;gap:4px;max-height:320px;overflow:auto;}
+.agent-browser-entry {display:flex;align-items:center;gap:10px;width:100%;min-height:34px;padding:4px 10px;text-align:left;font-size:13px;border-radius:8px;}
+.agent-browser-entry span:last-child {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.agent-browser-entry.is-dir {color:#cdbdff;}
+.agent-browser-mark {flex:none;width:12px;color:var(--muted);}
+.agent-browser-preview {display:grid;gap:8px;padding-top:10px;border-top:1px solid var(--border);}
+.agent-browser-preview-head {display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.agent-browser-preview-head strong {min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;}
+.agent-browser-preview-head button {min-height:30px;padding:2px 10px;font-size:12px;}
