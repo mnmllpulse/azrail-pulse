@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-16T21:56:42.566Z",
+  "generated_at": "2026-11-17T20:42:19.163Z",
   "source": "Cloudflare API read-only GET for worker settings and resources. D1 schema block is the previous read and was not queried again.",
   "mutation_free": true,
   "environment": "production",
@@ -173,9 +173,9 @@
         "previews_enabled": false
       },
       "deployment": {
-        "id": "e733e545-6a80-4f94-bc22-cdbebde12dac",
-        "version_id": "4fe566af-dc50-4dfe-9016-c5b464a31e29",
-        "created_on": "2026-11-16T21:45:38.568387Z",
+        "id": "37dc2725-078e-4c2f-b021-c3690c1f9183",
+        "version_id": "642b8b93-86bf-40b5-8d9e-a251423c63e9",
+        "created_on": "2026-11-17T20:39:39.133858Z",
         "source": "wrangler"
       },
       "secret_bindings": [],

@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-16T21:56:42.566Z",
+  "generated_at": "2026-11-17T20:42:19.163Z",
   "source": "Cloudflare API read-only GET. No Cloudflare write.",
   "mutation_free": true,
   "environments": {

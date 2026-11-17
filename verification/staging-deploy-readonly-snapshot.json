@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "release": "1.5.0-rc.54",
-  "generated_at": "2026-11-16T21:56:42.566Z",
+  "generated_at": "2026-11-17T20:42:19.163Z",
   "source": "Cloudflare API read-only GET. No Cloudflare write.",
   "mutation_free": true,
   "worker": {
@@ -132,10 +132,10 @@
       }
     ],
     "latest_deployment": {
-      "deployment_id": "1a2a9ec4-ec58-4253-aeda-31da2b61ba68",
-      "version_id": "11218eb4-328e-49c7-9192-ccdff4222369",
+      "deployment_id": "5fbe1826-fe1d-457b-9ec1-3b4eed9c729f",
+      "version_id": "3b152795-ae02-4572-8c9b-02ecffad06df",
       "percentage": 100,
-      "created_on": "2026-11-16T10:55:39.81539Z"
+      "created_on": "2026-11-17T20:24:52.452147Z"
     }
   }
 }
