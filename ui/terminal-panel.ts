@@ -1,4 +1,4 @@
-import { waitJob, type AgentJobView } from './chat-agent';
+import { agentGap, waitJob, type AgentJobView, type AgentState } from './chat-agent';
 
 type Api = (path: string, init?: RequestInit) => Promise<any>;
 
@@ -32,6 +32,8 @@ export async function computerRun(
   confirm: (job: AgentJobView) => Promise<boolean>,
   sleep: (ms: number) => Promise<void>,
 ): Promise<string> {
+  const gap = agentGap((await api('/api/agent/status')) as AgentState);
+  if (gap) return gap;
   const made = (await api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: 'run', path: command }) })).job as AgentJobView;
   if (made.status === 'awaiting_approval') {
     const ok = await confirm(made);

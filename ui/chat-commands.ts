@@ -1,4 +1,4 @@
-import { agentIntent, AGENT_OFF, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView } from './chat-agent';
+import { agentGap, agentIntent, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView, type AgentState } from './chat-agent';
 import { fixIntent, fixConsentText, runFixLoop, FIX_APPROVE, rollbackIntent, rollbackConsentText, runRollback } from './chat-fixloop';
 import { modelIntent, proposalText, YES, ROLLBACK, type ModelProposal } from './chat-settings';
 
@@ -49,8 +49,8 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
   };
   const agentReady = async (message: string): Promise<boolean> => {
     if (!ctx.signedIn()) throw Error('Войдите, чтобы работать с компьютером.');
-    const state = (await api('/api/agent/status')) as { enabled?: boolean };
-    if (!state.enabled) { noteLocal(message, AGENT_OFF); return false; }
+    const gap = agentGap((await api('/api/agent/status')) as AgentState);
+    if (gap) { noteLocal(message, gap); return false; }
     return true;
   };
   const failed = (message: string, error: unknown, fallback: string) => noteLocal(message, error instanceof Error ? error.message : fallback);

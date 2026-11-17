@@ -71,6 +71,14 @@ describe("команды чата", () => {
     expect(notes[0]).toMatch(/агент/i);
   });
 
+  it("агент включён, но не подключён — подсказка запустить PowerShell, задача не создаётся", async () => {
+    const calls: string[] = [];
+    const { handle, notes } = setup({ api: async (path) => { calls.push(path); return { enabled: true, connected: false }; } });
+    expect(await handle("покажи git status на компьютере")).toBe(true);
+    expect(calls).toEqual(["/api/agent/status"]);
+    expect(notes[0]).toContain("PowerShell");
+  });
+
   it("цикл исправления просит согласие и не стартует без него", async () => {
     const { handle, notes, calls } = setup();
     expect(await handle("исправь ошибки сборки на компьютере")).toBe(true);

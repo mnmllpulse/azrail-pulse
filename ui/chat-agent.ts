@@ -47,6 +47,16 @@ export function agentIntent(message: string): AgentIntent {
 }
 
 export const AGENT_OFF = 'Агент на компьютере выключен. Включи его в настройках: «Агент на компьютере» → «Включить на 1 час».';
+export const AGENT_OFFLINE = 'Агент включён, но на компьютере не запущен: сигнала нет больше 15 секунд. Запусти строки из «Настройки → Агент на компьютере» в PowerShell и оставь окно открытым. Если команда уже выполняется, дождись её конца.';
+
+export type AgentState = { enabled?: boolean; connected?: boolean };
+
+/** Сообщение, почему агент не готов, либо null. Неизвестное значение connected не считается отказом. */
+export function agentGap(state: AgentState): string | null {
+  if (!state.enabled) return AGENT_OFF;
+  if (state.connected === false) return AGENT_OFFLINE;
+  return null;
+}
 
 export function approvalText(job: AgentJobView): string {
   if (job.kind === 'run') return `Жду подтверждения: запуск «${job.command ?? job.path}» в папке агента. Скрипты из package.json выполнятся на твоём компьютере, лимит 2 минуты. Напиши «разреши» или «отклони».`;
