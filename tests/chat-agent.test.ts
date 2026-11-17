@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { agentIntent, jobReply, waitJob, APPROVE, REJECT } from "../ui/chat-agent";
+import { agentHint, agentIntent, jobReply, waitJob, APPROVE, REJECT } from "../ui/chat-agent";
 
 describe("чат ставит задачи локальному агенту", () => {
   it("чтение, список, запись — только с явным «на компьютере»", () => {
@@ -13,6 +13,21 @@ describe("чат ставит задачи локальному агенту", (
     expect(agentIntent("что за файлы в архиве")).toBeNull();
     expect(agentIntent("запиши в a.txt на компьютере")).toBeNull();
     expect(agentIntent("привет")).toBeNull();
+  });
+  it("разговорные формулировки про компьютер", () => {
+    const test = { kind: "run", path: "npm_test" };
+    for (const phrase of ["сделай тест на локальном компе", "запусти тесты на моём компе", "прогони тесты на пк", "Запусти тесты локально", "проведи тесты на моей машине", "выполни npm test на ноуте", "запусти все юнит-тесты у меня на компе"]) expect(agentIntent(phrase), phrase).toEqual(test);
+    expect(agentIntent("запусти сборку на локальном компе")).toEqual({ kind: "run", path: "npm_build" });
+    expect(agentIntent("запусти линтер на пк")).toEqual({ kind: "run", path: "npm_lint" });
+    expect(agentIntent("проверь типы на компьютере")).toEqual({ kind: "run", path: "npm_typecheck" });
+    expect(agentIntent("покажи git status на моём компе")).toEqual({ kind: "run", path: "git_status" });
+  });
+  it("не перехватывает посторонние фразы", () => {
+    for (const phrase of ["сделай тест по истории", "сделай тест по истории на компьютере", "запусти тесты", "сделай тест на знание SQL", "как работает компилятор", "расскажи про компьютер", "установи Node на компьютер"]) expect(agentIntent(phrase), phrase).toBeNull();
+  });
+  it("просьба про компьютер без команды даёт подсказку, а не ответ модели", () => {
+    for (const phrase of ["запусти докер на локальном компе", "запиши в a.txt на компьютере", "удали node_modules на моём пк", "проверь диск на ноуте"]) expect(agentHint(phrase), phrase).toContain("«запусти тесты на компьютере»");
+    for (const phrase of ["как установить Node на компьютере", "привет", "запусти тесты", "что такое локальный агент"]) expect(agentHint(phrase), phrase).toBeNull();
   });
   it("подтверждение и отказ записи", () => {
     expect(APPROVE.test("разреши запись")).toBe(true);

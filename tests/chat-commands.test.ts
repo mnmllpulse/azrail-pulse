@@ -57,6 +57,20 @@ describe("команды чата", () => {
     expect(notes[1]).toContain("чисто");
   });
 
+  it("«сделай тест на локальном компе» ставит npm_test и ждёт подтверждения", async () => {
+    const { handle, notes, calls } = setup();
+    expect(await handle("сделай тест на локальном компе")).toBe(true);
+    expect(calls).toEqual(["GET /api/agent/status", "POST /api/agent/jobs"]);
+    expect(notes[0]).toContain("подтверждения");
+  });
+
+  it("просьба про компьютер без распознанной команды — подсказка, запросов нет", async () => {
+    const { handle, notes, calls } = setup();
+    expect(await handle("запусти докер на локальном компе")).toBe(true);
+    expect(notes[0]).toContain("«запусти тесты на компьютере»");
+    expect(calls).toEqual([]);
+  });
+
   it("без входа агент недоступен, ответ объясняет почему", async () => {
     const { handle, notes } = setup({}, false);
     expect(await handle("покажи git status на компьютере")).toBe(true);
