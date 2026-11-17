@@ -597,7 +597,7 @@ navigation.link($<HTMLAnchorElement>('close-studio'),{page:'studios'});
 for(const meta of studios){const link=document.createElement('a');link.textContent=meta.title;link.dataset.studio=meta.id;navigation.link(link,{page:'studio',studio:meta.id});$('context-studios').append(link);}
 document.addEventListener('azrail:open-studio',(event:Event)=>{const id=(event as CustomEvent<{studio?:string}>).detail?.studio;if(id&&studioById(id))navigation.navigate({page:'studio',studio:id as StudioId});});
 mountHomeCanvas();
-mountTerminal(api,()=>project||'',failure);
+mountTerminal(api,()=>project||'',failure,()=>navigation.navigate({page:'settings',section:'agent'}));
 bind('attach',()=>{if(!project){project=crypto.randomUUID();remember();}$<HTMLInputElement>('attachments').click();});
 const openTokenLogin=()=>{
  dialog('Вход по ключу','<label for="login-token">Ключ</label><input id="login-token" type="password" autocomplete="off" spellcheck="false"><button id="login-save" class="primary">Войти</button>');
@@ -2055,7 +2055,7 @@ const commandPalette=mountCommandPalette(()=>[
 ]);
 bind('commands',()=>commandPalette.open());
 navigation.render(true);
-refreshAccount().then(()=>{if(!local&&account)navigation.render(true);}).catch(failure);
+refreshAccount().catch(failure).then(()=>{if(!local&&account)navigation.render(true);}).catch(failure);
 // Avoid keeping a previous large export reachable after leaving its studio.
 window.addEventListener('pagehide',()=>{stopEventStream();saveComposerDraft();workspace.destroy();draftCleanup();cleanupMedia();voiceInput.destroy();commandPalette.destroy();lastBlob=null;});
 void lastBlob;

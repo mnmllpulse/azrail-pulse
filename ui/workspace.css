@@ -282,5 +282,8 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .home-terminal { flex: 1 1 auto; min-height: 0; display: flex; flex-direction: column; gap: 10px; }
 .app-shell .term-bar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
 .app-shell .term-bar select { min-height: 34px; background: #0c0b10; color: #efe8f6; border: 1px solid #302837; border-radius: 8px; padding: 4px 10px; }
+.app-shell .term-info, .app-shell .term-agent { margin: 0; font-size: 13px; line-height: 1.45; color: #b9aec6; }
+.app-shell .term-agent[data-state="ready"] #term-agent-text { color: #8fe3b0; }
+.app-shell .term-agent[data-state="offline"] #term-agent-text, .app-shell .term-agent[data-state="off"] #term-agent-text { color: #f4c978; }
 .app-shell .term-gate { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 10px 12px; border: 1px solid #5b4a1f; border-radius: 12px; background: #1b1608; color: #f4e6bf; }
 .app-shell #term-log { flex: 1 1 auto; min-height: 0; margin: 0; padding: 14px; overflow: auto; white-space: pre-wrap; word-break: break-word; border: 1px solid #302837; border-radius: 12px; background: #0c0b10; color: #cfe7d2; font: 12.5px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace; }
