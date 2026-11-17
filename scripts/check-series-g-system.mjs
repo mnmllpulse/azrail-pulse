@@ -4,7 +4,7 @@ const ok=(name,cond)=>{checks.push([name,!!cond]);console.log(`${cond?'PASS':'FA
 const series=read('src/lib/series-g.ts');
 const route=read('src/unified/system-intelligence.ts');
 const product=read('src/unified/product-intelligence.ts');
-const ui=read('ui/app.ts');
+const ui=read('ui/app.ts')+read('ui/app-dialogs.ts');
 const suggestions=read('ui/components/suggestions.ts');
 const palette=read('ui/components/command-palette.ts');
 const schema=read('schema.sql');

@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-17T20:03:33.513Z",
+  "generated_at": "2026-11-17T20:32:58.018Z",
   "excludes_self": true,
-  "file_count": 1270,
+  "file_count": 1272,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1385436,
-      "sha256": "6568dd8f30c9349d2be8a93d4c88e8f0d3084ca71afe83fc841a4e05b9f82a55"
+      "bytes": 1386280,
+      "sha256": "24222c3066390f3682308d6c3d745a6fbb6e27fa81251a17570f432a4f2914b0"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -2762,8 +2762,8 @@
     },
     {
       "path": "scripts/check-cross-cutting-final.mjs",
-      "bytes": 3183,
-      "sha256": "4668cd192ed13c367383b28b455d980e244ee2d2428fcfde60ced6288279c46f"
+      "bytes": 3209,
+      "sha256": "10d910eb2e00764d23eea132ae7a66944a4d36f04d28cc69b4b703e1f5e8b198"
     },
     {
       "path": "scripts/check-data-studio-architecture.mjs",
@@ -2937,8 +2937,8 @@
     },
     {
       "path": "scripts/check-series-g-system.mjs",
-      "bytes": 4606,
-      "sha256": "3aeebc9d03b8d46992a2b2856a004607e27970d2f21ecb2b9e10fc8e987eebab"
+      "bytes": 4632,
+      "sha256": "d84540608e869ba1ececddb62a47dee9294d840ba843fea508afb32c8966f1a5"
     },
     {
       "path": "scripts/check-slo.mjs",
@@ -3167,8 +3167,8 @@
     },
     {
       "path": "scripts/release-preflight.mjs",
-      "bytes": 51566,
-      "sha256": "fbee60eb337b7c1aae2419d515bd1d74634d9261c669a2f2630be178e16df44c"
+      "bytes": 51609,
+      "sha256": "0527f9d3770da5446806ee00c0de5e2c63a2117fc18ff694919c6cb97b97028f"
     },
     {
       "path": "scripts/security-check.mjs",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 24652,
-      "sha256": "119d52388c99046ab8d88956c86e94f14a62b1014a9524c480f87b63b54031b5"
+      "sha256": "b89bab86f447cca2cf3134e84844b2ec8ceb77a253c52319188140069936d369"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 470278,
-      "sha256": "d690c68afc62f4150b381c8ad070edb66772de137ffeface0bbe501d0de2ea27"
+      "bytes": 471153,
+      "sha256": "b5428933f8faa375ffbdfbfa3d9bd67fb6b2f3e2297342b41baec8ff91bb562c"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 24652,
-      "sha256": "119d52388c99046ab8d88956c86e94f14a62b1014a9524c480f87b63b54031b5"
+      "sha256": "b89bab86f447cca2cf3134e84844b2ec8ceb77a253c52319188140069936d369"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4546,6 +4546,11 @@
       "sha256": "eb603d9e1f7bb965c408967502592d4ae5dc80d17d85a44f10654917ddfa2b89"
     },
     {
+      "path": "tests/app-dialogs.test.ts",
+      "bytes": 3389,
+      "sha256": "bfdfccab867d534183e7ed9ec87b6e93192c8e42757dc222bc28ad64d5720930"
+    },
+    {
       "path": "tests/approval-engine.test.ts",
       "bytes": 3124,
       "sha256": "096e013aee058841d81d3b031e09a38ca7883e01d2be7d2853eb847f9972fbc0"
@@ -5406,6 +5411,11 @@
       "sha256": "c9a74ae0b546d2fd58a9be581c36e949e6ad625601430c7d2b6f5137456aef60"
     },
     {
+      "path": "ui/app-dialogs.ts",
+      "bytes": 15809,
+      "sha256": "57c3acfb2e1e8bd2ee1684d7dce3b8f3140bb0ba540f59c0b580a8bedd638dfa"
+    },
+    {
       "path": "ui/app.css",
       "bytes": 122697,
       "sha256": "20df1235b99a0eb6f63894292bf102a712c75fadb24a40627a69fdcd7361374f"
@@ -5417,8 +5427,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 170101,
-      "sha256": "93ab6bfdec26c31a01447c0178e4dd05bd6890264699d56100b8e8563341f245"
+      "bytes": 155785,
+      "sha256": "ebb5da658893d1f5cd135ee2bc2990940c11b51c714e3d93e45d8a49b1a560e4"
     },
     {
       "path": "ui/assignment.ts",
