@@ -21,6 +21,7 @@ import {mountVoiceInput} from './components/voice-input';
 import {mountCommandPalette} from './components/command-palette';
 import {mountMetatronLab} from './metatron-lab';
 import {createAppDialogs} from './app-dialogs';
+import {applyRetention,renderDataControls,type MemoryItem} from './data-controls';
 import {createComposerModels} from './composer-models';
 import {createChatMenu} from './chat-menu';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
@@ -114,6 +115,7 @@ function setChatVoice(voice:ChatVoice){chatVoice=voice;session(()=>sessionStorag
 let chatStorage:Storage|undefined;
 try{chatStorage={getItem:key=>deviceValue(key),setItem:(key,value)=>{deviceWrite(key,value);},removeItem:key=>deviceWrite(key,null),key:()=>null,length:0,clear(){}} as Storage;}catch{}
 const chatHistory=createChatHistory(chatStorage,()=>notice('История доступна в памяти, но хранилище устройства заполнено или недоступно.',true));
+applyRetention({storage:chatStorage,threads:()=>chatHistory.list(),keepId:()=>chatHistory.current()?.id??'',removeThread:id=>chatHistory.remove(id)});
 const chatMenu=createChatMenu({chatHistory,api,signedIn:()=>!!account&&!local,notice,syncChatUI,openChat,newChat,getProject:()=>project,setProject:id=>{project=id;remember();}});
 const closeChatMenus=()=>chatMenu.close(),placeFloatingMenu=chatMenu.place,openChatMenu=chatMenu.open;
 const studioRooms=createStudioRooms(chatStorage);
@@ -751,7 +753,8 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
   if(!account){settingsText(content,'Войдите, чтобы открывать библиотеку файлов и память проекта.','context-note');return;}
   settingsButton(content,'Открыть библиотеку файлов',()=>{void openAssetIntelligence().catch(failure);});
   settingsButton(content,'Открыть Global Memory',()=>{void openGlobalMemory().catch(failure);});
-  settingsText(content,'История чатов и проекты управляются из основной навигации. Экспорт и управление сроком хранения будут добавлены после отдельной проверки соответствующих API.');
+  settingsText(content,'История чатов и проекты управляются из основной навигации.','context-note');
+  renderDataControls(content,{storage:chatStorage,accountName:()=>account?.name??'',threads:()=>chatHistory.list(),keepId:()=>chatHistory.current()?.id??'',removeThread:id=>chatHistory.remove(id),loadMemory:async()=>((await api('/api/studio/intelligence/memory?scope=all')) as {items?:MemoryItem[]}).items??[],save:saveBytes,notice,failure});
   return;
  }
 
