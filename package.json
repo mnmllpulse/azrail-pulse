@@ -119,7 +119,7 @@
     "production:release:apply": "node scripts/production-release-apply.mjs",
     "production:release:finalize": "node scripts/production-release-finalize.mjs",
     "repo:hygiene": "node scripts/check-repo-hygiene.mjs",
-    "dependency:audit": "npm audit --audit-level=high",
+    "dependency:audit": "node scripts/dependency-audit.mjs",
     "dependency:cve-audit": "node scripts/dependency-cve-audit.mjs",
     "repo:exhaustive": "node scripts/check-repo-exhaustive.mjs",
     "staging:auto-deploy:check": "node scripts/check-staging-autodeploy.mjs",
