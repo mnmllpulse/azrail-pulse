@@ -1,4 +1,4 @@
-import { agentGap, agentIntent, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView, type AgentState } from './chat-agent';
+import { agentGap, agentHint, agentIntent, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView, type AgentState } from './chat-agent';
 import { fixIntent, fixConsentText, runFixLoop, FIX_APPROVE, rollbackIntent, rollbackConsentText, runRollback } from './chat-fixloop';
 import { modelIntent, proposalText, YES, ROLLBACK, type ModelProposal } from './chat-settings';
 
@@ -128,6 +128,8 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
       } catch (error) { failed(message, error, 'Агент недоступен.'); }
       return true;
     }
+    const hint = agentHint(message);
+    if (hint) { noteLocal(message, hint); return true; }
     const switchTo = modelIntent(message, ctx.models());
     if (switchTo) {
       const from = ctx.preferredModel();

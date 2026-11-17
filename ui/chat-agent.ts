@@ -5,17 +5,18 @@ type Api = (path: string, init?: RequestInit) => Promise<any>;
 export type AgentIntent = { kind: 'list' | 'read' | 'write' | 'run'; path: string; content?: string } | null;
 export type AgentJobView = { id: string; kind: string; path: string; status: string; result: string | null; error: string | null; bytes?: number; command?: string };
 
+const DO = '(?:запусти\\p{L}*|прогони\\p{L}*|выполни\\p{L}*|сделай|проведи|погоняй|проверь|запускай)';
 const RUN: Array<[RegExp, string]> = [
-  [/(?:запусти|прогони|выполни)\s+тест\p{L}*/iu, 'npm_test'],
-  [/(?:собери\s+проект|запусти\s+сборку|сделай\s+build|npm\s+run\s+build)/iu, 'npm_build'],
-  [/(?:запусти|прогони)\s+линт\p{L}*|npm\s+run\s+lint/iu, 'npm_lint'],
-  [/проверь\s+типы|typecheck/iu, 'npm_typecheck'],
+  [new RegExp(`${DO}\\s+(?:все\\s+|мои\\s+|наши\\s+|юнит[\\s-]*|unit[\\s-]*)*тест\\p{L}*(?!\\p{L})(?!\\s+(?:по|для)\\s)|npm\\s+(?:run\\s+)?test`, 'iu'), 'npm_test'],
+  [new RegExp(`(?:собери\\s+проект|${DO}\\s+(?:сборку|build)|npm\\s+run\\s+build)`, 'iu'), 'npm_build'],
+  [new RegExp(`${DO}\\s+(?:линт\\p{L}*|lint)|npm\\s+run\\s+lint`, 'iu'), 'npm_lint'],
+  [/(?:проверь|запусти)\s+типы|typecheck/iu, 'npm_typecheck'],
   [/git\s+status|статус\s+git/iu, 'git_status'],
   [/git\s+diff|изменени\p{L}*\s+в\s+git/iu, 'git_diff'],
   [/git\s+log|история\s+коммитов/iu, 'git_log'],
 ];
 
-export const WHERE = /(?:на\s+(?:(?:моём|моем|этом)\s+)?компьютере|на\s+(?:моём|моем)\s+пк|в\s+(?:моей\s+)?(?:локальной\s+)?папке|локальн\p{L}*\s+(?:файл|папк)\p{L}*)/iu;
+export const WHERE = /(?:на\s+(?:(?:моём|моем|этом|своём|своем|локальном|локальной|моей|этой|твоём)\s+)*(?:компьютере|компе|комп|пк|pc|ноутбуке|ноуте|машине|windows|винде)(?![\p{L}\d])|у\s+меня\s+(?:на\s+)?(?:компьютере|компе|пк)|на\s+локальн\p{L}*(?![\p{L}\d])|(?:^|\s)локально(?![\p{L}\d])|в\s+(?:моей\s+)?(?:локальной\s+)?папке|локальн\p{L}*\s+(?:файл|папк)\p{L}*)/iu;
 const PATH = /((?:[\w.-]+\/)*[\w.-]+\.[A-Za-z0-9]{1,8})(?![\w/])/u;
 const LIST = /^\s*(?:покажи|выведи|дай|открой)?\s*(?:список\s+)?файл\p{L}*(?:\s+(?:в|из)\s+((?:[\w.-]+\/?)+))?/iu;
 const QUOTES = '[\\s«»"\'“”„]*';
@@ -44,6 +45,23 @@ export function agentIntent(message: string): AgentIntent {
     return { kind: 'list', path: dir && !/^(?:моей|моём|моем|локальной|папке|компьютере)$/iu.test(dir) ? dir : '' };
   }
   return null;
+}
+
+const ASK = /^[\s«"'“]*(?:запусти\p{L}*|прогони\p{L}*|выполни\p{L}*|сделай|проведи|проверь|покажи|выведи|прочитай|прочти|открой|запиши|сохрани|создай|удали|установи|собери|исправь|почини|поправь)(?![\p{L}\d])/iu;
+
+export const AGENT_HINT = [
+  'Агент на компьютере есть, но эту просьбу я не распознал. Работаю по явным фразам:',
+  '• «запусти тесты на компьютере» — npm test; ещё сборка, линт, проверка типов',
+  '• «покажи git status на компьютере» — также git diff и git log',
+  '• «покажи файлы в src на компьютере», «прочитай src/index.ts на компьютере»',
+  '• «запиши в notes/a.txt на компьютере:» и текст с новой строки',
+  'Запуск и запись всегда ждут твоего «разреши». Агент включается в «Настройки → Агент на компьютере».',
+].join('\n');
+
+/** Просьба про компьютер без распознанной команды: подсказка вместо ответа модели «доступа нет». */
+export function agentHint(message: string): string | null {
+  const head = message.trim().split('\n')[0];
+  return head.length <= 300 && WHERE.test(head) && ASK.test(head) ? AGENT_HINT : null;
 }
 
 export const AGENT_OFF = 'Агент на компьютере выключен. Включи его в настройках: «Агент на компьютере» → «Включить на 1 час».';
