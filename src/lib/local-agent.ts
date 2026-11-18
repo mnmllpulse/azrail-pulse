@@ -243,5 +243,5 @@ export async function finishJob(store: AgentStore, id: string, input: { ok?: unk
   const ok = input.ok === true;
   const output = typeof input.output === "string" ? input.output.slice(0, AGENT_MAX_RESULT) : null;
   const error = typeof input.error === "string" ? input.error.slice(0, 1000) : null;
-  await store.updateJob(id, { status: ok ? "done" : "failed", result: ok || job.kind === "run" ? output : null, error: ok ? null : error ?? "Ошибка агента.", updatedAt: now });
+  await store.updateJob(id, { status: ok ? "done" : "failed", result: ok || job.kind === "run" ? output : null, error: ok ? null : error ?? (job.kind === "run" ? "Команда завершилась с ненулевым кодом, вывод выше." : "Ошибка агента."), updatedAt: now });
 }

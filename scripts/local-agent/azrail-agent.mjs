@@ -25,13 +25,20 @@ export function childEnv(env) {
   return Object.fromEntries(Object.entries(env).filter(([key]) => !/^AZRAIL_/i.test(key)));
 }
 
+const ANSI = /\u001b(?:\[[0-?]*[ -/]*[@-~]|\][^\u0007\u001b]*(?:\u0007|\u001b\\))/g;
+
+/** Цветовые коды терминала в выводе команды превращаются в мусор: убираем их. */
+export function stripAnsi(text) {
+  return text.replace(ANSI, "");
+}
+
 export function runCommand(root, id) {
   const argv = Object.hasOwn(COMMANDS, id) ? COMMANDS[id] : null;
   if (!argv) return Promise.reject(new Error("Команда не из белого списка."));
   const windows = process.platform === "win32";
   return new Promise((done, fail) => {
-    execFile(argv[0], argv.slice(1), { cwd: root, env: childEnv(process.env), timeout: RUN_TIMEOUT_MS, maxBuffer: RUN_MAX_OUTPUT * 2, windowsHide: true, shell: windows && argv[0] === "npm", encoding: "utf8" }, (error, stdout, stderr) => {
-      const text = `${stdout ?? ""}${stderr ? `\n${stderr}` : ""}`.trim().slice(-RUN_MAX_OUTPUT);
+    execFile(argv[0], argv.slice(1), { cwd: root, env: { ...childEnv(process.env), NO_COLOR: "1", FORCE_COLOR: "0" }, timeout: RUN_TIMEOUT_MS, maxBuffer: RUN_MAX_OUTPUT * 2, windowsHide: true, shell: windows && argv[0] === "npm", encoding: "utf8" }, (error, stdout, stderr) => {
+      const text = stripAnsi(`${stdout ?? ""}${stderr ? `\n${stderr}` : ""}`).trim().slice(-RUN_MAX_OUTPUT);
       if (error?.killed) return fail(new Error(`Команда остановлена по таймауту ${RUN_TIMEOUT_MS / 1000} с.\n${text}`.slice(0, 1000)));
       if (error && typeof error.code === "string") return fail(new Error(`Не запустилась: ${error.code}`));
       const code = error ? error.code : 0;
