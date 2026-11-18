@@ -771,6 +771,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         payload: text,
         conversationHistory: turns,
         preferredModel,
+        effort: body.effort,
         voice: body.voice,
         _requestId: trace.requestId,
         _traceId: trace.traceId,

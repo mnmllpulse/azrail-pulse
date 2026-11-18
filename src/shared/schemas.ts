@@ -14,6 +14,7 @@ const idSchema = (label = "id") => trimmed(512, label);
 const projectIdSchema = trimmed(512, "projectId");
 const missionIdSchema = trimmed(512, "missionId");
 const preferredModelSchema = z.string().trim().max(200).optional();
+const effortSchema = z.enum(["low", "medium", "high", "max"]).optional();
 const chatVoiceSchema = z.enum(["lumen", "shade", "aria"]).optional();
 
 const attachmentRefSchema = z.object({
@@ -44,6 +45,7 @@ export const chatSchema = z.object({
   conversationId: z.string().trim().max(512).optional(),
   parentMessageId: z.string().trim().max(512).optional(),
   preferredModel: preferredModelSchema,
+  effort: effortSchema,
   voice: chatVoiceSchema,
   attachments: attachmentsSchema,
 });

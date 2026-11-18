@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-18T20:50:40.780Z",
+  "generated_at": "2026-11-18T20:57:09.079Z",
   "excludes_self": true,
-  "file_count": 1290,
+  "file_count": 1291,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1425100,
-      "sha256": "29195dd1ad283111961a018df4247c455b140ad482f809c0b5f849fc14389737"
+      "bytes": 1425150,
+      "sha256": "fdc4b9fa7fc6644238a816630f141f8b130df190fdca2880a43d7b54c1b4d4fe"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 25147,
-      "sha256": "e01ada3cca2a4bfa5feada0644eb561786c108c1562a42761eb3db1992b3990d"
+      "sha256": "6fd922b86780f716e7588760fbe45da28fcf1b68a3cafff7cc7f8c1da8256646"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 499878,
-      "sha256": "320e0934401e10249086ccca98fa30d98a963c5c3cc0294cde7158ca87878393"
+      "bytes": 499928,
+      "sha256": "cd2a7b09a2722947ed4368bc32f2b2654bfcb0bfb54092f6897005be59215301"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 25147,
-      "sha256": "e01ada3cca2a4bfa5feada0644eb561786c108c1562a42761eb3db1992b3990d"
+      "sha256": "6fd922b86780f716e7588760fbe45da28fcf1b68a3cafff7cc7f8c1da8256646"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -3557,8 +3557,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 22765,
-      "sha256": "8496fa2152f8d206697b7a139cb6ef7eae788ecf76df1ad3a40038dc2e64388b"
+      "bytes": 22807,
+      "sha256": "170e8498f0a4a5e4cf19f8559b49e227eca0a7c271267d9546b80712f2366ba3"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -3762,8 +3762,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 102575,
-      "sha256": "9e63bc47ca6aa4c0ac56574766ab19c0dc20e3146ac680cb14e10d1a42aee592"
+      "bytes": 102604,
+      "sha256": "22f56d420724033772d3457d654e55e004e7389e3b82c6a70531efdae6cafcab"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -3787,8 +3787,8 @@
     },
     {
       "path": "src/lib/answer-depth.ts",
-      "bytes": 3966,
-      "sha256": "ae73aa6bb5b26394690b75f9c4748d4e024ee32b904cceb30d52687206a0b1ae"
+      "bytes": 6061,
+      "sha256": "cd45dbba2639b44e6e83a9dcf23559b85fe63ece7565876d38b8447f1ba7dda7"
     },
     {
       "path": "src/lib/api-contract.ts",
@@ -4342,13 +4342,13 @@
     },
     {
       "path": "src/shared/schemas.ts",
-      "bytes": 9597,
-      "sha256": "dbcb1de4d02d686a960e3d03d06b6e5ba5ca73c98072fac5f4e37541b54746cf"
+      "bytes": 9695,
+      "sha256": "e5c8c350ff543cda983c5242221e437a80c0ae147af0b95ecff71ab559865ee1"
     },
     {
       "path": "src/types.ts",
-      "bytes": 13579,
-      "sha256": "e817eff4deeb32315de416cf38fccf25fb0d8035cc5e62b0b9a2275ed4c3dcaf"
+      "bytes": 13739,
+      "sha256": "9b0a57743f4ee5ce9df8cb8c325efafff25224b9ec42bf9be9fe0eb348781865"
     },
     {
       "path": "src/unified/connector-adapter.ts",
@@ -4789,6 +4789,11 @@
       "path": "tests/display-preferences.test.ts",
       "bytes": 3974,
       "sha256": "2a51e6efd97e8eddef647cc18c5f076f8b03a7e63b372f3e9b118693bdd152e6"
+    },
+    {
+      "path": "tests/effort-level.test.ts",
+      "bytes": 2748,
+      "sha256": "e514418d57df314741b160b062fc63e716fd0f1969e9cbcf3b9365fa6b36311f"
     },
     {
       "path": "tests/event-stream.test.ts",
@@ -5492,8 +5497,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 158483,
-      "sha256": "675f2f6dadab1dfc461cb81d60d0a5c71d67b5e58893c03189fcb7502ce644a1"
+      "bytes": 158549,
+      "sha256": "7296668fec8dd3242ac88a026741f8f45d0a1579e6601ba701189f33201b2775"
     },
     {
       "path": "ui/assignment.ts",

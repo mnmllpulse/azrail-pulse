@@ -1764,7 +1764,7 @@ async function runChat(){
  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft(prompt.value);workspace.resizePrompt();
  syncChatUI();workspace.toLatest();
  try{
-  const body=JSON.stringify({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:attachmentRefs,...(preferredModel?{preferredModel}:{})});
+  const body=JSON.stringify({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:attachmentRefs,...(preferredModel?{preferredModel}:{}),...(modelMenu.effort()!=='medium'?{effort:modelMenu.effort()}:{})});
   const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':requestKey},body});
   const reply=String(r.result?.summary||r.result?.error||r.error||'Пустой ответ.');
   const status=r.result?.status==='failed'||r.success===false?'failed':'completed';
