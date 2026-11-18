@@ -18,6 +18,7 @@ import type { Env, TaskRequest, TaskResult } from "../types";
 import type { Capability } from "../lib/agent-registry";
 import type { EventEnvelope } from "../lib/event-stream";
 import { emitMissionEvent } from "../lib/event-store";
+import type { EffortLevel } from "../lib/answer-depth";
 import { traceLog, type TraceContext } from "../lib/observability-context";
 
 export interface MissionParams {
@@ -26,6 +27,7 @@ export interface MissionParams {
   goal: string;
   maxIterations: number;
   preferredModel?: string;
+  effort?: EffortLevel;
   publicHostname?: string;
   requestId?: string;
   traceId?: string;
@@ -82,6 +84,7 @@ export async function scheduleMission(host: MissionCoordinatorHost, params: Miss
   const deliveryGeneration = canonical.generation;
   const same = expected.projectId === params.projectId && expected.goal === params.goal && expected.maxIterations === params.maxIterations
     && (expected.preferredModel ?? "") === (params.preferredModel ?? "")
+    && (expected.effort ?? "") === (params.effort ?? "")
     && (expected.publicHostname ?? "") === (params.publicHostname ?? "")
     && (expected.requestId ?? "") === (params.requestId ?? "")
     && (expected.traceId ?? "") === (params.traceId ?? "");
@@ -328,7 +331,7 @@ export async function runScheduledMission(host: MissionCoordinatorHost, params: 
     await initializeMissionBudget(host.env, missionId);
     const engine = new ExecutionEngine(host.env);
     const result = await engine.runMission(
-      { message: goal, projectId, preferredModel: params.preferredModel, _requestId: trace.requestId, _traceId: trace.traceId, _missionId: missionId },
+      { message: goal, projectId, preferredModel: params.preferredModel, effort: params.effort, _requestId: trace.requestId, _traceId: trace.traceId, _missionId: missionId },
       {
         missionId,
         projectId,
@@ -338,6 +341,7 @@ export async function runScheduledMission(host: MissionCoordinatorHost, params: 
         maxIterations: params.maxIterations,
         usage: new UsageLedger(`mission:${params.missionId}`),
         preferredModel: params.preferredModel,
+        effort: params.effort,
         signal: abortController.signal,
         onEvent: (payload) => host.broadcast(payload, params.projectId),
         invokeCapability: (capability, request) => host.invokeCapability(capability, { ...request, _missionId: request._missionId ?? params.missionId }),

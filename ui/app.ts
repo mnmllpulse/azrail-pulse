@@ -845,7 +845,7 @@ async function runMission(goal?:string,opts?:{keepTurn?:boolean;stay?:boolean;ne
   navigation.navigate({page:'mission'});
  }
  // First Mission Control version: text goal only. Attachments stay available later.
- if(!pending){project=project||crypto.randomUUID();pending={key:crypto.randomUUID(),body:JSON.stringify({message,projectId:project,attachments:[],...(preferredModel?{preferredModel}:{})})};}
+ if(!pending){project=project||crypto.randomUUID();pending={key:crypto.randomUUID(),body:JSON.stringify({message,projectId:project,attachments:[],...(preferredModel?{preferredModel}:{}),...(modelMenu.effort()!=='medium'?{effort:modelMenu.effort()}:{})})};}
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  const submitted={...pending};

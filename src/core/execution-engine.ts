@@ -1,4 +1,5 @@
 import { decide, levelOf } from "../lib/permission-levels";
+import { effortRouteOptions } from "../lib/answer-depth";
 import { readPermissionMode } from "../lib/permission-setting";
 import { readDesignContract, designInstruction, isDesignGoal } from "../unified/design-contract";
 export { parseDecision, renderHistory } from "./execution-protocol";
@@ -280,7 +281,7 @@ export class ExecutionEngine {
           this.env,
           "scout",
           { messages: [{ role: "system", content: system }, { role: "user", content: prompt }] },
-          { preferredModel: ctx.preferredModel, ledger: ctx.usage, trace: ctx, signal: ctx.signal },
+          { preferredModel: ctx.preferredModel, ...effortRouteOptions(ctx.effort), ledger: ctx.usage, trace: ctx, signal: ctx.signal },
         );
         return extractText(routed.output);
       };

@@ -32,6 +32,7 @@ export const missionStartSchema = z.object({
   projectId: projectIdSchema,
   maxIterations: z.number().int().positive().max(1000).optional(),
   preferredModel: preferredModelSchema,
+  effort: effortSchema,
   attachments: attachmentsSchema,
 });
 export type MissionStartBody = z.infer<typeof missionStartSchema>;

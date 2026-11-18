@@ -1,5 +1,6 @@
 import type { Env } from "../types";
 import { MAX_MISSION_ITERATIONS } from "./mission-limits";
+import { isEffortLevel, type EffortLevel } from "./answer-depth";
 
 export type MissionDeliveryParams = {
   missionId:string;
@@ -7,6 +8,7 @@ export type MissionDeliveryParams = {
   goal:string;
   maxIterations:number;
   preferredModel?:string;
+  effort?:EffortLevel;
   publicHostname?:string;
   requestId?:string;
   traceId?:string;
@@ -92,6 +94,7 @@ export function parseMissionDelivery(row:MissionDeliveryRow):MissionDeliveryPara
     !authoritativeGoal || authoritativeGoal.length>32_000 || payloadGoal!==authoritativeGoal ||
     !Number.isSafeInteger(raw.maxIterations) || (raw.maxIterations??0)<1 || (raw.maxIterations??0)>MAX_MISSION_ITERATIONS ||
     (raw.preferredModel!==undefined && (typeof raw.preferredModel!=="string" || raw.preferredModel.length>200)) ||
+    (raw.effort!==undefined && !isEffortLevel(raw.effort)) ||
     (raw.publicHostname!==undefined && (typeof raw.publicHostname!=="string" || !raw.publicHostname || raw.publicHostname.length>253)) ||
     (raw.requestId!==undefined && (typeof raw.requestId!=="string" || raw.requestId.length<8 || raw.requestId.length>128)) ||
     (raw.traceId!==undefined && (typeof raw.traceId!=="string" || !/^[a-f0-9]{32}$/i.test(raw.traceId)))) {
@@ -103,6 +106,7 @@ export function parseMissionDelivery(row:MissionDeliveryRow):MissionDeliveryPara
     goal:authoritativeGoal,
     maxIterations:raw.maxIterations!,
     ...(raw.preferredModel?{preferredModel:raw.preferredModel}:{}),
+    ...(raw.effort?{effort:raw.effort}:{}),
     ...(raw.publicHostname?{publicHostname:raw.publicHostname}:{}),
     ...(raw.requestId?{requestId:raw.requestId}:{}),
     ...(raw.traceId?{traceId:raw.traceId.toLowerCase()}:{}),

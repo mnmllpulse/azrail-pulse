@@ -1,4 +1,5 @@
 import { sendProjectEvent, socketAuthorized } from "../lib/socket-access";
+import { isEffortLevel } from "../lib/answer-depth";
 import { withBillingScope, projectBillingScope } from "../lib/billing-context";
 import { withProjectLock } from "../lib/project-control";
 import { activeAccount, requireResource } from "../lib/accounts";
@@ -132,7 +133,7 @@ export class Orchestrator extends Agent<Env, OrchestratorState> {
   async onMessage(connection: import("agents").Connection, message: string | ArrayBuffer | ArrayBufferView) {
     if (typeof message !== "string" || message.length > 16_384) return;
 
-    let parsed: { type?: string; text?: string; conversationId?: string; preferredModel?: string };
+    let parsed: { type?: string; text?: string; conversationId?: string; preferredModel?: string; effort?: unknown };
     try {
       parsed = JSON.parse(message);
     } catch {
@@ -140,7 +141,7 @@ export class Orchestrator extends Agent<Env, OrchestratorState> {
     }
     if (!parsed || parsed.type !== "chat" || typeof parsed.text !== "string" || !parsed.text.trim()) return;
     if (parsed.conversationId !== undefined && (typeof parsed.conversationId !== "string" || parsed.conversationId.length > 128)) return;
-    if (parsed.preferredModel !== undefined && typeof parsed.preferredModel !== "string") return;
+    if ((parsed.preferredModel !== undefined && typeof parsed.preferredModel !== "string") || (parsed.effort !== undefined && !isEffortLevel(parsed.effort))) return;
     const session=connection.state as {account?:string;project?:string}|null;
     const principal=session?.account?await activeAccount(this.env,session.account):null;
     if(!principal || !session?.project) { connection.close(1008,"Session revoked");return; }
@@ -179,7 +180,7 @@ export class Orchestrator extends Agent<Env, OrchestratorState> {
       const answered = await this.runCapability("reasoning", {
         payload: userText,
         projectId: session.project,
-        preferredModel: parsed.preferredModel,
+        preferredModel: parsed.preferredModel, effort: parsed.effort,
         conversationHistory: history.slice(-10).map((turn) => ({ role: turn.role, content: rememberTurn(turn.role, turn.content) })),
         intent: "answer",
       });
