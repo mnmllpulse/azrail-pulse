@@ -433,14 +433,125 @@ body {
   color: #eee9ff;
 }
 
+.app-shell .composer-models {
+  position: relative;
+  margin-left: auto;
+}
+
 .app-shell .composer-models-btn {
-  border-color: rgba(151,157,180,.2);
-  border-radius: 999px;
-  background: rgba(255,255,255,.035);
+  gap: 6px;
+  min-height: 32px;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.app-shell .composer-models-btn:hover,
+.app-shell .composer-models-btn[aria-expanded="true"] {
+  background: rgba(169,149,247,.09);
+  color: var(--heading);
 }
 
 .app-shell .composer-models-current {
+  color: inherit;
+  font-size: var(--fs-small);
+}
+
+.app-shell .composer-models-effort {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: var(--fs-small);
+}
+
+.app-shell .composer-models-effort::before {
+  content: "· ";
+}
+
+.app-shell .composer-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 40;
+  display: grid;
+  gap: 2px;
+  width: min(320px, calc(100vw - 24px));
+  padding: 6px;
+  border: 1px solid rgba(151,157,180,.23);
+  border-radius: 12px;
+  background: #14161f;
+  box-shadow: 0 16px 48px rgba(0,0,0,.45);
+}
+
+.app-shell .composer-menu-item,
+.app-shell .composer-menu-back {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
   color: var(--text);
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-shell .composer-menu-item:hover,
+.app-shell .composer-menu-back:hover {
+  background: rgba(255,255,255,.06);
+}
+
+.app-shell .composer-menu-body {
+  display: grid;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.app-shell .composer-menu-body strong {
+  color: var(--heading);
+  font-size: var(--fs-small);
+  font-weight: 500;
+}
+
+.app-shell .composer-menu-body small {
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  line-height: 1.4;
+}
+
+.app-shell .composer-menu-trail {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: var(--fs-caption);
+}
+
+.app-shell .composer-menu-check {
+  flex: 0 0 auto;
+  color: var(--heading);
+}
+
+.app-shell .composer-menu-back {
+  color: var(--muted);
+  font-size: var(--fs-small);
+}
+
+.app-shell .composer-menu-sep {
+  width: 100%;
+  margin: 4px 0;
+  border: 0;
+  border-top: 1px solid rgba(151,157,180,.16);
+}
+
+.app-shell .composer-menu-note {
+  margin: 4px 10px 6px;
+  color: var(--muted);
+  font-size: var(--fs-caption);
+  line-height: 1.45;
 }
 
 .app-shell .send-button {

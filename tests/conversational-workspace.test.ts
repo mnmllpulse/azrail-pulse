@@ -96,7 +96,7 @@ it('home Chat sends /api/chat and keeps Missions separate',async()=>{
  const w=open({hosted:true,fetcher:w=>api(w,async()=>{missionCalls++;return response(w,{missionId:'m-home'},202);},async()=>{chatCalls++;return response(w,{success:true,conversationId:'c1',result:{status:'done',summary:'Привет!'}});})});await settle();
  expect(node(w,'new-chat').textContent).toContain('Новый чат');
  expect(node(w,'chat-welcome').textContent).toContain('AZRAIL');
- expect(node(w,'composer-models-label').textContent).toBe('Models');
+  expect(node(w,'composer-models-effort').textContent).toBe('Средний');
  type(w,'привет бро');submit(w);await settle();
  expect(chatCalls).toBe(1);expect(missionCalls).toBe(0);
  expect(node(w,'chat-messages').textContent).toContain('привет бро');
