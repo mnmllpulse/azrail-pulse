@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-18T16:00:20.912Z",
+  "generated_at": "2026-11-18T20:50:40.780Z",
   "excludes_self": true,
-  "file_count": 1288,
+  "file_count": 1290,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1418157,
-      "sha256": "ed61a1168dc0c156f944c7afacb3d68f96a2038b70d1af059348bdebb410d804"
+      "bytes": 1425100,
+      "sha256": "29195dd1ad283111961a018df4247c455b140ad482f809c0b5f849fc14389737"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3257,8 +3257,8 @@
     },
     {
       "path": "site/app.html",
-      "bytes": 25151,
-      "sha256": "d215a899cb65a2dff0573b440982d8792167f27bdfdc2e1c237c10a3d3793590"
+      "bytes": 25147,
+      "sha256": "e01ada3cca2a4bfa5feada0644eb561786c108c1562a42761eb3db1992b3990d"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3267,13 +3267,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 169239,
-      "sha256": "f9f496609a3a3a869ae04f7b4b3e3836079240b41356ba64522eacf4651d7979"
+      "bytes": 171024,
+      "sha256": "02b215af81418c9862c50b6b0d62f9d1e4b95cc2512c6774e05a18f0dead8797"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 494718,
-      "sha256": "560530a0284fb1bbec5302691cf6c8c44dba8e287747838307f0c626556b1825"
+      "bytes": 499878,
+      "sha256": "320e0934401e10249086ccca98fa30d98a963c5c3cc0294cde7158ca87878393"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3547,8 +3547,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 25151,
-      "sha256": "d215a899cb65a2dff0573b440982d8792167f27bdfdc2e1c237c10a3d3793590"
+      "bytes": 25147,
+      "sha256": "e01ada3cca2a4bfa5feada0644eb561786c108c1562a42761eb3db1992b3990d"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4711,6 +4711,11 @@
       "sha256": "8224f44c77db0f796a33f9a172f500a2f1b0e7b37d59d25f36935e6d873cae18"
     },
     {
+      "path": "tests/composer-menu.test.ts",
+      "bytes": 3495,
+      "sha256": "a1c6e01eb9dea9995ababece501617591e14d094eb18760937015d44797cbc80"
+    },
+    {
       "path": "tests/composer-models.test.ts",
       "bytes": 5013,
       "sha256": "9258556aedb353567fe41eb701fed6d999999a6e99923a0d8b094f00b2ef3c34"
@@ -4732,8 +4737,8 @@
     },
     {
       "path": "tests/conversational-workspace.test.ts",
-      "bytes": 15124,
-      "sha256": "49c6c61a2c87107bb1e24a064f9178faf7fd951c4608b62d8dd4e8f47bd261b5"
+      "bytes": 15134,
+      "sha256": "98fdd3dc0e002bedbe5d6d689c29f5697b3aaf28e03ab69ff0b9f01eca2debdd"
     },
     {
       "path": "tests/cost-protection.test.ts",
@@ -5482,13 +5487,13 @@
     },
     {
       "path": "ui/app.html",
-      "bytes": 25125,
-      "sha256": "dd1fbc45cc0d9a261f340ea34bd4cb22a35cf5b871609955d22de3f842464f3d"
+      "bytes": 25121,
+      "sha256": "710705a7307d1cfecb6deafa3c23ba59dca4ff4b4fee2fb04ceedf6382f364ad"
     },
     {
       "path": "ui/app.ts",
-      "bytes": 157907,
-      "sha256": "b71250dc8a05b99e334de83dfd823cc7cba3374d866cb4b7dc3ba222c40d6932"
+      "bytes": 158483,
+      "sha256": "675f2f6dadab1dfc461cb81d60d0a5c71d67b5e58893c03189fcb7502ce644a1"
     },
     {
       "path": "ui/assignment.ts",
@@ -5639,6 +5644,11 @@
       "path": "ui/components/workspace-shell.ts",
       "bytes": 5884,
       "sha256": "c99e544b2c051cb407c5af625461fc3b38b7341c557b19db64ecc0d2ff91323e"
+    },
+    {
+      "path": "ui/composer-menu.ts",
+      "bytes": 5026,
+      "sha256": "59c5c58e87ad0525b52ad0c1d69e112826d0f9b00132694adb067d03b1103f16"
     },
     {
       "path": "ui/composer-models.ts",
@@ -5797,8 +5807,8 @@
     },
     {
       "path": "ui/premium-workspace.css",
-      "bytes": 17459,
-      "sha256": "ffd299ef95d7a2a5aebd75fbfbe463dab542a748f2ee7e8e4194d3e1976aad81"
+      "bytes": 19582,
+      "sha256": "515ff4abad739f83fdee3f481c8bec52eab38a5d637359531aed4dc901746c7e"
     },
     {
       "path": "ui/projects.ts",

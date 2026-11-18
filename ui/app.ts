@@ -24,6 +24,7 @@ import {mountMetatronLab} from './metatron-lab';
 import {createAppDialogs} from './app-dialogs';
 import {applyRetention,renderDataControls,type MemoryItem} from './data-controls';
 import {createComposerModels} from './composer-models';
+import {createModelMenu} from './composer-menu';
 import {createChatMenu} from './chat-menu';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
@@ -274,7 +275,12 @@ function syncChatAccount(){
  syncChatUI();workspace.resizePrompt();
  if(account&&!local)void syncServerChats();
 }
-bind('composer-models-open',()=>openModelPicker());
+const modelMenu=createModelMenu({root:$('composer-models'),button:$<HTMLButtonElement>('composer-models-open'),
+ current:()=>{const hit=preferredModel?composerModels.find(preferredModel):undefined;return {slug:preferredModel,label:currentModelLabel(),description:hit?.description};},
+ others:()=>composerModels.pickable().filter(m=>isChatCapableModel(m)&&m.slug!==preferredModel).map(m=>({slug:m.slug,label:modelLabel(m),description:m.description})),
+ select:slug=>{setPreferredModel(slug);syncModelsButton();},
+ openAll:()=>openModelPicker()});
+void modelMenu;
 function contextFileHosts(){return ['context-files','context-panel-files'].map(id=>document.getElementById(id)).filter((el):el is HTMLElement=>!!el);}
 function fillContextFileHost(host:HTMLElement,artifacts:Array<{id:string;name:string;bytes?:number;mime?:string}>){
  host.replaceChildren();
@@ -451,7 +457,7 @@ function syncComposer(route:Route){
  if(changed)prompt.value=composerRoom==='home'?chatHistory.current()?.draft??'':studioRooms.draft(composerRoom);
  prompt.placeholder=route.page==='mission'?'Что сделать…':route.page==='create'?'Ответить':composerRoom==='home'?'Ответить':roomPlaceholder[composerRoom]??'Напиши задачу для этой студии…';
  $<HTMLButtonElement>('attach').hidden=route.page==='mission';
- $('composer-models').hidden=true;
+ $('composer-models').hidden=route.page!=='create';
  $<HTMLButtonElement>('submit').title=route.page==='mission'?'Старт · Enter':'Отправить · Enter';
  $<HTMLButtonElement>('submit').setAttribute('aria-label',route.page==='mission'?'Старт':'Отправить сообщение');
  if(changed)studioTalkOpen=false;
