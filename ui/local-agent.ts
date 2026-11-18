@@ -1,4 +1,5 @@
 import { createAgentBrowser } from './agent-browser';
+import { activeRootField, pickActive, readActiveRoot, saveActiveRoot, type AgentRootView } from './agent-roots';
 import { agentCommand, toRelativePath } from './agent-paths';
 import { COMPUTER_COMMANDS } from './terminal-panel';
 
@@ -80,7 +81,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
 
   const setup = el('div', '', 'agent-setup');
   const rootInput = el('input');
-  rootInput.placeholder = 'Папка на компьютере (пусто — текущая папка PowerShell)';
+  rootInput.placeholder = 'Папка на компьютере. Несколько — через ; (пусто — текущая папка PowerShell)';
   rootInput.maxLength = 260;
   rootInput.setAttribute('aria-label', 'Папка, которой сможет управлять агент');
   try { rootInput.value = localStorage.getItem('pulse.agentRoot') ?? ''; } catch { /* хранилище недоступно */ }
@@ -100,14 +101,14 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
   setup.append(
     el('strong', 'Запуск на компьютере'),
     el('p', '1. Открой PowerShell в папке репозитория azrail-pulse (там, где scripts\\local-agent). 2. Вставь команду и оставь окно открытым. Ключ показан один раз.', 'muted'),
-    el('label', 'Папка, которой сможет управлять агент'),
+    el('label', 'Папки, которыми сможет управлять агент'),
     rootInput,
     commandBox,
     copy,
   );
 
   const paint = async () => {
-    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; root?: string | null; jobs: JobView[] };
+    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; root?: string | null; roots?: AgentRootView[]; jobs: JobView[] };
     try {
       state = await api('/api/agent/status');
     } catch {
@@ -116,7 +117,11 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
     }
     const nodes: HTMLElement[] = [];
     if (!state.enabled) { autoOpened = false; token = null; }
-    agentRoot = state.root ?? null;
+    const roots = state.roots ?? [];
+    const active = pickActive(roots, readActiveRoot());
+    if (active && roots.length > 1) saveActiveRoot(active.name);
+    else saveActiveRoot('');
+    agentRoot = active?.path ?? state.root ?? null;
     browser.setRoot(agentRoot);
     known = { enabled: state.enabled, connected: state.connected };
     const until = new Date(state.expiresAt ?? 0).toLocaleTimeString();
@@ -126,6 +131,21 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         ? `Включён до ${until}. Агент подключён${agentRoot ? `, папка: ${agentRoot}` : ''}.`
         : `Включён до ${until}. Агент на компьютере ещё не подключился.`;
     nodes.push(el('p', status));
+    if (state.enabled && roots.length > 1 && active) {
+      const picker = el('select');
+      picker.setAttribute('aria-label', 'Активная папка агента');
+      for (const entry of roots) { const option = el('option', `${entry.name} — ${entry.path}`); option.value = entry.name; picker.append(option); }
+      picker.value = active.name;
+      picker.onchange = () => {
+        saveActiveRoot(picker.value);
+        const chosen = roots.find((entry) => entry.name === picker.value);
+        agentRoot = chosen?.path ?? null;
+        browser.setRoot(agentRoot);
+        void browser.open('');
+        notice(`Активная папка: ${picker.value}. Чат и терминал работают в ней.`);
+      };
+      nodes.push(el('label', 'Активная папка (смена без перезапуска агента)'), picker);
+    }
     const toggle = el('button', state.enabled ? 'Выключить' : 'Включить на 1 час');
     toggle.type = 'button';
     toggle.onclick = () => {
@@ -151,7 +171,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       send.onclick = () => {
         const target = kind.value === 'run' ? { path: command.value } : toRelativePath(path.value, agentRoot);
         if ('error' in target) { notice(target.error, true); return; }
-        void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: kind.value, path: target.path, ...(kind.value === 'write' ? { content: content.value } : {}) }) })
+        void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: kind.value, path: target.path, ...(kind.value === 'write' ? { content: content.value } : {}), ...activeRootField() }) })
           .then(() => { notice('Задача поставлена.'); return paint(); }).catch(failure);
       };
       nodes.push(

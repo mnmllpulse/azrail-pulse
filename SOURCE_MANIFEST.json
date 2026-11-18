@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-18T00:44:07.611Z",
+  "generated_at": "2026-11-18T00:53:15.079Z",
   "excludes_self": true,
-  "file_count": 1274,
+  "file_count": 1277,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -132,8 +132,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 11600,
-      "sha256": "aa975c21f00089a4e1a844832a67eaa3627df1f70d0b629cdebd3a7e5ef9d840"
+      "bytes": 12742,
+      "sha256": "675087277496cca09fa4f563f35312ce3906e0947426c759b396c42a3127c475"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1394432,
-      "sha256": "bfab9f8a4ef74cb35111af3ac1820c8571e2f8a1dd0caf69ed6170d39c9bf4c5"
+      "bytes": 1395891,
+      "sha256": "16229005464bd41279bdc174e9fbed704ebfa6aa02169ef6e9fb2731ae367b5e"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3082,8 +3082,8 @@
     },
     {
       "path": "scripts/local-agent/azrail-agent.mjs",
-      "bytes": 6754,
-      "sha256": "55d170948987eda7f4a4af3141b2d677f3933bbb2281e21fe283c20c214d4db0"
+      "bytes": 8344,
+      "sha256": "3fce6d1d2a46335b2752a965173736d301b9d8e3ff947daa7d7efd460a5704e1"
     },
     {
       "path": "scripts/local-contrast.mjs",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 24652,
-      "sha256": "5baae8b6e957db029906d1d55d0c66da56511094dccf9b58e76d6691927cd56e"
+      "sha256": "8f3ab72fc70e28be2cf4bf7c2f46e7af26903a98b6918d4de6796d3f6d43a655"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 479023,
-      "sha256": "457975c07d7d6461b2b2a3481d660d23f74e720fe4c4f106326571240c29fed8"
+      "bytes": 480499,
+      "sha256": "94b8417786d563fbac25c26365118ebdd6e5eaa081479de6236772ea37842143"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 24652,
-      "sha256": "5baae8b6e957db029906d1d55d0c66da56511094dccf9b58e76d6691927cd56e"
+      "sha256": "8f3ab72fc70e28be2cf4bf7c2f46e7af26903a98b6918d4de6796d3f6d43a655"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -3612,8 +3612,8 @@
     },
     {
       "path": "src/agents/orchestrator.ts",
-      "bytes": 30413,
-      "sha256": "f549014441c1fe99ea2d77f5d5b3c4dcacf8023532ed2b1aace9bf4971c19615"
+      "bytes": 31024,
+      "sha256": "12e1c291d5e0db569c997e6c4b7c2ff161ab4bdbe5be71a0b545da96e19b7472"
     },
     {
       "path": "src/agents/qa-agent.ts",
@@ -3967,8 +3967,8 @@
     },
     {
       "path": "src/lib/local-agent.ts",
-      "bytes": 9331,
-      "sha256": "b06ea0ebb02149dababdd10af8fdb836e0ac4eb4e3199200b79f2b19011453de"
+      "bytes": 12028,
+      "sha256": "b4cd74302077bb5f03f7cf4b07b5d7a583f12925f6de19fa8952dc0b2f474420"
     },
     {
       "path": "src/lib/memory-agent.ts",
@@ -4407,8 +4407,8 @@
     },
     {
       "path": "src/unified/local-agent.ts",
-      "bytes": 4175,
-      "sha256": "465143fbd49a290f617daf7707a541e259e49b907b3cc78b347cffa110a1611c"
+      "bytes": 4275,
+      "sha256": "8a1f07e9416ede625e2ed32d201a3361239bafb34ebb2b705d4697913543e439"
     },
     {
       "path": "src/unified/mcp-client.ts",
@@ -4497,13 +4497,23 @@
     },
     {
       "path": "tests/agent-browser.test.ts",
-      "bytes": 14037,
-      "sha256": "6020f7947fa60391b714b2889d8c768ec8d6ee3ecbf97ffd3593c522f23c1153"
+      "bytes": 15521,
+      "sha256": "6ceb8b9d56f5a399faf282fd5a22d0ee27759f5430c6695b1833974783adc59e"
+    },
+    {
+      "path": "tests/agent-multi-root.test.ts",
+      "bytes": 6361,
+      "sha256": "054e319e4f777d222a39a165d5a59b09292b978679f311593fd588de81e10536"
     },
     {
       "path": "tests/agent-paths.test.ts",
       "bytes": 2193,
       "sha256": "e4db5b9c68614466d40da199f6eac7c5416747cf1f9f7ae0f352246aec1d06a2"
+    },
+    {
+      "path": "tests/agent-roots.test.ts",
+      "bytes": 1087,
+      "sha256": "0584d7198af10867b03c611a6988f80d9cc3506e380202ed1245634246b3ab39"
     },
     {
       "path": "tests/als-music-parser.test.ts",
@@ -5407,13 +5417,18 @@
     },
     {
       "path": "ui/agent-browser.ts",
-      "bytes": 8569,
-      "sha256": "701421d84e3a1115cba6fecf7bfbdb53b2380cd05d93329ef0cf2660d9c4aac7"
+      "bytes": 8640,
+      "sha256": "c5b570bb17e9c49f83b8e5d70442a9812d15559d7c0acb02773ed94cdce7d404"
     },
     {
       "path": "ui/agent-paths.ts",
-      "bytes": 1972,
-      "sha256": "c9a74ae0b546d2fd58a9be581c36e949e6ad625601430c7d2b6f5137456aef60"
+      "bytes": 2036,
+      "sha256": "6e86fd4bf804406940b577aa9dcadf5c67c60628f7f2fb9d17ccec6526161190"
+    },
+    {
+      "path": "ui/agent-roots.ts",
+      "bytes": 955,
+      "sha256": "dd83ca792437f2788a258f5fc4a736996e9273527feebad207456e338fc1001c"
     },
     {
       "path": "ui/app-dialogs.ts",
@@ -5472,8 +5487,8 @@
     },
     {
       "path": "ui/chat-commands.ts",
-      "bytes": 8224,
-      "sha256": "43c55ab806198878a85e69f2068bbeeaab0e472500fb2eeb4a34b7a33d0aada4"
+      "bytes": 8324,
+      "sha256": "51ca49c4990d2fb287f8dbe017df8a8473fe0687f6776318a4c694cb14361322"
     },
     {
       "path": "ui/chat-fixloop.ts",
@@ -5657,8 +5672,8 @@
     },
     {
       "path": "ui/local-agent.ts",
-      "bytes": 10273,
-      "sha256": "6f3b0e69cb9ddc60b4fb79efa2d60a51a4ac3a470bfc6a253369ddea9651fcd5"
+      "bytes": 11550,
+      "sha256": "146ebab7dee014983b6d8a19a6ed02e5d4d56b0a857077a3283126d5f985ab97"
     },
     {
       "path": "ui/media.ts",
@@ -5867,8 +5882,8 @@
     },
     {
       "path": "ui/terminal-panel.ts",
-      "bytes": 6902,
-      "sha256": "be2667be0a8e3d0c33ca08b3e395114b31ae46d58f495b1929de54dd7b540393"
+      "bytes": 6973,
+      "sha256": "33b25ac0a6a51d90f2bd44ef0538f57326a331b4616d2f200b53338f375c4f59"
     },
     {
       "path": "ui/tokens.css",

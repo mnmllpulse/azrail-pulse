@@ -1,4 +1,5 @@
 import { agentGap, agentHint, agentIntent, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView, type AgentState } from './chat-agent';
+import { activeRootField } from './agent-roots';
 import { fixIntent, fixConsentText, runFixLoop, FIX_APPROVE, rollbackIntent, rollbackConsentText, runRollback } from './chat-fixloop';
 import { modelIntent, proposalText, YES, ROLLBACK, type ModelProposal } from './chat-settings';
 
@@ -39,7 +40,7 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
   let modelUndo: ModelProposal | null = null;
 
   const agentJob = async (kind: string, path: string, content?: string) => {
-    const made = (await api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind, path, ...(content === undefined ? {} : { content }) }) })).job as AgentJobView;
+    const made = (await api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind, path, ...(content === undefined ? {} : { content }), ...activeRootField() }) })).job as AgentJobView;
     if (made.status === 'awaiting_approval') await api(`/api/agent/jobs/${made.id}/approve`, { method: 'POST', body: '{}' });
     return waitJob(api, made.id, sleep, kind === 'run' ? 90 : 30);
   };
@@ -122,7 +123,7 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
     if (forAgent) {
       try {
         if (!(await agentReady(message))) return true;
-        const made = (await api('/api/agent/jobs', { method: 'POST', body: JSON.stringify(forAgent) })).job as AgentJobView;
+        const made = (await api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ ...forAgent, ...activeRootField() }) })).job as AgentJobView;
         if (made.status === 'awaiting_approval') { agentWaiting = made.id; noteLocal(message, approvalText(made)); return true; }
         noteLocal(message, jobReply(await waitJob(api, made.id, sleep)));
       } catch (error) { failed(message, error, 'Агент недоступен.'); }

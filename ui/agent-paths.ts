@@ -6,7 +6,7 @@ export function agentCommand(origin: string, token: string, root = ''): string {
   return [
     `$env:AZRAIL_URL=${psQuote(origin)}`,
     `$env:AZRAIL_AGENT_TOKEN=${psQuote(token)}`,
-    folder ? `$env:AZRAIL_ROOT=${psQuote(folder)}` : '$env:AZRAIL_ROOT=(Get-Location).Path',
+    folder.includes(';') ? `$env:AZRAIL_ROOTS=${psQuote(folder)}` : folder ? `$env:AZRAIL_ROOT=${psQuote(folder)}` : '$env:AZRAIL_ROOT=(Get-Location).Path',
     'node scripts\\local-agent\\azrail-agent.mjs',
   ].join('\n');
 }
