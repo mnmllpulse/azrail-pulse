@@ -1,5 +1,6 @@
 import {renderMission} from './mission-view';
 import {hydrateIcons} from './icons';
+import {createAccountMenu} from './account-menu';
 import {mountWorkspaceShell} from './components/workspace-shell';
 import {createChatHistory,renderChatMessages} from './chat-history';
 import {createStudioRooms} from './studio-chat';
@@ -554,7 +555,7 @@ $<HTMLInputElement>('assignment-reference').addEventListener('change',()=>{
   notice('Своя картинка задаёт вид следующей сборки.');
  }).catch(failure);
 });
-bind('assignment-login',()=>$('account').click());
+bind('assignment-login',()=>$('account-action').click());
 navigation.link($<HTMLAnchorElement>('close-studio'),{page:'studios'});
 for(const meta of studios){const link=document.createElement('a');link.textContent=meta.title;link.dataset.studio=meta.id;navigation.link(link,{page:'studio',studio:meta.id});$('context-studios').append(link);}
 document.addEventListener('azrail:open-studio',(event:Event)=>{const id=(event as CustomEvent<{studio?:string}>).detail?.studio;if(id&&studioById(id))navigation.navigate({page:'studio',studio:id as StudioId});});
@@ -570,13 +571,13 @@ const openTokenLogin=()=>{
    authToken=value;session(()=>sessionStorage.setItem('pulse.token',authToken));
    try{const me=await api('/api/me');account=me.account;}
    catch(e){authToken='';session(()=>sessionStorage.removeItem('pulse.token'));throw e;}
-   $<HTMLDialogElement>('dialog').close();$('account').textContent=account!.name;syncChatAccount();void refreshComposerModels();await refreshMode();
+   $<HTMLDialogElement>('dialog').close();setAccountLabel();syncChatAccount();void refreshComposerModels();await refreshMode();
    await syncServerChats();
    if(mission&&expertOn()){navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}
    notice('Вход выполнен.');
   });
 };
-bind('account',async()=>{
+bind('account-action',async()=>{
  if(!account){
   if(local)throw Error('Вход доступен после развёртывания приложения.');
   if(oidcConfigured){
@@ -605,13 +606,21 @@ async function refreshAccount(){
  const a=await api('/auth/status');account=a.account;oidcConfigured=!!a.configured;if(typeof a.key==='boolean')keyLogin=a.key;
  if(!account&&authToken){try{const me=await api('/api/me');account=me.account;}catch{authToken='';session(()=>sessionStorage.removeItem('pulse.token'))}}
  syncChatAccount();void refreshComposerModels();
- if(account){$('account').textContent=account.name;await refreshMode();ensureEventStream();if(mission&&expertOn()){if(composerPage==='create')navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}}
+ if(account){setAccountLabel();await refreshMode();ensureEventStream();if(mission&&expertOn()){if(composerPage==='create')navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}}
  else if(!oidcConfigured)notice('OIDC не настроен. Войдите по токену через кнопку «Аккаунт» — регистрация внешнего приложения не нужна.');
 }
 async function refreshMode(){return api('/api/routing-settings');}
 function currentModelLabel(){
  const hit=preferredModel?composerModels.find(preferredModel):undefined;
  return hit?modelLabel(hit):(preferredModel?modelDisplayName(preferredModel):'Auto · AZRAIL');
+}
+function setAccountLabel(){
+ const name=account?.name??'';
+ $('account-label').textContent=name||'Войти';
+ $('account-avatar').textContent=(name.trim()[0]||'A').toUpperCase();
+ $('account-menu-name').textContent=account?(account.id.includes('@')?account.id:name):'';
+ $('account-menu-name').hidden=!account;
+ $('account-action-label').textContent=account?'Выйти':'Войти';
 }
 function openSettings(){navigation.navigate({page:'settings'});}
 
@@ -640,13 +649,13 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
   settingsHeading(content,'Аккаунт','Профиль и доступ к AZRAIL.');
   if(!account){
    settingsText(content,'Вы ещё не вошли. Войдите, чтобы синхронизировать чаты, проекты и подключения.','context-note');
-   settingsButton(content,'Войти в аккаунт',()=>$('account').click(),true);
+   settingsButton(content,'Войти в аккаунт',()=>$('account-action').click(),true);
   }else{
    const card=document.createElement('section');card.className='settings-info-card';
    const row=(label:string,value:string)=>{const line=document.createElement('div');line.className='settings-info-row';const key=document.createElement('span');key.textContent=label;const val=document.createElement('strong');val.textContent=value;line.append(key,val);card.append(line);};
    row('Имя',account.name);row('ID аккаунта',account.id);row('Роль',account.role??'Не указана');row('Уровень оператора',account.operator?'Да':'Нет');
    content.append(card);
-   settingsButton(content,'Управление входом и выходом',()=>$('account').click());
+   settingsButton(content,'Управление входом и выходом',()=>$('account-action').click());
   }
   return;
  }
@@ -807,6 +816,7 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
 }
 
 bind('settings',()=>openSettings());
+createAccountMenu({wrap:$('account-wrap'),button:$<HTMLButtonElement>('account'),menu:$('account-menu')});
 function ensureEventStream(){
  if(local||!account||!project){stopEventStream();stopEventStream=()=>{};streamProject='';return;}
  if(streamProject===project)return;

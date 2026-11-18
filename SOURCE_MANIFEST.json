@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-18T21:05:26.844Z",
+  "generated_at": "2026-11-18T21:22:14.991Z",
   "excludes_self": true,
-  "file_count": 1292,
+  "file_count": 1294,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1425564,
-      "sha256": "2828f236fc88933afd9274c4cfa3957b587616521442156a994a5b9a5da4754f"
+      "bytes": 1429234,
+      "sha256": "2ad2a21803b63f8499ce27b2d29d68d6cf1dcf60472c62dadab69bae98f236bd"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3257,8 +3257,8 @@
     },
     {
       "path": "site/app.html",
-      "bytes": 25147,
-      "sha256": "00df3c2a75ddfa7afbead2b5e4d8fedf9bd7df9c738b8345517933ab89034c2c"
+      "bytes": 25795,
+      "sha256": "f6f8947421de8790e513e97740705d4fb3b4532161dc2c1d40aa8b3832884847"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3267,13 +3267,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 171024,
-      "sha256": "02b215af81418c9862c50b6b0d62f9d1e4b95cc2512c6774e05a18f0dead8797"
+      "bytes": 172943,
+      "sha256": "7f402b34780bba1b98df1fe306522d87ef70b08975bb8d4ef60e2065e49dcb5b"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 500342,
-      "sha256": "35ca48c318b80651b6ef4189b03591fb70e51ad9a76b9658d92170355aa6a94a"
+      "bytes": 501435,
+      "sha256": "dc3342ea188dccc6947cdf5def7e1e39bb5ee82576ba16702e14cc509b1b04d2"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3547,8 +3547,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 25147,
-      "sha256": "00df3c2a75ddfa7afbead2b5e4d8fedf9bd7df9c738b8345517933ab89034c2c"
+      "bytes": 25795,
+      "sha256": "f6f8947421de8790e513e97740705d4fb3b4532161dc2c1d40aa8b3832884847"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4489,6 +4489,11 @@
       "path": "tests/ableton-lab.test.ts",
       "bytes": 6819,
       "sha256": "1b4fafca4dfdfdae61c4057e899a4870fd98b621dd6b1f82252218d72d44bab1"
+    },
+    {
+      "path": "tests/account-menu.test.ts",
+      "bytes": 2873,
+      "sha256": "60573fe888ac582bd67539966c5bc4849e605c846912eac94d64d49bb9bb5efd"
     },
     {
       "path": "tests/admission-release.test.ts",
@@ -5471,6 +5476,11 @@
       "sha256": "9e45865480bff562af83742c4d55483c8db1656e3eb02161d0521d31b2597de2"
     },
     {
+      "path": "ui/account-menu.ts",
+      "bytes": 1213,
+      "sha256": "f5c5c56f249bf0b76b07a9fe69841ee83b44b7fe17efac8b20c0e89381ce2a6e"
+    },
+    {
       "path": "ui/agent-browser.ts",
       "bytes": 8640,
       "sha256": "c5b570bb17e9c49f83b8e5d70442a9812d15559d7c0acb02773ed94cdce7d404"
@@ -5492,18 +5502,18 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 127833,
-      "sha256": "07b6b9b51b3f495626c6d08235da0aebeb879a1557d1f21276f316728184158b"
+      "bytes": 127831,
+      "sha256": "c3441321f7fcce19e26f1a2e8fd2218caaead8c8cbd36e796fa825ff8deaf1e5"
     },
     {
       "path": "ui/app.html",
-      "bytes": 25121,
-      "sha256": "710705a7307d1cfecb6deafa3c23ba59dca4ff4b4fee2fb04ceedf6382f364ad"
+      "bytes": 25769,
+      "sha256": "c77c2b9a4c018eec3a43afee68cc3ebea84fa1466b42a4984c458e51b78b3e6b"
     },
     {
       "path": "ui/app.ts",
-      "bytes": 158615,
-      "sha256": "80673cbe4e1d0e5670a7118a2141dd39a62e0972c218433f894e63729b780069"
+      "bytes": 159148,
+      "sha256": "3fd88b5b5f56a0f5080efc17306d582eb5c9fdee3ff8b1fb66d12e0e6f0eb960"
     },
     {
       "path": "ui/assignment.ts",
@@ -5817,8 +5827,8 @@
     },
     {
       "path": "ui/premium-workspace.css",
-      "bytes": 19582,
-      "sha256": "515ff4abad739f83fdee3f481c8bec52eab38a5d637359531aed4dc901746c7e"
+      "bytes": 21961,
+      "sha256": "0ec71b9e7f0059843f3cd47adcf8399a00541d73cf8c31335455394af383c413"
     },
     {
       "path": "ui/projects.ts",

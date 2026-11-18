@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="AZRAIL">
 <title>AZRAIL × MNMLL PULSE</title>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/assets/app.css?v=02b215af81">
+<link rel="stylesheet" href="/assets/app.css?v=7f402b3478">
 </head>
 <body>
 <a class="skip" href="#main">К содержимому</a>
@@ -39,11 +39,16 @@
     <div class="history-scroll"><ul id="chat-list" class="chat-list" aria-label="История чатов"></ul><p id="chat-history-empty" class="history-empty">Здесь появятся ваши чаты.</p></div>
     <p class="history-scope">Чаты синхронизируются между устройствами</p>
     <div class="sidebar-footer">
-      <button id="settings" class="nav" data-view="settings" type="button" aria-label="Настройки" title="Настройки"><span aria-hidden="true" data-icon="settings"></span> Настройки</button>
-
+      <div id="account-wrap" class="sidebar-account">
+        <button id="account" class="account" type="button" aria-controls="account-menu"><span id="account-avatar" class="account-avatar" aria-hidden="true">A</span><span id="account-label" class="account-label">Войти</span><span class="account-chevron" aria-hidden="true" data-icon="chevron" data-icon-size="14"></span></button>
+        <div id="account-menu" class="account-menu" role="menu" aria-label="Аккаунт" hidden>
+          <p id="account-menu-name" class="account-menu-name"></p>
+          <button id="settings" class="account-menu-item" type="button" role="menuitem" data-view="settings"><span aria-hidden="true" data-icon="settings" data-icon-size="16"></span><span>Настройки</span><kbd>Ctrl+,</kbd></button>
+          <hr class="account-menu-sep">
+          <button id="account-action" class="account-menu-item" type="button" role="menuitem"><span aria-hidden="true" data-icon="open" data-icon-size="16"></span><span id="account-action-label">Войти</span></button>
+        </div>
+      </div>
       <button id="expert-mode" class="nav" type="button" aria-pressed="false" hidden>Эксперт</button>
-
-      <div class="sidebar-account"><span class="account-avatar" aria-hidden="true">A</span><button id="account" class="account" type="button">Войти <span data-icon="open" data-icon-size="14"></span></button></div>
     </div>
   </aside>
   <button id="sidebar-backdrop" class="sidebar-backdrop" type="button" aria-label="Закрыть навигацию" hidden></button>
@@ -240,4 +245,4 @@
   </aside>
 </div>
 <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><button id="notice-close" type="button" aria-label="Закрыть уведомление">×</button></div><dialog id="dialog"><div class="section-heading"><h2 id="dialog-title"></h2><button id="close-dialog" aria-label="Закрыть">×</button></div><div id="dialog-content"></div></dialog><noscript><p class="context-note">Интерфейс виден, но для работы кнопок нужен JavaScript.</p></noscript>
-<script type="module" src="/assets/app.js?v=35ca48c318"></script></body></html>
+<script type="module" src="/assets/app.js?v=dc3342ea18"></script></body></html>
