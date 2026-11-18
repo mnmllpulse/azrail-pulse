@@ -175,6 +175,30 @@ describe('agent settings form',()=>{
     expect(t0.doc.querySelector('select[aria-label="Активная папка агента"]')).toBeNull();
     expect(t0.doc.defaultView!.localStorage.getItem('pulse.agentActiveRoot')).toBeNull();
   });
+  it('copy button puts the whole command with a trailing newline on the clipboard',async()=>{
+    const {agentSettings}=await import('../ui/local-agent');
+    win=new Window({url:'https://azrail.example/'});
+    vi.stubGlobal('document',win.document);vi.stubGlobal('location',win.location);vi.stubGlobal('localStorage',win.localStorage);
+    const writeText=vi.fn(async()=>undefined);
+    vi.stubGlobal('navigator',{clipboard:{writeText}});
+    let enabled=false;
+    const api=vi.fn(async(path:string)=>{
+      if(path==='/api/agent/enable'){enabled=true;return {token:'azagent_'+'a'.repeat(64),expiresAt:Date.now()+3600_000};}
+      if(path==='/api/agent/status')return {enabled,connected:false,expiresAt:enabled?Date.now()+3600_000:null,roots:[],jobs:[]};
+      return {};
+    });
+    const host=agentSettings(api,vi.fn(),vi.fn());
+    win.document.body.append(host as unknown as Node);
+    for(let i=0;i<10;i++)await new Promise(r=>setTimeout(r,0));
+    const buttons=()=>Array.from(win.document.querySelectorAll<HTMLButtonElement>('button'));
+    buttons().find(b=>b.textContent==='Включить на 1 час')!.click();
+    for(let i=0;i<10;i++)await new Promise(r=>setTimeout(r,0));
+    buttons().find(b=>b.textContent==='Скопировать команду')!.click();
+    await new Promise(r=>setTimeout(r,0));
+    const text=writeText.mock.calls[0][0] as string;
+    expect(text.endsWith('node scripts\\local-agent\\azrail-agent.mjs\n')).toBe(true);
+    expect(text).toContain('azagent_'+'a'.repeat(64));
+  });
   it('does not render the browser for a disabled agent',async()=>{
     const t=await mount({enabled:false,connected:false,expiresAt:null,jobs:[]});
     expect(t.doc.querySelector('.agent-browser')).toBeNull();

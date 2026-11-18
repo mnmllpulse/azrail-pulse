@@ -96,11 +96,11 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
     refreshCommand();
   };
   copy.onclick = () => {
-    void navigator.clipboard.writeText(commandBox.value).then(() => notice('Команда скопирована.')).catch(() => { commandBox.select(); notice('Выдели текст и скопируй вручную (Ctrl+C).', true); });
+    void navigator.clipboard.writeText(`${commandBox.value}\n`).then(() => notice('Команда скопирована.')).catch(() => { commandBox.select(); notice('Выдели текст и скопируй вручную (Ctrl+C).', true); });
   };
   setup.append(
     el('strong', 'Запуск на компьютере'),
-    el('p', '1. Открой PowerShell в папке репозитория azrail-pulse (там, где scripts\\local-agent). 2. Вставь команду и оставь окно открытым. Ключ показан один раз.', 'muted'),
+    el('p', '1. Открой PowerShell в папке репозитория azrail-pulse (там, где scripts\\local-agent). 2. Вставь команду целиком: последняя строка запустится сама. Окно оставь открытым. Ключ показан один раз и действует только последний: после нового «Включить» старую команду вставлять нельзя.', 'muted'),
     el('label', 'Папки, которыми сможет управлять агент'),
     rootInput,
     commandBox,
@@ -175,7 +175,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
           .then(() => { notice('Задача поставлена.'); return paint(); }).catch(failure);
       };
       nodes.push(
-        el('p', 'Корневая папка задаётся при запуске агента переменной AZRAIL_ROOT. Обзор показывает только её содержимое, выше неё подняться нельзя. Чтобы выбрать другую папку, перезапусти агента с другим AZRAIL_ROOT.', 'muted'),
+        el('p', 'Папки задаются при запуске агента (одна или несколько через ;). Обзор показывает только их содержимое, выше подняться нельзя. Между запущенными папками можно переключаться без перезапуска; новую папку добавляет только перезапуск агента.', 'muted'),
         browser.element,
         kind, path, pathHint, command, content, send,
       );
