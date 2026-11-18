@@ -118,7 +118,7 @@ try{chatStorage={getItem:key=>deviceValue(key),setItem:(key,value)=>{deviceWrite
 const chatHistory=createChatHistory(chatStorage,()=>notice('История доступна в памяти, но хранилище устройства заполнено или недоступно.',true));
 applyRetention({storage:chatStorage,threads:()=>chatHistory.list(),keepId:()=>chatHistory.current()?.id??'',removeThread:id=>chatHistory.remove(id)});
 const chatMenu=createChatMenu({chatHistory,api,signedIn:()=>!!account&&!local,notice,syncChatUI,openChat,newChat,getProject:()=>project,setProject:id=>{project=id;remember();}});
-const closeChatMenus=()=>chatMenu.close(),placeFloatingMenu=chatMenu.place,openChatMenu=chatMenu.open;
+const closeChatMenus=()=>chatMenu.close(),openChatMenu=chatMenu.open;
 const studioRooms=createStudioRooms(chatStorage);
 chatHistory.setScope(local?'local':'guest');
 let openContextPanel=()=>{};
@@ -169,20 +169,19 @@ function syncChatUI(messages=true){
  $('chat-history-empty').hidden=!!list.childElementCount;$('chat-history-empty').textContent=query?'Чаты не найдены.':(showArchived?'Архив пуст.':'Здесь появятся ваши чаты.');
  if(messages)renderChatMessages($('chat-messages'),active,mission,{
   assistantLabel:`AZRAIL · ${VOICES[chatVoice].name}`,
-  onCopy:()=>notice('Ответ скопирован.'),
-  onShare:()=>notice('Ответ готов к отправке.'),
-  onSpeak:()=>{},
-  onMore:(text,anchor)=>{
-   closeChatMenus();
-   const menu=document.createElement('div');menu.className='chat-menu message-more-menu';menu.setAttribute('role','menu');
-   const mk=(label:string,fn:()=>void)=>{const b=document.createElement('button');b.type='button';b.className='chat-menu-item';b.textContent=label;b.onclick=()=>{closeChatMenus();fn();};menu.append(b);};
-   mk('Копировать',()=>{void copyText(text).then(ok=>notice(ok?'Скопировано.':'Не удалось скопировать.'));});
-   mk('Озвучить',()=>speakText(text));
-   mk('Поделиться',()=>{void shareText(text);});
-   mk('Выделить всё',()=>{void copyText(text);});
-   placeFloatingMenu(menu,anchor);
-   const onDoc=(e:MouseEvent)=>{if(!menu.contains(e.target as Node)&&e.target!==anchor){closeChatMenus();document.removeEventListener('click',onDoc,true);}};
-   window.setTimeout(()=>document.addEventListener('click',onDoc,true),0);
+  onCopy:()=>notice('Скопировано.'),
+  onEdit:text=>{prompt.value=text;prompt.dispatchEvent(new Event('input',{bubbles:true}));prompt.focus();notice('Запрос в поле ввода: измени и отправь заново.');},
+  onSave:async(text,role)=>{
+   if(!account){notice('Войдите, чтобы сохранять в память.',true);return;}
+   try{
+    await api('/api/studio/intelligence/memory',{method:'POST',body:JSON.stringify({scope:'user',key:`chat-${role}-${Date.now()}`,value:{text:text.slice(0,12000),role,chat:chatHistory.current()?.title??''},source:'chat',whyStored:role==='user'?'Запрос сохранён из чата':'Ответ сохранён из чата'})});
+    notice('Сохранено в Global Memory.');
+   }catch(error){failure(error);}
+  },
+  onBranch:index=>{
+   const current=chatHistory.current();if(!current)return;
+   const branch=chatHistory.fork(current.id,index);if(!branch)return;
+   openChat(branch.id);notice('Ветка создана в новом чате. Сервер контекст не копирует: продолжай как новый диалог.');
   },
  });
  $('chat-welcome').hidden=!!(active?.turns.length||mission);

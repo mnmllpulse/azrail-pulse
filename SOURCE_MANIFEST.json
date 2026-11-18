@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-18T06:07:51.102Z",
+  "generated_at": "2026-11-18T06:14:47.182Z",
   "excludes_self": true,
-  "file_count": 1281,
+  "file_count": 1282,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1406949,
-      "sha256": "910a118c7fed88c816d33223a9546e9e6ddea767b352ade55e8fa3360c0a53b9"
+      "bytes": 1409399,
+      "sha256": "9380ad7fc763017189f6f72b76d62e4c0f102b266d85b2f8da82d18e558cdcda"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 24909,
-      "sha256": "f75ac8b2ec82d060bb139b185dea524c35b612f4d1c9dd364cc1d9a5dff90788"
+      "sha256": "67ee4a81c4581662e1d6eb59ad5fd1958e7a300efedb8cb78438ccab3acace08"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3267,13 +3267,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 167553,
-      "sha256": "0ca033e30d7e2134cfa089da7e921d2403379006c9c86ee84b622345f94755a5"
+      "bytes": 167731,
+      "sha256": "5a9867c105a14a89c32da4c319666fe786ab5466706ea2370ae632f1f10a1c52"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 485453,
-      "sha256": "be1ab2f75383931f393f7e8182f16697717934a7a63f3a11ce37327d782ac653"
+      "bytes": 487714,
+      "sha256": "b118edfb8d7879c57408ba6cf5384e2900efe4b53521b4caec7ce763bd39c4e0"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 24909,
-      "sha256": "f75ac8b2ec82d060bb139b185dea524c35b612f4d1c9dd364cc1d9a5dff90788"
+      "sha256": "67ee4a81c4581662e1d6eb59ad5fd1958e7a300efedb8cb78438ccab3acace08"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4901,6 +4901,11 @@
       "sha256": "93053cba4a334b541c7808f453f50d3273b048b55e07050cdd7f0df36519598f"
     },
     {
+      "path": "tests/message-actions.test.ts",
+      "bytes": 6380,
+      "sha256": "8110c934a636d4c797153e795ed3ef647c2778b1098821a3725898c2b0620992"
+    },
+    {
       "path": "tests/migration-ledger.test.ts",
       "bytes": 687,
       "sha256": "f6cc6ba38f88e4686b680bb82c62d78d237802419422702d2cbd81826923fc4c"
@@ -5462,8 +5467,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 156745,
-      "sha256": "3bdada113e7c110eb1e6e77eeab1ce463e95249977cc5834dad6603635785c37"
+      "bytes": 156764,
+      "sha256": "5ac162cb34c5c0aa6937af42c76979a9eac94c4144ac2326fefad47e30b93fa6"
     },
     {
       "path": "ui/assignment.ts",
@@ -5492,8 +5497,8 @@
     },
     {
       "path": "ui/chat-actions.ts",
-      "bytes": 7381,
-      "sha256": "71cb1806a4043c167f790545dbd9ec0e4c06d5ec516f06490bc495244841b758"
+      "bytes": 8954,
+      "sha256": "bd7d890e2fbe6e5638d895c81a42ff1fc40f39c277be8c0c3e9d90d02a14d790"
     },
     {
       "path": "ui/chat-agent.ts",
@@ -5512,8 +5517,8 @@
     },
     {
       "path": "ui/chat-history.ts",
-      "bytes": 11510,
-      "sha256": "aa30e366ce901c5ee7c7bcfaaa73815b84384dd9fefde16fcfcbc7912205beca"
+      "bytes": 12303,
+      "sha256": "5a8d27d8a6cb2d0c2db33fcf01a1432b9135fbdb0bb344985fdc3961bd6ec2ec"
     },
     {
       "path": "ui/chat-markdown.ts",
@@ -5672,8 +5677,8 @@
     },
     {
       "path": "ui/icons.ts",
-      "bytes": 5835,
-      "sha256": "2d70c746b131791a799ccc0532ff6cd5482c89aa1e5dee68abccca7a3e4885e1"
+      "bytes": 5917,
+      "sha256": "e6cc87e771e6e0aeb7f465be206b23927db999efb2ce96e36eeb161a4f0b3bab"
     },
     {
       "path": "ui/image-request.ts",
@@ -5937,8 +5942,8 @@
     },
     {
       "path": "ui/workspace.css",
-      "bytes": 33119,
-      "sha256": "5bab82e7b306170b470771b34d0ab4e4c2e58af3702bd58571d992632d69d186"
+      "bytes": 33318,
+      "sha256": "7c993a35a710d2d3a33c1b6f595a784438c3587695c4130bcafde56fe87b70c2"
     },
     {
       "path": "ui/zip-site.ts",

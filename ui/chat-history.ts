@@ -1,4 +1,4 @@
-import {appendAssistantActions,type MessageActionHandlers} from './chat-actions';
+import {appendAssistantActions,appendUserActions,type MessageActionHandlers} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
 
 export type ChatTurn={missionId:string;requestKey:string;user:string;reply:string;status:string};
@@ -163,11 +163,20 @@ export function createChatHistory(storage:Storage|undefined,onStorageError:()=>v
    const thread=ensure(id);
    const serverTurns=messagesToTurns(messages);
    const queued=thread.turns.filter(t=>t.status==='queued'&&t.user&&!serverTurns.some(s=>s.requestKey===t.requestKey||(s.user===t.user&&!s.reply)));
-   thread.turns=[...serverTurns,...queued].slice(-40);
+   const carried=thread.turns.filter(t=>t.requestKey.startsWith('fork:'));
+   thread.turns=[...carried,...serverTurns,...queued].slice(-40);
    if(!thread.customTitle&&serverTurns[0]?.user)thread.title=autoChatTitle(serverTurns[0].user);
    thread.updatedAt=Math.max(thread.updatedAt,Date.now());
    sortThreads(state.threads);save();
    return thread;
+  },
+  fork(id:string,upTo:number){
+   const source=state.threads.find(t=>t.id===id);
+   if(!source||!Number.isInteger(upTo)||upTo<0||upTo>=source.turns.length)return undefined;
+   const thread=create();
+   thread.title=`Ветка · ${source.title}`.slice(0,90);thread.customTitle=true;thread.projectId=source.projectId;
+   thread.turns=source.turns.slice(0,upTo+1).map(t=>({missionId:'',requestKey:`fork:${crypto.randomUUID()}`,user:t.user,reply:t.reply,status:'completed'}));
+   touch(thread);return thread;
   },
   clearScope(){try{storage?.removeItem(key());}catch{}state={active:'',threads:[]};},
  };
@@ -176,7 +185,7 @@ export function createChatHistory(storage:Storage|undefined,onStorageError:()=>v
 export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,liveMission:string,handlers:MessageActionHandlers={}) {
  host.replaceChildren();
  const doc=host.ownerDocument;
- function message(role:'user'|'assistant',content:string,status?:string){
+ function message(role:'user'|'assistant',content:string,status?:string,turn=-1){
   const item=doc.createElement('article');item.className='chat-message';item.dataset.role=role;
   const heading=doc.createElement('h3');heading.className='message-heading';heading.textContent=role==='user'?'Вы':(handlers.assistantLabel||'AZRAIL');
   item.append(heading);
@@ -184,23 +193,26 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
    const body=doc.createElement('div');
    fillMarkdownContent(body,content);
    item.append(body);
-   if(status!=='queued'&&status!=='failed')appendAssistantActions(item,content,handlers);
+   if(status!=='queued'&&status!=='failed')appendAssistantActions(item,content,handlers,turn);
   }else if(role==='user'&&/\]\(\/api\/studio\/artifacts\//.test(content)){
    const body=doc.createElement('div');
    fillMarkdownContent(body,content);
    item.append(body);
   }else{
    const text=doc.createElement('p');text.className='message-content';text.textContent=content;item.append(text);
+   if(role==='user'&&status===undefined)appendUserActions(item,content,handlers);
   }
   if(status==='queued'){const info=doc.createElement('span');info.className='message-status';info.textContent='Думаю…';item.append(info);}
   else if(status==='failed'){const info=doc.createElement('span');info.className='message-status';info.textContent='Ошибка';item.append(info);}
   host.append(item);
  }
- for(const turn of thread?.turns??[]){
+ const turns=thread?.turns??[];
+ for(let index=0;index<turns.length;index++){
+  const turn=turns[index];
   message('user',turn.user);
   const liveMissionTurn=!!liveMission&&turn.missionId===liveMission&&!turn.reply&&turn.status!=='queued'&&turn.status!=='failed';
   if(liveMissionTurn)continue;
-  if(turn.reply)message('assistant',turn.reply);
+  if(turn.reply)message('assistant',turn.reply,undefined,index);
   else if(turn.status==='queued')message('assistant','', 'queued');
   else if(turn.status==='failed')message('assistant',turn.reply||'Не удалось получить ответ.','failed');
  }
