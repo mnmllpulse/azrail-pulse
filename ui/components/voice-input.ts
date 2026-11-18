@@ -50,7 +50,7 @@ export function mountVoiceInput(options:VoiceInputOptions){
  const actions=document.createElement('div');actions.className='toolbar';panel.append(status,transcript,actions);
  // Keep the panel inside the composer so it stays visible above the dock footnote.
  const composer=options.button.closest('#composer');
- if(composer)composer.insertBefore(panel,composer.querySelector('textarea'));
+ if(composer)composer.insertBefore(panel,composer.querySelector('.composer-field'));
  else options.button.parentElement?.parentElement?.after(panel);
  const make=(label:string,fn:()=>void|Promise<void>)=>{const b=document.createElement('button');b.type='button';b.textContent=label;b.onclick=(event)=>{event.preventDefault();event.stopPropagation();void Promise.resolve(fn()).catch(err=>options.failure(micError(err)));};actions.append(b);return b;};
  const pause=make('Пауза',()=>{if(recorder?.state==='recording')recorder.pause();});

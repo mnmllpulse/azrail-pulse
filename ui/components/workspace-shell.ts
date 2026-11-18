@@ -61,7 +61,7 @@ export function mountWorkspaceShell(onContextOpen:()=>void=()=>{}) {
   }
  }
  document.addEventListener('keydown',keydown);
- function resizePrompt(){prompt.style.height='auto';const limit=Math.max(48,Math.min(200,window.innerHeight*.25));prompt.style.height=Math.min(limit,Math.max(48,prompt.scrollHeight))+'px';prompt.style.overflowY=prompt.scrollHeight>limit?'auto':'hidden';}
+ function resizePrompt(){prompt.style.height='auto';const limit=Math.max(24,Math.min(200,window.innerHeight*.25));prompt.style.height=Math.min(limit,Math.max(24,prompt.scrollHeight))+'px';prompt.style.overflowY=prompt.scrollHeight>limit?'auto':'hidden';}
  prompt.addEventListener('input',resizePrompt);
  const scrollListener=()=>{following=scroll.scrollHeight-scroll.scrollTop-scroll.clientHeight<100;jump.hidden=following;};
  scroll.addEventListener('scroll',scrollListener,{passive:true});

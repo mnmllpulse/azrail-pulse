@@ -449,7 +449,7 @@ function syncComposer(route:Route){
  const dock=document.querySelector<HTMLElement>('.composer-dock')!;
  dock.hidden=route.page!=='create'&&route.page!=='mission'&&route.page!=='studio'&&route.page!=='metatron';
  if(changed)prompt.value=composerRoom==='home'?chatHistory.current()?.draft??'':studioRooms.draft(composerRoom);
- prompt.placeholder=route.page==='mission'?'Что сделать…':route.page==='create'?'Опиши, что нужно получить…':composerRoom==='home'?'Опиши, что нужно получить…':roomPlaceholder[composerRoom]??'Напиши задачу для этой студии…';
+ prompt.placeholder=route.page==='mission'?'Что сделать…':route.page==='create'?'Ответить':composerRoom==='home'?'Ответить':roomPlaceholder[composerRoom]??'Напиши задачу для этой студии…';
  $<HTMLButtonElement>('attach').hidden=route.page==='mission';
  $('composer-models').hidden=true;
  $<HTMLButtonElement>('submit').title=route.page==='mission'?'Старт · Enter':'Отправить · Enter';
