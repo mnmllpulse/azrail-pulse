@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="AZRAIL">
 <title>AZRAIL × MNMLL PULSE</title>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/assets/app.css?v=74d0f51eec">
+<link rel="stylesheet" href="/assets/app.css?v=f9f496609a">
 </head>
 <body>
 <a class="skip" href="#main">К содержимому</a>
@@ -147,7 +147,10 @@
       </div>
       <form id="composer" class="composer">
         <label for="prompt" class="sr-only">Сообщение AZRAIL</label>
-        <textarea id="prompt" rows="1" maxlength="20000" placeholder="Опиши, что нужно получить…" required aria-describedby="composer-keyboard"></textarea>
+        <div class="composer-field">
+        <textarea id="prompt" rows="1" maxlength="20000" placeholder="Ответить" aria-describedby="composer-keyboard"></textarea>
+          <button id="submit" class="send-button" type="submit" aria-label="Отправить сообщение" title="Отправить · Enter" data-icon="enter" data-icon-size="16"></button>
+        </div>
         <div id="attachment-names" class="muted"></div><div id="attachment-manager" class="attachment-manager" aria-live="polite" hidden></div>
         <div class="composer-bottom">
           <div class="composer-tools">
@@ -163,11 +166,10 @@
               <select id="composer-model" class="composer-model sr-only" title="Models" tabindex="-1" aria-hidden="true"><option value="">Auto · AZRAIL</option></select>
             </div>
           </div>
-          <button id="submit" class="primary send-button" type="submit" aria-label="Отправить сообщение" title="Отправить · Enter"><span aria-hidden="true">↑</span></button>
         </div>
         <input type="file" id="attachments" multiple hidden>
       </form>
-      <div class="composer-footnote"><button id="studio-talk-open" class="text-button" type="button" hidden>Разговор</button><button id="composer-open-chat" class="text-button" type="button" hidden>Открыть диалог</button><span id="composer-limits">Чат 200 · генерация 500 в сутки</span><span id="composer-keyboard">Enter — отправить · Shift + Enter — новая строка</span></div>
+      <div class="composer-footnote"><button id="studio-talk-open" class="text-button" type="button" hidden>Разговор</button><button id="composer-open-chat" class="text-button" type="button" hidden>Открыть диалог</button><span id="composer-hints"><span id="composer-limits">Чат 200 · генерация 500 в сутки</span><span id="composer-keyboard">Enter — отправить · Shift + Enter — новая строка</span></span></div>
     </div>
     <footer class="workspace-footer"><span>AZRAIL × MNMLL PULSE</span><!-- UNIFIED / 1.5.0-rc.63 --></footer>
   </div>
@@ -238,4 +240,4 @@
   </aside>
 </div>
 <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><button id="notice-close" type="button" aria-label="Закрыть уведомление">×</button></div><dialog id="dialog"><div class="section-heading"><h2 id="dialog-title"></h2><button id="close-dialog" aria-label="Закрыть">×</button></div><div id="dialog-content"></div></dialog><noscript><p class="context-note">Интерфейс виден, но для работы кнопок нужен JavaScript.</p></noscript>
-<script type="module" src="/assets/app.js?v=9e61215faa"></script></body></html>
+<script type="module" src="/assets/app.js?v=560530a028"></script></body></html>

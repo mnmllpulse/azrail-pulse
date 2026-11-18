@@ -160,7 +160,7 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .studio-chat .chat-message { font-size: var(--fs-small); line-height: 1.55; }
 .app-shell .composer { padding: 16px 16px 10px; border: 1px solid #493b59; border-radius: 12px; box-shadow: 0 8px 32px #0002; background: #1a1621; }
 .app-shell .composer:focus-within { border-color: #9676b5; box-shadow: 0 0 0 1px #9676b520; }
-.app-shell .composer textarea { display: block; padding: 2px 6px; margin: 0 0 12px; font-size: 15px; line-height: 24px; min-height: 48px; max-height: min(200px,25dvh); resize: none; overflow-y: auto; background: transparent; border: 0; width: 100%; }
+.app-shell .composer textarea { display: block; padding: 2px 6px; margin: 0; font-size: 15px; line-height: 24px; min-height: 24px; max-height: min(200px,25dvh); resize: none; overflow-y: auto; background: transparent; border: 0; width: 100%; }
 .app-shell .composer textarea:focus-visible { outline: none; }
 .app-shell .composer textarea::placeholder { color: var(--muted); }
 .app-shell .composer .sr-only { margin: -1px; }
@@ -286,7 +286,7 @@ html[data-expert="off"] .assignment-live { display: none !important; }
   .app-shell .home-canvas { width: 100%; padding: 12px; }
   .app-shell .composer-dock { padding: 8px 12px max(10px,env(safe-area-inset-bottom)); }
   .app-shell .composer { padding: 12px 10px 8px; border-radius: 12px; }
-  .app-shell .composer textarea { font-size: 16px; min-height: 48px; }
+  .app-shell .composer textarea { font-size: 16px; min-height: 24px; }
   .app-shell .composer-model { max-width: 160px; font-size: var(--fs-micro); }
   .app-shell .composer-footnote { font-size: var(--fs-micro); justify-content: center; }
   .app-shell #composer-keyboard { display: none; }

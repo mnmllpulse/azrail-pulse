@@ -77,7 +77,7 @@ it('restores a separate draft for each tab-local chat and searches their titles'
 it('auto-grows the composer to a limit and shrinks it after clearing',()=>{
  const w=open(),p=node(w,'prompt');
  Object.defineProperty(p,'scrollHeight',{get:()=>400,configurable:true});type(w,'Много строк');expect(p.style.height).toBe('200px');expect(p.style.overflowY).toBe('auto');
- Object.defineProperty(p,'scrollHeight',{get:()=>20,configurable:true});type(w,'');expect(p.style.height).toBe('48px');expect(p.style.overflowY).toBe('hidden');
+ Object.defineProperty(p,'scrollHeight',{get:()=>20,configurable:true});type(w,'');expect(p.style.height).toBe('24px');expect(p.style.overflowY).toBe('hidden');
 });
 
 it('opening a studio from mobile navigation returns to an interactive center pane',async()=>{
