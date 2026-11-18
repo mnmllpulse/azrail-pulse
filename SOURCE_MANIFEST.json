@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-18T00:53:15.079Z",
+  "generated_at": "2026-11-18T01:16:30.700Z",
   "excludes_self": true,
   "file_count": 1277,
   "files": [
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1395891,
-      "sha256": "16229005464bd41279bdc174e9fbed704ebfa6aa02169ef6e9fb2731ae367b5e"
+      "bytes": 1396845,
+      "sha256": "4d32754797cb59854ba4c774be64e4102471869debdcc4ce29e7a98f2078da99"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 24652,
-      "sha256": "8f3ab72fc70e28be2cf4bf7c2f46e7af26903a98b6918d4de6796d3f6d43a655"
+      "sha256": "0f49399b800bacffd10e6afcdf52c802ba10a70dbda35684d602813513c050fe"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 480499,
-      "sha256": "94b8417786d563fbac25c26365118ebdd6e5eaa081479de6236772ea37842143"
+      "bytes": 481453,
+      "sha256": "894346eda20abac55581684425e93708d4cc2e9974fb2e51330f3de7a4c5d8fa"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 24652,
-      "sha256": "8f3ab72fc70e28be2cf4bf7c2f46e7af26903a98b6918d4de6796d3f6d43a655"
+      "sha256": "0f49399b800bacffd10e6afcdf52c802ba10a70dbda35684d602813513c050fe"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4497,8 +4497,8 @@
     },
     {
       "path": "tests/agent-browser.test.ts",
-      "bytes": 15521,
-      "sha256": "6ceb8b9d56f5a399faf282fd5a22d0ee27759f5430c6695b1833974783adc59e"
+      "bytes": 17048,
+      "sha256": "5c08f8fc874848f6cfd1694b66bed453951ce8779bb21b2058cd8a0125124e02"
     },
     {
       "path": "tests/agent-multi-root.test.ts",
@@ -5672,8 +5672,8 @@
     },
     {
       "path": "ui/local-agent.ts",
-      "bytes": 11550,
-      "sha256": "146ebab7dee014983b6d8a19a6ed02e5d4d56b0a857077a3283126d5f985ab97"
+      "bytes": 11877,
+      "sha256": "519214bf8b8133675c59616e74bc0b9f4efaaa35ecfd64833c6c01f48c8703f2"
     },
     {
       "path": "ui/media.ts",
