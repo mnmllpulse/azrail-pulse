@@ -26,6 +26,7 @@ import {createAppDialogs} from './app-dialogs';
 import {applyRetention,renderDataControls,type MemoryItem} from './data-controls';
 import {createComposerModels} from './composer-models';
 import {createModelMenu} from './composer-menu';
+import {modelBadge} from './model-picker';
 import {createChatMenu} from './chat-menu';
 import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayName,providerFromSlug,providerIconPath,providerInitial,resolveModelIcon} from './model-display';
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
@@ -276,10 +277,15 @@ function syncChatAccount(){
  syncChatUI();workspace.resizePrompt();
  if(account&&!local)void syncServerChats();
 }
+function modelDot(m:{slug:string;freeAllowlisted?:boolean;hosted?:boolean;availability?:string}):'free'|'neuron'|undefined{const kind=modelBadge(m).kind;return kind==='free'?'free':kind==='neuron'?'neuron':undefined;}
+const dotRank=(d?:string)=>d==='free'?0:d==='neuron'?1:2;
 const modelMenu=createModelMenu({root:$('composer-models'),button:$<HTMLButtonElement>('composer-models-open'),
- current:()=>{const hit=preferredModel?composerModels.find(preferredModel):undefined;return {slug:preferredModel,label:currentModelLabel(),description:hit?.description};},
- others:()=>composerModels.pickable().filter(m=>isChatCapableModel(m)&&m.slug!==preferredModel).map(m=>({slug:m.slug,label:modelLabel(m),description:m.description})),
- select:slug=>{setPreferredModel(slug);syncModelsButton();},
+ current:()=>{const hit=preferredModel?composerModels.find(preferredModel):undefined;return {slug:preferredModel,label:currentModelLabel(),description:hit?.description,dot:hit?modelDot(hit):undefined};},
+ others:()=>composerModels.pickable().filter(m=>m.slug!==preferredModel).map(m=>({slug:m.slug,label:modelLabel(m),description:m.description,dot:modelDot(m)})).sort((x,y)=>dotRank(x.dot)-dotRank(y.dot)),
+ select:slug=>{setPreferredModel(slug);syncModelsButton();const hit=composerModels.find(slug);const kind=hit?modelBadge(hit).kind:'';
+  if(kind==='neuron')notice('Это одна из моделей Workers Paid. AZRAIL её не вызывает: после 10 000 нейронов в сутки идёт доплата.',true);
+  else if(kind==='external')notice('Сторонняя модель: вызов идёт через AI Gateway и только если включены платные модели и есть бюджет.',true);
+  else if(hit&&!isChatCapableModel(hit))notice('Модель выбрана. Для чата AZRAIL подставит текстовую модель автоматически.',true);},
  openAll:()=>openModelPicker()});
 void modelMenu;
 function contextFileHosts(){return ['context-files','context-panel-files'].map(id=>document.getElementById(id)).filter((el):el is HTMLElement=>!!el);}
