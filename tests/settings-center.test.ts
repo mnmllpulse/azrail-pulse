@@ -67,7 +67,7 @@ describe('Settings Center back navigation',()=>{
     expect(up.textContent).toBe('← Вернуться в чат');
     up.click();
     expect(navigate).toHaveBeenCalledWith({page:'create'});
-    expect(host.querySelectorAll('.settings-crumb.is-current')).toHaveLength(1);
+    expect(host.querySelectorAll('.settings-crumb')).toHaveLength(0);
   });
   it('a section has «Все настройки» and a clickable first crumb',()=>{
     const {host,navigate}=mount('agent');
@@ -113,5 +113,21 @@ describe('Settings Center back navigation',()=>{
     expect(rule).toContain('overflow-y:auto');
     expect(rule).not.toContain('overflow:visible');
     expect(rule).toContain('height:100%');
+  });
+});
+
+describe('Settings Center без дублей',()=>{
+  it('имя группы не совпадает ни с одним пунктом и пункты уникальны',async()=>{
+    const {SETTINGS_ITEMS}=await import('../ui/settings-center');
+    const titles=SETTINGS_ITEMS.map(item=>item.title.toLowerCase());
+    const groups=new Set(SETTINGS_ITEMS.map(item=>item.group.toLowerCase()));
+    expect(new Set(titles).size).toBe(titles.length);
+    for(const group of groups)expect(titles).not.toContain(group);
+    expect(new Set(SETTINGS_ITEMS.map(item=>item.section)).size).toBe(SETTINGS_ITEMS.length);
+  });
+  it('на обзоре нет повторов: одна кнопка назад, один заголовок «Настройки»',()=>{
+    const {host}=mount();
+    expect(Array.from(host.querySelectorAll('button')).filter(b=>b.textContent==='← Вернуться в чат')).toHaveLength(1);
+    expect(Array.from(host.querySelectorAll('h1,h2,strong')).filter(n=>n.textContent==='Настройки')).toHaveLength(1);
   });
 });

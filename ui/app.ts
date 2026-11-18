@@ -611,6 +611,7 @@ function settingsText(host:HTMLElement,text:string,className='muted'){
  const p=document.createElement('p');p.className=className;p.textContent=text;host.append(p);return p;
 }
 function settingsHeading(host:HTMLElement,title:string,description?:string){
+ if(host.id==='settings-content'){const lead=document.querySelector('.settings-page-heading .settings-description');if(lead&&description)lead.textContent=description;return;}
  const h=document.createElement('h2');h.textContent=title;host.append(h);
  if(description)settingsText(host,description);
 }
