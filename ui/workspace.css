@@ -231,6 +231,15 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .context-files button { text-align: left; overflow-wrap: anywhere; font-size: var(--fs-caption); padding: 10px; }
 .app-shell .context-files small { display: block; color: var(--muted); }
 .app-shell .attachment-manager { max-height: 132px; overflow: auto; }
+.app-shell .thinking-block { width: min(100%, 560px); margin: 2px 0 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.02); }
+.app-shell .thinking-block > summary { display: flex; align-items: center; gap: 8px; padding: 8px 12px; cursor: pointer; list-style: none; color: var(--muted); font-size: var(--fs-small); user-select: none; }
+.app-shell .thinking-block > summary::-webkit-details-marker { display: none; }
+.app-shell .thinking-block > summary:hover { color: var(--heading); }
+.app-shell .thinking-chevron { margin-left: auto; display: inline-flex; transition: transform .2s ease; }
+.app-shell .thinking-block[open] .thinking-chevron { transform: rotate(180deg); }
+.app-shell .thinking-body { padding: 2px 14px 12px; color: var(--muted); font-size: var(--fs-small); animation: thinking-open .2s ease; }
+@keyframes thinking-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .app-shell .thinking-body { animation: none; } .app-shell .thinking-chevron { transition: none; } }
 .app-shell .message-attachments { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .app-shell .attachment-chip { display: inline-flex; align-items: center; gap: 9px; max-width: 260px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.03); color: var(--text); text-decoration: none; }
 .app-shell a.attachment-chip:hover { border-color: var(--muted); }
