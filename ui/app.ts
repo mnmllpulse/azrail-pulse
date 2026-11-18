@@ -346,6 +346,9 @@ bind('context-goto-mission',()=>navigation.navigate({page:'mission'}));
 bind('context-goto-connections',()=>navigation.navigate({page:'connections'}));
 $<HTMLInputElement>('chat-search').oninput=()=>syncChatUI(false);
 const archiveToggle=$<HTMLInputElement>('chat-show-archived');if(archiveToggle)archiveToggle.onchange=()=>syncChatUI(false);
+const searchInput=$<HTMLInputElement>('chat-search'),searchOpen=$<HTMLButtonElement>('nav-search'),archiveOpen=$<HTMLButtonElement>('nav-archive');
+searchOpen.onclick=()=>{const show=searchInput.hidden;searchInput.hidden=!show;searchOpen.setAttribute('aria-expanded',String(show));if(show)searchInput.focus();else if(searchInput.value){searchInput.value='';syncChatUI(false);}};
+archiveOpen.onclick=()=>{archiveToggle.checked=!archiveToggle.checked;archiveOpen.setAttribute('aria-pressed',String(archiveToggle.checked));syncChatUI(false);};
 $<HTMLSelectElement>('composer-model').onchange=()=>setPreferredModel($<HTMLSelectElement>('composer-model').value);
 prompt.addEventListener('input',()=>{saveComposerDraft();syncChatUI(false);});
 
@@ -653,6 +656,10 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
   const current=()=>({...prefs,density:density.value as Density,textScale:textScale.value as TextScale,font:font.value as FontFamily});
   const preview=()=>applyDisplayPrefs(current());
   density.onchange=preview;textScale.onchange=preview;font.onchange=preview;
+  const expert=document.createElement('button');expert.type='button';expert.className='settings-choice';expert.setAttribute('role','switch');
+  const paintExpert=(on=expertOn())=>{expert.setAttribute('aria-checked',String(on));expert.textContent=`${on?'✓ ':''}Режим эксперта: ${on?'включён':'выключен'}`;};
+  expert.onclick=()=>{const next=!expertOn();$('expert-mode').click();paintExpert(next);};paintExpert();
+  settingsText(content,'Режим эксперта показывает «Ход задачи», «Студии», «Метратрон», панель контекста и поиск команд.');content.append(expert);
   const form=document.createElement('div');form.className='settings-form-grid';form.append(...field('Плотность интерфейса',density),...field('Размер текста',textScale),...field('Шрифт',font));content.append(form);
   settingsText(content,'Цветовая тема AZRAIL — только Dark Premium: светлой темы в продукте нет, в интерфейсе ~770 жёстко заданных цветов, их перевод на токены отдельный этап. Шрифты — только установленные в системе, внешние шрифты не загружаются.');
   settingsButton(content,'Сохранить внешний вид',()=>{

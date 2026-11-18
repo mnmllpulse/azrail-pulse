@@ -21,7 +21,7 @@ html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: hidden; }
 .app-shell .workspace-nav { display: grid; gap: 3px; margin: 17px 0 25px; }
 .app-shell .nav { display: flex; gap: 12px; justify-content: flex-start; width: 100%; border: 0; padding: 10px 12px; min-height: 42px; text-align: left; color: var(--muted); font-size: var(--fs-small); background: transparent; }
 .app-shell .nav > span:first-child { width: 18px; font-size: 19px; text-align: center; line-height: 1; }
-.app-shell .nav.active, .app-shell .nav:hover { background: #1d1b24; color: #f0eafa; }
+.app-shell .nav:hover { background: #1d1b24; color: #f0eafa; }
 .app-shell .nav-count { margin-left: auto; border: 1px solid #39323f; border-radius: 8px; padding: 0 5px; font-size: var(--fs-micro); }
 .app-shell .history-heading { display: flex; justify-content: space-between; align-items: center; margin: 0 12px 10px; color: var(--muted); }
 .app-shell .history-heading h2 { margin: 0; font-size: var(--fs-micro); font-weight: 500; letter-spacing: .12em; text-transform: uppercase; }
@@ -32,7 +32,7 @@ html:has(.app-shell), body:has(.app-shell) { height: 100%; overflow: hidden; }
 .app-shell .history-scroll { flex: 1 1 auto; min-height: 80px; max-height: min(42vh, 360px); overflow-y: auto; overscroll-behavior: contain; }
 .app-shell .chat-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 3px; }
 .app-shell .chat-row { position: relative; display: grid; grid-template-columns: minmax(0,1fr) auto; gap: 2px; align-items: center; border-radius: 8px; }
-.app-shell .chat-row:hover, .app-shell .chat-row:focus-within, .app-shell .chat-row[data-active="true"] { background: #201b29; }
+.app-shell .chat-row:hover, .app-shell .chat-row:focus-within { background: #201b29; }
 .app-shell .chat-row > button.chat-open { width: 100%; min-width: 0; text-align: left; border: 0; background: transparent; padding: 10px 8px 10px 12px; color: var(--muted); border-radius: 8px; font-size: var(--fs-caption); }
 .app-shell .chat-row[data-active="true"] > button.chat-open, .app-shell .chat-row > button.chat-open:hover { color: #eee7f7; }
 .app-shell .chat-row[data-pinned="true"] > button.chat-open strong { color: #e8dff4; }

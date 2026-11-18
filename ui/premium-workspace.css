@@ -54,16 +54,16 @@ body {
 .app-shell .new-chat {
   min-height: 44px;
   padding: 10px 13px;
-  border: 1px solid rgba(169, 149, 247, .28);
+  border: 1px solid transparent;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(83, 65, 126, .28), rgba(29, 28, 43, .72));
-  color: #eee9ff;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.035);
+  background: transparent;
+  color: var(--text);
 }
 
 .app-shell .new-chat:hover {
-  border-color: rgba(181, 161, 255, .52);
-  background: linear-gradient(135deg, rgba(97, 75, 150, .36), rgba(35, 32, 51, .9));
+  border-color: rgba(255,255,255,.045);
+  background: rgba(255,255,255,.035);
+  color: var(--heading);
 }
 
 .app-shell .workspace-nav {
@@ -96,15 +96,7 @@ body {
 
 .app-shell .workspace-nav .nav.active,
 .app-shell .workspace-nav .nav[aria-current="page"] {
-  color: #f1edff;
-  border-color: rgba(169,149,247,.22);
-  background: linear-gradient(100deg, rgba(121, 94, 185, .2), rgba(58, 51, 81, .13));
-  box-shadow: inset 2px 0 0 #a995f7;
-}
-
-.app-shell .workspace-nav .nav.active > span:first-child,
-.app-shell .workspace-nav .nav[aria-current="page"] > span:first-child {
-  color: #c5b5ff;
+  color: var(--text);
 }
 
 .app-shell .nav-count {
@@ -150,10 +142,9 @@ body {
 }
 
 .app-shell .chat-row:hover,
-.app-shell .chat-row:focus-within,
-.app-shell .chat-row[data-active="true"] {
-  border-color: rgba(169,149,247,.16);
-  background: rgba(169,149,247,.075);
+.app-shell .chat-row:focus-within {
+  border-color: rgba(255,255,255,.045);
+  background: rgba(255,255,255,.035);
 }
 
 .app-shell .chat-row > button.chat-open {
