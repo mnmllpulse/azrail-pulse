@@ -968,7 +968,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       // missions миссию нечем отслеживать и не к чему привязать события.
       // Отказ ДО работы дешевле, чем осиротевший прогон, потративший модели.
       try {
-        if (!await createMission(env, missionId, body.projectId, goal, {maxIterations,preferredModel:body.preferredModel,publicHostname:url.hostname,requestId:trace.requestId,traceId:trace.traceId})) {
+        if (!await createMission(env, missionId, body.projectId, goal, {maxIterations,preferredModel:body.preferredModel,...(body.effort?{effort:body.effort}:{}),publicHostname:url.hostname,requestId:trace.requestId,traceId:trace.traceId})) {
           return json({error:"В проекте уже выполняется миссия. Дождитесь завершения или отмените её.", code:"project_busy"},env,409);
         }
       } catch (err) {
@@ -1011,6 +1011,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
           goal,
           maxIterations,
           preferredModel: body.preferredModel,
+          effort: body.effort,
           requestId: trace.requestId,
           traceId: trace.traceId,
           // Хост берётся ИЗ ЗАПРОСА: на своём домене предпросмотр должен

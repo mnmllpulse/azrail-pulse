@@ -191,6 +191,8 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
           out.rows = 6;
           out.value = stripAnsi(job.result);
           row.append(out);
+        } else if (job.kind === 'run' && job.status === 'done' && !job.error) {
+          row.append(el('p', 'Пустой вывод: команда выполнена и ничего не напечатала.', 'muted'));
         }
         if (job.status === 'awaiting_approval') {
           const ok = el('button', job.kind === 'run' ? `Разрешить запуск: ${job.path}` : `Разрешить запись (${job.bytes ?? 0} симв.)`);

@@ -2,6 +2,14 @@ export type AnswerDepthLevel = 1 | 2 | 3 | 4;
 
 export type EffortLevel = "low" | "medium" | "high" | "max";
 export const EFFORT_LEVELS: readonly EffortLevel[] = ["low", "medium", "high", "max"];
+export const isEffortLevel = (value: unknown): value is EffortLevel => typeof value === "string" && (EFFORT_LEVELS as readonly string[]).includes(value);
+
+/** Опции роутера для многошаговых вызовов миссии: меняют только сложность, средний уровень не трогает. */
+export function effortRouteOptions(effort?: EffortLevel): { complexity?: "trivial" | "heavy" } {
+  if (effort === "low") return { complexity: "trivial" };
+  if (effort === "high" || effort === "max") return { complexity: "heavy" };
+  return {};
+}
 
 export interface AnswerDepth {
   level: AnswerDepthLevel;

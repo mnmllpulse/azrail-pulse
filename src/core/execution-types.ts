@@ -1,3 +1,4 @@
+import type { EffortLevel } from "../lib/answer-depth";
 import type { TaskRequest, TaskResult } from "../types";
 import type { UsageLedger } from "../lib/usage";
 import type { EventEnvelope } from "../lib/event-stream";
@@ -15,6 +16,8 @@ export interface ExecutionContext {
   /** Явно закреплённая пользователем модель. Проходит насквозь в каждое
    *  решение цикла — иначе выбор модели действовал бы только на первый шаг. */
   preferredModel?: string;
+  /** Уровень усилий пользователя; влияет на сложность в роутере (effortRouteOptions). */
+  effort?: EffortLevel;
   /**
    * Копилка расхода моделей за миссию.
    *

@@ -1,4 +1,5 @@
 import { searchConnectorTools, prepareConnectorCall, executeConnectorCall, projectConnectorOwner, connectorResult } from "../unified/connectors";
+import { effortRouteOptions } from "../lib/answer-depth";
 import { canonical } from "../unified/connector-vault";
 import { boundedStructure } from "../unified/connector-schema";
 import { hashToken } from "../lib/accounts";
@@ -122,7 +123,7 @@ export class ExecutionToolExecutor {
               this.env,
               "chat",
               { messages: [{ role: "user", content: String(input.prompt ?? "") }] },
-              { preferredModel: ctx.preferredModel, ledger: ctx.usage, trace: ctx, signal: ctx.signal },
+              { preferredModel: ctx.preferredModel, ...effortRouteOptions(ctx.effort), ledger: ctx.usage, trace: ctx, signal: ctx.signal },
             )
           ).output,
         );

@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-18T20:57:09.079Z",
+  "generated_at": "2026-11-18T21:05:26.844Z",
   "excludes_self": true,
-  "file_count": 1291,
+  "file_count": 1292,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1425150,
-      "sha256": "fdc4b9fa7fc6644238a816630f141f8b130df190fdca2880a43d7b54c1b4d4fe"
+      "bytes": 1425564,
+      "sha256": "2828f236fc88933afd9274c4cfa3957b587616521442156a994a5b9a5da4754f"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 25147,
-      "sha256": "6fd922b86780f716e7588760fbe45da28fcf1b68a3cafff7cc7f8c1da8256646"
+      "sha256": "00df3c2a75ddfa7afbead2b5e4d8fedf9bd7df9c738b8345517933ab89034c2c"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 499928,
-      "sha256": "cd2a7b09a2722947ed4368bc32f2b2654bfcb0bfb54092f6897005be59215301"
+      "bytes": 500342,
+      "sha256": "35ca48c318b80651b6ef4189b03591fb70e51ad9a76b9658d92170355aa6a94a"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 25147,
-      "sha256": "6fd922b86780f716e7588760fbe45da28fcf1b68a3cafff7cc7f8c1da8256646"
+      "sha256": "00df3c2a75ddfa7afbead2b5e4d8fedf9bd7df9c738b8345517933ab89034c2c"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -3587,8 +3587,8 @@
     },
     {
       "path": "src/agents/mission-coordinator.ts",
-      "bytes": 19950,
-      "sha256": "5f66a43086eaa703dfef87c1b03c6208154fe73c0414cd56f0d2a7cb2c3a6f52"
+      "bytes": 20141,
+      "sha256": "212e93c246f4f36b4d8f6687fb3961fc34605e25b384a18dd5f843ae21ff5295"
     },
     {
       "path": "src/agents/orchestrator-capabilities.ts",
@@ -3612,8 +3612,8 @@
     },
     {
       "path": "src/agents/orchestrator.ts",
-      "bytes": 31024,
-      "sha256": "12e1c291d5e0db569c997e6c4b7c2ff161ab4bdbe5be71a0b545da96e19b7472"
+      "bytes": 31186,
+      "sha256": "76a00197e8a26fc2d6951cc3af40d7285ba12fb3ca6b8fb154e30c597e2bf6e9"
     },
     {
       "path": "src/agents/qa-agent.ts",
@@ -3667,8 +3667,8 @@
     },
     {
       "path": "src/core/execution-engine.ts",
-      "bytes": 68112,
-      "sha256": "3390894235b1e33c8019172d12f7a4301a41b69d1fc9abdef05aa4b8404cb6d8"
+      "bytes": 68205,
+      "sha256": "b129d8970a08302e59ef9d64cdcfc2f951deb5d6e996be7c6219fc0bb26517e6"
     },
     {
       "path": "src/core/execution-journal.ts",
@@ -3677,8 +3677,8 @@
     },
     {
       "path": "src/core/execution-planning.ts",
-      "bytes": 12571,
-      "sha256": "8fb0157bc52888e0d315994f016ee57a6863d3586903f148ed6ec9e07c4ae23e"
+      "bytes": 12742,
+      "sha256": "ca2b6277114c9c88b93a8aec3cdeb0f8d3dd0b46f88bb4fe2f5426c904b912c4"
     },
     {
       "path": "src/core/execution-protocol.ts",
@@ -3687,13 +3687,13 @@
     },
     {
       "path": "src/core/execution-tools.ts",
-      "bytes": 21402,
-      "sha256": "7ee0e1e65bea049fb27c30cd2daffce89f886f2c7466d06aa0e9773fd0439d3e"
+      "bytes": 21495,
+      "sha256": "9bf70fff8c2397aa8d2691a503baa7a5d4c78f103c247d41a7fc30e6578b9f9e"
     },
     {
       "path": "src/core/execution-types.ts",
-      "bytes": 6341,
-      "sha256": "71723be4a2eb1d7d348d7a3faf2d87af41d96287f4efa7ae4711788371ea6e2a"
+      "bytes": 6561,
+      "sha256": "e2ed9e9564372da4617da54704af830a23ee68514bb24ce98bd47a70e513f252"
     },
     {
       "path": "src/core/file-window.ts",
@@ -3762,8 +3762,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 102604,
-      "sha256": "22f56d420724033772d3457d654e55e004e7389e3b82c6a70531efdae6cafcab"
+      "bytes": 102676,
+      "sha256": "ce27e1e9a6a585e9f8c83f1dcc627a2eb641f58fbb003e2ff207ff492216a31f"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -3787,8 +3787,8 @@
     },
     {
       "path": "src/lib/answer-depth.ts",
-      "bytes": 6061,
-      "sha256": "cd45dbba2639b44e6e83a9dcf23559b85fe63ece7565876d38b8447f1ba7dda7"
+      "bytes": 6654,
+      "sha256": "36ede31f4033f954cef7cddd3b18cc3fa7006d090c02adf70f516723458b7722"
     },
     {
       "path": "src/lib/api-contract.ts",
@@ -4007,8 +4007,8 @@
     },
     {
       "path": "src/lib/mission-delivery.ts",
-      "bytes": 9169,
-      "sha256": "4bb8e860339de869a0fafb769fc5f2a16d1086f5bface1cca30a7b84e053adcf"
+      "bytes": 9364,
+      "sha256": "896e03ca7cad9854030d0fe3e8910da62239d203f622a03b9357a0011d121012"
     },
     {
       "path": "src/lib/mission-graph.ts",
@@ -4342,8 +4342,8 @@
     },
     {
       "path": "src/shared/schemas.ts",
-      "bytes": 9695,
-      "sha256": "e5c8c350ff543cda983c5242221e437a80c0ae147af0b95ecff71ab559865ee1"
+      "bytes": 9719,
+      "sha256": "135695589bb2dabd2806864b05e38c5b08dcdfe91c536ae4440ef807dcb3f3ec"
     },
     {
       "path": "src/types.ts",
@@ -4794,6 +4794,11 @@
       "path": "tests/effort-level.test.ts",
       "bytes": 2748,
       "sha256": "e514418d57df314741b160b062fc63e716fd0f1969e9cbcf3b9365fa6b36311f"
+    },
+    {
+      "path": "tests/effort-missions.test.ts",
+      "bytes": 2899,
+      "sha256": "9494826655dd4ca9d0bf10a6ef23f3c28bf889bf69cffc8b2da5ed3bbff7dda9"
     },
     {
       "path": "tests/event-stream.test.ts",
@@ -5497,8 +5502,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 158549,
-      "sha256": "7296668fec8dd3242ac88a026741f8f45d0a1579e6601ba701189f33201b2775"
+      "bytes": 158615,
+      "sha256": "80673cbe4e1d0e5670a7118a2141dd39a62e0972c218433f894e63729b780069"
     },
     {
       "path": "ui/assignment.ts",
@@ -5737,8 +5742,8 @@
     },
     {
       "path": "ui/local-agent.ts",
-      "bytes": 11930,
-      "sha256": "b16403589711f063cea88e271b4bc59c9910d1ddf6c05830eb91fc6bc682bf7a"
+      "bytes": 12155,
+      "sha256": "6cc77d5ca4d7657b205f6fbb8c97f348d8eb737a3f91df72992a01be154121e3"
     },
     {
       "path": "ui/media.ts",

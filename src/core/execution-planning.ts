@@ -1,4 +1,5 @@
 import type { Env } from "../types";
+import { effortRouteOptions } from "../lib/answer-depth";
 import { parseDecision, renderHistory, type StepDecision } from "./execution-protocol";
 import { extractText, runModel } from "../lib/model-router";
 import { planStepCap } from "../lib/mission-limits";
@@ -91,6 +92,7 @@ export class ExecutionPlanningEngine {
       },
       {
         preferredModel: ctx.preferredModel,
+        ...effortRouteOptions(ctx.effort),
         ledger: ctx.usage,
         trace: ctx,
         signal: ctx.signal,
@@ -145,7 +147,7 @@ export class ExecutionPlanningEngine {
             },
           ],
         },
-        { preferredModel: ctx.preferredModel, ledger: ctx.usage, trace: ctx, signal: ctx.signal },
+        { preferredModel: ctx.preferredModel, ...effortRouteOptions(ctx.effort), ledger: ctx.usage, trace: ctx, signal: ctx.signal },
       );
       // Промпт просит не больше N шагов, но модель может не послушаться —
       // режем в коде, иначе запас на исправления снова съедается планом.
@@ -196,7 +198,7 @@ export class ExecutionPlanningEngine {
           },
         ],
       },
-      { preferredModel: ctx.preferredModel, ledger: ctx.usage, trace: ctx, signal: ctx.signal },
+      { preferredModel: ctx.preferredModel, ...effortRouteOptions(ctx.effort), ledger: ctx.usage, trace: ctx, signal: ctx.signal },
     );
 
     // Жёсткая обрезка: лимит в промпте — просьба, а не гарантия.
