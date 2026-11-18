@@ -18,8 +18,8 @@ describe('attachments stay visible in chat history',()=>{
     expect(app).toContain('message:shown,projectId:project');
     expect(app).toContain('message===sentMarkup.for?message+sentMarkup.text:message');
   });
-  it('renders own artifact links in user messages',()=>{
-    expect(history).toContain("role==='user'&&/");
-    expect(history).toContain('fillMarkdownContent(body,content)');
+  it('renders own artifact links in user messages as compact chips',()=>{
+    expect(history).toContain("role==='user'&&splitAttachments(content).files.length");
+    expect(history).toContain('attachmentChip(doc,file)');
   });
 });

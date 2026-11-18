@@ -1,4 +1,5 @@
 import {appendAssistantActions,appendUserActions,type MessageActionHandlers} from './chat-actions';
+import {attachmentChip,splitAttachments} from './attachment-chip';
 import {fillMarkdownContent} from './chat-markdown';
 
 export type ChatTurn={missionId:string;requestKey:string;user:string;reply:string;status:string};
@@ -194,10 +195,13 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
    fillMarkdownContent(body,content);
    item.append(body);
    if(status!=='queued'&&status!=='failed')appendAssistantActions(item,content,handlers,turn);
-  }else if(role==='user'&&/\]\(\/api\/studio\/artifacts\//.test(content)){
-   const body=doc.createElement('div');
-   fillMarkdownContent(body,content);
-   item.append(body);
+  }else if(role==='user'&&splitAttachments(content).files.length){
+   const {text,files}=splitAttachments(content);
+   if(text){const p=doc.createElement('p');p.className='message-content';p.textContent=text;item.append(p);}
+   const row=doc.createElement('div');row.className='message-attachments';
+   for(const file of files)row.append(attachmentChip(doc,file));
+   item.append(row);
+   appendUserActions(item,text||files.map(f=>f.name).join(', '),handlers);
   }else{
    const text=doc.createElement('p');text.className='message-content';text.textContent=content;item.append(text);
    if(role==='user'&&status===undefined)appendUserActions(item,content,handlers);

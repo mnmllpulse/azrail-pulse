@@ -230,7 +230,14 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .context-files { display: grid; gap: 6px; }
 .app-shell .context-files button { text-align: left; overflow-wrap: anywhere; font-size: var(--fs-caption); padding: 10px; }
 .app-shell .context-files small { display: block; color: var(--muted); }
-.app-shell .attachment-manager { max-height: 120px; overflow: auto; }
+.app-shell .attachment-manager { max-height: 132px; overflow: auto; }
+.app-shell .message-attachments { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+.app-shell .attachment-chip { display: inline-flex; align-items: center; gap: 9px; max-width: 260px; padding: 7px 10px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255,255,255,.03); color: var(--text); text-decoration: none; }
+.app-shell a.attachment-chip:hover { border-color: var(--muted); }
+.app-shell .attachment-chip > .ui-icon-wrap { color: var(--muted); }
+.app-shell .attachment-chip-text { display: grid; min-width: 0; }
+.app-shell .attachment-chip-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-small); color: var(--heading); }
+.app-shell .attachment-chip small { color: var(--muted); font-size: var(--fs-micro); }
 .app-shell .sidebar-backdrop { display: none; }
 @media (max-width: 1199px) and (min-width: 761px) {
   .app-shell { --sidebar-width: 220px; --context-width: 310px; --preview-width: 400px; }

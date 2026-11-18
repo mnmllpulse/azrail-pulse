@@ -1,4 +1,6 @@
 import { formatBytes } from '../src/shared/format';
+import { fileIconName } from './attachment-chip';
+import { iconElement } from './icons';
 export type AttachmentState='queued'|'uploading'|'ready'|'failed';
 type InputType='zip'|'pdf'|'docx'|'github'|'text'|'json'|'image'|'audio'|'video'|'code'|'unknown';
 export interface AttachmentRef{r2Key?:string;fileName:string;inputType:InputType;size?:number;mimeType?:string;}
@@ -33,15 +35,16 @@ export function createAttachmentManager(deps:Deps){
   if(!items.length){deps.root.hidden=true;notify();return;}deps.root.hidden=false;
   for(const item of items){
    const row=document.createElement('div');row.className='attachment-card';row.dataset.state=item.state;
-   const icon=document.createElement('span');icon.className='attachment-kind';icon.textContent=kind(item.file);
+   const icon=iconElement(isImage(item.file)?'image':fileIconName(item.file.name),18);icon.classList.add('attachment-kind');icon.title=kind(item.file);
    const body=document.createElement('div');body.className='attachment-body';
    const name=document.createElement('strong');name.textContent=item.file.name;
    const meta=document.createElement('small');meta.textContent=`${bytes(item.file.size)} · ${item.state==='queued'?'в очереди':item.state==='uploading'?`загрузка ${item.progress}%`:item.state==='ready'?'готово':item.error||'ошибка'}`;
-   body.append(name,meta);
+   meta.title=meta.textContent;body.append(name,meta);
    if(item.state==='uploading'){const p=document.createElement('progress');p.max=100;p.value=item.progress;p.setAttribute('aria-label',`Загрузка ${item.file.name}`);body.append(p);}
    const actions=document.createElement('div');actions.className='attachment-actions';
+   if(isImage(item.file)&&item.state!=='failed'){const view=document.createElement('button');view.type='button';view.className='text-button attachment-preview';view.append(iconElement('eye',16));view.title=`Посмотреть ${item.file.name}`;view.setAttribute('aria-label',`Посмотреть ${item.file.name}`);view.onclick=()=>{const url=URL.createObjectURL(item.file);window.open(url,'_blank','noopener');window.setTimeout(()=>URL.revokeObjectURL(url),60000);};actions.append(view);}
    if(item.state==='failed'){const retry=document.createElement('button');retry.type='button';retry.textContent='Повторить';retry.onclick=()=>void upload(item);actions.append(retry);}
-   const remove=document.createElement('button');remove.type='button';remove.className='text-button';remove.textContent='×';remove.setAttribute('aria-label',`Удалить ${item.file.name}`);remove.onclick=()=>{const i=items.indexOf(item);if(i>=0)items.splice(i,1);render();};actions.append(remove);
+   const remove=document.createElement('button');remove.type='button';remove.className='text-button attachment-remove';remove.append(iconElement('close',16));remove.setAttribute('aria-label',`Удалить ${item.file.name}`);remove.onclick=()=>{const i=items.indexOf(item);if(i>=0)items.splice(i,1);render();};actions.append(remove);
    row.append(icon,body,actions);deps.root.append(row);
   }
   notify();
