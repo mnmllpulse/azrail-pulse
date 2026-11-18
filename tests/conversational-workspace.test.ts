@@ -94,7 +94,7 @@ it('opening a studio from mobile navigation returns to an interactive center pan
 it('home Chat sends /api/chat and keeps Missions separate',async()=>{
  let chatCalls=0,missionCalls=0;
  const w=open({hosted:true,fetcher:w=>api(w,async()=>{missionCalls++;return response(w,{missionId:'m-home'},202);},async()=>{chatCalls++;return response(w,{success:true,conversationId:'c1',result:{status:'done',summary:'Привет!'}});})});await settle();
- expect(w.document.querySelector('[data-view="create"]')?.textContent).toContain('Чат');
+ expect(node(w,'new-chat').textContent).toContain('Новый чат');
  expect(node(w,'chat-welcome').textContent).toContain('AZRAIL');
  expect(node(w,'composer-models-label').textContent).toBe('Models');
  type(w,'привет бро');submit(w);await settle();

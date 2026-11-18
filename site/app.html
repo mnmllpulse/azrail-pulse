@@ -10,7 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="AZRAIL">
 <title>AZRAIL × MNMLL PULSE</title>
 <link rel="manifest" href="/manifest.webmanifest">
-<link rel="stylesheet" href="/assets/app.css?v=9050c68312">
+<link rel="stylesheet" href="/assets/app.css?v=74d0f51eec">
 </head>
 <body>
 <a class="skip" href="#main">К содержимому</a>
@@ -25,22 +25,23 @@
     </div>
     <button id="new-chat" type="button" class="new-chat"><span aria-hidden="true" data-icon="plus"></span> Новый чат <kbd>↵</kbd></button>
     <nav class="workspace-nav" aria-label="Главная навигация">
-      <a href="/" data-view="create" class="nav active" aria-current="page"><span aria-hidden="true" data-icon="chat"></span> Чат</a>
-      <a href="/mission" data-view="mission" class="nav" data-expert><span aria-hidden="true" data-icon="mission"></span> Ход задачи</a>
+      <button id="nav-search" type="button" class="nav" aria-expanded="false" aria-controls="chat-search"><span aria-hidden="true" data-icon="search"></span> Поиск</button>
       <a href="/projects" data-view="projects" class="nav"><span aria-hidden="true" data-icon="projects"></span> Проекты</a>
+      <button id="nav-archive" type="button" class="nav" aria-pressed="false"><span aria-hidden="true" data-icon="boxArchive"></span> Архив</button>
+      <a href="/mission" data-view="mission" class="nav" data-expert><span aria-hidden="true" data-icon="mission"></span> Ход задачи</a>
       <a href="/studios" data-view="studios" class="nav" data-expert><span aria-hidden="true" data-icon="studios"></span> Студии <span class="nav-count">8</span></a>
       <a href="/metatron" data-view="metatron" class="nav" data-expert><span aria-hidden="true" data-icon="metatron"></span> Метратрон</a>
     </nav>
     <div class="history-heading"><h2>Ваши чаты</h2><span id="chat-count">0</span></div>
     <label class="sr-only" for="chat-search">Поиск чатов</label>
-    <input id="chat-search" class="chat-search" type="search" placeholder="Поиск чатов…" autocomplete="off" maxlength="120">
-    <label class="chat-archive-toggle"><input id="chat-show-archived" type="checkbox"> Архив</label>
+    <input id="chat-search" class="chat-search" type="search" placeholder="Поиск чатов…" autocomplete="off" maxlength="120" hidden>
+    <label class="chat-archive-toggle" hidden><input id="chat-show-archived" type="checkbox"> Архив</label>
     <div class="history-scroll"><ul id="chat-list" class="chat-list" aria-label="История чатов"></ul><p id="chat-history-empty" class="history-empty">Здесь появятся ваши чаты.</p></div>
     <p class="history-scope">Чаты синхронизируются между устройствами</p>
     <div class="sidebar-footer">
       <button id="settings" class="nav" data-view="settings" type="button" aria-label="Настройки" title="Настройки"><span aria-hidden="true" data-icon="settings"></span> Настройки</button>
 
-      <button id="expert-mode" class="nav" type="button" aria-pressed="false">Эксперт</button>
+      <button id="expert-mode" class="nav" type="button" aria-pressed="false" hidden>Эксперт</button>
 
       <div class="sidebar-account"><span class="account-avatar" aria-hidden="true">A</span><button id="account" class="account" type="button">Войти <span data-icon="open" data-icon-size="14"></span></button></div>
     </div>
@@ -52,7 +53,7 @@
       <button id="sidebar-toggle" class="shell-icon" type="button" aria-label="Показать навигацию" aria-controls="workspace-sidebar" aria-expanded="true" title="Навигация"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M9 4v16" stroke="currentColor" stroke-width="1.5"/></svg></button>
       <div class="workspace-title"><span class="workspace-product">PULSE <span>WORKSPACE</span></span><span id="workspace-page-title">Новый чат</span></div>
       <button id="commands" data-expert class="shell-icon" type="button" aria-label="Поиск команд" title="Поиск команд · Ctrl / ⌘ K" data-icon="search"></button>
-      <button id="preview-toggle" data-expert class="context-toggle" type="button" aria-controls="preview-panel" aria-expanded="false" aria-label="Код" title="Код и живой экран"><span aria-hidden="true" data-icon="code"></span> <span class="nav-label">Код</span></button>
+      <button id="preview-toggle" class="context-toggle" type="button" aria-controls="preview-panel" aria-expanded="false" aria-label="Код" title="Код и живой экран"><span aria-hidden="true" data-icon="code"></span> <span class="nav-label">Код</span></button>
       <button id="context-toggle" data-expert class="context-toggle" type="button" aria-controls="context-panel" aria-expanded="false" aria-label="Контекст"><span aria-hidden="true" data-icon="context"></span> <span class="nav-label">Контекст</span></button>
     </div>
     <div id="assignment-live" class="assignment-live" hidden aria-live="polite">
@@ -237,4 +238,4 @@
   </aside>
 </div>
 <div id="notice" class="notice" role="status" hidden><span id="notice-text"></span><button id="notice-close" type="button" aria-label="Закрыть уведомление">×</button></div><dialog id="dialog"><div class="section-heading"><h2 id="dialog-title"></h2><button id="close-dialog" aria-label="Закрыть">×</button></div><div id="dialog-content"></div></dialog><noscript><p class="context-note">Интерфейс виден, но для работы кнопок нужен JavaScript.</p></noscript>
-<script type="module" src="/assets/app.js?v=fb9a212fb5"></script></body></html>
+<script type="module" src="/assets/app.js?v=9e61215faa"></script></body></html>

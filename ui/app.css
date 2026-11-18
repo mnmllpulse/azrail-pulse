@@ -25,7 +25,7 @@ textarea { resize: vertical; width: 100%; }
 .header nav { display: flex; gap: 6px; }
 .nav { display: inline-flex; justify-content: center; align-items: center; border: 1px solid transparent; border-radius: 8px; min-height: 44px; background: transparent; color: var(--muted); font-size: var(--fs-small); padding: 10px 20px; }
 .nav:hover { color: var(--text); background: #211b2e; }
-.nav.active { color: #e6ddfa; border-color: #3a2e4d; background: #1d1728; }
+.nav.active { color: var(--text); }
 .account { background: transparent; font-size: var(--fs-caption); min-width: 92px; max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .account span { margin-left: 17px; color: var(--muted); }
 main { max-width: 1220px; margin: 0 auto; padding: 32px 48px 0; }

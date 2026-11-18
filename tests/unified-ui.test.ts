@@ -11,7 +11,8 @@ it('standalone HTML opens locally and studio navigation works without fetching a
  const code=html.match(/<script>([\s\S]*?)<\/script>/)![1];
  window.eval(code);
  expect(window.document.querySelector('#create h1')?.textContent).toContain('AZRAIL');
- expect(window.document.querySelector('[data-view="create"]')?.textContent).toContain('Чат');
+ expect(window.document.querySelector('.workspace-nav [data-view="create"]')).toBeNull();
+ expect(window.document.getElementById('new-chat')?.textContent).toContain('Новый чат');
  (window.document.querySelector('[data-view="studios"]') as any).click();
  expect(window.document.getElementById('studios')?.hidden).toBe(false);
  expect(window.document.querySelectorAll('#studio-list .card')).toHaveLength(8);
@@ -26,8 +27,7 @@ it('standalone HTML opens locally and studio navigation works without fetching a
  expect(window.document.getElementById('notice')?.hidden).toBe(true);
  (window.document.querySelector('[data-home]') as any).click();
  expect(window.document.getElementById('create')?.hidden).toBe(false);
- expect(window.document.querySelector('[data-view="create"]')?.getAttribute('aria-current')).toBe('page');
- expect(window.document.querySelector('[data-view="studios"]')?.hasAttribute('aria-current')).toBe(false);
+  expect(window.document.querySelector('[data-view="studios"]')?.hasAttribute('aria-current')).toBe(false);
  await window.happyDOM.abort();window.close();
 });
 

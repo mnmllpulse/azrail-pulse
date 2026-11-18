@@ -16,7 +16,6 @@
   transition: background-color var(--ease), border-color var(--ease), color var(--ease), box-shadow var(--ease);
 }
 .app-shell .nav:hover, .app-shell .shell-icon:hover, .app-shell .chat-row:hover { background: var(--accent-soft); }
-.app-shell .nav.active, .app-shell .nav[aria-current="page"], .app-shell .chat-row[data-active="true"] { background: var(--accent-hover); }
 .app-shell .nav, .app-shell .new-chat, .app-shell .shell-icon { border-radius: var(--radius-control); min-height: 40px; }
 .app-shell .shell-icon { min-width: 40px; }
 .app-shell button:disabled { opacity: .5; cursor: not-allowed; }
