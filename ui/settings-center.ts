@@ -1,4 +1,5 @@
 import { PROVIDER_TOKENS, hasProviderToken } from './provider-tokens';
+import { iconElement, type IconName } from './icons';
 
 export type SettingsSection =
   | 'account'
@@ -20,23 +21,23 @@ type Item = {
   section: SettingsSection;
   title: string;
   description: string;
-  icon: string;
+  icon: IconName;
   group: string;
 };
 
 export const SETTINGS_ITEMS: Item[] = [
-  { section: 'account', title: 'Аккаунт и профиль', description: 'Имя, роль, вход и управление сессией.', icon: '◉', group: 'Рабочее пространство' },
-  { section: 'appearance', title: 'Внешний вид', description: 'Плотность интерфейса и читаемость.', icon: '◈', group: 'Рабочее пространство' },
-  { section: 'models', title: 'AI и модели', description: 'Текущая модель, каталог и автовыбор.', icon: '✳', group: 'AI и модели' },
-  { section: 'voice', title: 'Голос', description: 'Голос для следующего ответа.', icon: '◖', group: 'AI и модели' },
-  { section: 'providers', title: 'Провайдеры и API', description: 'Каталог поставщиков и локальные ключи.', icon: '⌘', group: 'AI и модели' },
-  { section: 'connections', title: 'Подключения', description: 'MCP, OAuth, scopes, credentials и вызовы.', icon: '⎓', group: 'Подключения' },
-  { section: 'permissions', title: 'Безопасность и разрешения', description: 'Режим подтверждения действий агентов.', icon: '◇', group: 'Контроль и безопасность' },
-  { section: 'agent', title: 'Локальный агент', description: 'Связь с компьютером и разрешённые задачи.', icon: '⌁', group: 'Контроль и безопасность' },
-  { section: 'usage', title: 'Использование и лимиты', description: 'Лимиты, бюджет и пробные возможности.', icon: '◷', group: 'Использование и данные' },
-  { section: 'data', title: 'Данные и память', description: 'Библиотека файлов и проектная память.', icon: '▤', group: 'Использование и данные' },
-  { section: 'shortcuts', title: 'Управление и доступность', description: 'Горячие клавиши, анимации, контраст и язык.', icon: '⌨', group: 'Система' },
-  { section: 'about', title: 'О системе и диагностика', description: 'Версия, принципы работы и сведения о продукте.', icon: 'ⓘ', group: 'Система' },
+  { section: 'account', title: 'Аккаунт и профиль', description: 'Имя, роль, вход и управление сессией.', icon: 'account', group: 'Рабочее пространство' },
+  { section: 'appearance', title: 'Внешний вид', description: 'Плотность интерфейса и читаемость.', icon: 'appearance', group: 'Рабочее пространство' },
+  { section: 'models', title: 'AI и модели', description: 'Текущая модель, каталог и автовыбор.', icon: 'models', group: 'AI и модели' },
+  { section: 'voice', title: 'Голос', description: 'Голос для следующего ответа.', icon: 'voice', group: 'AI и модели' },
+  { section: 'providers', title: 'Провайдеры и API', description: 'Каталог поставщиков и локальные ключи.', icon: 'providers', group: 'AI и модели' },
+  { section: 'connections', title: 'Подключения', description: 'MCP, OAuth, scopes, credentials и вызовы.', icon: 'connections', group: 'Подключения' },
+  { section: 'permissions', title: 'Безопасность и разрешения', description: 'Режим подтверждения действий агентов.', icon: 'permissions', group: 'Контроль и безопасность' },
+  { section: 'agent', title: 'Локальный агент', description: 'Связь с компьютером и разрешённые задачи.', icon: 'agent', group: 'Контроль и безопасность' },
+  { section: 'usage', title: 'Использование и лимиты', description: 'Лимиты, бюджет и пробные возможности.', icon: 'usage', group: 'Использование и данные' },
+  { section: 'data', title: 'Данные и память', description: 'Библиотека файлов и проектная память.', icon: 'data', group: 'Использование и данные' },
+  { section: 'shortcuts', title: 'Управление и доступность', description: 'Горячие клавиши, анимации, контраст и язык.', icon: 'shortcuts', group: 'Система' },
+  { section: 'about', title: 'О системе и диагностика', description: 'Версия, принципы работы и сведения о продукте.', icon: 'about', group: 'Система' },
 ];
 
 const bySection = new Map(SETTINGS_ITEMS.map((item) => [item.section, item]));
@@ -92,7 +93,8 @@ export function mountSettingsCenter(
     const group = node('section', '', 'settings-nav-group');
     group.append(node('h2', groupName, 'settings-nav-heading'));
     for (const item of SETTINGS_ITEMS.filter((candidate) => candidate.group === groupName)) {
-      const button = node('button', `${item.icon}  ${item.title}`, 'settings-nav-item');
+      const button = node('button', '', 'settings-nav-item');
+      button.append(iconElement(item.icon), node('span', item.title));
       button.type = 'button';
       button.dataset.settingsSection = item.section;
       button.title = item.description;
@@ -162,8 +164,8 @@ export function mountSettingsCenter(
       card.dataset.settingsSearch = [item.title, item.description, item.group].join(' ').toLocaleLowerCase('ru');
       const top = node('div', '', 'settings-category-top');
       top.append(
-        node('span', item.icon, 'settings-category-icon'),
-        node('span', '↗', 'settings-category-arrow'),
+        (() => { const mark = iconElement(item.icon, 20); mark.classList.add('settings-category-icon'); return mark; })(),
+        (() => { const arrow = iconElement('open', 16); arrow.classList.add('settings-category-arrow'); return arrow; })(),
       );
       card.append(top, node('strong', item.title), node('span', item.description, 'settings-category-description'));
       card.onclick = () => navigate({ section: item.section });
