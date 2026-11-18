@@ -191,8 +191,10 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .chat-message .code-block-copy { border: 0; background: transparent; color: #cbb9df; font-size: var(--fs-caption); padding: 4px 8px; border-radius: 8px; cursor: pointer; }
 .app-shell .chat-message .code-block-copy:hover { background: #2a2434; color: var(--heading); }
 .app-shell .chat-message .code-block pre { margin: 0; padding: 12px 14px; overflow: auto; font: 12px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace; color: #efe8f6; }
-.app-shell .chat-message .message-actions { display: inline-flex; gap: 2px; margin-top: 8px; opacity: .78; }
+.app-shell .chat-message .message-actions { display: inline-flex; gap: 2px; margin-top: 8px; opacity: 0; transition: opacity .16s ease; }
+@media (hover: none) { .app-shell .chat-message .message-actions { opacity: .78; } }
 .app-shell .chat-message:hover .message-actions, .app-shell .chat-message:focus-within .message-actions { opacity: 1; }
+.app-shell .chat-message .message-action:disabled { opacity: .5; cursor: progress; }
 .app-shell .chat-message .message-action { border: 0; background: transparent; color: var(--muted); width: 30px; height: 30px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .app-shell .chat-message .message-action:hover, .app-shell .chat-message .message-action.is-done { background: #2a2434; color: #f2e9ff; }
 .app-shell .chat-message .message-status { display: inline-block; margin-top: 8px; font-size: var(--fs-caption); color: var(--muted); }

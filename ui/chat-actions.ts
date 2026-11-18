@@ -2,9 +2,10 @@ import { icon } from './icons';
 
 export type MessageActionHandlers = {
   onCopy?: (text: string) => void;
-  onShare?: (text: string) => void;
   onSpeak?: (text: string) => void;
-  onMore?: (text: string, anchor: HTMLElement) => void;
+  onEdit?: (text: string) => void;
+  onSave?: (text: string, role: 'user' | 'assistant') => void | Promise<void>;
+  onBranch?: (turnIndex: number) => void;
   assistantLabel?: string;
 };
 
@@ -18,7 +19,7 @@ function iconButton(doc: Document, label: string, title: string, svg: string): H
   return btn;
 }
 
-const ICONS = { copy: icon('copy'), speak: icon('speak'), share: icon('share'), more: icon('more') };
+const ICONS = { copy: icon('copy'), check: icon('check'), speak: icon('speak'), edit: icon('edit'), branch: icon('branch'), save: icon('save') };
 
 type SpokenVoice = 'shade' | 'lumen' | 'aria';
 const LOCAL_VOICE: Record<SpokenVoice, { pitch: number; rate: number; match: RegExp }> = {
@@ -181,41 +182,77 @@ export function speakText(text: string): void {
   });
 }
 
+function copyButton(doc: Document, content: string, title: string, handlers: MessageActionHandlers): HTMLButtonElement {
+  const copy = iconButton(doc, 'Копировать', title, ICONS.copy);
+  copy.onclick = async () => {
+    const ok = await copyText(content);
+    handlers.onCopy?.(content);
+    if (!ok) return;
+    copy.classList.add('is-done');
+    copy.innerHTML = ICONS.check;
+    window.setTimeout(() => {
+      copy.classList.remove('is-done');
+      copy.innerHTML = ICONS.copy;
+    }, 1400);
+  };
+  return copy;
+}
+
+function saveButton(doc: Document, content: string, role: 'user' | 'assistant', handlers: MessageActionHandlers): HTMLButtonElement {
+  const save = iconButton(doc, 'Сохранить', role === 'user' ? 'Сохранить запрос в память' : 'Сохранить ответ в память', ICONS.save);
+  save.onclick = async () => {
+    save.disabled = true;
+    try {
+      await handlers.onSave?.(content, role);
+    } finally {
+      save.disabled = false;
+    }
+  };
+  return save;
+}
+
+function toolbar(doc: Document, label: string): HTMLDivElement {
+  const bar = doc.createElement('div');
+  bar.className = 'message-actions';
+  bar.setAttribute('role', 'toolbar');
+  bar.setAttribute('aria-label', label);
+  return bar;
+}
+
 export function appendAssistantActions(
+  item: HTMLElement,
+  content: string,
+  handlers: MessageActionHandlers = {},
+  turnIndex = -1,
+): void {
+  if (!content.trim()) return;
+  const doc = item.ownerDocument;
+  const bar = toolbar(doc, 'Действия с ответом');
+  const speak = iconButton(doc, 'Слушать', 'Озвучить ответ', ICONS.speak);
+  speak.onclick = () => {
+    speakText(content);
+    handlers.onSpeak?.(content);
+  };
+  bar.append(copyButton(doc, content, 'Копировать ответ', handlers), speak);
+  if (turnIndex >= 0) {
+    const branch = iconButton(doc, 'Создать ветвь в новом чате', 'Создать ветвь в новом чате', ICONS.branch);
+    branch.onclick = () => handlers.onBranch?.(turnIndex);
+    bar.append(branch);
+  }
+  bar.append(saveButton(doc, content, 'assistant', handlers));
+  item.append(bar);
+}
+
+export function appendUserActions(
   item: HTMLElement,
   content: string,
   handlers: MessageActionHandlers = {},
 ): void {
   if (!content.trim()) return;
   const doc = item.ownerDocument;
-  const bar = doc.createElement('div');
-  bar.className = 'message-actions';
-  bar.setAttribute('role', 'toolbar');
-  bar.setAttribute('aria-label', 'Действия с ответом');
-
-  const copy = iconButton(doc, 'Копировать', 'Копировать ответ', ICONS.copy);
-  copy.onclick = async () => {
-    const ok = await copyText(content);
-    handlers.onCopy?.(content);
-    copy.classList.toggle('is-done', ok);
-    window.setTimeout(() => copy.classList.remove('is-done'), 1200);
-  };
-
-  const speak = iconButton(doc, 'Озвучить', 'Озвучить ответ', ICONS.speak);
-  speak.onclick = () => {
-    speakText(content);
-    handlers.onSpeak?.(content);
-  };
-
-  const share = iconButton(doc, 'Поделиться', 'Поделиться ответом', ICONS.share);
-  share.onclick = async () => {
-    await shareText(content);
-    handlers.onShare?.(content);
-  };
-
-  const more = iconButton(doc, 'Ещё', 'Дополнительные действия', ICONS.more);
-  more.onclick = () => handlers.onMore?.(content, more);
-
-  bar.append(copy, speak, share, more);
+  const bar = toolbar(doc, 'Действия с запросом');
+  const edit = iconButton(doc, 'Редактировать', 'Изменить запрос и отправить заново', ICONS.edit);
+  edit.onclick = () => handlers.onEdit?.(content);
+  bar.append(edit, copyButton(doc, content, 'Копировать запрос', handlers), saveButton(doc, content, 'user', handlers));
   item.append(bar);
 }
