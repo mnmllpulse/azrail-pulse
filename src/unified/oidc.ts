@@ -80,6 +80,12 @@ async function metadata(env:Env) {
  }
  return d;
 }
+const AVATAR_URL=/^https:\/\/[a-z0-9-]+\.googleusercontent\.com\/[^\s"'<>]{1,400}$/i;
+/** Аватар хранится в KV, а не в D1: колонка потребовала бы миграцию, а отсутствие аватара не должно ломать вход. */
+export function avatarFromClaims(payload:Record<string,unknown>):string{return typeof payload.picture==='string'&&AVATAR_URL.test(payload.picture)?payload.picture:'';}
+export async function accountPicture(env:Env,id:string):Promise<string>{
+ try{const url=await env.AZRAIL_KV?.get(`avatar:${id}`);return url&&AVATAR_URL.test(url)?url:'';}catch{return '';}
+}
 export async function sessionPrincipal(request:Request,env:Env):Promise<Principal|null> {
  const token=cookies(request)[cookieName];
  if(!token || !/^[a-f0-9]{64}$/.test(token)) return null;
@@ -96,12 +102,18 @@ export async function sessionPrincipal(request:Request,env:Env):Promise<Principa
  const role=row.role==='viewer'?'viewer':oidcAdmin?'admin':'editor';
  return {...row,role,operator:role!=='viewer'&&(env.OPERATOR_ACCOUNT_IDS??'').split(',').map(s=>s.trim()).includes(row.id)};
 }
+async function statusAccount(request:Request,env:Env){
+ const account=await sessionPrincipal(request,env);
+ if(!account)return null;
+ const picture=await accountPicture(env,account.id);
+ return picture?{...account,picture}:account;
+}
 export async function authRoute(request:Request,env:Env):Promise<Response|null> {
  const url=new URL(request.url);
  if(!url.pathname.startsWith('/auth/'))return null;
  const reply=(data:unknown,status=200)=>Response.json(data,{status,headers:{'Cache-Control':'no-store'}});
  if(!trustedOrigin(request,env))return reply({error:'Домен не разрешён в PUBLIC_ORIGINS.'},403);
- if(url.pathname==='/auth/status')return reply({configured:!!env.OIDC_ISSUER&&!!env.OIDC_CLIENT_ID,key:env.AUTH_MODE!=='oidc',account:await sessionPrincipal(request,env)});
+ if(url.pathname==='/auth/status')return reply({configured:!!env.OIDC_ISSUER&&!!env.OIDC_CLIENT_ID,key:env.AUTH_MODE!=='oidc',account:await statusAccount(request,env)});
  if(url.pathname==='/auth/logout' && request.method==='POST') {
   if(request.headers.get('Origin')!==url.origin)return reply({error:'Origin mismatch'},403);
   await env.AZRAIL_D1.prepare('DELETE FROM web_sessions WHERE token_hash=?').bind(await hashToken(cookies(request)[cookieName]??'')).run();
@@ -150,6 +162,7 @@ export async function authRoute(request:Request,env:Env):Promise<Response|null> 
    await env.AZRAIL_D1.prepare(`INSERT INTO access_accounts(id,name,role,token_hash,expires_at) VALUES(?,?,?,?,?)
     ON CONFLICT(id) DO UPDATE SET name=excluded.name,expires_at=excluded.expires_at,role=CASE WHEN access_accounts.role='viewer' THEN 'viewer' ELSE excluded.role END`)
     .bind(id,name,role,await hashToken(random()),Date.now()+365*86400000).run();
+   try{const picture=avatarFromClaims(payload as Record<string,unknown>);if(picture)await env.AZRAIL_KV?.put(`avatar:${id}`,picture,{expirationTtl:365*86400});else await env.AZRAIL_KV?.delete(`avatar:${id}`);}catch{/* аватар необязателен */}
    const account=await env.AZRAIL_D1.prepare('SELECT disabled FROM access_accounts WHERE id=?').bind(id).first<{disabled:number}>();
    if(account?.disabled)return reply({error:'Аккаунт отключён.'},403);
    const session=random(),sessionHash=await hashToken(session),expires=Date.now()+12*3600000;

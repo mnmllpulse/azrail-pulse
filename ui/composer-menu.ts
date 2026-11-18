@@ -11,11 +11,11 @@ export type ModelMenuDeps={
  openAll:()=>void;
 };
 
-export const EFFORT_LEVELS:{id:EffortLevel;label:string;hint:string}[]=[
- {id:'low',label:'Низкий',hint:'Быстрые короткие ответы'},
- {id:'medium',label:'Средний',hint:'Баланс скорости и качества'},
- {id:'high',label:'Высокий',hint:'Более тщательный разбор'},
- {id:'max',label:'Максимальный',hint:'Самая сильная модель, ответ пошагово. Быстрее расходует лимиты'},
+export const EFFORT_LEVELS:{id:EffortLevel;label:string}[]=[
+ {id:'low',label:'Низкий'},
+ {id:'medium',label:'Средний'},
+ {id:'high',label:'Высокий'},
+ {id:'max',label:'Максимальный'},
 ];
 export const EFFORT_DEFAULT:EffortLevel='medium';
 export const EFFORT_NOTE='Чем выше уровень усилий, тем более тщательные ответы — но это занимает больше времени и быстрее расходует лимиты использования';
@@ -61,21 +61,21 @@ export function createModelMenu(deps:ModelMenuDeps){
   menu.replaceChildren();
   if(view==='root'){
    const cur=deps.current();
-   menu.append(row(cur.label,cur.description||'Подбираем модель под задачу',null,close,true));
+   menu.append(row(cur.label,undefined,null,close,true));
    menu.append(el('hr','composer-menu-sep'));
    menu.append(row('Уровень усилий',undefined,`${effortLabel(effort)} ›`,()=>show('effort')));
    menu.append(row('Другие модели',undefined,'›',()=>show('models')));
   }else if(view==='effort'){
    menu.append(head('Уровень усилий',()=>show('root')));
    for(const level of EFFORT_LEVELS){
-    menu.append(row(level.label,level.hint,level.id===EFFORT_DEFAULT?'Рекомендуется':null,()=>{setEffort(level.id);show('effort');},level.id===effort));
+    menu.append(row(level.label,undefined,level.id===EFFORT_DEFAULT?'Рекомендуется':null,()=>{setEffort(level.id);show('effort');},level.id===effort));
    }
    menu.append(el('p','composer-menu-note',EFFORT_NOTE));
   }else{
    menu.append(head('Другие модели',()=>show('root')));
-   const list=deps.others().slice(0,8);
+   const list=deps.others().slice(0,40);
    if(!list.length)menu.append(el('p','composer-menu-note','Каталог моделей доступен после входа.'));
-   for(const m of list)menu.append(row(m.label,m.description,null,()=>{deps.select(m.slug);close();}));
+   for(const m of list)menu.append(row(m.label,undefined,null,()=>{deps.select(m.slug);close();}));
    menu.append(row('Все модели…',undefined,null,()=>{close();deps.openAll();}));
   }
  }
