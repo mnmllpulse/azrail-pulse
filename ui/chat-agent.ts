@@ -81,10 +81,17 @@ export function approvalText(job: AgentJobView): string {
   return `Жду подтверждения: запись ${job.bytes ?? 0} симв. в ${job.path}. Напиши «разреши» или «отклони».`;
 }
 
+const ANSI = /\u001b(?:\[[0-?]*[ -/]*[@-~]|\][^\u0007\u001b]*(?:\u0007|\u001b\\))/g;
+
+/** Старый агент мог прислать цветовые коды: в интерфейсе их не показываем. */
+export function stripAnsi(text: string): string {
+  return text.replace(ANSI, '');
+}
+
 export function jobReply(job: AgentJobView, shown = 6000): string {
   if (job.status === 'awaiting_approval') return approvalText(job);
   if (job.kind === 'run' && (job.status === 'done' || job.status === 'failed')) {
-    const body = job.result ?? job.error ?? '';
+    const body = stripAnsi(job.result ?? job.error ?? '');
     const cut = body.length > shown ? `…${body.slice(-shown)}` : body;
     return `${job.status === 'done' ? 'Команда выполнена' : 'Команда завершилась с ошибкой'}: ${job.command ?? job.path}.\n\n\`\`\`\n${cut}\n\`\`\``;
   }

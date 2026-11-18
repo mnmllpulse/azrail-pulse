@@ -1,4 +1,5 @@
 import { createAgentBrowser } from './agent-browser';
+import { stripAnsi } from './chat-agent';
 import { activeRootField, pickActive, readActiveRoot, saveActiveRoot, type AgentRootView } from './agent-roots';
 import { agentCommand, toRelativePath } from './agent-paths';
 import { COMPUTER_COMMANDS } from './terminal-panel';
@@ -188,7 +189,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
           const out = el('textarea');
           out.readOnly = true;
           out.rows = 6;
-          out.value = job.result;
+          out.value = stripAnsi(job.result);
           row.append(out);
         }
         if (job.status === 'awaiting_approval') {

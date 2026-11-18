@@ -1,4 +1,4 @@
-import { agentGap, waitJob, type AgentJobView, type AgentState } from './chat-agent';
+import { agentGap, stripAnsi, waitJob, type AgentJobView, type AgentState } from './chat-agent';
 import { activeRootField } from './agent-roots';
 
 type Api = (path: string, init?: RequestInit) => Promise<any>;
@@ -15,8 +15,8 @@ export const COMPUTER_COMMANDS: ReadonlyArray<readonly [string, string]> = [
 ];
 
 export function outputOf(job: AgentJobView): string {
-  if (job.status === 'done') return job.result?.trim() || '(пустой вывод)';
-  if (job.status === 'failed') return [job.result, job.error].filter(Boolean).join('\n') || 'Команда завершилась с ошибкой.';
+  if (job.status === 'done') return stripAnsi(job.result ?? '').trim() || '(пустой вывод)';
+  if (job.status === 'failed') return [stripAnsi(job.result ?? ''), job.error].filter(Boolean).join('\n') || 'Команда завершилась с ошибкой.';
   if (job.status === 'rejected') return 'Отклонено, команда не запускалась.';
   if (job.status === 'expired') return 'Истекло: агент не ответил за 15 минут.';
   return 'Агент не ответил. Проверь, что он запущен в PowerShell на компьютере.';
