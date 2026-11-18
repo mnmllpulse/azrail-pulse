@@ -28,15 +28,15 @@ type Item = {
 export const SETTINGS_ITEMS: Item[] = [
   { section: 'account', title: 'Аккаунт и профиль', description: 'Имя, роль, вход и управление сессией.', icon: 'account', group: 'Рабочее пространство' },
   { section: 'appearance', title: 'Внешний вид', description: 'Плотность интерфейса и читаемость.', icon: 'appearance', group: 'Рабочее пространство' },
-  { section: 'models', title: 'AI и модели', description: 'Текущая модель, каталог и автовыбор.', icon: 'models', group: 'AI и модели' },
-  { section: 'voice', title: 'Голос', description: 'Голос для следующего ответа.', icon: 'voice', group: 'AI и модели' },
-  { section: 'providers', title: 'Провайдеры и API', description: 'Каталог поставщиков и локальные ключи.', icon: 'providers', group: 'AI и модели' },
-  { section: 'connections', title: 'Подключения', description: 'MCP, OAuth, scopes, credentials и вызовы.', icon: 'connections', group: 'Подключения' },
-  { section: 'permissions', title: 'Безопасность и разрешения', description: 'Режим подтверждения действий агентов.', icon: 'permissions', group: 'Контроль и безопасность' },
-  { section: 'agent', title: 'Локальный агент', description: 'Связь с компьютером и разрешённые задачи.', icon: 'agent', group: 'Контроль и безопасность' },
-  { section: 'usage', title: 'Использование и лимиты', description: 'Лимиты, бюджет и пробные возможности.', icon: 'usage', group: 'Использование и данные' },
-  { section: 'data', title: 'Данные и память', description: 'Библиотека файлов и проектная память.', icon: 'data', group: 'Использование и данные' },
-  { section: 'shortcuts', title: 'Управление и доступность', description: 'Горячие клавиши, анимации, контраст и язык.', icon: 'shortcuts', group: 'Система' },
+  { section: 'shortcuts', title: 'Управление и доступность', description: 'Горячие клавиши, анимации, контраст и язык.', icon: 'shortcuts', group: 'Рабочее пространство' },
+  { section: 'models', title: 'AI и модели', description: 'Текущая модель, каталог и автовыбор.', icon: 'models', group: 'Интеллект' },
+  { section: 'voice', title: 'Голос', description: 'Голос для следующего ответа.', icon: 'voice', group: 'Интеллект' },
+  { section: 'providers', title: 'Провайдеры и API', description: 'Каталог поставщиков и локальные ключи.', icon: 'providers', group: 'Интеллект' },
+  { section: 'connections', title: 'Подключения', description: 'MCP, OAuth, scopes, credentials и вызовы.', icon: 'connections', group: 'Интеграции' },
+  { section: 'agent', title: 'Локальный агент', description: 'Связь с компьютером и разрешённые задачи.', icon: 'agent', group: 'Интеграции' },
+  { section: 'permissions', title: 'Безопасность и разрешения', description: 'Режим подтверждения действий агентов.', icon: 'permissions', group: 'Защита и данные' },
+  { section: 'data', title: 'Данные и память', description: 'Библиотека файлов и проектная память.', icon: 'data', group: 'Защита и данные' },
+  { section: 'usage', title: 'Использование и лимиты', description: 'Лимиты, бюджет и пробные возможности.', icon: 'usage', group: 'Система' },
   { section: 'about', title: 'О системе и диагностика', description: 'Версия, принципы работы и сведения о продукте.', icon: 'about', group: 'Система' },
 ];
 
@@ -72,7 +72,6 @@ export function mountSettingsCenter(
   const sidebarHead = node('div', '', 'settings-sidebar-head');
   sidebarHead.append(
     node('p', 'PULSE SETTINGS', 'settings-eyebrow'),
-    node('strong', 'Настройки'),
     node('span', 'Все параметры AZRAIL в одном месте.', 'muted'),
   );
 
@@ -106,12 +105,7 @@ export function mountSettingsCenter(
     nav.append(group);
   }
 
-  const sidebarFoot = node('div', '', 'settings-sidebar-foot');
-  const back = node('button', '← Вернуться в чат', 'settings-back');
-  back.type = 'button';
-  back.onclick = () => navigate({ page: 'create' });
-  sidebarFoot.append(back);
-  sidebar.append(sidebarHead, searchLabel, nav, sidebarFoot);
+  sidebar.append(sidebarHead, searchLabel, nav);
 
   const main = node('div', '', 'settings-main');
   const heading = node('div', '', 'settings-page-heading');
@@ -128,13 +122,13 @@ export function mountSettingsCenter(
     return button;
   };
   const sep = () => node('span', '/', 'settings-crumb-sep');
-  if (!active) crumbs.append(crumb('Настройки'));
-  else {
+  if (active) {
     crumbs.append(crumb('Настройки', () => navigate({ page: 'settings' })), sep());
     if (provider) crumbs.append(crumb('Провайдеры', () => navigate({ section: 'providers' })), sep(), crumb(settingsTitle(section, provider)));
     else crumbs.append(crumb(settingsTitle(active)));
   }
-  heading.append(up, crumbs);
+  heading.append(up);
+  if (active) heading.append(crumbs);
   const title = node('h1', active ? settingsTitle(active, provider) : 'Настройки');
   title.tabIndex = -1;
   const description = active
