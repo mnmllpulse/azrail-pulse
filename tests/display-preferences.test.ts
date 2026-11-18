@@ -12,17 +12,17 @@ describe('display preferences',()=>{
   it('returns defaults for empty or invalid storage',()=>{
     const w=setup();
     expect(readDisplayPrefs()).toEqual(DEFAULT_PREFS);
-    w.localStorage.setItem('pulse.uiDensity','giant');w.localStorage.setItem('pulse.uiTextScale','huge');
+    w.localStorage.setItem('pulse.uiFont','comic');w.localStorage.setItem('pulse.uiDensity','giant');w.localStorage.setItem('pulse.uiTextScale','huge');
     expect(readDisplayPrefs()).toEqual(DEFAULT_PREFS);
   });
   it('round-trips and applies to the root element',()=>{
     const w=setup();
-    const prefs={density:'compact' as const,textScale:'large' as const,reduceMotion:true,highContrast:true};
+    const prefs={density:'compact' as const,textScale:'large' as const,font:'serif' as const,reduceMotion:true,highContrast:true};
     expect(saveDisplayPrefs(prefs)).toBe(true);
     expect(readDisplayPrefs()).toEqual(prefs);
     applyDisplayPrefs(readDisplayPrefs(),w.document.documentElement as unknown as HTMLElement);
     const root=w.document.documentElement;
-    expect([root.dataset.settingsDensity,root.dataset.settingsTextScale,root.dataset.settingsMotion,root.dataset.settingsContrast]).toEqual(['compact','large','reduced','high']);
+    expect([root.dataset.settingsDensity,root.dataset.settingsTextScale,root.dataset.settingsFont,root.dataset.settingsMotion,root.dataset.settingsContrast]).toEqual(['compact','large','serif','reduced','high']);
   });
   it('reports a blocked storage write',()=>{
     setup();
@@ -32,7 +32,7 @@ describe('display preferences',()=>{
   });
   it('every data attribute written by the code is read by the stylesheet',()=>{
     const css=readFileSync('ui/app.css','utf8');
-    for(const attr of ['data-settings-density','data-settings-text-scale','data-settings-motion','data-settings-contrast'])expect(css).toContain(attr);
+    for(const attr of ['data-settings-density','data-settings-text-scale','data-settings-font','data-settings-motion','data-settings-contrast'])expect(css).toContain(attr);
   });
 });
 

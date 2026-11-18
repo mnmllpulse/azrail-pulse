@@ -557,6 +557,9 @@ html[data-settings-density="spacious"] .card,html[data-settings-density="spaciou
 html[data-settings-density="compact"] .settings-detail-content {gap:10px;}
 html[data-settings-density="spacious"] .settings-detail-content {gap:22px;}
 html[data-settings-text-scale="large"] body {zoom:1.1;}
+html[data-settings-font="system"] {--font:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
+html[data-settings-font="serif"] {--font:Georgia,"Times New Roman",Cambria,serif;}
+html[data-settings-font="mono"] {--font:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace;}
 html[data-settings-motion="reduced"] {scroll-behavior:auto;}
 html[data-settings-motion="reduced"] *,html[data-settings-motion="reduced"] *::before,html[data-settings-motion="reduced"] *::after {animation:none !important;transition:none !important;scroll-behavior:auto !important;}
 html[data-settings-contrast="high"] {--text:#fff;--muted:#d6d9e3;--line:#8089a6;--border:#8089a6;--accent:#d2c6ff;}

@@ -33,7 +33,7 @@ import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
 import {permissionSettings} from './permission-settings';
 import {renderProviderPage,type Routing} from './settings-providers';
-import {applyDisplayPrefs,readDisplayPrefs,saveDisplayPrefs,type Density,type TextScale} from './display-preferences';
+import {applyDisplayPrefs,readDisplayPrefs,saveDisplayPrefs,FONT_OPTIONS,type Density,type FontFamily,type TextScale} from './display-preferences';
 import {renderDiagnostics,type Health} from './settings-diagnostics';
 import {mountSettingsCenter,settingsTitle,type SettingsSection} from './settings-center';
 import {SWITCH_KINDS,switchPartKind,formatPlan,fileNameFromPhrase,followUpPlan,groundWorkPlan,holdBlocked,keepAskedMedia,openStoredPlan,pictureReply,planRecord,planWork,restorePageVersion,retryPart,revisePart,takeBackPage,wantsPageRestore,wavesToRun,workPlanFromDraft,type PlanPart,type PlanThing,type WorkPlan} from './planner';
@@ -647,12 +647,14 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
   const select=(id:string,options:ReadonlyArray<readonly [string,string]>,value:string)=>{const el=document.createElement('select');el.id=id;for(const [v,l] of options){const option=document.createElement('option');option.value=v;option.textContent=l;el.append(option);}el.value=value;return el;};
   const density=select('settings-density',[['comfortable','Комфортная'],['compact','Компактная'],['spacious','Свободная']],prefs.density);
   const textScale=select('settings-text-scale',[['normal','Обычный'],['large','Увеличенный (110%)']],prefs.textScale);
-  const preview=()=>applyDisplayPrefs({...prefs,density:density.value as Density,textScale:textScale.value as TextScale});
-  density.onchange=preview;textScale.onchange=preview;
-  const form=document.createElement('div');form.className='settings-form-grid';form.append(...field('Плотность интерфейса',density),...field('Размер текста',textScale));content.append(form);
-  settingsText(content,'Цветовая тема AZRAIL — только Dark Premium: светлой темы в продукте нет. Шрифт — системный sans-serif; Inter не поставляется.');
+  const font=select('settings-font',FONT_OPTIONS,prefs.font);
+  const current=()=>({...prefs,density:density.value as Density,textScale:textScale.value as TextScale,font:font.value as FontFamily});
+  const preview=()=>applyDisplayPrefs(current());
+  density.onchange=preview;textScale.onchange=preview;font.onchange=preview;
+  const form=document.createElement('div');form.className='settings-form-grid';form.append(...field('Плотность интерфейса',density),...field('Размер текста',textScale),...field('Шрифт',font));content.append(form);
+  settingsText(content,'Цветовая тема AZRAIL — только Dark Premium: светлой темы в продукте нет, в интерфейсе ~770 жёстко заданных цветов, их перевод на токены отдельный этап. Шрифты — только установленные в системе, внешние шрифты не загружаются.');
   settingsButton(content,'Сохранить внешний вид',()=>{
-   const next={...prefs,density:density.value as Density,textScale:textScale.value as TextScale};
+   const next=current();
    if(!saveDisplayPrefs(next)){notice('Браузер не разрешил сохранить предпочтения.',true);return;}
    applyDisplayPrefs(next);notice('Внешний вид сохранён на этом устройстве.');
   },true);
