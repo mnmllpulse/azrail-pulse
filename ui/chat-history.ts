@@ -1,5 +1,6 @@
 import {appendAssistantActions,appendUserActions,type MessageActionHandlers} from './chat-actions';
 import {attachmentChip,splitAttachments} from './attachment-chip';
+import {splitProcess,thinkingBlock} from './thinking-block';
 import {fillMarkdownContent} from './chat-markdown';
 
 export type ChatTurn={missionId:string;requestKey:string;user:string;reply:string;status:string};
@@ -191,10 +192,18 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
   const heading=doc.createElement('h3');heading.className='message-heading';heading.textContent=role==='user'?'Вы':(handlers.assistantLabel||'AZRAIL');
   item.append(heading);
   if(role==='assistant'&&content){
-   const body=doc.createElement('div');
-   fillMarkdownContent(body,content);
-   item.append(body);
-   if(status!=='queued'&&status!=='failed')appendAssistantActions(item,content,handlers,turn);
+   const {process,rest,steps}=splitProcess(content);
+   if(process){
+    const block=thinkingBlock(doc,steps,!rest);
+    fillMarkdownContent(block.body,process);
+    item.append(block.root);
+   }
+   if(rest||!process){
+    const body=doc.createElement('div');
+    fillMarkdownContent(body,rest||content);
+    item.append(body);
+   }
+   if(status!=='queued'&&status!=='failed')appendAssistantActions(item,rest||content,handlers,turn);
   }else if(role==='user'&&splitAttachments(content).files.length){
    const {text,files}=splitAttachments(content);
    if(text){const p=doc.createElement('p');p.className='message-content';p.textContent=text;item.append(p);}
