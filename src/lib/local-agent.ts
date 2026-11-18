@@ -3,8 +3,17 @@ import { AccessError } from "./accounts";
 export type AgentJobKind = "list" | "read" | "write" | "run";
 export type AgentJobStatus = "awaiting_approval" | "queued" | "running" | "done" | "failed" | "rejected" | "expired";
 
+export interface AgentRoot {
+  name: string;
+  path: string;
+}
+
+export const AGENT_MAX_ROOTS = 8;
+
 export interface AgentJob {
   id: string;
+  /** Имя папки агента, в которой выполнить задачу; пусто — первая папка. */
+  root?: string | null;
   kind: AgentJobKind;
   path: string;
   content: string | null;
@@ -21,6 +30,8 @@ export interface AgentState {
   lastSeen: number | null;
   /** Папка агента, как её сообщил сам агент (только для показа в интерфейсе). */
   root?: string | null;
+  /** Все папки, которые агент открыл при запуске (имя + путь). */
+  roots?: AgentRoot[];
 }
 
 export interface AgentStore {
@@ -81,7 +92,7 @@ export function newAgentToken(): string {
 export async function enableAgent(store: AgentStore, now = Date.now()): Promise<{ token: string; expiresAt: number }> {
   const token = newAgentToken();
   const expiresAt = now + AGENT_SESSION_MS;
-  await store.setState({ tokenHash: await sha256Hex(token), expiresAt, lastSeen: null, root: null });
+  await store.setState({ tokenHash: await sha256Hex(token), expiresAt, lastSeen: null, root: null, roots: [] });
   return { token, expiresAt };
 }
 
@@ -99,6 +110,7 @@ export async function agentStatus(store: AgentStore, now = Date.now()) {
     connected: enabled && !!state!.lastSeen && now - state!.lastSeen < 15_000,
     lastSeen: state?.lastSeen ?? null,
     root: enabled ? state!.root ?? null : null,
+    roots: enabled ? agentRoots(state!) : [],
     jobs: jobs.map(publicJob),
   };
 }
@@ -108,6 +120,7 @@ export function publicJob(job: AgentJob) {
     id: job.id,
     kind: job.kind,
     path: job.path,
+    ...(job.root ? { root: job.root } : {}),
     status: job.status,
     ...(job.kind === "write" ? { bytes: job.content?.length ?? 0 } : {}),
     ...(job.kind === "run" ? { command: AGENT_COMMANDS[job.path] ?? job.path } : {}),
@@ -118,7 +131,7 @@ export function publicJob(job: AgentJob) {
   };
 }
 
-export async function createJob(store: AgentStore, input: { kind?: unknown; path?: unknown; content?: unknown }, now = Date.now()): Promise<AgentJob> {
+export async function createJob(store: AgentStore, input: { kind?: unknown; path?: unknown; content?: unknown; root?: unknown }, now = Date.now()): Promise<AgentJob> {
   const state = await store.getState();
   if (!state || state.expiresAt <= now) throw new AccessError("Агент выключен. Включи его, чтобы ставить задачи.", 409);
   const kind = input.kind;
@@ -128,6 +141,14 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     if (typeof input.path !== "string" || !Object.hasOwn(AGENT_COMMANDS, input.path)) throw new AccessError(`Команда не из белого списка. Доступны: ${Object.keys(AGENT_COMMANDS).join(", ")}.`, 400);
     path = input.path;
   } else path = safeAgentPath(input.path, kind === "list");
+  let root: string | null = null;
+  if (input.root !== undefined && input.root !== null && input.root !== "") {
+    if (typeof input.root !== "string") throw new AccessError("Имя папки должно быть строкой.", 400);
+    const known = agentRoots(state);
+    if (!known.length) throw new AccessError("Агент ещё не сообщил свои папки. Запусти его и повтори.", 409);
+    if (!known.some((entry) => entry.name === input.root)) throw new AccessError(`У агента нет папки «${input.root.slice(0, 40)}». Выбери папку в «Настройки → Локальный агент».`, 400);
+    root = input.root;
+  }
   let content: string | null = null;
   if (kind === "write") {
     if (typeof input.content !== "string") throw new AccessError("Для записи нужен текст файла.", 400);
@@ -137,6 +158,7 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
   const job: AgentJob = {
     id: crypto.randomUUID(),
     kind,
+    root,
     path,
     content,
     status: kind === "write" || kind === "run" ? "awaiting_approval" : "queued",
@@ -172,13 +194,40 @@ export function sanitizeAgentRoot(raw: string | null | undefined): string | null
   return value;
 }
 
-export async function authenticateAgent(store: AgentStore, header: string | null, now = Date.now(), root?: string | null): Promise<boolean> {
+/** X-Agent-Roots: percent-encoded JSON [{name,path}]. Лишнее отбрасывается, дубликаты имён тоже. */
+export function sanitizeAgentRoots(raw: string | null | undefined): AgentRoot[] | null {
+  if (!raw || raw.length > 8000) return null;
+  let parsed: unknown;
+  try { parsed = JSON.parse(decodeURIComponent(raw)); } catch { return null; }
+  if (!Array.isArray(parsed)) return null;
+  const seen = new Set<string>();
+  const roots: AgentRoot[] = [];
+  for (const item of parsed.slice(0, AGENT_MAX_ROOTS)) {
+    const name = typeof item?.name === "string" ? item.name.trim() : "";
+    const path = typeof item?.path === "string" ? item.path.trim() : "";
+    if (!name || name.length > 40 || /[\0-\x1f]/.test(name) || !path || path.length > 300 || /[\0-\x1f]/.test(path) || seen.has(name)) continue;
+    seen.add(name);
+    roots.push({ name, path });
+  }
+  return roots.length ? roots : null;
+}
+
+/** Папки агента; для старого агента с одной папкой имя берётся из конца пути. */
+export function agentRoots(state: AgentState): AgentRoot[] {
+  if (state.roots?.length) return state.roots;
+  if (!state.root) return [];
+  const name = state.root.split(/[\\/]/).filter(Boolean).pop() ?? "папка";
+  return [{ name: name.slice(0, 40), path: state.root }];
+}
+
+export async function authenticateAgent(store: AgentStore, header: string | null, now = Date.now(), root?: string | null, roots?: string | null): Promise<boolean> {
   const token = header?.match(/^Bearer (azagent_[a-f0-9]{64})$/)?.[1];
   if (!token) return false;
   const state = await store.getState();
   if (!state || state.expiresAt <= now) return false;
   if ((await sha256Hex(token)) !== state.tokenHash) return false;
-  await store.setState({ ...state, lastSeen: now, root: sanitizeAgentRoot(root) ?? state.root ?? null });
+  const parsedRoots = sanitizeAgentRoots(roots);
+  await store.setState({ ...state, lastSeen: now, root: parsedRoots?.[0]?.path ?? sanitizeAgentRoot(root) ?? state.root ?? null, roots: parsedRoots ?? state.roots });
   return true;
 }
 

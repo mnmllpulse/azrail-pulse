@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFile } from "node:child_process";
 import { mkdir, readdir, readFile, realpath, rename, stat, writeFile } from "node:fs/promises";
-import { dirname, resolve, sep, join } from "node:path";
+import { basename, dirname, resolve, sep, join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const MAX_READ = 200_000;
@@ -99,17 +99,42 @@ export async function runJob(root, job) {
   throw new Error(`Неизвестное действие: ${job.kind}`);
 }
 
+/** AZRAIL_ROOTS — список папок через ; иначе AZRAIL_ROOT или текущая. Имя — последнее звено пути, повтор получает -2, -3. */
+export async function resolveRoots(env, cwd) {
+  const raw = env.AZRAIL_ROOTS ? env.AZRAIL_ROOTS.split(/;|\n/) : [env.AZRAIL_ROOT || cwd];
+  const roots = [];
+  const used = new Set();
+  for (const item of raw.map((value) => value.trim()).filter(Boolean).slice(0, 8)) {
+    const real = await realpath(item);
+    if (roots.some((entry) => entry.path === real)) continue;
+    const base = (basename(real) || "диск").slice(0, 36);
+    let name = base;
+    for (let n = 2; used.has(name); n += 1) name = `${base}-${n}`;
+    used.add(name);
+    roots.push({ name, path: real });
+  }
+  if (!roots.length) throw new Error("Не указана ни одна папка.");
+  return roots;
+}
+
+/** Папка для задачи: по имени, без имени — первая. Неизвестное имя — ошибка, а не молчаливая подмена. */
+export function pickRoot(roots, name) {
+  if (!name) return roots[0];
+  const found = roots.find((entry) => entry.name === name);
+  if (!found) throw new Error(`У агента нет папки «${name}». Перезапусти его с нужным списком.`);
+  return found;
+}
+
 async function main() {
   const url = process.env.AZRAIL_URL?.replace(/\/$/, "");
   const token = process.env.AZRAIL_AGENT_TOKEN;
-  const root = process.env.AZRAIL_ROOT || process.cwd();
   if (!url || !token) {
     console.error("Нужны AZRAIL_URL и AZRAIL_AGENT_TOKEN.");
     process.exit(2);
   }
-  const rootReal = await realpath(root);
-  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "X-Agent-Root": encodeURIComponent(rootReal) };
-  console.log(`AZRAIL agent: папка ${rootReal}. Остановка: Ctrl+C.`);
+  const roots = await resolveRoots(process.env, process.cwd());
+  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "X-Agent-Root": encodeURIComponent(roots[0].path), "X-Agent-Roots": encodeURIComponent(JSON.stringify(roots)) };
+  console.log(`AZRAIL agent: ${roots.length === 1 ? "папка" : "папки"} ${roots.map((entry) => `${entry.name} = ${entry.path}`).join("; ")}. Остановка: Ctrl+C.`);
   let hotUntil = 0;
   for (;;) {
     try {
@@ -122,11 +147,12 @@ async function main() {
       if (job) {
         let body;
         try {
+          const root = pickRoot(roots, job.root).path;
           body = job.kind === "run" ? await runCommand(root, job.path) : { ok: true, output: await runJob(root, job) };
         } catch (error) {
           body = { ok: false, error: error instanceof Error ? error.message : String(error) };
         }
-        console.log(`${job.kind} ${job.path || "."} → ${body.ok ? "ok" : body.error}`);
+        console.log(`${job.root ? `[${job.root}] ` : ""}${job.kind} ${job.path || "."} → ${body.ok ? "ok" : body.error}`);
         await fetch(`${url}/api/agent/jobs/${job.id}/result`, { method: "POST", headers, body: JSON.stringify(body) });
         hotUntil = Date.now() + 30_000;
         continue;

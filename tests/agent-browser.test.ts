@@ -130,6 +130,7 @@ describe('agent settings form',()=>{
     win=new Window({url:'https://azrail.example/'});
     vi.stubGlobal('document',win.document);
     vi.stubGlobal('location',win.location);
+    vi.stubGlobal('localStorage',win.localStorage);
     const posted:any[]=[];
     const api=vi.fn(async(path:string,init?:RequestInit)=>{
       if(path==='/api/agent/status')return state;
@@ -155,6 +156,24 @@ describe('agent settings form',()=>{
     send.click();
     await new Promise(r=>setTimeout(r,0));
     expect(t.posted.at(-1)).toEqual({kind:'run',path:'git_status'});
+  });
+  it('several agent folders: shows a picker, switching saves the choice and tags later jobs',async()=>{
+    const roots=[{name:'app',path:'C:\\app'},{name:'docs',path:'C:\\docs'}];
+    const t=await mount({enabled:true,connected:true,expiresAt:Date.now()+3600_000,root:'C:\\app',roots,jobs:[]});
+    const picker=t.doc.querySelector<HTMLSelectElement>('select[aria-label="Активная папка агента"]')!;
+    expect(Array.from(picker.options).map(o=>o.value)).toEqual(['app','docs']);
+    expect(picker.value).toBe('app');
+    expect(t.posted[0]).toMatchObject({kind:'list',root:'app'});
+    picker.value='docs';picker.dispatchEvent(new t.doc.defaultView!.Event('change'));
+    for(let i=0;i<10;i++)await new Promise(r=>setTimeout(r,0));
+    expect(t.doc.defaultView!.localStorage.getItem('pulse.agentActiveRoot')).toBe('docs');
+    expect(t.posted.at(-1)).toMatchObject({kind:'list',root:'docs'});
+    expect(t.doc.body.textContent).toContain('Папка агента: C:\\docs');
+  });
+  it('one agent folder: no picker and the saved choice is cleared',async()=>{
+    const t0=await mount({enabled:true,connected:true,expiresAt:Date.now()+3600_000,root:'C:\\app',roots:[{name:'app',path:'C:\\app'}],jobs:[]});
+    expect(t0.doc.querySelector('select[aria-label="Активная папка агента"]')).toBeNull();
+    expect(t0.doc.defaultView!.localStorage.getItem('pulse.agentActiveRoot')).toBeNull();
   });
   it('does not render the browser for a disabled agent',async()=>{
     const t=await mount({enabled:false,connected:false,expiresAt:null,jobs:[]});

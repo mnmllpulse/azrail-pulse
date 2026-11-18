@@ -1,4 +1,5 @@
 import { AGENT_OFFLINE, agentGap, waitJob, type AgentJobView, type AgentState } from './chat-agent';
+import { activeRootField } from './agent-roots';
 
 type Api = (path: string, init?: RequestInit) => Promise<any>;
 
@@ -66,7 +67,7 @@ export function createAgentBrowser(deps: BrowserDeps): { element: HTMLElement; o
     const state = (await deps.api('/api/agent/status')) as AgentState;
     const gap = agentGap(state);
     if (gap) return gap;
-    const made = (await deps.api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind, path }) })).job as AgentJobView;
+    const made = (await deps.api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind, path, ...activeRootField() }) })).job as AgentJobView;
     deps.ownJobs?.add(made.id);
     const job = await waitJob(deps.api, made.id, deps.sleep, 20);
     if (job.status === 'queued' || job.status === 'running') return 'Агент не ответил вовремя. Проверь окно PowerShell и нажми «Обновить».';
