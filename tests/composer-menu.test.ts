@@ -15,7 +15,7 @@ const setup=()=>{
     root:doc.getElementById('composer-models') as unknown as HTMLElement,
     button:doc.getElementById('open') as unknown as HTMLButtonElement,
     current:()=>({slug:'',label:'Auto · AZRAIL'}),
-    others:()=>Array.from({length:12},(_,i)=>({slug:`m${i}`,label:`Модель ${i}`})),
+    others:()=>Array.from({length:12},(_,i)=>({slug:`m${i}`,label:`Модель ${i}`,...(i===0?{dot:'free' as const}:i===1?{dot:'neuron' as const}:{})})),
     select,openAll,
   });
   const click=(text:string)=>{const b=Array.from(doc.querySelectorAll('.composer-menu button')).find(x=>x.textContent?.includes(text));expect(b,text).toBeTruthy();(b as HTMLElement).click();};
@@ -57,5 +57,14 @@ describe('меню модели и уровня усилий',()=>{
     const t=setup();t.button.click();
     t.doc.dispatchEvent(new win!.KeyboardEvent('keydown',{key:'Escape'}) as unknown as Event);
     expect(t.doc.querySelector('.composer-menu')).toBeNull();
+  });
+  it('зелёная точка у бесплатных, жёлтая у Workers Paid, у остальных точки нет', () => {
+    const t = setup();t.button.click();t.click('Другие модели');
+    const dots = Array.from(t.doc.querySelectorAll('.composer-menu-dot')) as unknown as HTMLElement[];
+    expect(dots.length).toBe(12);
+    expect(dots.filter((d) => d.dataset.dot === 'free').length).toBe(1);
+    expect(dots.filter((d) => d.dataset.dot === 'neuron').length).toBe(1);
+    expect(dots.filter((d) => !d.dataset.dot).length).toBe(10);
+    expect(dots[0].getAttribute('aria-label')).toBe('Бесплатная модель');
   });
 });

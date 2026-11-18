@@ -1,7 +1,9 @@
 import {iconElement} from './icons';
 
 export type EffortLevel='low'|'medium'|'high'|'max';
-export type MenuModel={slug:string;label:string;description?:string};
+export type ModelDot='free'|'neuron';
+export type MenuModel={slug:string;label:string;description?:string;dot?:ModelDot};
+export const DOT_TITLE:Record<ModelDot,string>={free:'Бесплатная модель',neuron:'Workers Paid: тратит лимит нейронов'};
 export type ModelMenuDeps={
  root:HTMLElement;
  button:HTMLButtonElement;
@@ -40,8 +42,9 @@ export function createModelMenu(deps:ModelMenuDeps){
   try{sessionStorage.setItem(KEY,next);}catch{}
   paintButton();
  }
- function row(title:string,sub:string|undefined,trailing:string|null,onClick:()=>void,checked=false){
+ function row(title:string,sub:string|undefined,trailing:string|null,onClick:()=>void,checked=false,dot?:ModelDot|null){
   const b=el('button','composer-menu-item') as HTMLButtonElement;b.type='button';b.setAttribute('role','menuitem');
+  if(dot!==undefined){const d=el('span','composer-menu-dot');if(dot){d.dataset.dot=dot;d.title=DOT_TITLE[dot];d.setAttribute('role','img');d.setAttribute('aria-label',DOT_TITLE[dot]);}else d.setAttribute('aria-hidden','true');b.append(d);}
   const body=el('span','composer-menu-body');body.append(el('strong',undefined,title));
   if(sub)body.append(el('small',undefined,sub));
   b.append(body);
@@ -61,7 +64,7 @@ export function createModelMenu(deps:ModelMenuDeps){
   menu.replaceChildren();
   if(view==='root'){
    const cur=deps.current();
-   menu.append(row(cur.label,undefined,null,close,true));
+   menu.append(row(cur.label,undefined,null,close,true,cur.dot??null));
    menu.append(el('hr','composer-menu-sep'));
    menu.append(row('Уровень усилий',undefined,`${effortLabel(effort)} ›`,()=>show('effort')));
    menu.append(row('Другие модели',undefined,'›',()=>show('models')));
@@ -73,9 +76,9 @@ export function createModelMenu(deps:ModelMenuDeps){
    menu.append(el('p','composer-menu-note',EFFORT_NOTE));
   }else{
    menu.append(head('Другие модели',()=>show('root')));
-   const list=deps.others().slice(0,40);
+   const list=deps.others().slice(0,300);
    if(!list.length)menu.append(el('p','composer-menu-note','Каталог моделей доступен после входа.'));
-   for(const m of list)menu.append(row(m.label,undefined,null,()=>{deps.select(m.slug);close();}));
+   for(const m of list)menu.append(row(m.label,undefined,null,()=>{deps.select(m.slug);close();},false,m.dot??null));
    menu.append(row('Все модели…',undefined,null,()=>{close();deps.openAll();}));
   }
  }

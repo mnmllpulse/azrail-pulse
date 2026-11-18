@@ -1094,3 +1094,18 @@ body {
   max-height: 320px;
   object-fit: cover;
 }
+
+.app-shell .composer-menu-dot {
+  flex: 0 0 8px;
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+}
+
+.app-shell .composer-menu-dot[data-dot="free"] {
+  background: #4ade80;
+}
+
+.app-shell .composer-menu-dot[data-dot="neuron"] {
+  background: #facc15;
+}
