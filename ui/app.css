@@ -255,13 +255,13 @@ summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 @media(max-width:650px){ .project-toolbar { grid-template-columns: 1fr; padding: 13px; } .project-toolbar-actions { display: grid; grid-template-columns: 1fr 1fr; } .project-grid { grid-template-columns: 1fr; gap: 10px; } .project-card { min-height: 0; } .artifact-row { align-items: flex-start; flex-direction: column; gap: 3px; } .project-detail-grid { grid-template-columns: 1fr; } }
 
 /* RC27 — Attachment Manager. Compact by default; details appear only after files are added. */
-.attachment-manager{display:grid;gap:8px;margin:10px 0 2px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#0e0d13;}
+.attachment-manager{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;margin:10px 0 2px;padding:10px;border:1px solid var(--line);border-radius:12px;background:#0e0d13;}
 .attachment-manager.drop-target{border-color:#786095;box-shadow:inset 0 0 0 1px #78609555;}
-.attachment-card{display:grid;grid-template-columns:48px minmax(0,1fr) auto;gap:11px;align-items:center;padding:9px 10px;border:1px solid #30273c;border-radius:8px;background:#131019;}
+.attachment-card{display:grid;grid-template-columns:34px minmax(0,1fr) auto;gap:10px;align-items:center;padding:8px 10px;border:1px solid #30273c;border-radius:8px;background:#131019;}
 .attachment-card[data-state="failed"]{border-color:#683e4c;background:#1a1015;}
-.attachment-kind{display:grid;place-items:center;min-height:34px;border:1px solid #3b304a;border-radius:8px;color:#c8b6dd;font-size: var(--fs-micro);letter-spacing:.06em;}
-.attachment-body{min-width:0;display:grid;gap:4px;}.attachment-body strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size: var(--fs-caption)}.attachment-body small{color:var(--muted);font-size: var(--fs-micro)}.attachment-body progress{height:5px;margin-top:2px}.attachment-actions{display:flex;gap:6px;align-items:center}.attachment-actions button{padding:6px 8px;font-size: var(--fs-micro)}.attachment-actions .text-button{font-size:17px;line-height:1}
-@media(max-width:650px){.attachment-card{grid-template-columns:42px minmax(0,1fr) auto}.attachment-kind{font-size: var(--fs-micro)}.attachment-actions button:not(.text-button){display:none}}
+.attachment-kind{display:grid;place-items:center;width:34px;height:34px;border:1px solid #3b304a;border-radius:8px;color:var(--muted);}
+.attachment-body{min-width:0;display:grid;gap:4px;}.attachment-body strong{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size: var(--fs-caption)}.attachment-body small{color:var(--muted);font-size: var(--fs-micro);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.attachment-body progress{height:5px;margin-top:2px}.attachment-actions{display:flex;gap:6px;align-items:center}.attachment-actions button{padding:6px 8px;font-size: var(--fs-micro)}.attachment-actions .text-button{display:grid;place-items:center;width:28px;height:28px;padding:0}
+@media(max-width:650px){.attachment-manager{grid-template-columns:1fr}.attachment-card{grid-template-columns:34px minmax(0,1fr) auto}.attachment-actions button:not(.text-button){display:none}}
 
 /* RC28 — Web Studio professional workbench. The mission composer stays primary;
  * secondary engineering tools are grouped into six tabs so the page remains legible in seconds. */
