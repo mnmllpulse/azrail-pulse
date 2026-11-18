@@ -1,3 +1,5 @@
+import { icon } from './icons';
+
 export type MessageActionHandlers = {
   onCopy?: (text: string) => void;
   onShare?: (text: string) => void;
@@ -16,12 +18,7 @@ function iconButton(doc: Document, label: string, title: string, svg: string): H
   return btn;
 }
 
-const ICONS = {
-  copy: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2" stroke="currentColor" stroke-width="1.6"/><path d="M5 15V5a2 2 0 0 1 2-2h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-  speak: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 10v4h3l5 4V6L7 10H4z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M16 9a3 3 0 0 1 0 6M18.5 7a6 6 0 0 1 0 10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-  share: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="18" cy="5" r="2.5" stroke="currentColor" stroke-width="1.6"/><circle cx="6" cy="12" r="2.5" stroke="currentColor" stroke-width="1.6"/><circle cx="18" cy="19" r="2.5" stroke="currentColor" stroke-width="1.6"/><path d="M8.4 13.2 15.6 17.3M15.6 6.7 8.4 10.8" stroke="currentColor" stroke-width="1.6"/></svg>',
-  more: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="6" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="18" r="1.4" fill="currentColor"/></svg>',
-};
+const ICONS = { copy: icon('copy'), speak: icon('speak'), share: icon('share'), more: icon('more') };
 
 type SpokenVoice = 'shade' | 'lumen' | 'aria';
 const LOCAL_VOICE: Record<SpokenVoice, { pitch: number; rate: number; match: RegExp }> = {

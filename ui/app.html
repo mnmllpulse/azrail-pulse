@@ -21,15 +21,15 @@
         <svg class="mark" viewBox="0 0 40 44" fill="none" aria-hidden="true"><path d="M31.3 8.7A16 16 0 1 0 31.3 31.3M20 17V42" stroke="currentColor" stroke-width="2.1"/></svg>
         <span>AZRAIL<span class="brand-sub">MNMLL PULSE OS</span></span>
       </a>
-      <button id="sidebar-close" type="button" class="shell-icon" aria-label="Скрыть навигацию" title="Скрыть навигацию">‹</button>
+      <button id="sidebar-close" type="button" class="shell-icon" aria-label="Скрыть навигацию" title="Скрыть навигацию" data-icon="back"></button>
     </div>
-    <button id="new-chat" type="button" class="new-chat"><span aria-hidden="true">＋</span> Новый чат <kbd>↵</kbd></button>
+    <button id="new-chat" type="button" class="new-chat"><span aria-hidden="true" data-icon="plus"></span> Новый чат <kbd>↵</kbd></button>
     <nav class="workspace-nav" aria-label="Главная навигация">
-      <a href="/" data-view="create" class="nav active" aria-current="page"><span aria-hidden="true">◇</span> Чат</a>
-      <a href="/mission" data-view="mission" class="nav" data-expert><span aria-hidden="true">◈</span> Ход задачи</a>
-      <a href="/projects" data-view="projects" class="nav"><span aria-hidden="true">▱</span> Проекты</a>
-      <a href="/studios" data-view="studios" class="nav" data-expert><span aria-hidden="true">⊞</span> Студии <span class="nav-count">8</span></a>
-      <a href="/metatron" data-view="metatron" class="nav" data-expert><span aria-hidden="true">⌘</span> Метратрон</a>
+      <a href="/" data-view="create" class="nav active" aria-current="page"><span aria-hidden="true" data-icon="chat"></span> Чат</a>
+      <a href="/mission" data-view="mission" class="nav" data-expert><span aria-hidden="true" data-icon="mission"></span> Ход задачи</a>
+      <a href="/projects" data-view="projects" class="nav"><span aria-hidden="true" data-icon="projects"></span> Проекты</a>
+      <a href="/studios" data-view="studios" class="nav" data-expert><span aria-hidden="true" data-icon="studios"></span> Студии <span class="nav-count">8</span></a>
+      <a href="/metatron" data-view="metatron" class="nav" data-expert><span aria-hidden="true" data-icon="metatron"></span> Метратрон</a>
     </nav>
     <div class="history-heading"><h2>Ваши чаты</h2><span id="chat-count">0</span></div>
     <label class="sr-only" for="chat-search">Поиск чатов</label>
@@ -38,11 +38,11 @@
     <div class="history-scroll"><ul id="chat-list" class="chat-list" aria-label="История чатов"></ul><p id="chat-history-empty" class="history-empty">Здесь появятся ваши чаты.</p></div>
     <p class="history-scope">Чаты синхронизируются между устройствами</p>
     <div class="sidebar-footer">
-      <button id="settings" class="nav" data-view="settings" type="button" aria-label="Настройки" title="Настройки"><span aria-hidden="true">⚙</span> Настройки</button>
+      <button id="settings" class="nav" data-view="settings" type="button" aria-label="Настройки" title="Настройки"><span aria-hidden="true" data-icon="settings"></span> Настройки</button>
 
       <button id="expert-mode" class="nav" type="button" aria-pressed="false">Эксперт</button>
 
-      <div class="sidebar-account"><span class="account-avatar" aria-hidden="true">A</span><button id="account" class="account" type="button">Войти <span>↗</span></button></div>
+      <div class="sidebar-account"><span class="account-avatar" aria-hidden="true">A</span><button id="account" class="account" type="button">Войти <span data-icon="open" data-icon-size="14"></span></button></div>
     </div>
   </aside>
   <button id="sidebar-backdrop" class="sidebar-backdrop" type="button" aria-label="Закрыть навигацию" hidden></button>
@@ -51,9 +51,9 @@
       <div class="workspace-topbar-row">
       <button id="sidebar-toggle" class="shell-icon" type="button" aria-label="Показать навигацию" aria-controls="workspace-sidebar" aria-expanded="true" title="Навигация"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M9 4v16" stroke="currentColor" stroke-width="1.5"/></svg></button>
       <div class="workspace-title"><span class="workspace-product">PULSE <span>WORKSPACE</span></span><span id="workspace-page-title">Новый чат</span></div>
-      <button id="commands" data-expert class="shell-icon" type="button" aria-label="Поиск команд" title="Поиск команд · Ctrl / ⌘ K">⌕</button>
-      <button id="preview-toggle" data-expert class="context-toggle" type="button" aria-controls="preview-panel" aria-expanded="false" aria-label="Код" title="Код и живой экран"><span aria-hidden="true">◇</span> <span class="nav-label">Код</span></button>
-      <button id="context-toggle" data-expert class="context-toggle" type="button" aria-controls="context-panel" aria-expanded="false" aria-label="Контекст"><span aria-hidden="true">◫</span> <span class="nav-label">Контекст</span></button>
+      <button id="commands" data-expert class="shell-icon" type="button" aria-label="Поиск команд" title="Поиск команд · Ctrl / ⌘ K" data-icon="search"></button>
+      <button id="preview-toggle" data-expert class="context-toggle" type="button" aria-controls="preview-panel" aria-expanded="false" aria-label="Код" title="Код и живой экран"><span aria-hidden="true" data-icon="code"></span> <span class="nav-label">Код</span></button>
+      <button id="context-toggle" data-expert class="context-toggle" type="button" aria-controls="context-panel" aria-expanded="false" aria-label="Контекст"><span aria-hidden="true" data-icon="context"></span> <span class="nav-label">Контекст</span></button>
     </div>
     <div id="assignment-live" class="assignment-live" hidden aria-live="polite">
       <p class="kicker">Поручение</p>
@@ -150,7 +150,7 @@
         <div id="attachment-names" class="muted"></div><div id="attachment-manager" class="attachment-manager" aria-live="polite" hidden></div>
         <div class="composer-bottom">
           <div class="composer-tools">
-            <button type="button" id="attach" class="icon-button" aria-label="Прикрепить файл" title="Любой файл до 50 МБ, кроме программ">＋</button>
+            <button type="button" id="attach" class="icon-button" aria-label="Прикрепить файл" title="Любой файл до 50 МБ, кроме программ" data-icon="plus"></button>
             <button type="button" id="voice" class="icon-button" aria-label="Записать голосовой запрос" title="Голосовой ввод"><svg width="18" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3" stroke="currentColor" stroke-width="1.5"/><path d="M5 10v2a7 7 0 0 0 14 0v-2M12 19v3m-4 0h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
             <div class="composer-models" id="composer-models" hidden>
               <button type="button" id="composer-models-open" class="composer-models-btn" title="Models">
@@ -173,7 +173,7 @@
   <aside id="preview-panel" class="preview-panel" aria-labelledby="preview-heading" hidden>
     <div class="preview-heading">
       <div><p class="kicker">КОД И ЖИВОЙ ЭКРАН</p><h2 id="preview-heading">Редактор</h2></div>
-      <button id="preview-close" class="shell-icon" type="button" aria-label="Закрыть код и экран">×</button>
+      <button id="preview-close" class="shell-icon" type="button" aria-label="Закрыть код и экран" data-icon="close"></button>
     </div>
     <section id="home-canvas" class="home-canvas" aria-label="Код и живой экран">
       <div class="home-canvas-bar">
@@ -204,7 +204,7 @@
   <aside id="context-panel" class="context-panel" aria-labelledby="context-heading" hidden>
     <div class="context-heading">
       <div><p class="kicker">РАБОЧИЙ КОНТЕКСТ</p><h2 id="context-heading">Контекст</h2></div>
-      <button id="context-close" class="shell-icon" type="button" aria-label="Закрыть контекст">×</button>
+      <button id="context-close" class="shell-icon" type="button" aria-label="Закрыть контекст" data-icon="close"></button>
     </div>
     <div class="context-scroll">
       <section class="context-section">

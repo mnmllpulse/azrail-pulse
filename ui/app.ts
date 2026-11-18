@@ -1,4 +1,5 @@
 import {renderMission} from './mission-view';
+import {hydrateIcons} from './icons';
 import {mountWorkspaceShell} from './components/workspace-shell';
 import {createChatHistory,renderChatMessages} from './chat-history';
 import {createStudioRooms} from './studio-chat';
@@ -121,6 +122,7 @@ const closeChatMenus=()=>chatMenu.close(),placeFloatingMenu=chatMenu.place,openC
 const studioRooms=createStudioRooms(chatStorage);
 chatHistory.setScope(local?'local':'guest');
 let openContextPanel=()=>{};
+hydrateIcons();
 const workspace=mountWorkspaceShell(()=>openContextPanel());
 async function previewAttachedSite(files:File[]){
  const zip=files.find(file=>file.name.toLowerCase().endsWith('.zip'));
