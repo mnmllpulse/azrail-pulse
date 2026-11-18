@@ -1,5 +1,8 @@
 export type AnswerDepthLevel = 1 | 2 | 3 | 4;
 
+export type EffortLevel = "low" | "medium" | "high" | "max";
+export const EFFORT_LEVELS: readonly EffortLevel[] = ["low", "medium", "high", "max"];
+
 export interface AnswerDepth {
   level: AnswerDepthLevel;
   brief: boolean;
@@ -42,4 +45,29 @@ export function answerDepth(question: string, priorTurns = 0): AnswerDepth {
   if (EXPLAIN.test(text) || text.length > 220) return build(3);
   if (text.length <= 24 && !text.includes("?") && priorTurns === 0) return build(1);
   return build(2);
+}
+
+const EFFORT_NOTE: Partial<Record<EffortLevel, string>> = {
+  low: "УРОВЕНЬ УСИЛИЙ: низкий. Отвечай быстро и коротко, без лишних отступлений.",
+  high: "УРОВЕНЬ УСИЛИЙ: высокий. Проверь рассуждение и учти пограничные случаи, прежде чем отвечать.",
+  max: "УРОВЕНЬ УСИЛИЙ: максимальный. Рассуждай и отвечай пошагово: сначала разбери задачу на части, затем реши каждую, в конце сведи итог и перечисли допущения и риски.",
+};
+
+/**
+ * Уровень усилий пользователя сдвигает глубину, бюджет токенов и сложность для
+ * роутера. «Средний» не меняет ничего. Закреплённая модель роутер обходит,
+ * поэтому у неё меняются только глубина и бюджет.
+ */
+export function applyEffort(depth: AnswerDepth, effort?: EffortLevel): AnswerDepth {
+  if (!effort || effort === "medium") return depth;
+  const note = EFFORT_NOTE[effort] ?? "";
+  const withNote = (instruction: string) => `${instruction}\n${note}`;
+  if (effort === "low") {
+    return { ...depth, complexity: "trivial", maxTokens: Math.min(depth.maxTokens, 1500), instruction: withNote(depth.instruction) };
+  }
+  if (effort === "high") {
+    const level = Math.max(depth.level, 3) as AnswerDepthLevel;
+    return { ...depth, level, brief: false, complexity: "heavy", maxTokens: Math.max(depth.maxTokens, LEVELS[level].maxTokens), instruction: withNote(LEVELS[level].instruction) };
+  }
+  return { ...depth, level: 4, brief: false, complexity: "heavy", maxTokens: Math.min(Math.round(LEVELS[4].maxTokens * 1.5), 9000), instruction: withNote(LEVELS[4].instruction) };
 }

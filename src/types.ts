@@ -232,6 +232,8 @@ export interface TaskRequest {
   /** Явный слаг модели из реестра — обходит автоматический выбор по тиру.
    *  См. RunOptions.preferredModel в lib/model-router.ts за причиной. */
   preferredModel?: string;
+  /** Уровень усилий ответа (low|medium|high|max); см. applyEffort в lib/answer-depth.ts */
+  effort?: "low" | "medium" | "high" | "max";
   /** Голос чата: один активный характер агента ответа. */
   voice?: "lumen" | "shade" | "aria";
   /** Диалог, к которому относится задача. Хранится в D1 (lib/chat-store.ts),

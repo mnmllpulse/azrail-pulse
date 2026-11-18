@@ -4,7 +4,7 @@ import type { Env, AnswerAgentState, TaskRequest, TaskResult } from "../types";
 import { runModel, extractText } from "../lib/model-router";
 import { taskTrace, type TraceContext } from "../lib/observability-context";
 import { recallContext } from "../lib/memory-agent";
-import { answerDepth } from "../lib/answer-depth";
+import { answerDepth, applyEffort } from "../lib/answer-depth";
 import { calculateAll, CALC_VOCABULARY, type CalcStep } from "../lib/calc";
 
 /**
@@ -179,7 +179,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
       calculations = await this.computeFor(question, request.preferredModel, taskTrace(request));
     }
 
-    const depth = answerDepth(question, request.conversationHistory?.length ?? 0);
+    const depth = applyEffort(answerDepth(question, request.conversationHistory?.length ?? 0), request.effort);
     const voice = request.voice === "shade" || request.voice === "aria" ? request.voice : "lumen";
     const voiceLine = voice === "shade"
       ? "АКТИВНЫЙ ГОЛОС: Серый. Пиши как собранный мужчина, без шуток, без восклицаний, без тепла и без пафоса. На «привет» и только на него ответь ровно: «Привет. Слушаю.» Разбор, код и ответ по делу с приветствия не начинай. Код, разбор, таблицу и документ отдавай целиком."
