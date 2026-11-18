@@ -40,13 +40,15 @@ describe('меню модели и уровня усилий',()=>{
     expect(t.doc.querySelector('.composer-menu')?.textContent).toContain('Рекомендуется');
     expect(t.doc.querySelector('.composer-menu')?.textContent).toContain('быстрее расходует лимиты использования');
     t.click('Максимальный');
+    expect(t.doc.querySelectorAll('.composer-menu small').length).toBe(0);
     expect(t.menu.effort()).toBe('max');
     expect(readEffort()).toBe('max');
     expect(t.doc.getElementById('composer-models-effort')?.textContent).toBe('Максимальный');
   });
-  it('другие модели: не более 8 и «Все модели…»',()=>{
+  it('другие модели: список целиком, без описаний, и «Все модели…»',()=>{
     const t=setup();t.button.click();t.click('Другие модели');
-    expect(t.doc.querySelectorAll('.composer-menu-item').length).toBe(9);
+    expect(t.doc.querySelectorAll('.composer-menu-item').length).toBe(13);
+    expect(t.doc.querySelectorAll('.composer-menu small').length).toBe(0);
     t.click('Модель 3');expect(t.select).toHaveBeenCalledWith('m3');
     expect(t.doc.querySelector('.composer-menu')).toBeNull();
     t.button.click();t.click('Другие модели');t.click('Все модели');expect(t.openAll).toHaveBeenCalled();

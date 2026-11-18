@@ -65,7 +65,7 @@ if(typeof window!=='undefined'){
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const local=!/^https?:$/.test(location.protocol);
 applyDisplayPrefs(readDisplayPrefs());
-type Account={id:string;name:string;operator?:boolean;role?:'viewer'|'editor'|'admin'};
+type Account={id:string;name:string;picture?:string;operator?:boolean;role?:'viewer'|'editor'|'admin'};
 let account:Account|null=null,project='',mission='',pollTimer=0,epoch=0,studioEpoch=0,mediaCleanup=()=>{},lastBlob:Blob|null=null;
 let draftCleanup=()=>{},studioChromeCleanup=()=>{},pollFailures=0,missionSubmitting=false,studioRun=0;
 let preferredModel='';
@@ -617,7 +617,10 @@ function currentModelLabel(){
 function setAccountLabel(){
  const name=account?.name??'';
  $('account-label').textContent=name||'Войти';
- $('account-avatar').textContent=(name.trim()[0]||'A').toUpperCase();
+ const avatar=$('account-avatar'),initial=(name.trim()[0]||'A').toUpperCase();
+ avatar.replaceChildren();
+ if(account?.picture){const img=document.createElement('img');img.alt='';img.referrerPolicy='no-referrer';img.src=account.picture;img.onerror=()=>{img.remove();avatar.textContent=initial;};avatar.append(img);}
+ else avatar.textContent=initial;
  $('account-menu-name').textContent=account?(account.id.includes('@')?account.id:name):'';
  $('account-menu-name').hidden=!account;
  $('account-action-label').textContent=account?'Выйти':'Войти';

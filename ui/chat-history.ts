@@ -1,5 +1,5 @@
 import {appendAssistantActions,appendUserActions,type MessageActionHandlers} from './chat-actions';
-import {attachmentChip,splitAttachments} from './attachment-chip';
+import {attachmentChip,attachmentImage,splitAttachments} from './attachment-chip';
 import {splitProcess,thinkingBlock} from './thinking-block';
 import {fillMarkdownContent} from './chat-markdown';
 
@@ -207,9 +207,9 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
   }else if(role==='user'&&splitAttachments(content).files.length){
    const {text,files}=splitAttachments(content);
    if(text){const p=doc.createElement('p');p.className='message-content';p.textContent=text;item.append(p);}
-   const row=doc.createElement('div');row.className='message-attachments';
-   for(const file of files)row.append(attachmentChip(doc,file));
-   item.append(row);
+   const shownImages=files.filter(f=>f.image&&f.url),others=files.filter(f=>!(f.image&&f.url));
+   if(shownImages.length){const grid=doc.createElement('div');grid.className='message-images';for(const file of shownImages)grid.append(attachmentImage(doc,file));item.append(grid);}
+   if(others.length){const row=doc.createElement('div');row.className='message-attachments';for(const file of others)row.append(attachmentChip(doc,file));item.append(row);}
    appendUserActions(item,text||files.map(f=>f.name).join(', '),handlers);
   }else{
    const text=doc.createElement('p');text.className='message-content';text.textContent=content;item.append(text);

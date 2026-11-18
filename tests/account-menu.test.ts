@@ -55,7 +55,7 @@ describe('разметка и плотность', () => {
   it('пункты сайдбара и настроек компактные', () => {
     expect(css).toMatch(/\.workspace-nav \.nav,\s*\.app-shell \.sidebar-footer \.nav \{\s*min-height: 34px/);
     expect(css).toMatch(/\.workspace-nav \{\s*gap: 1px/);
-    expect(app).toMatch(/\.settings-nav-item \{[^}]*min-height:32px/);
+    expect(app).toMatch(/\.settings-nav-item \{[^}]*min-height:28px/);
     expect(app).toMatch(/\.settings-nav-group \{display:grid;gap:0;\}/);
   });
 });

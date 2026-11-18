@@ -41,7 +41,7 @@ export function secureResponse(response:Response,request:Request) {
  h.set('X-Content-Type-Options','nosniff');h.set('Referrer-Policy','same-origin');
  h.set('Permissions-Policy','camera=(), microphone=(self), geolocation=()');
  if(new URL(request.url).protocol==='https:')h.set('Strict-Transport-Security','max-age=31536000');
- if(!new URL(request.url).pathname.startsWith('/s/'))h.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' data:; style-src-attr 'unsafe-inline'; img-src 'self' blob: data:; media-src 'self' blob:; connect-src 'self'; font-src 'self'; frame-src blob: about:; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'");
+ if(!new URL(request.url).pathname.startsWith('/s/'))h.set('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' data:; style-src-attr 'unsafe-inline'; img-src 'self' blob: data: https://*.googleusercontent.com; media-src 'self' blob:; connect-src 'self'; font-src 'self'; frame-src blob: about:; frame-ancestors 'none'; object-src 'none'; base-uri 'none'; form-action 'self'");
  if(new URL(request.url).pathname.startsWith('/api/')||new URL(request.url).pathname.startsWith('/auth/'))h.set('Cache-Control','no-store');
  return new Response(response.body,{status:response.status,statusText:response.statusText,headers:h});
 }

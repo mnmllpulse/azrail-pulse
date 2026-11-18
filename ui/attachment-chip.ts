@@ -56,3 +56,17 @@ export function attachmentChip(doc: Document, file: ChatAttachment): HTMLElement
   if (file.url) chip.append(iconElement('eye', 16, doc));
   return chip;
 }
+
+export function attachmentImage(doc: Document, file: ChatAttachment): HTMLElement {
+  const link = doc.createElement('a');
+  link.className = 'message-image';
+  link.href = file.url ?? '#';
+  link.target = '_blank';
+  link.rel = 'noopener noreferrer';
+  const img = doc.createElement('img');
+  img.src = file.url ?? '';
+  img.alt = '';
+  img.loading = 'lazy';
+  link.append(img);
+  return link;
+}
