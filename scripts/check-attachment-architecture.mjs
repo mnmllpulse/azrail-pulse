@@ -6,7 +6,7 @@ for(const marker of ['MAX_UPLOAD_BYTES = 50 * 1024 * 1024','sanitizeFilename','r
 for(const marker of ['MAX_FILES = 12','MAX_TEXT_BYTES','R2 ranged reads','attachmentsToText'])if(!attachments.includes(marker))fail(`attachment reader missing ${marker}`);
 for(const marker of ["/api/upload","FormData","projectId","state='failed'","Повторить","MAX_FILES=12","MAX_BYTES=50*1024*1024"])if(!manager.includes(marker))fail(`manager missing ${marker}`);
 if(app.includes('attachmentsText'))fail('legacy inline attachment text path is forbidden');
-for(const marker of ['attachmentManager.hasPending()','attachmentManager.hasFailed()','attachments:attachmentRefs'])if(!app.includes(marker))fail(`composer missing ${marker}`);
+for(const marker of ['attachmentManager.hasPending()','attachmentManager.hasFailed()','attachments:sentRefs'])if(!app.includes(marker))fail(`composer missing ${marker}`);
 const attachmentInput=(html.match(/<input\b[^>]*\bid="attachments"[^>]*>/)||[''])[0];
 if(!html.includes('id="attachment-manager"')||!attachmentInput||/\baccept\s*=/.test(attachmentInput))fail('attachment picker must stay open to every non-program file');
 if(!manager.includes("'exe'")||!upload.includes('BLOCKED_EXT'))fail('program extensions must stay blocked');
