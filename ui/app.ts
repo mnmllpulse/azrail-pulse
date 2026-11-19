@@ -34,6 +34,7 @@ import {groupModelsByProvider,isChatCapableModel,isNeuronPaidModel,modelDisplayN
 import {appendAssistantActions,copyText,shareText,speakText} from './chat-actions';
 import {fillMarkdownContent} from './chat-markdown';
 import {assignmentForKind,formatAssignment,skillsReply,type Assignment} from './assignment';
+import {contextPrompt,drawRequest} from './draw-intent';
 import {readPendingImage,requestImage,type ImageRequestBody} from './image-request';
 import {explainIntent,intentFromParts} from '../src/lib/intent-contract';
 import {agentSettings} from './local-agent';
@@ -1400,7 +1401,7 @@ function waitForSelector(selector:string,ms=8000){
   tick();
  });
 }
-async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number|null;text?:string},message:string){
+async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number|null;text?:string;fromContext?:boolean},message:string){
  if(attachmentManager.hasPending())throw Error('Дождитесь окончания загрузки вложений.');
  if(attachmentManager.hasFailed())throw Error('Есть вложения с ошибкой. Повторите загрузку или удалите их.');
  const thread=chatHistory.current()??chatHistory.create();
@@ -1417,7 +1418,7 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
   showAssignment(plan);
   chatHistory.report(requestKey,plan.kind==='image'?'Собираю картинку…':formatAssignment(plan),'queued');
   syncChatUI();workspace.toLatest();
-  const text=plan.versions?.length&&plan.text?plan.text:message;
+  const text=(plan.versions?.length||plan.fromContext)&&plan.text?plan.text:message;
   const one=(thing?:PlanThing,state:PlanPart['state']='running'):WorkPlan=>({parallel:false,parts:[{...plan,...(state==='done'&&part.ready?{ready:part.ready}:{}),id:'part-1',text,wave:0,dependsOn:[],state,thing,versions:plan.versions,seed:plan.seed??undefined}]});
   const part:PlanPart={...plan,id:'part-1',text,wave:0,dependsOn:[],state:'running',versions:plan.versions,seed:plan.seed??undefined};
   await rememberWork(message,one(),false);
@@ -1806,6 +1807,8 @@ async function runChat(){
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  let handed=false;
  try{
+ const draw=drawRequest(message,{hasImage:attachmentManager.files().some(isImageFile),previous:contextPrompt(chatHistory.current()?.turns.at(-1))});
+ if(draw){handed=true;await runAssignment({...assignmentForKind('image'),text:draw.text,fromContext:draw.text!==message},message);return;}
  let planned=followUpPlan(message,heldPlan)??await chosenPlan(message);
  if(planned&&planned.parts.length===1&&planned.parts[0].kind==='build')planned=null;
  // Сайт по приложенному файлу: конструктор файл не читает, поэтому разбор и код уходят в чат, где файл виден.

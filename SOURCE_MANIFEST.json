@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-19T21:55:05.037Z",
+  "generated_at": "2026-11-19T22:02:53.833Z",
   "excludes_self": true,
-  "file_count": 1312,
+  "file_count": 1314,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1445299,
-      "sha256": "4862428ddbf50740a946066218c1b91a3480b390a54400ca9d510b1fd11aa52e"
+      "bytes": 1446536,
+      "sha256": "30373c41cdbb8c694836fac1b5a668f2e071901b99b16ce513c96f89dac996b1"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 25684,
-      "sha256": "0753d759157f17f20f51c256afbd4782f85d71448446e684f3429c3aaf1c46a9"
+      "sha256": "e9ffb3d6d46acafe66c551e1738dca70299e08c81481ad90383b01b222324183"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 512750,
-      "sha256": "7a2fcb610790cddb6d8f01dd4d334403ec9dfd922aab8631cc1cd78c4fc69905"
+      "bytes": 513986,
+      "sha256": "e37ee3a65f50bd6897e1be96bd6c7756f3163dd95155b4b36496da1aa57f2daf"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 25684,
-      "sha256": "0753d759157f17f20f51c256afbd4782f85d71448446e684f3429c3aaf1c46a9"
+      "sha256": "e9ffb3d6d46acafe66c551e1738dca70299e08c81481ad90383b01b222324183"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -3557,8 +3557,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 24507,
-      "sha256": "dc63a312c5221fb8d96681f2507e1458ff436a8564e1cebc4e47cb840af5a3d8"
+      "bytes": 24752,
+      "sha256": "5a482b0f26d23d559a46c44c17840934f96821251424ab4430d224be1fca6b62"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -4846,6 +4846,11 @@
       "sha256": "2a51e6efd97e8eddef647cc18c5f076f8b03a7e63b372f3e9b118693bdd152e6"
     },
     {
+      "path": "tests/draw-intent.test.ts",
+      "bytes": 2576,
+      "sha256": "8ebd05674187e1eeb04c1b04395526df6582c9a9d4c230edbf02f672849817a5"
+    },
+    {
       "path": "tests/effort-level.test.ts",
       "bytes": 2748,
       "sha256": "e514418d57df314741b160b062fc63e716fd0f1969e9cbcf3b9365fa6b36311f"
@@ -5592,8 +5597,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 166675,
-      "sha256": "e106848357979dbed09796ff8d7c304c4db016ea241934b0d3473695e982c4a1"
+      "bytes": 167061,
+      "sha256": "727e33682fa93642c738c462bac67bc434aef53dcfeb65818114b4794be42c4b"
     },
     {
       "path": "ui/assignment.ts",
@@ -5794,6 +5799,11 @@
       "path": "ui/display-preferences.ts",
       "bytes": 2779,
       "sha256": "f0654908c5162f4eb1f63ce0d22f25337c090ee94d9dc5ab358816969c0f9e66"
+    },
+    {
+      "path": "ui/draw-intent.ts",
+      "bytes": 1991,
+      "sha256": "56581dc81509f499ac6c1c4ede421bc6e073d7cac4a0d1874b3283d3810ae95f"
     },
     {
       "path": "ui/dry-speech.ts",
