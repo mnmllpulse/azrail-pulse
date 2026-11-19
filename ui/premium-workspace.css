@@ -1240,3 +1240,21 @@ body {
 .app-shell .settings-nick-box input{min-width:200px;height:36px;border-radius:8px}
 .app-shell .settings-nick-box button{height:36px;border-radius:8px}
 .app-shell .settings-pick-hint{padding:8px 0}
+
+.app-shell .chat-message .message-markdown .md-text { display: flex; flex-direction: column; gap: 10px; }
+.app-shell .chat-message .message-markdown .md-text > * { margin: 0; }
+.app-shell .chat-message .message-markdown .md-text .md-heading { margin-top: 14px; color: var(--heading, #f3ecfb); letter-spacing: -.01em; }
+.app-shell .chat-message .message-markdown .md-text h3.md-heading { font-size: 1.3em; }
+.app-shell .chat-message .message-markdown .md-text h4.md-heading { font-size: 1.18em; }
+.app-shell .chat-message .message-markdown .md-text h5.md-heading { font-size: 1.08em; padding-bottom: 4px; border-bottom: 1px solid #2d2638; }
+.app-shell .chat-message .message-markdown .md-text h6.md-heading { font-size: 1em; color: #cbb9df; }
+.app-shell .chat-message .message-markdown .md-text .md-heading:first-child { margin-top: 0; }
+.app-shell .chat-message .message-markdown .md-text .md-kicker { margin-top: -6px; font-size: var(--fs-caption, 12px); font-style: normal; letter-spacing: .06em; text-transform: uppercase; color: var(--muted, #9d8fb2); }
+.app-shell .chat-message .message-markdown .md-text .md-kicker em { font-style: normal; }
+.app-shell .chat-message .message-markdown .md-text .md-check { padding: 6px 10px; border-left: 2px solid #5f8f6b; background: rgba(95, 143, 107, .08); font-size: .94em; }
+.app-shell .chat-message .message-markdown .md-text .md-check em:first-child { font-style: normal; font-weight: 650; color: #9fd1ab; }
+.app-shell .chat-message .message-markdown .md-text .md-quote { padding: 2px 0 2px 14px; border-left: 3px solid #6c4fb5; color: #cbb9df; font-size: .95em; font-style: italic; }
+.app-shell .chat-message .message-markdown .md-text .md-rule { height: 0; margin: 10px 0; border: 0; border-top: 1px solid #2d2638; }
+.app-shell .chat-message .message-markdown .md-text .md-list { padding-left: 1.4em; display: flex; flex-direction: column; gap: 4px; }
+.app-shell .chat-message .message-markdown .md-text .md-list li::marker { color: #8f7bb8; }
+.app-shell .chat-message .message-markdown .md-text strong { color: var(--heading, #f3ecfb); }

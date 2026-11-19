@@ -1,12 +1,7 @@
 import { diagramSvg } from './diagram';
 /** Escape text for safe HTML insertion. */
 export function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
+  return value.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }
 
 function formatInline(escaped: string): string {
@@ -41,7 +36,11 @@ export function chatPicturePaths(raw: string): string[] {
 }
 
 function pictureName(title: string): string {
-  const stem = title.toLocaleLowerCase('ru').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '').slice(0, 40);
+  const stem = title
+    .toLocaleLowerCase('ru')
+    .replace(/[^\p{L}\p{N}]+/gu, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40);
   return `${stem || 'kartinka'}.png`;
 }
 
@@ -59,7 +58,9 @@ async function pictureBlob(path: string): Promise<Blob> {
   try {
     const token = sessionStorage.getItem('pulse.token');
     if (token) headers.set('Authorization', 'Bearer ' + token);
-  } catch { /* сессия остаётся в cookie */ }
+  } catch {
+    /* сессия остаётся в cookie */
+  }
   const response = await fetch(path, { credentials: 'same-origin', headers });
   if (!response.ok) throw new Error('Картинка не скачалась.');
   return response.blob();
@@ -82,7 +83,15 @@ export function fillMarkdownContent(host: HTMLElement, raw: string): void {
     if ((match[1]?.trim() || '') === 'diagram') {
       const holder = doc.createElement('div');
       holder.className = 'chat-diagram';
-      holder.append(diagramSvg(doc, (match[2] ?? '').split('\n').map((line) => line.trim()).filter(Boolean)));
+      holder.append(
+        diagramSvg(
+          doc,
+          (match[2] ?? '')
+            .split('\n')
+            .map((line) => line.trim())
+            .filter(Boolean),
+        ),
+      );
       host.append(holder);
     } else appendCodeBlock(host, match[1]?.trim() || '', match[2] ?? '');
     last = match.index + match[0].length;
@@ -116,12 +125,17 @@ export function fillMarkdownContent(host: HTMLElement, raw: string): void {
     save.textContent = `Скачать «${title}»`;
     save.onclick = () => {
       save.disabled = true;
-      void pictureBlob(path).then((blob) => saveBlob(blob, title)).catch(() => {
-        save.textContent = 'Не вышло';
-      }).finally(() => {
-        save.disabled = false;
-        window.setTimeout(() => { save.textContent = `Скачать «${title}»`; }, 1400);
-      });
+      void pictureBlob(path)
+        .then((blob) => saveBlob(blob, title))
+        .catch(() => {
+          save.textContent = 'Не вышло';
+        })
+        .finally(() => {
+          save.disabled = false;
+          window.setTimeout(() => {
+            save.textContent = `Скачать «${title}»`;
+          }, 1400);
+        });
     };
     bar.append(save);
     parent.append(bar);
@@ -140,33 +154,49 @@ export function fillMarkdownContent(host: HTMLElement, raw: string): void {
     save.textContent = 'Скачать';
     save.onclick = () => {
       save.disabled = true;
-      void pictureBlob(path).then((blob) => saveBlob(blob, pictureName(title))).catch(() => {
-        save.textContent = 'Не вышло';
-      }).finally(() => {
-        save.disabled = false;
-        window.setTimeout(() => { save.textContent = 'Скачать'; }, 1400);
-      });
+      void pictureBlob(path)
+        .then((blob) => saveBlob(blob, pictureName(title)))
+        .catch(() => {
+          save.textContent = 'Не вышло';
+        })
+        .finally(() => {
+          save.disabled = false;
+          window.setTimeout(() => {
+            save.textContent = 'Скачать';
+          }, 1400);
+        });
     };
     const share = doc.createElement('button');
     share.type = 'button';
     share.textContent = 'Поделиться';
     share.onclick = () => {
       share.disabled = true;
-      void pictureBlob(path).then(async (blob) => {
-        const name = pictureName(title);
-        const file = new File([blob], name, { type: blob.type || 'image/png' });
-        const data: ShareData = { title, files: [file] };
-        if (typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(data))) {
-          try { await navigator.share(data); return; }
-          catch (error) { if (error instanceof DOMException && error.name === 'AbortError') return; }
-        }
-        saveBlob(blob, name);
-      }).catch(() => {
-        share.textContent = 'Не вышло';
-      }).finally(() => {
-        share.disabled = false;
-        window.setTimeout(() => { share.textContent = 'Поделиться'; }, 1400);
-      });
+      void pictureBlob(path)
+        .then(async (blob) => {
+          const name = pictureName(title);
+          const file = new File([blob], name, {
+            type: blob.type || 'image/png',
+          });
+          const data: ShareData = { title, files: [file] };
+          if (typeof navigator.share === 'function' && (!navigator.canShare || navigator.canShare(data))) {
+            try {
+              await navigator.share(data);
+              return;
+            } catch (error) {
+              if (error instanceof DOMException && error.name === 'AbortError') return;
+            }
+          }
+          saveBlob(blob, name);
+        })
+        .catch(() => {
+          share.textContent = 'Не вышло';
+        })
+        .finally(() => {
+          share.disabled = false;
+          window.setTimeout(() => {
+            share.textContent = 'Поделиться';
+          }, 1400);
+        });
     };
     bar.append(save, share);
     figure.append(img, bar);
@@ -176,27 +206,109 @@ export function fillMarkdownContent(host: HTMLElement, raw: string): void {
   function appendTextBlock(parent: HTMLElement, text: string) {
     const block = doc.createElement('div');
     block.className = 'md-text';
-    const paragraphs = text.split(/\n{2,}/);
-    const paragraph = (lines: string[]) => {
-      if (!lines.join('').trim()) return;
+    const inline = (value: string) => formatInline(escapeHtml(value));
+    let para: string[] = [];
+    let quote: string[] = [];
+    const cur: { list: HTMLElement | null; item: HTMLElement | null } = {
+      list: null,
+      item: null,
+    };
+    const flushPara = () => {
+      const joined = para.join('\n');
+      para = [];
+      if (!joined.trim()) return;
       const p = doc.createElement('p');
-      p.innerHTML = formatInline(escapeHtml(lines.join('\n'))).replace(/\n/g, '<br>');
+      p.innerHTML = inline(joined).replace(/\n/g, '<br>');
+      if (/^\*[^*\n]+\*$/.test(joined.trim())) p.className = 'md-kicker';
+      else if (/^\*(?:Проверка|Итог|Verification)[^*\n]*\*/i.test(joined.trim())) p.className = 'md-check';
       block.append(p);
     };
-    for (const part of paragraphs) {
-      let run: string[] = [];
-      for (const line of part.split('\n')) {
-        const heading = /^(#{1,4})\s+(.+?)\s*#*$/.exec(line);
-        if (!heading) { run.push(line); continue; }
-        paragraph(run);
-        run = [];
+    const flushQuote = () => {
+      if (!quote.length) return;
+      const q = doc.createElement('blockquote');
+      q.className = 'md-quote';
+      q.innerHTML = inline(quote.join('\n')).replace(/\n/g, '<br>');
+      block.append(q);
+      quote = [];
+    };
+    const flushList = () => {
+      cur.list = null;
+      cur.item = null;
+    };
+    const flushAll = () => {
+      flushPara();
+      flushQuote();
+      flushList();
+    };
+    const addItem = (tag: 'ul' | 'ol', content: string, start?: number) => {
+      flushPara();
+      flushQuote();
+      if (!cur.list || cur.list.tagName.toLowerCase() !== tag) {
+        const created = doc.createElement(tag);
+        created.className = 'md-list';
+        if (tag === 'ol' && start && start > 1) (created as HTMLOListElement).start = start;
+        block.append(created);
+        cur.list = created;
+      }
+      const li = doc.createElement('li');
+      li.innerHTML = inline(content);
+      cur.list.append(li);
+      cur.item = li;
+    };
+    for (const line of text.split('\n')) {
+      if (!line.trim()) {
+        flushPara();
+        flushQuote();
+        continue;
+      }
+      const heading = /^(#{1,4})\s+(.+?)\s*#*$/.exec(line);
+      if (heading) {
+        flushAll();
         const h = doc.createElement(`h${Math.min(heading[1].length + 2, 6)}`);
         h.className = 'md-heading';
-        h.innerHTML = formatInline(escapeHtml(heading[2]));
+        h.innerHTML = inline(heading[2]);
         block.append(h);
+        continue;
       }
-      paragraph(run);
+      if (/^\s*([-*_])(?:\s*\1){2,}\s*$/.test(line)) {
+        flushAll();
+        const hr = doc.createElement('hr');
+        hr.className = 'md-rule';
+        block.append(hr);
+        continue;
+      }
+      const quoted = /^>\s?(.*)$/.exec(line);
+      if (quoted) {
+        flushPara();
+        flushList();
+        quote.push(quoted[1] ?? '');
+        continue;
+      }
+      if (/^\s*\*[^*\n]+\*\s*$/.test(line) || /^\s*\*(?:Проверка|Итог|Verification)[^*\n]*\*/i.test(line)) {
+        flushAll();
+        para.push(line.trim());
+        flushPara();
+        continue;
+      }
+      const bullet = /^\s*[-*•]\s+(.+)$/.exec(line);
+      if (bullet) {
+        addItem('ul', bullet[1] ?? '');
+        continue;
+      }
+      const numbered = /^\s*(\d{1,3})[.)]\s+(.+)$/.exec(line);
+      if (numbered) {
+        addItem('ol', numbered[2] ?? '', Number(numbered[1]));
+        continue;
+      }
+      if (cur.item && /^\s{2,}\S/.test(line)) {
+        cur.item.innerHTML += '<br>' + inline(line.trim());
+        continue;
+      }
+      flushList();
+      flushQuote();
+      para.push(line);
     }
+    flushAll();
     if (block.childElementCount) parent.append(block);
   }
 
