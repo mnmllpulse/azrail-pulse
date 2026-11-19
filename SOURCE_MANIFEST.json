@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-19T10:42:41.005Z",
+  "generated_at": "2026-11-19T14:03:48.957Z",
   "excludes_self": true,
-  "file_count": 1307,
+  "file_count": 1309,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1439459,
-      "sha256": "b4c49c095b8fa6469878e33514982d2e10ab9e2a854a27ea9c91ddb5eaec4739"
+      "bytes": 1441398,
+      "sha256": "6e1ebdb16c725c724d6c1c7af4f6bb851f8b892a6faf245b37c3cb1dea466cbd"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 25684,
-      "sha256": "8da578f6604780dd26b32e0b116e97b6af84c576c419f09ea7c87f4991275ec5"
+      "sha256": "14aa550947b8b21ea134a0a06a63e4416f0b551dd4a80078480cf8e98e9bc637"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 508897,
-      "sha256": "5e85b22d103eb4e0e9d895dca774551cee8a9bc60d2a3b6f72f73a4fef4c149f"
+      "bytes": 510831,
+      "sha256": "c781ce47cf840c7305f97854aa1635ebdd78927ecb28e9c3e31f3489545b7bd7"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 25684,
-      "sha256": "8da578f6604780dd26b32e0b116e97b6af84c576c419f09ea7c87f4991275ec5"
+      "sha256": "14aa550947b8b21ea134a0a06a63e4416f0b551dd4a80078480cf8e98e9bc637"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -3762,8 +3762,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 102724,
-      "sha256": "c3d8e66e40407add782e7da37f1b8834eb30b988dc2646dbf8fc063752b88e00"
+      "bytes": 103650,
+      "sha256": "e311c090d1128cfae92561f613f7b2cf685073d37b5bfa961eeb2324f574429c"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4037,8 +4037,8 @@
     },
     {
       "path": "src/lib/model-catalog.ts",
-      "bytes": 7493,
-      "sha256": "83baf87aacaa83674232874718e2917b8f12762a335723ed350bd13fae8216c8"
+      "bytes": 7837,
+      "sha256": "45c05796b132d165d574a6a77bb60c5c851d3a9e9ea8fab04a8e2e89cfdc0c49"
     },
     {
       "path": "src/lib/model-health.ts",
@@ -4047,13 +4047,13 @@
     },
     {
       "path": "src/lib/model-policy.ts",
-      "bytes": 11068,
-      "sha256": "fbf104b71443eddc9c96dad765823ce76032eeb47501f959291329229cc1cb84"
+      "bytes": 11431,
+      "sha256": "2ec3280e9984753ebf251367151b28e54dd5c8864d667e2e1eaddfc43b1fa615"
     },
     {
       "path": "src/lib/model-registry.ts",
-      "bytes": 28939,
-      "sha256": "a9d8b2053c09c37bd621899d353cb49978593b537b163100b730a2688a9f1382"
+      "bytes": 30147,
+      "sha256": "f1bada79fdc72d057288b0f71d6a1836ed2b44378f3298a79c4fa98b793c3f8e"
     },
     {
       "path": "src/lib/model-router.ts",
@@ -4094,6 +4094,11 @@
       "path": "src/lib/office-text.ts",
       "bytes": 1964,
       "sha256": "1d498ccc083c9ef164b79ba85616aed02b909f618fb02b5fbcdcdb0c79f6d845"
+    },
+    {
+      "path": "src/lib/openrouter-sync.ts",
+      "bytes": 3059,
+      "sha256": "ad0543e437521f8359055ec0d122072df5cede27e219f000a624b27fd5742402"
     },
     {
       "path": "src/lib/openrouter.ts",
@@ -5101,6 +5106,11 @@
       "sha256": "44df6395e4ea3e855e7ad438850ad2a34be3833ab5f46cba297c6e1ad78c5d49"
     },
     {
+      "path": "tests/openrouter-sync.test.ts",
+      "bytes": 2857,
+      "sha256": "e500e2975386aa7b8763416ba430474c7ee68404b1633984d347b3bcbcbe7464"
+    },
+    {
       "path": "tests/openrouter.test.ts",
       "bytes": 3066,
       "sha256": "e578e0f0aeb509037341ef9393323b0b2d05ba60548751fa4158f16d6e329d81"
@@ -5567,8 +5577,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 164542,
-      "sha256": "14ff08bbdea153c29d51124f3aa36cc7912c06e490cd0658db9f008c51f9ba76"
+      "bytes": 165978,
+      "sha256": "2784efa35aa26427daccd3e5aa8d273dadf29806db25e0f761a79c8d7ce2a2da"
     },
     {
       "path": "ui/assignment.ts",
