@@ -1,3 +1,4 @@
+import { avatarRoute, customAvatarUrl } from './avatar';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { Env } from '../types';
 import { AccessError, hashToken, type Principal } from '../lib/accounts';
@@ -105,7 +106,7 @@ export async function sessionPrincipal(request:Request,env:Env):Promise<Principa
 async function statusAccount(request:Request,env:Env){
  const account=await sessionPrincipal(request,env);
  if(!account)return null;
- const picture=await accountPicture(env,account.id);
+ const picture=(await customAvatarUrl(env,account.id))||await accountPicture(env,account.id);
  return picture?{...account,picture}:account;
 }
 export async function authRoute(request:Request,env:Env):Promise<Response|null> {
@@ -119,6 +120,7 @@ export async function authRoute(request:Request,env:Env):Promise<Response|null> 
   await env.AZRAIL_D1.prepare('DELETE FROM web_sessions WHERE token_hash=?').bind(await hashToken(cookies(request)[cookieName]??'')).run();
   return new Response(null,{status:204,headers:{'Set-Cookie':cookie(cookieName,'',0)}});
  }
+ if(url.pathname==='/auth/avatar')return await avatarRoute(request,env,(await sessionPrincipal(request,env))?.id,url.origin)??reply({error:'Not found'},404);
  if(request.method!=='GET')return reply({error:'Method not allowed'},405);
  try {
   if(url.pathname==='/auth/callback' && (!url.searchParams.get('code') || !url.searchParams.get('state') || url.searchParams.get('state')!==cookies(request)['__Host-pulse-state']))return reply({error:'Недействительный вход. Начните заново.'},400);

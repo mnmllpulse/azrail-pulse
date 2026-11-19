@@ -1,6 +1,7 @@
 import {renderMission} from './mission-view';
 import {hydrateIcons} from './icons';
 import {createAccountMenu} from './account-menu';
+import {removeAvatar,uploadAvatar} from './avatar-upload';
 import {mountWorkspaceShell} from './components/workspace-shell';
 import {createChatHistory,renderChatMessages} from './chat-history';
 import {createStudioRooms} from './studio-chat';
@@ -529,6 +530,13 @@ $('assignment-frame').addEventListener('click',event=>{
  markFrame();
 });
 let imageReference='';
+const clipboardFiles=(data:DataTransfer|null)=>[...(data?.files??[])];
+$('prompt').addEventListener('paste',e=>{const files=clipboardFiles((e as ClipboardEvent).clipboardData);if(!files.length)return;e.preventDefault();void attachmentManager.add(files.map((f,i)=>/^image\/(png|jpe?g|webp|gif)$/i.test(f.type)&&/^image\.\w+$/i.test(f.name)?new File([f],`скриншот-${Date.now()}-${i+1}.${f.type.split('/')[1].replace('jpeg','jpg')}`,{type:f.type}):f));});
+for(const zone of [$('composer'),$('chat-messages')].filter(Boolean)){
+ zone.addEventListener('dragover',e=>{if(e.dataTransfer?.types.includes('Files')){e.preventDefault();$('composer').classList.add('drop-target');}});
+ zone.addEventListener('dragleave',e=>{if(!zone.contains((e as DragEvent).relatedTarget as Node))$('composer').classList.remove('drop-target');});
+ zone.addEventListener('drop',e=>{const files=clipboardFiles((e as DragEvent).dataTransfer);if(!files.length)return;e.preventDefault();$('composer').classList.remove('drop-target');void attachmentManager.add(files);});
+}
 const {uploadedAttachment,attachedImageReference}=createAttachmentUploads((path,init)=>api(path,init),()=>attachmentManager.files());
 let sentMarkup={for:'',text:''};
 async function attachmentMarkup(message:string):Promise<string>{
@@ -660,6 +668,15 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
    settingsText(content,'Вы ещё не вошли. Войдите, чтобы синхронизировать чаты, проекты и подключения.','context-note');
    settingsButton(content,'Войти в аккаунт',()=>$('account-action').click(),true);
   }else{
+   const photo=document.createElement('div');photo.className='settings-avatar-row';
+   const preview=document.createElement('span');preview.className='account-avatar settings-avatar';
+   const paintPreview=()=>{preview.replaceChildren();if(account?.picture){const img=document.createElement('img');img.alt='';img.referrerPolicy='no-referrer';img.src=account.picture;preview.append(img);}else preview.textContent=(account?.name.trim()[0]||'A').toUpperCase();};
+   paintPreview();
+   const picker=document.createElement('input');picker.type='file';picker.accept='image/*';picker.hidden=true;
+   picker.onchange=async()=>{const file=picker.files?.[0];picker.value='';if(!file||!account)return;try{account.picture=await uploadAvatar(file);paintPreview();setAccountLabel();notice('Фото профиля обновлено.');}catch(e){failure(e);}};
+   const upload=document.createElement('button');upload.type='button';upload.textContent='Загрузить фото';upload.onclick=()=>picker.click();
+   const drop=document.createElement('button');drop.type='button';drop.textContent='Удалить фото';drop.onclick=async()=>{try{await removeAvatar();if(account)account.picture=undefined;paintPreview();setAccountLabel();notice('Фото профиля удалено.');}catch(e){failure(e);}};
+   photo.append(preview,upload,drop,picker);content.append(photo);
    const card=document.createElement('section');card.className='settings-info-card';
    const row=(label:string,value:string)=>{const line=document.createElement('div');line.className='settings-info-row';const key=document.createElement('span');key.textContent=label;const val=document.createElement('strong');val.textContent=value;line.append(key,val);card.append(line);};
    row('Имя',account.name);row('ID аккаунта',account.id);row('Роль',account.role??'Не указана');row('Уровень оператора',account.operator?'Да':'Нет');

@@ -1109,3 +1109,35 @@ body {
 .app-shell .composer-menu-dot[data-dot="neuron"] {
   background: #facc15;
 }
+
+.app-shell .settings-avatar-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.app-shell .settings-avatar {
+  display: grid;
+  flex: 0 0 56px;
+  width: 56px;
+  height: 56px;
+  place-items: center;
+  border-radius: 12px;
+  background: rgba(169,149,247,.16);
+  color: var(--heading);
+  font-size: 22px;
+}
+
+.app-shell .composer.drop-target .composer-field {
+  border-color: rgba(169,149,247,.7);
+  box-shadow: 0 0 0 3px rgba(169,149,247,.14);
+}
+
+.app-shell .attachment-thumb {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  object-fit: cover;
+}
