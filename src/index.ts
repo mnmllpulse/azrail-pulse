@@ -726,7 +726,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       // sees the same thread memory a person expects in a real chat.
       // Drop platform/error lines so a failed Whisper pick or budget miss
       // cannot poison the next greeting into a "can't talk" refusal.
-      const errorish=/лимит ресурсов|не найдена в реестре|Ни одна модель|Модель недоступна|технические ограничения|не могу поддерживать диалог|Попытки:|Дневная квота|пустой ответ|семёрки Workers Paid|10 000 нейронов|context window|maximum context|input_tokens|exceeded this model/i;
+      const errorish=/лимит ресурсов|не найдена в реестре|Ни одна модель|Модель недоступна|Модель не успела ответить|технические ограничения|не могу поддерживать диалог|Попытки:|Дневная квота|пустой ответ|семёрки Workers Paid|10 000 нейронов|context window|maximum context|input_tokens|exceeded this model/i;
       const rows = (await listMessages(env, cid, 40)) as Array<{ role?: string; content?: string }>;
       const prior = rows
         .filter((m) => (m.role === "user" || m.role === "assistant") && typeof m.content === "string" && m.content.trim())

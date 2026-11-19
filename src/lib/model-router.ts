@@ -582,6 +582,24 @@ export function stripReasoning(text: string): string {
   return out.trim();
 }
 
+function responsesText(output: unknown): string {
+  if (!Array.isArray(output)) return "";
+  const out: string[] = [];
+  for (const item of output) {
+    if (!item || typeof item !== "object") continue;
+    const entry = item as Record<string, unknown>;
+    if (entry.type !== undefined && entry.type !== "message") continue;
+    if (typeof entry.content === "string") out.push(entry.content);
+    else if (Array.isArray(entry.content)) {
+      for (const part of entry.content) {
+        const text = part && typeof part === "object" ? (part as Record<string, unknown>).text : undefined;
+        if (typeof text === "string") out.push(text);
+      }
+    }
+  }
+  return out.join("").trim();
+}
+
 export function extractText(output: unknown): string {
   if (typeof output === "string") return stripReasoning(output);
   if (!output || typeof output !== "object") return "";
@@ -598,8 +616,13 @@ export function extractText(output: unknown): string {
     if (first && typeof first.text === "string") return stripReasoning(first.text);
   }
 
+  const parts = responsesText(o.output);
+  if (parts) return stripReasoning(parts);
+
   const nested = o.result as Record<string, unknown> | undefined;
   if (nested) {
+    const nestedParts = responsesText(nested.output);
+    if (nestedParts) return stripReasoning(nestedParts);
     if (typeof nested.response === "string") return stripReasoning(nested.response);
     const nestedChoices = nested.choices;
     if (Array.isArray(nestedChoices) && nestedChoices.length > 0) {
