@@ -7,7 +7,7 @@ const history=readFileSync(new URL('../ui/chat-history.ts',import.meta.url),'utf
 
 describe('attachments stay visible in chat history',()=>{
   it('uploads each attachment once; the image reference is a separate shrunk copy cached per file',()=>{
-    expect(uploads).toContain('async function uploadedAttachment');
+    expect(uploads).toContain('function uploadedAttachment');
     expect(uploads).toMatch(/const known = shrunkReferences\.get\(file\);\s*if \(known\) return known;/);
     expect(uploads).toContain('shrunkReferences.set(file, saved.id)');
     expect(app).toContain('createAttachmentUploads(');

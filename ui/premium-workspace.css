@@ -1258,3 +1258,7 @@ body {
 .app-shell .chat-message .message-markdown .md-text .md-list { padding-left: 1.4em; display: flex; flex-direction: column; gap: 4px; }
 .app-shell .chat-message .message-markdown .md-text .md-list li::marker { color: #8f7bb8; }
 .app-shell .chat-message .message-markdown .md-text strong { color: var(--heading, #f3ecfb); }
+
+.app-shell .chat-message .message-images,
+.app-shell .chat-message .message-attachments { margin: 0 0 10px; }
+.app-shell .chat-message .message-caption { margin: 0; }

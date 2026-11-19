@@ -206,10 +206,10 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
    if(status!=='queued'&&status!=='failed')appendAssistantActions(item,rest||content,handlers,turn);
   }else if(role==='user'&&splitAttachments(content).files.length){
    const {text,files}=splitAttachments(content);
-   if(text){const p=doc.createElement('p');p.className='message-content';p.textContent=text;item.append(p);}
    const shownImages=files.filter(f=>f.image&&f.url),others=files.filter(f=>!(f.image&&f.url));
    if(shownImages.length){const grid=doc.createElement('div');grid.className='message-images';for(const file of shownImages)grid.append(attachmentImage(doc,file));item.append(grid);}
    if(others.length){const row=doc.createElement('div');row.className='message-attachments';for(const file of others)row.append(attachmentChip(doc,file));item.append(row);}
+   if(text){const p=doc.createElement('p');p.className='message-content message-caption';p.textContent=text;item.append(p);}
    appendUserActions(item,text||files.map(f=>f.name).join(', '),handlers);
   }else{
    const text=doc.createElement('p');text.className='message-content';text.textContent=content;item.append(text);
