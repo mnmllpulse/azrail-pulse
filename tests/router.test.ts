@@ -29,7 +29,7 @@ describe("Реестр моделей", () => {
     // Не-@cf модель без gateway просто не работает — если пометка врёт,
     // маршрутизатор попытается её вызвать и получит непонятную ошибку.
     for (const m of MODEL_REGISTRY) {
-      const isCloudflare = m.slug.startsWith("@cf/");
+      const isCloudflare = m.slug.startsWith("@cf/") || m.slug.startsWith("openrouter:");
       expect(m.requiresGateway, `${m.slug}: пометка о шлюзе не соответствует слагу`).toBe(!isCloudflare);
     }
   });

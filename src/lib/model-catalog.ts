@@ -1,6 +1,7 @@
 import type { Env } from "../types";
 import { catalogAvailability, FREE_MODEL_SLUGS } from "./model-policy";
-import { findModel, providerIcon } from "./model-registry";
+import { findModel, providerIcon, MODEL_REGISTRY } from "./model-registry";
+import { isOpenRouterSlug, OPENROUTER_PREFIX } from "./openrouter";
 import staticRegistry from "../data/ai-model-registry.json";
 
 export type LiveModelCatalogItem={
@@ -95,6 +96,19 @@ function staticModels():LiveModelCatalogItem[]{
 export async function readLiveCatalog(env: Env) {
   const bySlug = new Map<string, LiveModelCatalogItem>();
   for (const model of staticModels()) bySlug.set(model.slug, model);
+  for (const m of MODEL_REGISTRY) {
+    if (!isOpenRouterSlug(m.slug)) continue;
+    bySlug.set(m.slug, toCatalogItem({
+      slug:m.slug,
+      displayName:`${m.slug.slice(OPENROUTER_PREFIX.length).replace(/:free$/,'')} · OpenRouter`,
+      task:'Text Generation',
+      hosted:false,
+      freeAllowlisted:true,
+      provider:m.provider,
+      contextWindow:m.contextWindow,
+      capabilities:m.capabilities,
+    }));
+  }
 
   let liveCount = 0;
   let complete = true;
