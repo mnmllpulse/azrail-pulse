@@ -31,16 +31,36 @@ export function createAttachmentManager(deps:Deps){
  const refs=()=>items.filter(i=>i.state==='ready'&&i.ref).map(i=>i.ref!) as AttachmentRef[];
  function notify(){deps.onChange?.(refs());}
  function revoke(item:ManagedAttachment){if(item.preview){URL.revokeObjectURL(item.preview);item.preview=undefined;}}
+ function removeButton(item:ManagedAttachment){const remove=document.createElement('button');remove.type='button';remove.className='attachment-tile-remove';remove.append(iconElement('close',14));remove.title='Убрать';remove.setAttribute('aria-label',`Убрать ${item.file.name}`);remove.onclick=e=>{e.stopPropagation();const i=items.indexOf(item);if(i>=0){revoke(item);items.splice(i,1);}render();};return remove;}
+ function tile(item:ManagedAttachment){
+  const box=document.createElement('div');box.className='attachment-tile';box.dataset.state=item.state;
+  if(isImage(item.file)){
+   box.classList.add('is-image');
+   const open=document.createElement('button');open.type='button';open.className='attachment-tile-open';open.setAttribute('aria-label',`Посмотреть ${item.file.name}`);open.append(thumb(item));
+   open.onclick=()=>{const url=URL.createObjectURL(item.file);window.open(url,'_blank','noopener');window.setTimeout(()=>URL.revokeObjectURL(url),60000);};
+   box.append(open);
+  }else{
+   box.classList.add('is-file');
+   const icon=iconElement(fileIconName(item.file.name),18);icon.classList.add('attachment-kind');
+   const text=document.createElement('span');text.className='attachment-tile-text';
+   const name=document.createElement('strong');name.textContent=item.file.name;name.title=item.file.name;
+   const type=document.createElement('small');type.textContent=kind(item.file);
+   text.append(name,type);box.append(icon,text);
+  }
+  box.append(removeButton(item));
+  return box;
+ }
  function thumb(item:ManagedAttachment){const img=document.createElement('img');img.className='attachment-thumb';img.alt='';img.src=item.preview??=URL.createObjectURL(item.file);return img;}
  function render(){
   deps.root.replaceChildren();
   if(!items.length){deps.root.hidden=true;notify();return;}deps.root.hidden=false;
   for(const item of items){
+   if(item.state==='ready'){deps.root.append(tile(item));continue;}
    const row=document.createElement('div');row.className='attachment-card';row.dataset.state=item.state;
    const icon=iconElement(isImage(item.file)?'image':fileIconName(item.file.name),18);icon.classList.add('attachment-kind');icon.title=kind(item.file);
    const body=document.createElement('div');body.className='attachment-body';
    const name=document.createElement('strong');name.textContent=item.file.name;
-   const meta=document.createElement('small');meta.textContent=`${bytes(item.file.size)} · ${item.state==='queued'?'в очереди':item.state==='uploading'?`загрузка ${item.progress}%`:item.state==='ready'?'готово':item.error||'ошибка'}`;
+   const meta=document.createElement('small');meta.textContent=`${bytes(item.file.size)} · ${item.state==='queued'?'в очереди':item.state==='uploading'?`загрузка ${item.progress}%`:item.error||'ошибка'}`;
    meta.title=meta.textContent;body.append(name,meta);
    if(item.state==='uploading'){const p=document.createElement('progress');p.max=100;p.value=item.progress;p.setAttribute('aria-label',`Загрузка ${item.file.name}`);body.append(p);}
    const actions=document.createElement('div');actions.className='attachment-actions';

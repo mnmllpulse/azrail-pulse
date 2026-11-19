@@ -96,7 +96,7 @@ const composerHome=document.createComment('composer-home'),missionHome=document.
 composer.before(composerHome);missionPanel.before(missionHome);
 const navigation=createNavigation(renderRoute);
 let attachmentRefs:any[]=[],pending:{key:string;body:string}|null=null;
-const attachmentManager=createAttachmentManager({root:$('attachment-manager'),input:$<HTMLInputElement>('attachments'),getProjectId:()=>project,api,failure,onAdded:files=>{void previewAttachedSite(files);},onChange:refs=>{attachmentRefs=refs;$('attachment-names').textContent=refs.length?`${refs.length} файл(ов) готово`:'';syncContextPanel();}});
+const attachmentManager=createAttachmentManager({root:$('attachment-manager'),input:$<HTMLInputElement>('attachments'),getProjectId:()=>project,api,failure,onAdded:files=>{void previewAttachedSite(files);},onChange:refs=>{attachmentRefs=refs;syncContextPanel();}});
 function clearAttachments(){attachmentRefs=[];attachmentManager.clear();$('attachment-names').textContent='';}
 function deviceValue(key:string){try{return localStorage.getItem(key)??sessionStorage.getItem(key);}catch{try{return sessionStorage.getItem(key);}catch{return null;}}}
 function deviceWrite(key:string,value:string|null){for(const store of [localStorage,sessionStorage])try{if(value===null)store.removeItem(key);else store.setItem(key,value);}catch{/* private mode */}}
