@@ -1234,3 +1234,9 @@ body {
 .app-shell .attachment-tile-remove:hover {
   background: rgba(10,12,18,.95);
 }
+
+.app-shell .settings-nick-row{align-items:center}
+.app-shell .settings-nick-box{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end;align-items:center}
+.app-shell .settings-nick-box input{min-width:200px;height:36px;border-radius:8px}
+.app-shell .settings-nick-box button{height:36px;border-radius:8px}
+.app-shell .settings-pick-hint{padding:8px 0}

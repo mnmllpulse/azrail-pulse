@@ -25,7 +25,7 @@ describe('аватар из OIDC', () => {
   });
   it('CSP разрешает картинки Google, статус отдаёт picture', () => {
     expect(readFileSync('src/unified/entry.ts', 'utf8')).toContain('img-src \'self\' blob: data: https://*.googleusercontent.com;');
-    expect(readFileSync('src/unified/oidc.ts', 'utf8')).toContain('picture?{...account,picture}:account');
+    expect(readFileSync('src/unified/oidc.ts', 'utf8')).toContain('picture?{...named,picture}:named');
   });
 });
 

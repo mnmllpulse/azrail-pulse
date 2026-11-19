@@ -1,4 +1,5 @@
 import { avatarRoute, customAvatarUrl } from './avatar';
+import { customNickname, nicknameRoute } from './nickname';
 import { createRemoteJWKSet, jwtVerify } from 'jose';
 import type { Env } from '../types';
 import { AccessError, hashToken, type Principal } from '../lib/accounts';
@@ -107,7 +108,8 @@ async function statusAccount(request:Request,env:Env){
  const account=await sessionPrincipal(request,env);
  if(!account)return null;
  const picture=(await customAvatarUrl(env,account.id))||await accountPicture(env,account.id);
- return picture?{...account,picture}:account;
+ const nick=await customNickname(env,account.id),named=nick?{...account,name:nick,nickname:nick}:account;
+ return picture?{...named,picture}:named;
 }
 export async function authRoute(request:Request,env:Env):Promise<Response|null> {
  const url=new URL(request.url);
@@ -120,6 +122,7 @@ export async function authRoute(request:Request,env:Env):Promise<Response|null> 
   await env.AZRAIL_D1.prepare('DELETE FROM web_sessions WHERE token_hash=?').bind(await hashToken(cookies(request)[cookieName]??'')).run();
   return new Response(null,{status:204,headers:{'Set-Cookie':cookie(cookieName,'',0)}});
  }
+ if(url.pathname==='/auth/nickname')return nicknameRoute(request,env,(await sessionPrincipal(request,env))?.id,url.origin);
  if(url.pathname==='/auth/avatar')return await avatarRoute(request,env,(await sessionPrincipal(request,env))?.id,url.origin)??reply({error:'Not found'},404);
  if(request.method!=='GET')return reply({error:'Method not allowed'},405);
  try {

@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-19T09:17:27.125Z",
+  "generated_at": "2026-11-19T09:49:14.982Z",
   "excludes_self": true,
-  "file_count": 1300,
+  "file_count": 1304,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1438278,
-      "sha256": "c2e6e4f9cfef476f2b67f5e8412ae8e5fd36c78cb59343b112437c5034aeff08"
+      "bytes": 1439361,
+      "sha256": "81c728b5df49c275e37cdc8085c34c8312629c5a426552d3c563dc47e6157f5e"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 25684,
-      "sha256": "66023b9d24c0c124d452468a054262e63588b6d1a4b1f9f5ec64732d47a32de3"
+      "sha256": "be5ba801caa79c31139e6ed62b3d2e23ee65e74082e11c5718266b17e89b77eb"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3267,13 +3267,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 175441,
-      "sha256": "6b98d44606a53fc075489842c9228e52daa75b57a3576eaf400635649487562b"
+      "bytes": 175794,
+      "sha256": "727d3dbb091c180bd4ccf9bac69e1e37976c9941249d41becc6311fe298c50a5"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 508071,
-      "sha256": "2acdf3afb8ebf952736c2f141a8f846a4a159f47c500dac8a00dbb15cab27817"
+      "bytes": 508799,
+      "sha256": "9ee7745c91bf0d656fcb011bf2a92ead7d72ad12282331304bbc702d2ee1d61e"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 25684,
-      "sha256": "66023b9d24c0c124d452468a054262e63588b6d1a4b1f9f5ec64732d47a32de3"
+      "sha256": "be5ba801caa79c31139e6ed62b3d2e23ee65e74082e11c5718266b17e89b77eb"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -3557,8 +3557,8 @@
     },
     {
       "path": "src/agents/answer-agent.ts",
-      "bytes": 22807,
-      "sha256": "170e8498f0a4a5e4cf19f8559b49e227eca0a7c271267d9546b80712f2366ba3"
+      "bytes": 23083,
+      "sha256": "e2f220bd13e37be703ab5512a7b821082f2402db94823d8752202d35ea86ecb7"
     },
     {
       "path": "src/agents/architect-agent.ts",
@@ -3762,8 +3762,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 102676,
-      "sha256": "ce27e1e9a6a585e9f8c83f1dcc627a2eb641f58fbb003e2ff207ff492216a31f"
+      "bytes": 102724,
+      "sha256": "c3d8e66e40407add782e7da37f1b8834eb30b988dc2646dbf8fc063752b88e00"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4057,8 +4057,8 @@
     },
     {
       "path": "src/lib/model-router.ts",
-      "bytes": 35138,
-      "sha256": "a729991c83ee6c5b7f2258de04d28838a5514bed25d70217568eff54a194a2c6"
+      "bytes": 36028,
+      "sha256": "8a2fdb72094dfb1c30d959338b9c04fae369b890ca8710c23dd1b8bca12c6217"
     },
     {
       "path": "src/lib/music-intelligence.ts",
@@ -4431,9 +4431,14 @@
       "sha256": "f5710e191232dc06116d94ab3ee03190e920f8eb9bbd427d4bb991f300754498"
     },
     {
+      "path": "src/unified/nickname.ts",
+      "bytes": 1846,
+      "sha256": "67206db801ead0e9394e1ea1972cdfcd62c0cf9f81c13a184a076b916519e60e"
+    },
+    {
       "path": "src/unified/oidc.ts",
-      "bytes": 14158,
-      "sha256": "99da712027fde54e11a046c69a2d8bbaf8965cb28fc02cb192e90425269fb0bc"
+      "bytes": 14444,
+      "sha256": "6986dd5214415c73a501a453bb632556c0fbea78743d6a2b06c9920f9dea6b16"
     },
     {
       "path": "src/unified/product-intelligence.ts",
@@ -4642,8 +4647,8 @@
     },
     {
       "path": "tests/avatar-and-images.test.ts",
-      "bytes": 3098,
-      "sha256": "6b582981fcae94a805ca1f2e91c0671b356989125e16f212f45f4d78a7deaa75"
+      "bytes": 3094,
+      "sha256": "a70004b73d2a3d9bf047f827c4cc5587777b942d97926d79acb2edfe6f5fa894"
     },
     {
       "path": "tests/avatar-upload-paste.test.ts",
@@ -4839,6 +4844,11 @@
       "path": "tests/execution-decomposition.test.ts",
       "bytes": 1970,
       "sha256": "6a1e4650594cf070c18b9648f6b93b6c5f945ebcf7161d7e3c3e9c328397c196"
+    },
+    {
+      "path": "tests/extract-text-responses.test.ts",
+      "bytes": 821,
+      "sha256": "3c38d5fe98b28937d7891663a6ee7f2ceb094cdd221f20d428c041366673cdb5"
     },
     {
       "path": "tests/failure-injection.test.ts",
@@ -5064,6 +5074,11 @@
       "path": "tests/neuron-meter.test.ts",
       "bytes": 7738,
       "sha256": "c08330f6f779e2289e2ef387990c46d1baca8169014bc42a8884da3e37f21610"
+    },
+    {
+      "path": "tests/nickname.test.ts",
+      "bytes": 2152,
+      "sha256": "8d43f4c7b27efa967aa6a1fc50a719cf1a956cc8e58093d2768c8dbdcff336c5"
     },
     {
       "path": "tests/office-file.test.ts",
@@ -5307,8 +5322,8 @@
     },
     {
       "path": "tests/settings-center.test.ts",
-      "bytes": 7357,
-      "sha256": "6436ca7358f5ccc9adac98d801f397125fdcaa123299893a8a1c744beae81d32"
+      "bytes": 7490,
+      "sha256": "0ab0ff871775d92ff76f7067a3e1d6d4d9e5a9aaac2d7abeea7aeddb63b55ba8"
     },
     {
       "path": "tests/settings-providers.test.ts",
@@ -5537,8 +5552,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 162914,
-      "sha256": "eae11ec130368e03a0175dcb133e755096a04f51904d63b94d958f5a8399ef12"
+      "bytes": 164401,
+      "sha256": "c8210722dd164bae0e3a57d8587569a43f6e1b0fb3ee3c39d82274335bb64f02"
     },
     {
       "path": "ui/assignment.ts",
@@ -5846,6 +5861,11 @@
       "sha256": "ee5767f5188645097d80a8597e32d3771209fdbb0ef87fc49844835f4ab2af24"
     },
     {
+      "path": "ui/nickname.ts",
+      "bytes": 936,
+      "sha256": "a4cffc4b570989dd88c06260f19285f24cf901315a1c53c88cb770a696e4ef86"
+    },
+    {
       "path": "ui/permission-settings.ts",
       "bytes": 2287,
       "sha256": "0fdf9e505f0db689ccdd94e9364205a3b51aca9100205e4b1e6464140b3c1a2d"
@@ -5857,8 +5877,8 @@
     },
     {
       "path": "ui/premium-workspace.css",
-      "bytes": 25059,
-      "sha256": "836ad451da6bf21f2d9174c0cf2e2467f7a8da72aff98d02b59c6a9e78ccded0"
+      "bytes": 25418,
+      "sha256": "e91f1b4282b8acf2b9b87a9ea10b13a1a1f1e8ed946a6fe029260f41bc9b6283"
     },
     {
       "path": "ui/projects.ts",
@@ -5882,8 +5902,8 @@
     },
     {
       "path": "ui/settings-center.ts",
-      "bytes": 13183,
-      "sha256": "3983aa595ee0fe44b2d9dea04979489aa0d268c23ba2e9a544ef4def8fb705a7"
+      "bytes": 12018,
+      "sha256": "521b80617f2069ba20f34d6a8efada68fbaaa6fdb725661f8c1efda7e62567e7"
     },
     {
       "path": "ui/settings-diagnostics.ts",

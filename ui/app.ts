@@ -2,6 +2,7 @@ import {renderMission} from './mission-view';
 import {hydrateIcons} from './icons';
 import {createAccountMenu} from './account-menu';
 import {removeAvatar,uploadAvatar} from './avatar-upload';
+import {resetNickname,saveNickname} from './nickname';
 import {mountWorkspaceShell} from './components/workspace-shell';
 import {createChatHistory,renderChatMessages} from './chat-history';
 import {createStudioRooms} from './studio-chat';
@@ -67,7 +68,7 @@ if(typeof window!=='undefined'){
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const local=!/^https?:$/.test(location.protocol);
 applyDisplayPrefs(readDisplayPrefs());
-type Account={id:string;name:string;picture?:string;operator?:boolean;role?:'viewer'|'editor'|'admin'};
+type Account={id:string;name:string;nickname?:string;picture?:string;operator?:boolean;role?:'viewer'|'editor'|'admin'};
 let account:Account|null=null,project='',mission='',pollTimer=0,epoch=0,studioEpoch=0,mediaCleanup=()=>{},lastBlob:Blob|null=null;
 let draftCleanup=()=>{},studioChromeCleanup=()=>{},pollFailures=0,missionSubmitting=false,studioRun=0;
 let preferredModel='';
@@ -679,7 +680,18 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
    photo.append(preview,upload,drop,picker);content.append(photo);
    const card=document.createElement('section');card.className='settings-info-card';
    const row=(label:string,value:string)=>{const line=document.createElement('div');line.className='settings-info-row';const key=document.createElement('span');key.textContent=label;const val=document.createElement('strong');val.textContent=value;line.append(key,val);card.append(line);};
-   row('Имя',account.name);row('ID аккаунта',account.id);row('Роль',account.role??'Не указана');row('Уровень оператора',account.operator?'Да':'Нет');
+   const nickLine=document.createElement('div');nickLine.className='settings-info-row settings-nick-row';
+   const nickKey=document.createElement('span');nickKey.textContent='Ник';
+   const nickBox=document.createElement('div');nickBox.className='settings-nick-box';
+   const nickInput=document.createElement('input');nickInput.type='text';nickInput.maxLength=32;nickInput.value=account.nickname||'';nickInput.placeholder='Как тебя называть';nickInput.setAttribute('aria-label','Ник');
+   const nickSave=document.createElement('button');nickSave.type='button';nickSave.textContent='Сохранить';
+   const nickReset=document.createElement('button');nickReset.type='button';nickReset.textContent='Сбросить';nickReset.hidden=!account.nickname;
+   const applyNick=(name:string,nick?:string)=>{if(!account)return;account.name=name;account.nickname=nick;nickInput.value=nick||'';nickReset.hidden=!nick;setAccountLabel();};
+   nickSave.onclick=async()=>{try{const nick=await saveNickname(nickInput.value);applyNick(nick,nick);notice('Ник сохранён.');}catch(e){failure(e);}};
+   nickInput.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();nickSave.click();}};
+   nickReset.onclick=async()=>{try{applyNick(await resetNickname(),undefined);notice('Ник сброшен.');}catch(e){failure(e);}};
+   nickBox.append(nickInput,nickSave,nickReset);nickLine.append(nickKey,nickBox);card.append(nickLine);
+   row('ID аккаунта',account.id);row('Роль',account.role??'Не указана');row('Уровень оператора',account.operator?'Да':'Нет');
    content.append(card);
    settingsButton(content,'Управление входом и выходом',()=>$('account-action').click());
   }

@@ -143,29 +143,7 @@ export function mountSettingsCenter(
   content.id = 'settings-content';
 
   if (!active) {
-    const welcome = node('div', '', 'settings-welcome');
-    welcome.append(
-      node('p', 'DARK PREMIUM WORKSPACE', 'settings-eyebrow'),
-      node('h2', 'Всё на своих местах.'),
-      node('p', 'Выберите категорию. Каждый раздел отвечает за отдельную часть вашей работы.', 'muted'),
-    );
-    main.append(welcome);
-
-    const grid = node('div', '', 'settings-overview-grid');
-    for (const item of SETTINGS_ITEMS) {
-      const card = node('button', '', 'settings-category-card');
-      card.type = 'button';
-      card.dataset.settingsSearch = [item.title, item.description, item.group].join(' ').toLocaleLowerCase('ru');
-      const top = node('div', '', 'settings-category-top');
-      top.append(
-        (() => { const mark = iconElement(item.icon, 20); mark.classList.add('settings-category-icon'); return mark; })(),
-        (() => { const arrow = iconElement('open', 16); arrow.classList.add('settings-category-arrow'); return arrow; })(),
-      );
-      card.append(top, node('strong', item.title), node('span', item.description, 'settings-category-description'));
-      card.onclick = () => navigate({ section: item.section });
-      grid.append(card);
-    }
-    main.append(grid);
+    main.append(node('p', 'Выберите раздел в меню слева.', 'muted settings-pick-hint'));
   } else if (active === 'providers' && !provider) {
     const intro = node(
       'p',

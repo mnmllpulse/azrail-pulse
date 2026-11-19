@@ -31,8 +31,11 @@ describe('Settings Center navigation and search',()=>{
     const search=host.querySelector<HTMLInputElement>('.settings-search-label input')!;
     search.value='провайдер';
     search.dispatchEvent(new windowRef!.Event('input'));
-    expect(host.querySelectorAll('.settings-category-card:not([hidden])')).toHaveLength(1);
-    expect(host.querySelector('.settings-category-card:not([hidden])')?.textContent).toContain('Провайдеры и API');
+    expect(host.querySelectorAll('.settings-category-card')).toHaveLength(0);
+    expect(host.querySelector('.settings-welcome')).toBeNull();
+    const shown=Array.from(host.querySelectorAll<HTMLElement>('.settings-nav-item:not([hidden])'));
+    expect(shown).toHaveLength(1);
+    expect(shown[0].textContent).toContain('Провайдеры и API');
     expect(host.querySelector('.settings-search-empty')?.hasAttribute('hidden')).toBe(true);
     expect(Array.from(host.querySelectorAll<HTMLElement>('.settings-nav-group')).some(group=>group.hidden)).toBe(true);
   });
