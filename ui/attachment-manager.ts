@@ -5,7 +5,7 @@ export type AttachmentState='queued'|'uploading'|'ready'|'failed';
 type InputType='zip'|'pdf'|'docx'|'github'|'text'|'json'|'image'|'audio'|'video'|'code'|'unknown';
 export interface AttachmentRef{r2Key?:string;fileName:string;inputType:InputType;size?:number;mimeType?:string;}
 export interface ManagedAttachment{
- id:string;file:File;state:AttachmentState;progress:number;error?:string;ref?:AttachmentRef;
+ id:string;file:File;state:AttachmentState;progress:number;error?:string;ref?:AttachmentRef;preview?:string;
 }
 
 type Deps={
@@ -30,6 +30,8 @@ export function createAttachmentManager(deps:Deps){
  const items:ManagedAttachment[]=[];
  const refs=()=>items.filter(i=>i.state==='ready'&&i.ref).map(i=>i.ref!) as AttachmentRef[];
  function notify(){deps.onChange?.(refs());}
+ function revoke(item:ManagedAttachment){if(item.preview){URL.revokeObjectURL(item.preview);item.preview=undefined;}}
+ function thumb(item:ManagedAttachment){const img=document.createElement('img');img.className='attachment-thumb';img.alt='';img.src=item.preview??=URL.createObjectURL(item.file);return img;}
  function render(){
   deps.root.replaceChildren();
   if(!items.length){deps.root.hidden=true;notify();return;}deps.root.hidden=false;
@@ -44,8 +46,8 @@ export function createAttachmentManager(deps:Deps){
    const actions=document.createElement('div');actions.className='attachment-actions';
    if(isImage(item.file)&&item.state!=='failed'){const view=document.createElement('button');view.type='button';view.className='text-button attachment-preview';view.append(iconElement('eye',16));view.title=`Посмотреть ${item.file.name}`;view.setAttribute('aria-label',`Посмотреть ${item.file.name}`);view.onclick=()=>{const url=URL.createObjectURL(item.file);window.open(url,'_blank','noopener');window.setTimeout(()=>URL.revokeObjectURL(url),60000);};actions.append(view);}
    if(item.state==='failed'){const retry=document.createElement('button');retry.type='button';retry.textContent='Повторить';retry.onclick=()=>void upload(item);actions.append(retry);}
-   const remove=document.createElement('button');remove.type='button';remove.className='text-button attachment-remove';remove.append(iconElement('close',16));remove.setAttribute('aria-label',`Удалить ${item.file.name}`);remove.onclick=()=>{const i=items.indexOf(item);if(i>=0)items.splice(i,1);render();};actions.append(remove);
-   row.append(icon,body,actions);deps.root.append(row);
+   const remove=document.createElement('button');remove.type='button';remove.className='text-button attachment-remove';remove.append(iconElement('close',16));remove.setAttribute('aria-label',`Удалить ${item.file.name}`);remove.onclick=()=>{const i=items.indexOf(item);if(i>=0){revoke(item);items.splice(i,1)};render();};actions.append(remove);
+   row.append(isImage(item.file)?thumb(item):icon,body,actions);deps.root.append(row);
   }
   notify();
  }
@@ -81,5 +83,5 @@ export function createAttachmentManager(deps:Deps){
  deps.root.addEventListener('dragover',e=>{e.preventDefault();deps.root.classList.add('drop-target');});
  deps.root.addEventListener('dragleave',()=>deps.root.classList.remove('drop-target'));
  deps.root.addEventListener('drop',e=>{e.preventDefault();deps.root.classList.remove('drop-target');void add([...e.dataTransfer!.files]);});
- return {refs,files:()=>items.map(item=>item.file),add,clear(){items.splice(0);render();},hasPending(){return items.some(i=>i.state==='queued'||i.state==='uploading');},hasFailed(){return items.some(i=>i.state==='failed');},count(){return items.length;}};
+ return {refs,files:()=>items.map(item=>item.file),add,clear(){items.forEach(revoke);items.splice(0);render();},hasPending(){return items.some(i=>i.state==='queued'||i.state==='uploading');},hasFailed(){return items.some(i=>i.state==='failed');},count(){return items.length;}};
 }
