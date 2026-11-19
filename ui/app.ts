@@ -97,7 +97,7 @@ const composerHome=document.createComment('composer-home'),missionHome=document.
 composer.before(composerHome);missionPanel.before(missionHome);
 const navigation=createNavigation(renderRoute);
 let attachmentRefs:any[]=[],pending:{key:string;body:string}|null=null;
-const attachmentManager=createAttachmentManager({root:$('attachment-manager'),input:$<HTMLInputElement>('attachments'),getProjectId:()=>project,api,failure,onAdded:files=>{void previewAttachedSite(files);},onChange:refs=>{attachmentRefs=refs;syncContextPanel();}});
+const attachmentManager=createAttachmentManager({root:$('attachment-manager'),input:$<HTMLInputElement>('attachments'),getProjectId:()=>project,api,failure,onAdded:files=>{void previewAttachedSite(files);if(account)for(const file of files)void uploadedAttachment(file).catch(()=>{});},onChange:refs=>{attachmentRefs=refs;syncContextPanel();}});
 function clearAttachments(){attachmentRefs=[];attachmentManager.clear();$('attachment-names').textContent='';}
 function deviceValue(key:string){try{return localStorage.getItem(key)??sessionStorage.getItem(key);}catch{try{return sessionStorage.getItem(key);}catch{return null;}}}
 function deviceWrite(key:string,value:string|null){for(const store of [localStorage,sessionStorage])try{if(value===null)store.removeItem(key);else store.setItem(key,value);}catch{/* private mode */}}
@@ -544,11 +544,12 @@ let sentMarkup={for:'',text:''};
 async function attachmentMarkup(message:string):Promise<string>{
  const files=account?attachmentManager.files():[];
  const lines:string[]=[];
- for(const file of files){
+ const ids=await Promise.all(files.map(file=>uploadedAttachment(file).catch(()=>'')));
+ files.forEach((file,index)=>{
   const name=file.name.replace(/[\[\]()\n]/g,' ').trim().slice(0,80)||'файл';
-  const id=await uploadedAttachment(file).catch(()=>'');
+  const id=ids[index];
   lines.push(id?`${isImageFile(file)?'!':''}[${name}](/api/studio/artifacts/${id})`:`📎 ${name}`);
- }
+ });
  const text=lines.length?'\n\n'+lines.join('\n\n'):'';
  sentMarkup={for:message,text};
  return text;
@@ -1671,13 +1672,16 @@ async function runPlanScreen(part:PlanPart){
  if(stored)part.thing=stored;
  part.state='done';
 }
+const WORK_REQUEST=/(?:сдела|созда|постро|собер|нарису|рисуй|сгенер|сочин|разработ|сайт|страниц|лендинг|логотип|трек|музык|видео|картинк|изображен|проект|задач|миссия|план)/iu;
+const slowPlan=<T,>(work:Promise<T>,ms:number)=>Promise.race([work,new Promise<never>((_,reject)=>setTimeout(()=>reject(Error('Планировщик отвечает долго.')),ms))]);
 async function chosenPlan(message:string):Promise<WorkPlan|null>{
  const localPlan=planWork(message);
  if(localPlan?.parts.some(part=>part.kind==='file'||part.kind==='diagram'))return localPlan;
  if(local||!account||(account.role!=='admin'&&!account.operator))return localPlan;
+ if(!WORK_REQUEST.test(message))return localPlan;
  try{
   const memory=finishedMemory();
-  const drafted=await api('/api/plan',{method:'POST',body:JSON.stringify({message,...(memory?{memory}:{})})}) as {fallback?:boolean;parts?:Array<{text?:string;kind?:string;after?:boolean}>};
+  const drafted=await slowPlan(api('/api/plan',{method:'POST',body:JSON.stringify({message,...(memory?{memory}:{})})}),2500) as {fallback?:boolean;parts?:Array<{text?:string;kind?:string;after?:boolean}>};
   if(drafted.fallback)return planWork(message);
   if(!Array.isArray(drafted.parts)||drafted.parts.length===0)return keepAskedMedia(message,null);
   return keepAskedMedia(message,groundWorkPlan(message,workPlanFromDraft(drafted.parts)??planWork(message)));

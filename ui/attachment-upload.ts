@@ -30,7 +30,17 @@ export function createAttachmentUploads(api: Api, files: () => File[]) {
   const originals = new WeakMap<File, string>();
   const shrunkReferences = new WeakMap<File, string>();
 
-  async function uploadedAttachment(file: File): Promise<string> {
+  const inFlight = new WeakMap<File, Promise<string>>();
+
+  function uploadedAttachment(file: File): Promise<string> {
+    const running = inFlight.get(file);
+    if (running) return running;
+    const task = uploadOriginal(file).finally(() => inFlight.delete(file));
+    inFlight.set(file, task);
+    return task;
+  }
+
+  async function uploadOriginal(file: File): Promise<string> {
     const known = originals.get(file);
     if (known) return known;
     if (file.size > 12 * 1024 * 1024) return '';
