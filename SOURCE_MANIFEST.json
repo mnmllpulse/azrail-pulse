@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-19T10:05:24.592Z",
+  "generated_at": "2026-11-19T10:42:41.005Z",
   "excludes_self": true,
-  "file_count": 1306,
+  "file_count": 1307,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -572,8 +572,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1439361,
-      "sha256": "81c728b5df49c275e37cdc8085c34c8312629c5a426552d3c563dc47e6157f5e"
+      "bytes": 1439459,
+      "sha256": "b4c49c095b8fa6469878e33514982d2e10ab9e2a854a27ea9c91ddb5eaec4739"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3258,7 +3258,7 @@
     {
       "path": "site/app.html",
       "bytes": 25684,
-      "sha256": "be5ba801caa79c31139e6ed62b3d2e23ee65e74082e11c5718266b17e89b77eb"
+      "sha256": "8da578f6604780dd26b32e0b116e97b6af84c576c419f09ea7c87f4991275ec5"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 508799,
-      "sha256": "9ee7745c91bf0d656fcb011bf2a92ead7d72ad12282331304bbc702d2ee1d61e"
+      "bytes": 508897,
+      "sha256": "5e85b22d103eb4e0e9d895dca774551cee8a9bc60d2a3b6f72f73a4fef4c149f"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3548,7 +3548,7 @@
     {
       "path": "site/index.html",
       "bytes": 25684,
-      "sha256": "be5ba801caa79c31139e6ed62b3d2e23ee65e74082e11c5718266b17e89b77eb"
+      "sha256": "8da578f6604780dd26b32e0b116e97b6af84c576c419f09ea7c87f4991275ec5"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5031,6 +5031,11 @@
       "sha256": "a5a9ded4bffb2877b705ba5bd7325f0767f9b7dbfd4222f50236b9e5029ada5b"
     },
     {
+      "path": "tests/model-menu-openrouter-group.test.ts",
+      "bytes": 526,
+      "sha256": "4602dc990a259f06923e944ceb66d6b3b9ae69ae7a01d49839300adf3c90dc3e"
+    },
+    {
       "path": "tests/model-picker.test.ts",
       "bytes": 3409,
       "sha256": "5e6391225d5bdeaff8186d99d45a17fd1b82cb985de145ce3780cad7c4b39ed2"
@@ -5562,8 +5567,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 164401,
-      "sha256": "c8210722dd164bae0e3a57d8587569a43f6e1b0fb3ee3c39d82274335bb64f02"
+      "bytes": 164542,
+      "sha256": "14ff08bbdea153c29d51124f3aa36cc7912c06e490cd0658db9f008c51f9ba76"
     },
     {
       "path": "ui/assignment.ts",

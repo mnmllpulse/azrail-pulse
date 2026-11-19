@@ -281,9 +281,10 @@ function syncChatAccount(){
 }
 function modelDot(m:{slug:string;freeAllowlisted?:boolean;hosted?:boolean;availability?:string}):'free'|'neuron'|undefined{const kind=modelBadge(m).kind;return kind==='free'?'free':kind==='neuron'?'neuron':undefined;}
 const dotRank=(d?:string)=>d==='free'?0:d==='neuron'?1:2;
+const groupRank=(slug:string)=>slug.startsWith('openrouter:')?0:1;
 const modelMenu=createModelMenu({root:$('composer-models'),button:$<HTMLButtonElement>('composer-models-open'),
  current:()=>{const hit=preferredModel?composerModels.find(preferredModel):undefined;return {slug:preferredModel,label:currentModelLabel(),description:hit?.description,dot:hit?modelDot(hit):undefined};},
- others:()=>composerModels.pickable().filter(m=>m.slug!==preferredModel).map(m=>({slug:m.slug,label:modelLabel(m),description:m.description,dot:modelDot(m)})).sort((x,y)=>dotRank(x.dot)-dotRank(y.dot)),
+ others:()=>composerModels.pickable().filter(m=>m.slug!==preferredModel).map(m=>({slug:m.slug,label:modelLabel(m),description:m.description,dot:modelDot(m)})).sort((x,y)=>groupRank(x.slug)-groupRank(y.slug)||dotRank(x.dot)-dotRank(y.dot)||x.label.localeCompare(y.label,'ru')),
  select:slug=>{setPreferredModel(slug);syncModelsButton();const hit=composerModels.find(slug);const kind=hit?modelBadge(hit).kind:'';
   if(kind==='neuron')notice('Это одна из моделей Workers Paid. AZRAIL её не вызывает: после 10 000 нейронов в сутки идёт доплата.',true);
   else if(kind==='external')notice('Сторонняя модель: вызов идёт через AI Gateway и только если включены платные модели и есть бюджет.',true);
