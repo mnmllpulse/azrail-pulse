@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-19T09:49:14.982Z",
+  "generated_at": "2026-11-19T10:05:24.592Z",
   "excludes_self": true,
-  "file_count": 1304,
+  "file_count": 1306,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -4037,8 +4037,8 @@
     },
     {
       "path": "src/lib/model-catalog.ts",
-      "bytes": 6982,
-      "sha256": "59806b25cdbb44839467b841f64ba07cf9be2052900e581a59342493c6293e86"
+      "bytes": 7493,
+      "sha256": "83baf87aacaa83674232874718e2917b8f12762a335723ed350bd13fae8216c8"
     },
     {
       "path": "src/lib/model-health.ts",
@@ -4047,13 +4047,13 @@
     },
     {
       "path": "src/lib/model-policy.ts",
-      "bytes": 10458,
-      "sha256": "8f2ff6575db770911b27455e51796c385da2781d185949640470735ff98b458e"
+      "bytes": 11068,
+      "sha256": "fbf104b71443eddc9c96dad765823ce76032eeb47501f959291329229cc1cb84"
     },
     {
       "path": "src/lib/model-registry.ts",
-      "bytes": 28049,
-      "sha256": "c37db65e12188ccb00b50a355d179e24f42b4a5b63d7e8bb6dd2f511b41daf81"
+      "bytes": 28939,
+      "sha256": "a9d8b2053c09c37bd621899d353cb49978593b537b163100b730a2688a9f1382"
     },
     {
       "path": "src/lib/model-router.ts",
@@ -4094,6 +4094,11 @@
       "path": "src/lib/office-text.ts",
       "bytes": 1964,
       "sha256": "1d498ccc083c9ef164b79ba85616aed02b909f618fb02b5fbcdcdb0c79f6d845"
+    },
+    {
+      "path": "src/lib/openrouter.ts",
+      "bytes": 1976,
+      "sha256": "bef20a5bd7652aa3677e514ffa2f0a4ad687e2b4dae6fef731014185008d92d3"
     },
     {
       "path": "src/lib/operation-limit.ts",
@@ -4347,8 +4352,8 @@
     },
     {
       "path": "src/types.ts",
-      "bytes": 13739,
-      "sha256": "9b0a57743f4ee5ce9df8cb8c325efafff25224b9ec42bf9be9fe0eb348781865"
+      "bytes": 13876,
+      "sha256": "2cf99071fa1d7a9aed7880da5dd369baeaba790faaf0afe0ef55440ead7d3429"
     },
     {
       "path": "src/unified/avatar.ts",
@@ -5022,8 +5027,8 @@
     },
     {
       "path": "tests/model-icons.test.ts",
-      "bytes": 1804,
-      "sha256": "83fbb5e666aa09739d7842fd922624212d486af32ffd7338a5a6659136d8e570"
+      "bytes": 1853,
+      "sha256": "a5a9ded4bffb2877b705ba5bd7325f0767f9b7dbfd4222f50236b9e5029ada5b"
     },
     {
       "path": "tests/model-picker.test.ts",
@@ -5089,6 +5094,11 @@
       "path": "tests/oidc-admin-groups.test.ts",
       "bytes": 4383,
       "sha256": "44df6395e4ea3e855e7ad438850ad2a34be3833ab5f46cba297c6e1ad78c5d49"
+    },
+    {
+      "path": "tests/openrouter.test.ts",
+      "bytes": 3066,
+      "sha256": "e578e0f0aeb509037341ef9393323b0b2d05ba60548751fa4158f16d6e329d81"
     },
     {
       "path": "tests/operation-limit.test.ts",
@@ -5277,8 +5287,8 @@
     },
     {
       "path": "tests/router.test.ts",
-      "bytes": 20635,
-      "sha256": "3cd5c3c4e9e18458d1280e27fb95fc4068e87dcd137894c9e4f30cb9c98beebd"
+      "bytes": 20671,
+      "sha256": "e5a2deee1153e5c1a8a0e0f13336c120c10d4f339f5c0cc663a7515bbf006e6a"
     },
     {
       "path": "tests/routing.test.ts",

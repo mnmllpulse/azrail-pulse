@@ -90,6 +90,8 @@ export interface Env {
    * Заодно включает аналитику Gateway — стоимость, задержки, ошибки.
    */
   AI_GATEWAY_ID?: string;
+  /** Секрет OpenRouter: включает бесплатные модели `openrouter:*:free`. */
+  OPENROUTER_API_KEY?: string;
   /** Optional deployment commit/build identifier; Pulse Lab never fabricates one. */
   AZRAIL_BUILD_SHA?: string;
 }

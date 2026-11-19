@@ -96,6 +96,25 @@ export function providerIcon(provider: string): string | undefined {
 }
 
 export const MODEL_REGISTRY: ModelEntry[] = [
+  // ─── OpenRouter: бесплатные модели (:free), нужен секрет OPENROUTER_API_KEY ───
+  ...(
+    [
+      ["openrouter/free", "OpenRouter", "balanced", 128_000],
+      ["inclusionai/ling-3.2-flash:free", "InclusionAI", "fast", 1_048_576],
+      ["baidu/ernie-5.5-flash-preview:free", "Baidu", "fast", 1_024_000],
+      ["nvidia/nemotron-3.5-super-vl:free", "NVIDIA", "balanced", 1_000_000],
+    ] as const
+  ).map(
+    ([id, provider, tier, contextWindow]): ModelEntry => ({
+      slug: `openrouter:${id}`,
+      provider,
+      tier,
+      capabilities: ["text_generation"],
+      contextWindow,
+      requiresGateway: false,
+      source: "Каталог OpenRouter (api/v1/models), сверено 2026-11-19. Бесплатный лимит у провайдера; вызов идёт напрямую, мимо Workers AI и Gateway.",
+    }),
+  ),
   // ─── Собственные модели Cloudflare (@cf/) ───────────────────────────
   {
     slug: "@cf/moonshotai/kimi-k2.7-code",

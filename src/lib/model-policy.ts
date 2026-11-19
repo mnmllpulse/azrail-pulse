@@ -1,3 +1,4 @@
+import { hasOpenRouterKey, isOpenRouterSlug, openRouterCall } from "./openrouter";
 import { accountCall, BudgetError, ensureBudget, reserve, settle } from "../unified/ledger";
 import type { Env } from "../types";
 import { MODEL_REGISTRY, type ModelEntry } from "./model-registry";
@@ -31,7 +32,8 @@ export function freeWorkerCanRun(slug: string): boolean {
   return FREE_MODEL_SLUGS.has(slug) || STUDIO_RUN_SLUGS.has(slug);
 }
 
-export function catalogAvailability(slug: string, env: Pick<Env, "AZRAIL_WORKERS_PLAN" | "AZRAIL_FORCE_FREE">): "available" | "unavailable" {
+export function catalogAvailability(slug: string, env: Pick<Env, "AZRAIL_WORKERS_PLAN" | "AZRAIL_FORCE_FREE" | "OPENROUTER_API_KEY">): "available" | "unavailable" {
+  if (isOpenRouterSlug(slug)) return hasOpenRouterKey(env) ? "available" : "unavailable";
   const paid = env.AZRAIL_WORKERS_PLAN === "paid" && env.AZRAIL_FORCE_FREE !== "true";
   if (paid) return "available";
   return freeWorkerCanRun(slug) ? "available" : "unavailable";
@@ -74,7 +76,8 @@ export async function setModelPolicy(env: Env, enabled: unknown, budget: unknown
   return readModelPolicy(env);
 }
 
-export function modelBlockReason(model: ModelEntry, policy: ModelPolicy, env: Pick<Env,"AI_GATEWAY_ID"|"AZRAIL_WORKERS_PLAN"|"AZRAIL_FORCE_FREE">): string | null {
+export function modelBlockReason(model: ModelEntry, policy: ModelPolicy, env: Pick<Env,"AI_GATEWAY_ID"|"AZRAIL_WORKERS_PLAN"|"AZRAIL_FORCE_FREE"|"OPENROUTER_API_KEY">): string | null {
+  if (isOpenRouterSlug(model.slug)) return hasOpenRouterKey(env) ? null : "Нет ключа OpenRouter";
   if (FREE_MODEL_SLUGS.has(model.slug) && !model.requiresGateway) return null;
   if (isNeuronMetered(model.slug)) return env.AZRAIL_WORKERS_PLAN === "paid" && env.AZRAIL_FORCE_FREE !== "true" ? null : "Требуется Workers Paid";
   if (!policy.allowThirdPartyModels) return "Сторонние и платные модели выключены";
@@ -132,6 +135,9 @@ async function policyModelCallInternal(env: Env, model: ModelEntry, input: Recor
   const policy = await readModelPolicy(env);
   const blocked = modelBlockReason(model, policy, env);
   if (blocked) throw new ModelPolicyError(blocked);
+  if (isOpenRouterSlug(model.slug))
+    return meteredCall({...env, AZRAIL_METERING: env.AZRAIL_METERING ? "observe" : undefined},
+      model.slug, input, scope, () => openRouterCall(env, model.slug, input), scope, {invokeTimeoutMs:55_000,trace,provider:model.provider,...dimensions});
   if (isNeuronMetered(model.slug)) return neuronMeteredCall(env, model, input, scope, trace, dimensions);
   const free = FREE_MODEL_SLUGS.has(model.slug) && !model.requiresGateway;
   if (free) {
