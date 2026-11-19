@@ -97,19 +97,31 @@ export function providerIcon(provider: string): string | undefined {
 
 export const MODEL_REGISTRY: ModelEntry[] = [
   // ─── OpenRouter: бесплатные модели (:free), нужен секрет OPENROUTER_API_KEY ───
+  // Список сверяется с каталогом OpenRouter автоматически (openrouter-sync.ts): исчезнувшие помечаются неактуальными.
   ...(
     [
-      ["openrouter/free", "OpenRouter", "balanced", 128_000],
-      ["inclusionai/ling-3.2-flash:free", "InclusionAI", "fast", 1_048_576],
-      ["baidu/ernie-5.5-flash-preview:free", "Baidu", "fast", 1_024_000],
-      ["nvidia/nemotron-3.5-super-vl:free", "NVIDIA", "balanced", 1_000_000],
+      ["openrouter/free", "OpenRouter", "balanced", 200_000, true],
+      ["inclusionai/ling-3.2-flash:free", "InclusionAI", "fast", 1_048_576, true],
+      ["baidu/ernie-5.5-flash-preview:free", "Baidu", "fast", 1_024_000, false],
+      ["nvidia/nemotron-3.5-super-vl:free", "NVIDIA", "balanced", 1_000_000, true],
+      ["thinkingmachines/inkling-2-small:free", "Thinking Machines", "fast", 1_048_576, true],
+      ["particle-ai/particle-1:free", "Particle AI", "balanced", 1_048_576, true],
+      ["nvidia/nemotron-3.5-lightning:free", "NVIDIA", "fast", 1_000_000, false],
+      ["nvidia/nemotron-3-ultra-550b-a55b:free", "NVIDIA", "frontier", 1_000_000, false],
+      ["nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free", "NVIDIA", "balanced", 256_000, true],
+      ["google/gemma-4-31b-it:free", "Google", "balanced", 262_144, true],
+      ["google/gemma-4-26b-a4b-it:free", "Google", "balanced", 262_144, true],
+      ["dots-studio/dots-3-note-preview:free", "dots.studio", "balanced", 512_000, true],
+      ["cohere/north-mini-code:free", "Cohere", "fast", 256_000, false],
+      ["liquid/lfm-3-1.7b:free", "Liquid AI", "fast", 262_144, false],
+      ["recursive/flint-v1.0:free", "Recursive", "fast", 262_144, false],
     ] as const
   ).map(
-    ([id, provider, tier, contextWindow]): ModelEntry => ({
+    ([id, provider, tier, contextWindow, vision]): ModelEntry => ({
       slug: `openrouter:${id}`,
       provider,
       tier,
-      capabilities: ["text_generation"],
+      capabilities: vision ? ["text_generation", "tool_calling", "vision"] : ["text_generation", "tool_calling"],
       contextWindow,
       requiresGateway: false,
       source: "Каталог OpenRouter (api/v1/models), сверено 2026-11-19. Бесплатный лимит у провайдера; вызов идёт напрямую, мимо Workers AI и Gateway.",

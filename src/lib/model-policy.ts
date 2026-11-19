@@ -1,4 +1,5 @@
 import { hasOpenRouterKey, isOpenRouterSlug, openRouterCall } from "./openrouter";
+import { openRouterGone } from "./openrouter-sync";
 import { accountCall, BudgetError, ensureBudget, reserve, settle } from "../unified/ledger";
 import type { Env } from "../types";
 import { MODEL_REGISTRY, type ModelEntry } from "./model-registry";
@@ -88,7 +89,8 @@ export function modelBlockReason(model: ModelEntry, policy: ModelPolicy, env: Pi
 
 export async function eligibleRegistry(env: Env): Promise<ModelEntry[]> {
   const policy = await readModelPolicy(env);
-  return MODEL_REGISTRY.filter(m => !modelBlockReason(m, policy, env));
+  const gone = await openRouterGone(env);
+  return MODEL_REGISTRY.filter(m => !gone.has(m.slug) && !modelBlockReason(m, policy, env));
 }
 
 
@@ -135,6 +137,8 @@ async function policyModelCallInternal(env: Env, model: ModelEntry, input: Recor
   const policy = await readModelPolicy(env);
   const blocked = modelBlockReason(model, policy, env);
   if (blocked) throw new ModelPolicyError(blocked);
+  if (isOpenRouterSlug(model.slug) && (await openRouterGone(env)).has(model.slug))
+    throw new ModelPolicyError("Модель больше не в бесплатном каталоге OpenRouter. Обновите список моделей.");
   if (isOpenRouterSlug(model.slug))
     return meteredCall({...env, AZRAIL_METERING: env.AZRAIL_METERING ? "observe" : undefined},
       model.slug, input, scope, () => openRouterCall(env, model.slug, input), scope, {invokeTimeoutMs:55_000,trace,provider:model.provider,...dimensions});

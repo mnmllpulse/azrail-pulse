@@ -3,6 +3,7 @@ import { parseInput, queryObject, errorPayload } from "./lib/validation";
 import { BudgetError } from "./unified/ledger";
 import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, approvalListQuerySchema, approvalDecisionSchema, backupCreateSchema, backupQuerySchema, backupDeleteQuerySchema, backupRestoreSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
 import { readLiveCatalog } from "./lib/model-catalog";
+import { openRouterStatus, syncOpenRouter } from "./lib/openrouter-sync";
 import { backupProject, deleteBackup, restoreBackup } from "./lib/backups";
 import { withProjectLock } from "./lib/project-control";
 import { quarantineStaleRunningToolReceipts } from "./lib/checkpoints";
@@ -198,6 +199,7 @@ export default {
       (async () => {
         try {
           await cleanupSecurityState(env);
+          await syncOpenRouter(env).catch((err) => log("warn", "cron.openrouter_sync_failed", { error: err instanceof Error ? err.message : String(err) }));
           await dispatchOutbox(env);
           const { reaped } = await reapStaleMissions(env);
           const receipts = await quarantineStaleRunningToolReceipts(env);
@@ -475,6 +477,14 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         if (error instanceof AccessError) return json({ error: error.message }, env, error.status);
         throw error;
       }
+    }
+    if (url.pathname === "/api/openrouter-status" && request.method === "GET") {
+      return json({ configured: !!env.OPENROUTER_API_KEY?.trim(), status: await openRouterStatus(env) }, env);
+    }
+    if (url.pathname === "/api/admin/openrouter-refresh" && request.method === "POST") {
+      if (principal.role !== "admin" && !principal.operator) return json({ error: "Список обновляет только владелец." }, env, 403);
+      try { return json({ status: await syncOpenRouter(env, { force: true }) }, env); }
+      catch (error) { return json({ error: error instanceof Error ? error.message : "Не удалось обновить список." }, env, 502); }
     }
     if (url.pathname === "/api/model-catalog" && request.method === "GET") {
       return json(await readLiveCatalog(env),env);

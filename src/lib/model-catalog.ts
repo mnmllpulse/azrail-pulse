@@ -2,6 +2,7 @@ import type { Env } from "../types";
 import { catalogAvailability, FREE_MODEL_SLUGS } from "./model-policy";
 import { findModel, providerIcon, MODEL_REGISTRY } from "./model-registry";
 import { isOpenRouterSlug, OPENROUTER_PREFIX } from "./openrouter";
+import { openRouterGone } from "./openrouter-sync";
 import staticRegistry from "../data/ai-model-registry.json";
 
 export type LiveModelCatalogItem={
@@ -142,7 +143,10 @@ export async function readLiveCatalog(env: Env) {
     complete = false;
   }
 
-  const models = [...bySlug.values()].map(model => ({...model, availability: catalogAvailability(model.slug, env)})).sort((a, b) =>
+  const gone = await openRouterGone(env);
+  const models = [...bySlug.values()].map(model => gone.has(model.slug)
+    ? {...model, availability: "unavailable" as const, description: "Не актуальна: модель убрана из бесплатного каталога OpenRouter. Обновите список моделей."}
+    : {...model, availability: catalogAvailability(model.slug, env)}).sort((a, b) =>
     a.provider.localeCompare(b.provider) || a.slug.localeCompare(b.slug),
   );
   return {

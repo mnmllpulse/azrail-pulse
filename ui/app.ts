@@ -746,6 +746,19 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
    if(!account){notice('Войдите, чтобы открыть каталог моделей.',true);return;}
    openModelPicker();
   },true);
+  if(account?.role==='admin'){
+   const orCard=document.createElement('section');orCard.className='settings-info-card';
+   const orTitle=document.createElement('strong');orTitle.textContent='Бесплатные модели OpenRouter';orCard.append(orTitle);
+   const orInfo=document.createElement('p');orInfo.className='muted';orCard.append(orInfo);
+   const show=(st:{checkedAt:number;total:number;added:string[];gone:string[]}|null,configured:boolean)=>{
+    orInfo.textContent=(configured?'Ключ задан. ':'Ключ не задан: модели недоступны. ')+(st?`Сверка ${new Date(st.checkedAt).toLocaleString('ru-RU')}: в каталоге ${st.total}, новых ${st.added.length}, неактуальных ${st.gone.length}.`+(st.gone.length?` Неактуальны: ${st.gone.join(', ')}.`:''):'Каталог ещё не сверялся (сверка идёт автоматически раз в 6 часов).');
+   };
+   void api('/api/openrouter-status').then(r=>show(r.status??null,!!r.configured)).catch(()=>{});
+   content.append(orCard);
+   settingsButton(content,'Обновить список OpenRouter',async()=>{
+    try{const r=await api('/api/admin/openrouter-refresh',{method:'POST',body:'{}'});show(r.status,true);notice(`Список обновлён: ${r.status.total} бесплатных, неактуальных ${r.status.gone.length}.`);}catch(e){failure(e);}
+   });
+  }
   return;
  }
 
