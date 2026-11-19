@@ -1796,16 +1796,17 @@ async function runChat(){
  remember();
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  const shown=message+await attachmentMarkup(message);chatHistory.accepted(requestKey,shown,project,conversationId);
+ const sentRefs=attachmentRefs;clearAttachments();
  chatHistory.report(requestKey,'','queued');
  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft(prompt.value);workspace.resizePrompt();
  syncChatUI();workspace.toLatest();
  try{
-  const body=JSON.stringify({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:attachmentRefs,...(preferredModel?{preferredModel}:{}),...(modelMenu.effort()!=='medium'?{effort:modelMenu.effort()}:{})});
+  const body=JSON.stringify({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:sentRefs,...(preferredModel?{preferredModel}:{}),...(modelMenu.effort()!=='medium'?{effort:modelMenu.effort()}:{})});
   const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':requestKey},body});
   const reply=String(r.result?.summary||r.result?.error||r.error||'Пустой ответ.');
   const status=r.result?.status==='failed'||r.success===false?'failed':'completed';
   chatHistory.report(requestKey,reply,status);
-  clearAttachments();syncChatUI();workspace.toLatest();
+  syncChatUI();workspace.toLatest();
   void syncServerChats();
  }
  catch(e){

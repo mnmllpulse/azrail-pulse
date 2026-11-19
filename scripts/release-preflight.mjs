@@ -310,7 +310,7 @@ for (const marker of ['MAX_FILES=12','MAX_BYTES=50*1024*1024','/api/upload','For
 }
 const appUi = readFileSync('ui/app.ts','utf8');
 if (appUi.includes('attachmentsText')) fail('Attachment Manager must not inline file text into prompt');
-for (const marker of ['attachmentManager.hasPending()','attachmentManager.hasFailed()','attachments:attachmentRefs']) {
+for (const marker of ['attachmentManager.hasPending()','attachmentManager.hasFailed()','attachments:sentRefs']) {
   if (!appUi.includes(marker)) fail(`Attachment composer invariant missing: ${marker}`);
 }
 
