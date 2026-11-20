@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-20T03:10:21.489Z",
+  "generated_at": "2026-11-20T11:32:02.236Z",
   "excludes_self": true,
   "file_count": 1318,
   "files": [
@@ -4617,8 +4617,8 @@
     },
     {
       "path": "tests/assignment.test.ts",
-      "bytes": 5484,
-      "sha256": "ac58b39236ab6ab4fbac198980137f37bc9c19371934bcb9dd8ae51bc34789ea"
+      "bytes": 6169,
+      "sha256": "d2ceb44b553e2efab576e1fa5bae3d41a1b1d36e66c459742fb8018cb7719d13"
     },
     {
       "path": "tests/attachment-chips.test.ts",
@@ -5622,8 +5622,8 @@
     },
     {
       "path": "ui/assignment.ts",
-      "bytes": 12581,
-      "sha256": "f0c9870d239dd40cea1e394ac8a0737d86357992a165d0f11d261d4cdfc826d2"
+      "bytes": 13156,
+      "sha256": "1ca4070b46b7cade8e5c4c2cecf94e5b1b82448c5cffbcfe6031c3ae01795b0a"
     },
     {
       "path": "ui/attachment-chip.ts",
