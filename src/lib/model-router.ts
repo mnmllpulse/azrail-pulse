@@ -144,6 +144,7 @@ export function route(
       reasoning.push(`${model.slug} — пропущена: модель отключена ${model.deprecatedAt}.`);
       continue;
     }
+    if (model.manualOnly) continue;
     if (unavailable.has(model.slug)) {
       reasoning.push(`${model.slug} — пропущена: исчерпан лимит, ждём восстановления.`);
       continue;
