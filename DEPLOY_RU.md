@@ -1,6 +1,18 @@
 # Развёртывание AZRAIL 1.5.0-rc.63
 
-> **RC / LOCAL HARDENING. Публикация заблокирована.** Этот документ не является разрешением на GitHub push, Cloudflare deploy или production migration. Такие действия выполняются только после отдельного человеческого одобрения.
+> **Состояние на 20 ноября 2026.** Репозиторий опубликован, рабочий воркер `azrail-pulse` обновляется автоматически (раздел «Фактический порядок выкладки»). Строгий production-контур ниже остаётся описанным, но квитанция `VERIFIED_RELEASED` не записана (статус CONDITIONAL). Прямые `wrangler deploy`, `d1 execute` и remote migration apply без отдельного одобрения запрещены.
+
+## Фактический порядок выкладки
+
+| Шаг | Что происходит |
+|---|---|
+| 1 | Изменение идёт в ветку и PR; PR сливает владелец через Squash and merge |
+| 2 | GitHub Actions: `check`/`verify` под Node 24 |
+| 3 | `staging-auto-deploy.yml` выкладывает `azrail-pulse-staging` после зелёного Verify и запускает `npm run staging:auto-health` (`/health/live`, версия = `package.json`) |
+| 4 | Cloudflare Workers Builds (подключён к репозиторию) собирает и выкладывает рабочий воркер `azrail-pulse` после слияния в `main`; проверки GitHub эту сборку не блокируют |
+| 5 | Миграции D1 `migrations/*.sql` (последняя — `038`) применяются отдельно по runbook `docs/runbooks/MIGRATIONS_RU.md` |
+
+Секреты Worker (`OPENROUTER_API_KEY`, `OIDC_CLIENT_SECRET` и др.) задаются через `wrangler secret put`, в репозиторий и чат не попадают. Переменные плана и лимитов: `AZRAIL_WORKERS_PLAN`, `AZRAIL_FORCE_FREE`, `AZRAIL_DAILY_NEURONS` (`config/environments.json`).
 
 ## 1. Источник истины
 
@@ -52,7 +64,7 @@ npm run db:migrate:staging:plan
 npm run db:migrate:production:plan
 ```
 
-Read-only Cloudflare inspection подтверждает: staging D1 пока без `schema_migrations`, но с уже существующей `missions.result_json`. Поэтому migration 002 baseline-ится, migrations 003–030 проверяются как additive. Remote apply остаётся запрещён до отдельного разрешения; см. `docs/runbooks/STAGING_MIGRATION_RU.md`.
+Read-only Cloudflare inspection подтверждает: staging D1 пока без `schema_migrations`, но с уже существующей `missions.result_json`. Поэтому migration 002 baseline-ится, migrations 003–038 проверяются как additive (на момент RC40 их было 003–030). Remote apply остаётся запрещён до отдельного разрешения; см. `docs/runbooks/STAGING_MIGRATION_RU.md`.
 
 ## 5. Staging deploy preparation и future auto-deploy
 
@@ -63,7 +75,7 @@ npm run staging:deploy:check
 npm run staging:deploy:plan
 ```
 
-`staging:deploy:plan` остаётся `BLOCKED`, пока нет Node24 VERIFIED receipt, staging migration APPLIED receipt и canonical UI build proof. Для будущего опубликованного GitHub-репозитория добавлен `.github/workflows/staging-auto-deploy.yml`: push в `main` сначала запускает полный Verify, затем через GitHub Environment `staging` выполняет guarded `deploy:ci`. Для этого в GitHub должны быть настроены Cloudflare credentials и `OIDC_CLIENT_SECRET`. Это не разрешает production deploy. См. `docs/runbooks/STAGING_DEPLOY_RU.md`.
+`staging:deploy:plan` остаётся `BLOCKED`, пока нет Node24 VERIFIED receipt, staging migration APPLIED receipt и canonical UI build proof. В опубликованном репозитории работает `.github/workflows/staging-auto-deploy.yml`: push в `main` сначала запускает полный Verify, затем через GitHub Environment `staging` выполняет guarded `deploy:ci`. Для этого в GitHub должны быть настроены Cloudflare credentials и `OIDC_CLIENT_SECRET`. Это не разрешает production deploy. См. `docs/runbooks/STAGING_DEPLOY_RU.md`.
 
 ## 6. Staging smoke / RC41
 
@@ -83,7 +95,7 @@ npm run staging:smoke:plan
 
 ## 8. GitHub/Cloudflare
 
-Текущий ZIP сам ничего не публикует. После будущей публикации репозитория успешный push в `main` может автоматически обновлять **Cloudflare staging** через отдельный workflow. Cloudflare production и production D1 не обновляются автоматически; production остаётся approval/PR/release-gated.
+Успешный push в `main` автоматически обновляет **Cloudflare staging** через workflow, а рабочий воркер обновляет Workers Builds. Production D1 и строгий production release (`production:release:*`) автоматически не выполняются: они остаются approval/PR/release-gated.
 
 ## 9. Опасные операции
 

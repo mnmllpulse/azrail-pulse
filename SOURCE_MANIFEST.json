@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-20T11:43:47.213Z",
+  "generated_at": "2026-11-20T11:59:05.420Z",
   "excludes_self": true,
-  "file_count": 1319,
+  "file_count": 1321,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -87,13 +87,13 @@
     },
     {
       "path": "DEPLOY.md",
-      "bytes": 6109,
-      "sha256": "1583f0f7d5679848b2e413c02d2117cda38ce8f6f01ba2544fb353ebc2ffaf72"
+      "bytes": 6454,
+      "sha256": "3c8b83f5380b7aaf7b1b0588bad9dbcb0cc105733cb5684b79a8487d56047341"
     },
     {
       "path": "DEPLOY_RU.md",
-      "bytes": 7422,
-      "sha256": "3059b7944be7e4c4439ebf8dc6b0c10f361559f2d6d06e4aa04182dfbd5a17a8"
+      "bytes": 8877,
+      "sha256": "15b856359d27fe297bc7c5fb1041c4e6128f943e3ace609a8a04ab0a29624ce3"
     },
     {
       "path": "Dockerfile",
@@ -102,13 +102,13 @@
     },
     {
       "path": "README.md",
-      "bytes": 7651,
-      "sha256": "80a7891d567c1fbd89f7ee810b7c6114b7aad7795da934d71f1c9763989c5611"
+      "bytes": 11757,
+      "sha256": "1abff11e509393842c754dddc136e5d59da54f650a4dcab9851dd3fd9a3f31e7"
     },
     {
       "path": "START_HERE_RU.md",
-      "bytes": 2280,
-      "sha256": "0018cccfe04743a7b3d1847cad4b73ae6a2004a63e36fdca5429b324c14753ef"
+      "bytes": 3260,
+      "sha256": "15b28b8e6d2778e098dd7743ffccaa022942585ceac215165c61bb420261e8a6"
     },
     {
       "path": "config/ai-model-registry.json",
@@ -137,8 +137,8 @@
     },
     {
       "path": "docs/NEURON_BUDGET.md",
-      "bytes": 3525,
-      "sha256": "b25865c243d791d61462344d81cabc74772f63cd2091960ff25fe44f2ed5b79b"
+      "bytes": 3764,
+      "sha256": "705f63c386b04e873aeab0abb7bab12020b300e1094b29ca002bd0e3f51b5bc7"
     },
     {
       "path": "docs/README.md",
@@ -157,13 +157,18 @@
     },
     {
       "path": "docs/current/ATTACHMENTS_RU.md",
-      "bytes": 3333,
-      "sha256": "f5b681a582e4f064295234958253e0ca295dcc84d98b2fb03bffa33939a60c85"
+      "bytes": 4470,
+      "sha256": "7ea305fa23bd6afd3b897ccb67b200f083f3ddf2a93ff57cbd6f7d465e2186a3"
     },
     {
       "path": "docs/current/AUDIO_LAB_RU.md",
       "bytes": 2486,
       "sha256": "4e754f214617a12f9489e3655626eca27bc05284607ae1c5a4450b77cf65b741"
+    },
+    {
+      "path": "docs/current/CHAT_RU.md",
+      "bytes": 4850,
+      "sha256": "0eee78a216c6cde58b6ffa326921bd1ed1947971dcd8123dfe5832e0738eac95"
     },
     {
       "path": "docs/current/CONFIGURATION_TRUTH_RU.md",
@@ -214,6 +219,11 @@
       "path": "docs/current/METATRON_LAB_RU.md",
       "bytes": 4482,
       "sha256": "f3cb2b0f58562190fe8799b93a5ab69c50f3bc3ee248a86876d6928035c7d8fe"
+    },
+    {
+      "path": "docs/current/MODELS_RU.md",
+      "bytes": 6376,
+      "sha256": "edc5bce279821b44d85b315565718f4dc799b01fddadb34b9ccc9da5bc176df0"
     },
     {
       "path": "docs/current/MUSIC_STUDIO_RU.md",
@@ -267,13 +277,13 @@
     },
     {
       "path": "docs/current/README_RU.md",
-      "bytes": 3685,
-      "sha256": "9dd522bedc841883ee90eddd65f998fbb0c8b69881467152dfde24c382e9a996"
+      "bytes": 4198,
+      "sha256": "3dd8d69cf3ec7f1d26a5d5f1eed8f54add170cec6870d990231c1521641dcc24"
     },
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
-      "bytes": 20420,
-      "sha256": "04e35a814155570f97b7f9761bf05dffc38fbf99159a08ec45fcdf3f04fb6df8"
+      "bytes": 22889,
+      "sha256": "d8b199f0871b254c590dd1de8dbbb4bff72ade6b6dc0148c2ed594c6140f7f3c"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -292,8 +302,8 @@
     },
     {
       "path": "docs/current/STUDIO_ARCHITECTURE_RU.md",
-      "bytes": 2628,
-      "sha256": "b02bb842fd6f605957b23273551a5a7902a3141c1e3caf84ad28775201c8c8ba"
+      "bytes": 3022,
+      "sha256": "48dcd4095f7b3162f70845436aa8f86ca7acf2b301513347efd4cc6dbda55777"
     },
     {
       "path": "docs/current/UNIVERSAL_MODULE_SYSTEM_RU.md",
@@ -487,8 +497,8 @@
     },
     {
       "path": "docs/releases/CHANGELOG_1.5.0-rc.63.md",
-      "bytes": 940,
-      "sha256": "b2362135be6445cdd2e79a6c8c05fbd5722b9b4cde7047958e5c627526b39c10"
+      "bytes": 4316,
+      "sha256": "210efe4a29b635c4a51c37aae981fb1633d138e4845f64b6d61660812a8bcfa7"
     },
     {
       "path": "docs/runbooks/BACKUP_RESTORE_PROOF_RU.md",
@@ -572,8 +582,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1447198,
-      "sha256": "f6ea806ab2e5122dfad92a3b2c76f070a4ffd42b2cb5603046471a79d768998e"
+      "bytes": 1447311,
+      "sha256": "9cbb591a0a4e78e04193ea8def124262ae13a467049ec88bd4fac0f70174fae2"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3263,7 +3273,7 @@
     {
       "path": "site/app.html",
       "bytes": 25684,
-      "sha256": "1a1042b0e88df84240d7bc25e4a29280acbff6ec604a43445f797962e93596af"
+      "sha256": "9d1c049cf4be70194ec010bb1470dffcd2fab45eb3f447e9c18653cd61f00f0a"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3277,8 +3287,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 513986,
-      "sha256": "a765a320c390a606e66217a2dbc1ae3e84e258142ac2517812bc716a79b3e823"
+      "bytes": 514099,
+      "sha256": "63c5c209b9aa029a40344513904d0f21636b0f7ef8d022de3c29aec3ff5a0f44"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3558,7 +3568,7 @@
     {
       "path": "site/index.html",
       "bytes": 25684,
-      "sha256": "1a1042b0e88df84240d7bc25e4a29280acbff6ec604a43445f797962e93596af"
+      "sha256": "9d1c049cf4be70194ec010bb1470dffcd2fab45eb3f447e9c18653cd61f00f0a"
     },
     {
       "path": "site/manifest.webmanifest",
