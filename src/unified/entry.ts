@@ -101,7 +101,7 @@ export default {
    if(!response)response=await agentRoute(request,env);
    if(!response)response=await connectorRoute(request,env);
    if(!response)response=await studioRoute(request,env);
-   if(!response&&(url.pathname.startsWith('/api/')||url.pathname==='/health'||url.pathname==='/agents'||url.pathname.startsWith('/agents/')))response=await engine.fetch(request,env,ctx);
+   if(!response&&(url.pathname.startsWith('/api/')||url.pathname==='/health'||url.pathname==='/health/live'||url.pathname==='/agents'||url.pathname.startsWith('/agents/')))response=await engine.fetch(request,env,ctx);
    if(!response&&url.pathname.startsWith('/s/'))response=await publishedSiteResponse(env,request);
    if(!response) {
     if(!['GET','HEAD'].includes(request.method))response=new Response('Method not allowed',{status:405});

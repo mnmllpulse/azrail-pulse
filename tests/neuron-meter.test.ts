@@ -1,9 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
+import { afterAll, beforeAll, describe, expect, it, vi } from "vitest";
 import { sqliteD1 } from "./stubs/sqlite-d1";
 import { runModel } from "../src/lib/model-router";
 import { DEEPSEEK_FLASH, GLM_FLASH, KIMI_CODE, dailyNeuronCap, neuronAllowedFor, neuronUpperBound, neuronsFor } from "../src/lib/neuron-paid";
 import { FREE_MODEL_SLUGS } from "../src/lib/model-policy";
 import type { Env } from "../src/types";
+
+// Тесты описывают поведение до отключения моделей Cloudflare (2026-11-20): дата зафиксирована.
+beforeAll(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-18T12:00:00Z"));
+});
+afterAll(() => vi.useRealTimers());
 
 function fixture(extra: Partial<Env> = {}, usage = { prompt_tokens: 2, completion_tokens: 1 }) {
   const { db, sqlite } = sqliteD1();

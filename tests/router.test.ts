@@ -1,11 +1,18 @@
 // Маршрутизатор моделей — тесты отбора и объяснимости.
 
-import { describe, it, expect } from "vitest";
+import { afterAll, beforeAll, describe, it, expect, vi } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { route, estimateComplexity } from "../src/lib/model-router";
 import { isQuotaError, parseRetryAfter } from "../src/lib/model-health";
 import { MODEL_REGISTRY, policyFor, findModel } from "../src/lib/model-registry";
+
+// Дата зафиксирована до отключения моделей Cloudflare (2026-11-20).
+beforeAll(() => {
+  vi.useFakeTimers({ toFake: ["Date"] });
+  vi.setSystemTime(new Date("2026-11-18T12:00:00Z"));
+});
+afterAll(() => vi.useRealTimers());
 import type { ModelEntry } from "../src/lib/model-registry";
 
 const src = (f: string) => fs.readFileSync(path.resolve(import.meta.dirname, "..", f), "utf8");

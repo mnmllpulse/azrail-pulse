@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-19T22:02:53.833Z",
+  "generated_at": "2026-11-20T02:28:38.880Z",
   "excludes_self": true,
-  "file_count": 1314,
+  "file_count": 1316,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -4417,8 +4417,8 @@
     },
     {
       "path": "src/unified/entry.ts",
-      "bytes": 8403,
-      "sha256": "d0c203413ca8b29643c9855bb820142f76f288ed5fea59a08356531ffab18b36"
+      "bytes": 8434,
+      "sha256": "fd6708b5e4498605f406ba0b1fd5d3ce13fdb42140a72d06d049631cff942644"
     },
     {
       "path": "src/unified/ledger.ts",
@@ -4831,6 +4831,11 @@
       "sha256": "1cbdfaddf477350f15acf17da30d36c025a2b017201fa4c8e85eb6cf2d61fe5d"
     },
     {
+      "path": "tests/deprecation-after-date.test.ts",
+      "bytes": 860,
+      "sha256": "a83b7f794029e014743004268c2f64e95e6ce02542215f78d090099deb27df81"
+    },
+    {
       "path": "tests/design-system.test.ts",
       "bytes": 2468,
       "sha256": "a80a5b75aa6ffeed14a9f240666b911f414d3f06e2bf53f2202cbfbd0972e8bc"
@@ -4899,6 +4904,11 @@
       "path": "tests/frontend.test.ts",
       "bytes": 14442,
       "sha256": "af31e729e4c7f00cde30e7f27172524808344ab4809451f8e23c61a9e145a79e"
+    },
+    {
+      "path": "tests/health-live-route.test.ts",
+      "bytes": 398,
+      "sha256": "210e9aaf6ff09d8465693c8561b5a96556ffcd02b8f567aa15ec1e9bda4fbf4d"
     },
     {
       "path": "tests/helpers/core-source.ts",
@@ -5102,8 +5112,8 @@
     },
     {
       "path": "tests/neuron-meter.test.ts",
-      "bytes": 7738,
-      "sha256": "c08330f6f779e2289e2ef387990c46d1baca8169014bc42a8884da3e37f21610"
+      "bytes": 8069,
+      "sha256": "b621062468c0ed3705bbce942b35f31c63e04921ce7716edac9781a0eb906c1a"
     },
     {
       "path": "tests/nickname.test.ts",
@@ -5317,8 +5327,8 @@
     },
     {
       "path": "tests/router.test.ts",
-      "bytes": 20671,
-      "sha256": "e5a2deee1153e5c1a8a0e0f13336c120c10d4f339f5c0cc663a7515bbf006e6a"
+      "bytes": 20956,
+      "sha256": "24f2fa1265345cda12eb3c8bd138597144b859fb24feb0d8721de1bfc2c24876"
     },
     {
       "path": "tests/routing.test.ts",
