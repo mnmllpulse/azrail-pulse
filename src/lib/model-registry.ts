@@ -57,6 +57,8 @@ export interface ModelEntry {
   source: string;
   /** Дата отключения модели (YYYY-MM-DD, UTC). С этого дня роутер её не предлагает; запись остаётся в реестре. */
   deprecatedAt?: string;
+  /** Только ручной выбор: роутер не предлагает модель сам, закреплённый вызов работает. */
+  manualOnly?: boolean;
 }
 
 /** Модель отключена на момент `now`. Дата — первый день, когда вызывать её уже нельзя. */
@@ -64,6 +66,22 @@ export function isDeprecated(model: Pick<ModelEntry, "deprecatedAt">, now = Date
   if (!model.deprecatedAt) return false;
   const at = Date.parse(`${model.deprecatedAt}T00:00:00Z`);
   return Number.isFinite(at) && now >= at;
+}
+
+/** Отключены Cloudflare 2026-11-20 (410 Gone), в реестр не входят; источник — бот Cloudflare 2026-11-20. */
+const RETIRED_SLUGS: ReadonlySet<string> = new Set([
+  "@cf/deepseek-ai/deepseek-r1-distill-qwen-32b", "@cf/meta/llama-3.1-8b-instruct-fp8", "@cf/meta/llama-3.2-1b-instruct",
+  "@cf/meta-llama/llama-2-7b-chat-hf-lora", "@cf/google/gemma-2b-it-lora", "@cf/google/gemma-7b-it-lora",
+  "@cf/myshell-ai/melotts", "@cf/openai/whisper-tiny-en", "@cf/llava-hf/llava-1.5-7b-hf", "@cf/google/embeddinggemma-300m",
+  "@cf/stabilityai/stable-diffusion-xl-base-1.0", "@cf/runwayml/stable-diffusion-v1-5-inpainting",
+  "@cf/bytedance/stable-diffusion-xl-lightning", "@cf/lykon/dreamshaper-8-lcm",
+]);
+
+/** Слаг отключён: пометка в реестре или список снятых моделей, на момент `now`. */
+export function isRetiredSlug(slug: string, now = Date.now()): boolean {
+  const model = MODEL_REGISTRY.find((m) => m.slug === slug);
+  if (model?.deprecatedAt) return isDeprecated(model, now);
+  return RETIRED_SLUGS.has(slug) && now >= Date.parse("2026-11-20T00:00:00Z");
 }
 
 /**
@@ -89,6 +107,7 @@ export const PROVIDER_ICONS: Record<string, string> = {
   Moondream: "/icons/moondream.svg",
   IBM: "/icons/ibm.svg",
   "Swiss AI": "/icons/swiss.svg",
+  "Thinking Machines": "/icons/thinkingmachines.svg",
 };
 
 export function providerIcon(provider: string): string | undefined {
@@ -259,6 +278,94 @@ export const MODEL_REGISTRY: ModelEntry[] = [
     contextWindow: 1_310_720,
     requiresGateway: false,
     source: "Документация Workers AI, сверено 2026-09-20. Требует Workers Paid.",
+  },
+  {
+    slug: "@cf/deepseek-ai/deepseek-v4.1-flash-1017",
+    provider: "DeepSeek",
+    tier: "frontier",
+    capabilities: ["text_generation", "tool_calling", "reasoning"],
+    requiresGateway: false,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. Требует Workers Paid, $0.30/$1.20 за 1M.",
+  },
+  {
+    slug: "@cf/thinkingmachines/inkling-2-small",
+    provider: "Thinking Machines",
+    tier: "balanced",
+    capabilities: ["text_generation"],
+    requiresGateway: false,
+    manualOnly: true,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. Требует Workers Paid, $0.30/$1.00 за 1M.",
+  },
+  {
+    slug: "@cf/meta/llama-3.2-11b-vision-instruct",
+    provider: "Meta",
+    tier: "fast",
+    capabilities: ["text_generation", "vision"],
+    requiresGateway: false,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. Доступна на Free, $0.0485/$0.676 за 1M.",
+  },
+  {
+    slug: "@cf/cloudflare/clairic",
+    provider: "Cloudflare",
+    tier: "balanced",
+    capabilities: ["text_generation"],
+    requiresGateway: false,
+    manualOnly: true,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. $0.10 вход до 1 декабря, затем $0.24.",
+  },
+  {
+    slug: "@cf/cloudflare/clairic-flash",
+    provider: "Cloudflare",
+    tier: "fast",
+    capabilities: ["text_generation"],
+    requiresGateway: false,
+    manualOnly: true,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. $0.10 вход.",
+  },
+  {
+    slug: "@cf/cloudflare/clef",
+    provider: "Cloudflare",
+    tier: "balanced",
+    capabilities: ["text_generation"],
+    requiresGateway: false,
+    manualOnly: true,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. $0.24 вход.",
+  },
+  {
+    slug: "@cf/cloudflare/clef-flash",
+    provider: "Cloudflare",
+    tier: "fast",
+    capabilities: ["text_generation"],
+    requiresGateway: false,
+    manualOnly: true,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. $0.038 вход.",
+  },
+  {
+    slug: "@cf/cloudflare/clef-omni",
+    provider: "Cloudflare",
+    tier: "balanced",
+    capabilities: ["text_generation"],
+    requiresGateway: false,
+    manualOnly: true,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. $0.15 вход.",
+  },
+  {
+    slug: "@cf/ibm-granite/granite-4.0-h-micro",
+    provider: "IBM",
+    tier: "fast",
+    capabilities: ["text_generation"],
+    requiresGateway: false,
+    manualOnly: true,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. Цена не указана.",
+  },
+  {
+    slug: "@cf/swiss-ai/apertus-v1.5-8b",
+    provider: "Swiss AI",
+    tier: "fast",
+    capabilities: ["text_generation", "multilingual"],
+    requiresGateway: false,
+    manualOnly: true,
+    source: "Бот Cloudflare 2026-11-20, не сверено с каталогом. Цены из его ответа. Цена не указана.",
   },
   {
     slug: "@cf/deepseek-ai/deepseek-v4-pro-0813",

@@ -20,6 +20,14 @@ export const FREE_MODEL_SLUGS = new Set([
   "@cf/openai/gpt-oss-20b",
   "@cf/google/gemma-4-26b-a4b-it",
   "@cf/baai/bge-m3",
+  "@cf/meta/llama-3.2-11b-vision-instruct",
+  "@cf/cloudflare/clairic",
+  "@cf/cloudflare/clairic-flash",
+  "@cf/cloudflare/clef",
+  "@cf/cloudflare/clef-flash",
+  "@cf/cloudflare/clef-omni",
+  "@cf/ibm-granite/granite-4.0-h-micro",
+  "@cf/swiss-ai/apertus-v1.5-8b",
 ]);
 
 // Картинки и расшифровка идут мимо чатового списка, но воркер их вызывает.
