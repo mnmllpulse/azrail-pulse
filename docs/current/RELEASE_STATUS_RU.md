@@ -16,7 +16,27 @@ Master-сценарий дошёл до последнего пункта #38: *
 
 RC54 сохраняет clean layout для active runtime, но возвращает **весь history/legacy контур в Full Archive ZIP**. `repo:exhaustive` проверяет current/history/legacy файлы и все декодируемые строки. GitHub `main` → Cloudflare остаётся **staging-only** auto-deploy после полного Node24 Verify. Production workflow disabled, Stage D порядок не меняется.
 
-## Состояние на 29 октября 2026
+## Состояние на 20 ноября 2026
+
+Статус выпуска: **CONDITIONAL** (`docs/current/PRODUCTION_READINESS.md`). Квитанция `VERIFIED_RELEASED` не записана. Версия в `package.json` — `1.5.0-rc.63`, изменения после неё идут PR в `main` без повышения версии (список — `docs/releases/CHANGELOG_1.5.0-rc.63.md`, раздел «После rc.63»).
+
+| Параметр | Значение |
+|---|---|
+| Рабочий сайт | воркер `azrail-pulse`, `AZRAIL_WORKERS_PLAN=paid`, потолок платных моделей 6000 нейронов в сутки |
+| Выкладка рабочего сайта | автоматически: Cloudflare Workers Builds после слияния PR в `main`; проверки GitHub эту сборку не блокируют |
+| Учебная копия | `azrail-pulse-staging`, Free, автодеплой GitHub Actions после зелёного Verify и проверка `/health/live` |
+| Репозиторий | закрытый `mnmllpulse/azrail-pulse`, PR сливает владелец (Squash and merge) |
+| Интерфейс | единый чат, студии не показаны в навигации (`docs/current/CHAT_RU.md`) |
+| Модели | Cloudflare (32 записи, 10 отключены 20.11.2026) и 15 бесплатных OpenRouter (`docs/current/MODELS_RU.md`) |
+| Миграции D1 | `002`–`038` |
+| Проверки в репозитории | 2072 теста, `quality:static` 59 из 59 |
+| Снимки облака и бэкапа | `verification/*.json`, гейт свежести 24 часа; обновляются отдельными PR |
+
+Что не подтверждено: нового exact-release Node24 receipt, свежего staging smoke 11 из 11 и квитанции production approval под текущие коммиты нет; ID deployment рабочего воркера здесь не фиксируется, актуальный смотреть в Cloudflare. Данные о ценах и отключении моделей взяты у помощника Cloudflare, независимо не сверены.
+
+Блоки «Состояние на 29 октября 2026» и RC-чекпоинты ниже сохраняются как история; при расхождении верна таблица выше.
+
+## Состояние на 29 октября 2026 (история)
 
 Статус выпуска: **CONDITIONAL**. Карточка: `docs/current/PRODUCTION_READINESS.md`. Выпуск привязан к рабочему сайту `azrail-pulse`. Репозиторий `mnmllpulse/azrail-pulse` закрытый, код на ветке `main`. Черновые адреса версий на рабочем сайте выключены, квитанция одобрения с этим совпадает. Карточка рабочего сайта держит статус CONDITIONAL. Квитанция `VERIFIED_RELEASED` на эту выкладку не пишется. Решением 6 ноября 2026 восемнадцать пунктов следующей карты сняты с `1.5.0-rc.63` и остаются версиями 1.5.1–2.0.
 

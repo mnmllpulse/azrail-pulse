@@ -1,6 +1,6 @@
 # START HERE — AZRAIL 1.5.0-rc.63
 
-Это чистый source-пакет для будущего репозитория. Production release здесь **не выполнен**.
+Это исходники опубликованного репозитория `mnmllpulse/azrail-pulse` (закрытый, ветка `main`). Состояние на 20 ноября 2026: рабочий воркер обновляется автоматически после слияния PR в `main`; строгий production release с квитанцией `VERIFIED_RELEASED` **не выполнен**, статус — CONDITIONAL.
 
 ## Читать в таком порядке
 
@@ -30,9 +30,14 @@ npm ci
 npm run node24:suite
 ```
 
-## Правило удалённых систем
+## Как выкладывается сейчас
 
-При подготовке ZIP GitHub, Cloudflare и Canva используются только read-only. В будущем опубликованном репозитории push в `main` может автоматически развернуть **только staging** после полного Verify и при наличии GitHub Environment secrets. Production остаётся отдельным fail-closed release и не автоматизируется этим workflow.
+- Слияние PR в `main` → GitHub Actions: полный Verify, затем автодеплой **staging** и проверка `/health/live`.
+- Рабочий воркер `azrail-pulse` собирает и выкладывает Cloudflare Workers Builds, подключённый к репозиторию. Проверки GitHub эту сборку не блокируют, поэтому PR сливают только после зелёных проверок.
+- Workflow `deploy.yml` для production отключён. Строгий контур `production:*` описан в runbooks, но ежедневно не используется.
+- Секреты хранятся только как секреты Worker; в чат и репозиторий их не присылают.
+
+Что устроено в продукте: `docs/current/CHAT_RU.md` (единый чат), `docs/current/MODELS_RU.md` (модели и OpenRouter), `docs/NEURON_BUDGET.md` (платные модели и нейроны), `docs/LOCAL_AGENT.md`.
 
 ## История
 
@@ -41,4 +46,4 @@ npm run node24:suite
 - `verification/history/rc/`
 - `references/legacy/`
 
-Текущий changelog: `docs/releases/CHANGELOG_1.5.0-rc.63.md`.
+Текущий changelog: `docs/releases/CHANGELOG_1.5.0-rc.63.md` (раздел «После rc.63» перечисляет изменения без повышения версии).

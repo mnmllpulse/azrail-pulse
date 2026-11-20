@@ -2,6 +2,8 @@
 
 AZRAIL PULSE is a Cloudflare-first multi-agent platform with project workspaces, studios, approval controls, durable event/recovery state, OIDC access, staging/production separation, and fail-closed release tooling.
 
+Состояние на 20 ноября 2026: репозиторий опубликован (закрытый `mnmllpulse/azrail-pulse`, ветка `main`), рабочий сайт — воркер `azrail-pulse`, учебная копия — `azrail-pulse-staging`. Подробности — в `docs/current/RELEASE_STATUS_RU.md`.
+
 This repository is the **full audited source archive**: active runtime plus non-runtime history/legacy material kept for traceability. Runtime/deploy packaging still excludes historical/reference material. Historical audits and old release evidence are no longer scattered across the root; current code, current operator documentation, verification contracts, and archived material are separated explicitly.
 
 ## Repository map
@@ -26,13 +28,22 @@ See [`docs/product/README.md`](docs/product/README.md) and [`docs/current/REPO_L
 
 ## Current product surface
 
-The current Unified UI exposes separate pages for Web, Image, Music, Video, Audio, Ableton, Data, Ledger and Pulse studios, plus Metatron Agent Operations Center and Settings / Connections. The globe has been removed. Projects, attachments, approval receipts, event replay, observability correlation, project ownership, connector health, workspace snapshots, budgets and release evidence are wired into the Worker architecture.
+Интерфейс — **один чат**. Фраза сама выбирает действие: ответ, картинка («нарисуй…»; «рисуй» без описания берёт прошлый промпт; правка приложенной картинки идёт в том же чате), страница, файл, схема, трек, раскадровка или команда локальному агенту. «Промпт этой картинки», «опиши фото» остаются разговором. Студии (Web, Image, Music, Video, Audio, Ableton, Data, Ledger, Pulse) и Metatron сохранены как внутренние модули и не показаны на главном экране; служебные экраны открываются переключателем «Эксперт».
+
+- Сайдбар: «Новый чат», «Поиск», «Проекты», «Архив», список чатов, меню аккаунта (ник вместо почты, фото профиля).
+- Поле ввода: вложения (скрепка, вставка, перетаскивание), микрофон, кнопка модели с уровнем усилий, отправка сразу без ожидания.
+- Меню моделей: каталог Cloudflare и отдельная группа OpenRouter; метки бесплатных, Workers Paid и сторонних. См. [`docs/current/MODELS_RU.md`](docs/current/MODELS_RU.md).
+- Ответы AZRAIL структурированы (заголовки `###`, списки, цитаты, разделители), рендерер — `ui/chat-markdown.ts`.
+- Настройки: единый Settings Center — аккаунт и профиль, внешний вид, управление и доступность, AI и модели, голос, провайдеры и API, подключения, локальный агент, безопасность и разрешения, данные и память, использование и лимиты, о системе и диагностика.
+- Остаток чата и генерации (200 / 500 в сутки) и остаток нейронов показываются в интерфейсе.
+
+Projects, attachments, approval receipts, event replay, observability correlation, project ownership, connector health, workspace snapshots, budgets and release evidence are wired into the Worker architecture. Подробный список изменений после rc.63 — в `docs/releases/CHANGELOG_1.5.0-rc.63.md`.
 
 The event stream now has a SHA-256 tamper-evident integrity sidecar (`event_integrity`) for newly written events. Forks are rejected by a unique predecessor constraint and writers retry against the new durable head.
 
 ## API surface and core modules
 
-Worker routes (`src/index.ts`): `/api/task`, `/api/upload`, `/api/uploads`, `/api/agents`, `/api/selftest`, `/api/models`, `/api/tools`, `/api/chat`, `/api/tts`, `/api/trial`, `/api/plan`, `/api/limits`, `/api/mission`, `/api/conversations`, `/api/polish`, `/api/stream`, `/api/bench`, `/api/admin`, `/api/metrics`, `/api/approvals`, `/api/backups`, `/api/me`, `/api/metatron` (plus the unified/studio routes under `src/unified/`). `/api/plan` turns a phrase into parts. `/api/limits` reads the daily chat and generation remainder without spending it.
+Worker routes (`src/index.ts`): `/api/task`, `/api/upload`, `/api/uploads`, `/api/agents`, `/api/selftest`, `/api/models`, `/api/tools`, `/api/chat`, `/api/tts`, `/api/trial`, `/api/plan`, `/api/limits`, `/api/mission`, `/api/conversations`, `/api/polish`, `/api/stream`, `/api/bench`, `/api/admin`, `/api/metrics`, `/api/approvals`, `/api/backups`, `/api/me`, `/api/metatron`, `/api/openrouter-status`, `/api/admin/openrouter-refresh`, `/health`, `/health/live` (plus the unified/studio routes under `src/unified/`, включая `/api/studio/budget` и `/api/studio/image`). `/health/live` отвечает JSON с версией сборки и используется проверкой staging. `/api/plan` turns a phrase into parts. `/api/limits` reads the daily chat and generation remainder without spending it.
 
 Core modules: `src/core/execution-engine.ts` (execution-engine: mission loop), `src/lib/tool-registry.ts` (tool-registry), `src/lib/workspace.ts` / `workspace-head.ts` (workspace), `src/lib/chat-store.ts` (chat-store), `src/lib/event-store.ts` (event-store). Request input contracts live in `src/shared/schemas.ts` (Zod).
 
@@ -55,12 +66,18 @@ The package includes `.nvmrc` and `.node-version` pinned to Node `24.18.0`.
 
 ## Release safety
 
-Future `main` pushes are wired to **automatic Cloudflare staging deployment only after the complete Verify job succeeds**. Production writes are not automatic.
+Как выкладывается сейчас:
 
-- `.github/workflows/staging-auto-deploy.yml` verifies under Node 24, then deploys only the `staging` environment;
+- Слияние PR в `main` запускает GitHub Actions: полный `check`/`verify` под Node 24, затем `deploy_staging` (`.github/workflows/staging-auto-deploy.yml`) и проверку `npm run staging:auto-health` (`/health/live`, версия сборки = `package.json`).
+- Рабочий воркер `azrail-pulse` обновляет **Cloudflare Workers Builds**: репозиторий подключён к Cloudflare, и после слияния в `main` воркер собирается и выкладывается сам (check «Workers Builds: azrail-pulse» на коммите). GitHub-workflow `deploy.yml` для production остаётся отключённым (`if: false`).
+- Проверки GitHub не блокируют сборку Cloudflare: красный Verify на `main` не останавливает выкладку. Поэтому PR сливается только после зелёных проверок.
+- Секреты (`OPENROUTER_API_KEY`, `OIDC_CLIENT_SECRET` и др.) хранятся только как секреты Worker и в чат/репозиторий не попадают.
+
+Строгий контур `production:*` (ниже) описан и проверяется скриптами, но им не пользуются для ежедневных выкладок; квитанция `VERIFIED_RELEASED` не записана, статус выпуска — **CONDITIONAL** (`docs/current/PRODUCTION_READINESS.md`).
+
 - generic `deploy`, direct schema writes and direct production deploy scripts are disabled;
 - staging migration/deploy, GitHub PR publication and production release each have separate fail-closed gates;
-- production deployment requires verified Node24 evidence, staging evidence, security evidence, backup/restore evidence, production approval, a reviewed/merged GitHub PR and fresh Cloudflare/GitHub leases;
+- the strict production release path requires verified Node24 evidence, staging evidence, security evidence, backup/restore evidence, production approval, a reviewed/merged GitHub PR and fresh Cloudflare/GitHub leases;
 - migration/release tooling requires backup-before-mutation;
 - production Time Travel restore is never automatic.
 
@@ -108,4 +125,4 @@ Historical changelogs, previous RC receipts, old audits and legacy source snapsh
 
 See [`docs/current/RELEASE_STATUS_RU.md`](docs/current/RELEASE_STATUS_RU.md) and [`docs/current/REPOSITORY_AUDIT_RU.md`](docs/current/REPOSITORY_AUDIT_RU.md).
 
-This RC is a **future-repository source package**, not a production release. GitHub/Cloudflare/Canva were only read during preparation; no remote mutation was performed. Once this source is actually published to GitHub and the `staging` GitHub Environment secrets are configured, a successful `main` CI run can deploy staging automatically.
+Версия в `package.json` — `1.5.0-rc.63`; изменения после неё перечислены в changelog без повышения версии. Проверки на 20 ноября 2026: 204 тестовых файла / 2072 теста, `quality:static` 59 из 59, миграции D1 `002`–`038`.

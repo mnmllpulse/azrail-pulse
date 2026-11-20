@@ -1,6 +1,6 @@
 # AZRAIL 1.5.0-rc.63 deployment gate
 
-> **Release candidate / local hardening only.** GitHub push, Cloudflare deployment and production migration remain locked until explicit human approval.
+> **Status as of 2026-11-20.** The repository is published; `main` merges auto-deploy staging (GitHub Actions) and the production Worker `azrail-pulse` (Cloudflare Workers Builds). The strict production release path (`production:*`) is documented but unused; `VERIFIED_RELEASED` is not recorded (CONDITIONAL). Direct `wrangler deploy`, `d1 execute` and remote migration apply still require explicit approval. See `DEPLOY_RU.md` (section «Фактический порядок выкладки»).
 
 Canonical sources:
 
