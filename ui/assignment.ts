@@ -30,6 +30,9 @@ const CREATE = new RegExp(
 const HOLD = new RegExp(NB + '(тест(?!ов(?:ый|ая|ое|ые|ого|ому|ым|ых|ую|ой))|покрыти|уязвимост|безопасн|секрет|аудит|деплой|задепло|выкат|коммит|ветк)', 'iu');
 const EXPLICIT = new RegExp(NB + '(созда(?:й|ть|йте)|сдела(?:й|ть|йте)|собери|собрать)\\s+(?:мне\\s+|нам\\s+)?(?:pdf|docx|xlsx|pptx|схем\\p{L}*|диаграмм\\p{L}*|график)' + NA, 'iu');
 const IMAGE = new RegExp(NB + '(картинк|постер|иллюстрац|обложк|изображен|логотип|нарисуй|изобрази)', 'iu');
+/** «Промпт этой картинки», «описание к фото»: картинка здесь предмет текста, а не заказ. */
+const TEXT_ABOUT_IMAGE = new RegExp(NB + '(промпт\\p{L}*|prompt|описани\\p{L}*|подпис\\p{L}*)\\s+(?:\\p{L}+\\s+){0,2}(?:картинк|изображен|фото|постер|рисунк|иллюстрац)', 'iu');
+const DRAW_VERB = new RegExp(NB + '(нарисуй|изобрази|сгенерируй)', 'iu');
 const MUSIC = new RegExp(NB + '(музык|песн|мелод|саундтрек|трек' + NA + '|бит' + NA + ')', 'iu');
 const VIDEO = new RegExp(NB + '(видео|раскадров|ролик' + NA + '|клип' + NA + ')', 'iu');
 const WEB = new RegExp(NB + '(сайт|лендинг|визитк|интерфейс|калькулятор|приложени)', 'iu');
@@ -123,6 +126,7 @@ export function skillsReply(text: string): string | null {
 export function readAssignment(text: string): Assignment {
   const source = (text ?? '').trim();
   if (!source || source.length > 4000) return TALK;
+  if (TEXT_ABOUT_IMAGE.test(source) && !DRAW_VERB.test(source)) return TALK;
   const asks = QUESTION.test(source) || source.endsWith('?') || CONDITIONAL.test(source);
   if (asks || !CREATE.test(source) || (HOLD.test(source) && !EXPLICIT.test(source))) return TALK;
 

@@ -2,6 +2,14 @@ import { describe, expect, it } from 'vitest';
 import { formatAssignment, readAssignment, skillsReply } from '../ui/assignment';
 
 describe('Поручение из чата', () => {
+  it('промпт или описание картинки — разговор, а не заказ картинки', () => {
+    for (const text of ['напиши мне промпт этой картинки', 'Напиши промпт для картинки', 'сделай описание к этому фото', 'дай prompt этого изображения']) {
+      expect(readAssignment(text).kind, text).toBe('talk');
+    }
+    expect(readAssignment('нарисуй картинку по этому промпту').kind).toBe('image');
+    expect(readAssignment('нарисуй закат и напиши промпт картинки').kind).toBe('image');
+  });
+
   it('вопрос остаётся разговором', () => {
     expect(readAssignment('Что такое картинка?').kind).toBe('talk');
     expect(readAssignment('Как сделать сайт для бюро').kind).toBe('talk');
