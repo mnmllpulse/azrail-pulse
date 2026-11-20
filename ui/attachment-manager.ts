@@ -28,7 +28,7 @@ function kind(file:File){const e=ext(file.name);if(['png','jpg','jpeg','webp','s
 
 export function createAttachmentManager(deps:Deps){
  const items:ManagedAttachment[]=[];
- const refs=()=>items.filter(i=>i.state==='ready'&&i.ref).map(i=>i.ref!) as AttachmentRef[];
+ const refs=()=>items.filter(i=>i.state==='ready'&&i.ref?.r2Key).map(i=>i.ref!) as AttachmentRef[];
  function notify(){deps.onChange?.(refs());}
  function revoke(item:ManagedAttachment){if(item.preview){URL.revokeObjectURL(item.preview);item.preview=undefined;}}
  function removeButton(item:ManagedAttachment){const remove=document.createElement('button');remove.type='button';remove.className='attachment-tile-remove';remove.append(iconElement('close',14));remove.title='Убрать';remove.setAttribute('aria-label',`Убрать ${item.file.name}`);remove.onclick=e=>{e.stopPropagation();const i=items.indexOf(item);if(i>=0){revoke(item);items.splice(i,1);}render();};return remove;}
@@ -74,10 +74,9 @@ export function createAttachmentManager(deps:Deps){
  function validate(file:File){const e=ext(file.name);if(e&&BLOCKED.has(e))throw Error(`${file.name}: программы (.exe, .bat, .cmd, .msi, .dll) прикрепить нельзя.`);if(file.size>MAX_BYTES)throw Error(`${file.name}: максимум 50 MB.`);}
  function isImage(file:File){return /^image\//i.test(file.type)||/\.(png|jpe?g|webp|gif)$/i.test(file.name);}
  async function upload(item:ManagedAttachment){
-  if(isImage(item.file)){
-   item.state='ready';item.progress=100;
-   item.ref={fileName:item.file.name,inputType:'image',size:item.file.size,mimeType:item.file.type||'image/png'};
-   render();
+  const local:AttachmentRef={fileName:item.file.name,inputType:'image',size:item.file.size,mimeType:item.file.type||'image/png'};
+  if(isImage(item.file)&&!deps.getProjectId()){
+   item.state='ready';item.progress=100;item.ref=local;render();
    return;
   }
   try{
@@ -87,7 +86,10 @@ export function createAttachmentManager(deps:Deps){
    const result=await deps.api('/api/upload',{method:'POST',body:form});item.progress=100;
    item.ref={r2Key:result.r2Key,fileName:result.fileName,inputType:result.inputType as InputType,size:result.size,mimeType:item.file.type||'application/octet-stream'};
    item.state='ready';render();
-  }catch(e){item.state='failed';item.error=e instanceof Error?e.message:String(e);render();}
+  }catch(e){
+   if(isImage(item.file)){item.state='ready';item.progress=100;item.ref=local;item.error=undefined;render();return;}
+   item.state='failed';item.error=e instanceof Error?e.message:String(e);render();
+  }
  }
  async function add(files:File[]){
   try{
