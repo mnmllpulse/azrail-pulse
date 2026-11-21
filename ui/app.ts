@@ -634,7 +634,7 @@ function currentModelLabel(){
 }
 function setAccountLabel(){
  const name=account?.name??'';
- $('account-label').textContent=name||'Войти';
+ $('account-label').textContent=name||'Войти';$('account').setAttribute('aria-label',name?'Аккаунт: '+name:'Войти');
  const avatar=$('account-avatar'),initial=(name.trim()[0]||'A').toUpperCase();
  avatar.replaceChildren();
  if(account?.picture){const img=document.createElement('img');img.alt='';img.referrerPolicy='no-referrer';img.src=account.picture;img.onerror=()=>{img.remove();avatar.textContent=initial;};avatar.append(img);}
