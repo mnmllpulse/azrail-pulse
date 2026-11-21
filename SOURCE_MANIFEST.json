@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T09:24:23.834Z",
+  "generated_at": "2026-11-21T16:00:37.395Z",
   "excludes_self": true,
   "file_count": 1322,
   "files": [
@@ -52,8 +52,8 @@
     },
     {
       "path": ".github/workflows/check.yml",
-      "bytes": 1093,
-      "sha256": "72f83501e9f89fde18bd9ba94f369c0bd02dcc5966abfc32671676dd7eee3614"
+      "bytes": 1088,
+      "sha256": "ca8cdf3dbb9008381f05151a9669fe54d84016d5758c8c568d4bc76bf823686c"
     },
     {
       "path": ".github/workflows/deploy.yml",
