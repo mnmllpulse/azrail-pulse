@@ -20,6 +20,10 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Свежий снимок облака (если задан секрет CLOUDFLARE_API_TOKEN)
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+        run: if [ -n "$CLOUDFLARE_API_TOKEN" ]; then npm run cloud:snapshot && npm run source:manifest; else echo "CLOUDFLARE_API_TOKEN не задан, используется снимок из репозитория"; fi
       - run: npm run dependency:audit
       - run: npm run source:manifest:check
       - run: npm run repo:exhaustive

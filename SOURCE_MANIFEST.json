@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T09:17:14.371Z",
+  "generated_at": "2026-11-21T09:24:23.834Z",
   "excludes_self": true,
   "file_count": 1322,
   "files": [
@@ -52,8 +52,8 @@
     },
     {
       "path": ".github/workflows/check.yml",
-      "bytes": 679,
-      "sha256": "f76717f13284cff76b94b10dbf2750ffd59802a8f4b86306b47574fc7953b9eb"
+      "bytes": 1093,
+      "sha256": "72f83501e9f89fde18bd9ba94f369c0bd02dcc5966abfc32671676dd7eee3614"
     },
     {
       "path": ".github/workflows/deploy.yml",
@@ -3017,8 +3017,8 @@
     },
     {
       "path": "scripts/cloudflare-readonly-snapshot.mjs",
-      "bytes": 10202,
-      "sha256": "a895fce82dc71c15d1cd66a81ccf42deb402bf28f5b25843f3ca04a7f1091981"
+      "bytes": 10470,
+      "sha256": "950cec4500e8f99209ba2823b419eb34b9d46f5fe7e5c58be90a92d5ab27eca9"
     },
     {
       "path": "scripts/code-hygiene.mjs",
