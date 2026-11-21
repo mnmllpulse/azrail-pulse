@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T04:15:41.771Z",
+  "generated_at": "2026-11-21T04:28:59.056Z",
   "excludes_self": true,
-  "file_count": 1321,
+  "file_count": 1322,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -5354,6 +5354,11 @@
       "path": "tests/router.test.ts",
       "bytes": 20956,
       "sha256": "24f2fa1265345cda12eb3c8bd138597144b859fb24feb0d8721de1bfc2c24876"
+    },
+    {
+      "path": "tests/routing-matrix.test.ts",
+      "bytes": 11131,
+      "sha256": "23750948ed92879ac05ea2774e46468471cee2abdc607978adacc33907eb60f4"
     },
     {
       "path": "tests/routing.test.ts",
