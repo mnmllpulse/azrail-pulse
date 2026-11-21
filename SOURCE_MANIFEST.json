@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T09:08:48.750Z",
+  "generated_at": "2026-11-21T09:17:14.371Z",
   "excludes_self": true,
   "file_count": 1322,
   "files": [
@@ -582,8 +582,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1447914,
-      "sha256": "49e066248923175fc533b0e154d657d69c968b785d91dfb5d3a690285fc2f302"
+      "bytes": 1448275,
+      "sha256": "9fc8a2b94dfc437bf23af4c37b03450ca844dfa7f5fd268816f16039030bc6f5"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3273,7 +3273,7 @@
     {
       "path": "site/app.html",
       "bytes": 25708,
-      "sha256": "0736c8d8628e6174367706fb450e141e190d1731fcfa44668ba9da01238aab6f"
+      "sha256": "9c2063ad074f1950bfaaf9308fd9b18ce92b5fbfbd3a5968d8ee227e34a1d3b3"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3282,8 +3282,8 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 177775,
-      "sha256": "aab90d64b1eed905d125b24e0691e9950024386c3a7607bd5ec75c9c7c8258a6"
+      "bytes": 178136,
+      "sha256": "3b1ae49a146c1cdb8ad24521a760c8355134d05a3fc1e157a20335ffa2036957"
     },
     {
       "path": "site/assets/app.js",
@@ -3568,7 +3568,7 @@
     {
       "path": "site/index.html",
       "bytes": 25708,
-      "sha256": "0736c8d8628e6174367706fb450e141e190d1731fcfa44668ba9da01238aab6f"
+      "sha256": "9c2063ad074f1950bfaaf9308fd9b18ce92b5fbfbd3a5968d8ee227e34a1d3b3"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5967,8 +5967,8 @@
     },
     {
       "path": "ui/premium-workspace.css",
-      "bytes": 27675,
-      "sha256": "7c19232dc7ff727f8b75b3523ace9db06cd4a73bcc2e597b2adf32d50a8d1ce3"
+      "bytes": 28103,
+      "sha256": "9d1e7c30c72ea178d19abd484e4e46a09c17c9c34191c76fe6ea413535d93714"
     },
     {
       "path": "ui/projects.ts",

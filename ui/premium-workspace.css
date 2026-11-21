@@ -1262,3 +1262,22 @@ body {
 .app-shell .chat-message .message-images,
 .app-shell .chat-message .message-attachments { margin: 0 0 10px; }
 .app-shell .chat-message .message-caption { margin: 0; }
+
+@media (pointer: coarse), (max-width: 760px) {
+  .app-shell .brand,
+  .app-shell .new-chat,
+  .app-shell .workspace-nav .nav,
+  .app-shell .sidebar-footer .nav,
+  .app-shell .shell-icon,
+  .app-shell .context-toggle,
+  .app-shell .composer .icon-button,
+  .app-shell .send-button,
+  .app-shell .composer-models-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .app-shell .composer textarea {
+    min-height: 44px;
+  }
+}
