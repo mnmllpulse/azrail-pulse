@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "azrail-pulse-unified-1.5.0-rc.63-sbom",
-  "documentNamespace": "https://azrail.local/sbom/1.5.0-rc.63/7ca7b7215446188ae62435bb5f8fd18ca9fb6628ae3ac482800b92737dd05f2d",
+  "documentNamespace": "https://azrail.local/sbom/1.5.0-rc.63/3d423a05eda75fd01ed35d97265fb06e8e50fc8cf66325d04c5af5791d8cd63e",
   "creationInfo": {
-    "created": "2026-11-13T11:10:33.708Z",
+    "created": "2026-11-21T16:11:56.103Z",
     "creators": [
       "Tool: AZRAIL build-sbom.mjs"
     ]
@@ -2677,6 +2677,22 @@
       ]
     },
     {
+      "SPDXID": "SPDXRef-Package-fda42dc6ccb0d681b5be5afd",
+      "name": "axe-core",
+      "versionInfo": "4.10.2",
+      "downloadLocation": "https://registry.npmjs.org/axe-core/-/axe-core-4.10.2.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/axe-core@4.10.2"
+        }
+      ]
+    },
+    {
       "SPDXID": "SPDXRef-Package-e1f8f7f24e7303e8a9afb030",
       "name": "blake3-wasm",
       "versionInfo": "2.1.5",
@@ -3601,6 +3617,38 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:npm/pkce-challenge@5.0.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-104e1ee57575afcb9e6ce40c",
+      "name": "playwright",
+      "versionInfo": "1.63.0",
+      "downloadLocation": "https://registry.npmjs.org/playwright/-/playwright-1.63.0.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/playwright@1.63.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-e708629117d99a29f8cebcd8",
+      "name": "playwright-core",
+      "versionInfo": "1.63.0",
+      "downloadLocation": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.63.0.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/playwright-core@1.63.0"
         }
       ]
     },
@@ -5495,6 +5543,11 @@
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-fda42dc6ccb0d681b5be5afd"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-e1f8f7f24e7303e8a9afb030"
     },
     {
@@ -5781,6 +5834,16 @@
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-560377ce6df233b2e39ef3d3"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-104e1ee57575afcb9e6ce40c"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-e708629117d99a29f8cebcd8"
     },
     {
       "spdxElementId": "SPDXRef-Root",

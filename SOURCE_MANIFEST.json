@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T16:00:37.395Z",
+  "generated_at": "2026-11-21T16:13:50.551Z",
   "excludes_self": true,
-  "file_count": 1322,
+  "file_count": 1323,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -52,8 +52,8 @@
     },
     {
       "path": ".github/workflows/check.yml",
-      "bytes": 1088,
-      "sha256": "ca8cdf3dbb9008381f05151a9669fe54d84016d5758c8c568d4bc76bf823686c"
+      "bytes": 1175,
+      "sha256": "7adf6f521c5eb5c06978186c6469b1bfc8751df8decd76cf3e1433691e5b7338"
     },
     {
       "path": ".github/workflows/deploy.yml",
@@ -117,8 +117,8 @@
     },
     {
       "path": "config/audit-exceptions.json",
-      "bytes": 601,
-      "sha256": "6ef7773f171950aa2bccb9b7b3dffe13801ad496c5dc6dddc0312104c518e562"
+      "bytes": 23,
+      "sha256": "584e697cce0eb005ea6f0037f5757f418c6cad912bcca8f486ed97c7cdfa7fe1"
     },
     {
       "path": "config/environments.json",
@@ -497,8 +497,8 @@
     },
     {
       "path": "docs/releases/CHANGELOG_1.5.0-rc.63.md",
-      "bytes": 4316,
-      "sha256": "210efe4a29b635c4a51c37aae981fb1633d138e4845f64b6d61660812a8bcfa7"
+      "bytes": 4689,
+      "sha256": "dc52217a8a6f429815e00958fb78aa17b713e991dc2f7730d6dd37ba92c2c79a"
     },
     {
       "path": "docs/runbooks/BACKUP_RESTORE_PROOF_RU.md",
@@ -772,13 +772,13 @@
     },
     {
       "path": "package-lock.json",
-      "bytes": 155011,
-      "sha256": "f97f5f29f6006aa6d61441a142a67b05e6011172841f9902a9626880e9762cd0"
+      "bytes": 156368,
+      "sha256": "4676bb5b01c18fdc3047a222274f8456ff04c641dfd02c201b30bc8f4222be09"
     },
     {
       "path": "package.json",
-      "bytes": 10755,
-      "sha256": "d4d921e5fd5f271472fd4fbb2b52f2ae8aee42d0fc5e44b80ca2c33bab73b801"
+      "bytes": 10876,
+      "sha256": "48dd52ac1e6970574ede669aa773771fed9e3de7f8fea7186ac11e534fa7319e"
     },
     {
       "path": "public/_headers",
@@ -3264,6 +3264,11 @@
       "path": "scripts/sync-version.mjs",
       "bytes": 1492,
       "sha256": "050b60f3af6c26e371474d59138e8fb335f846821e119574fd34ec747c8578ab"
+    },
+    {
+      "path": "scripts/ui-smoke.mjs",
+      "bytes": 4472,
+      "sha256": "2fbef0e05c8930173736452f63ee517f0bea33d5b1de1ccfe96967b7ff51c324"
     },
     {
       "path": "scripts/verify-release-package.mjs",
@@ -6547,8 +6552,8 @@
     },
     {
       "path": "verification/sbom.spdx.json",
-      "bytes": 213253,
-      "sha256": "fbc6f030d9bc1347eadc1fb1e4be3b13033cba59f2659e22b3dc2dde422be640"
+      "bytes": 215341,
+      "sha256": "e02ab352b275fca6f1a1bec4f0f32f3215865ab369b75fbadd36abd07d554486"
     },
     {
       "path": "verification/security-permission-matrix.json",

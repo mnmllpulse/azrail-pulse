@@ -1,10 +1,3 @@
 {
-  "exceptions": [
-    {
-      "id": "GHSA-fc5q-39xc-vjpf",
-      "package": "picomatch",
-      "expires": "2027-01-17",
-      "reason": "ReDoS в picomatch (CVE-2026-112366); исправленной версии нет, 4.0.7 последняя. Приходит из vitest, vite и agents→@rolldown/plugin-babel. В бандле Worker отсутствует (wrangler deploy --dry-run, поиск по picomatch: 0 совпадений); риск только в CI и сборке. Снять при выходе патча или пересмотреть до даты expires."
-    }
-  ]
+  "exceptions": []
 }

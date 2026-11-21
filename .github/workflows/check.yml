@@ -30,3 +30,5 @@ jobs:
       - run: npm run repo:hygiene
       - run: npm run quality:static
       - run: npm run node24:suite
+      - run: npx playwright install --with-deps chromium
+      - run: npm run ui:smoke
