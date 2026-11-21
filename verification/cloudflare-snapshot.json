@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-19T03:54:39.352Z",
+  "generated_at": "2026-11-21T04:05:20.382Z",
   "source": "Cloudflare API read-only GET. No Cloudflare write.",
   "mutation_free": true,
   "environments": {
@@ -288,6 +288,10 @@
             "name": "OIDC_ISSUER",
             "type": "plain_text",
             "text": "https://mnmll494.cloudflareaccess.com/cdn-cgi/access/sso/oidc/2f6b60f04afb1141453899b193e2620b3d65b8a7904e81e1450bc97e705c1912"
+          },
+          {
+            "name": "OPENROUTER_API_KEY",
+            "type": "secret_text"
           },
           {
             "name": "Orchestrator",
