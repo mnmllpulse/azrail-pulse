@@ -2,11 +2,14 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { join } from 'node:path';
 
-const wranglerBin = join('node_modules', 'wrangler', 'bin', 'wrangler.js');
-const whoami = spawnSync(process.execPath, [wranglerBin, 'whoami'], { encoding: 'utf8' });
-if (whoami.status !== 0) {
-  console.error('CLOUD SNAPSHOT FAIL: wrangler whoami did not pass. No snapshot was written.');
-  process.exit(2);
+const envToken = process.env.CLOUDFLARE_API_TOKEN?.trim() || '';
+if (!envToken) {
+  const wranglerBin = join('node_modules', 'wrangler', 'bin', 'wrangler.js');
+  const whoami = spawnSync(process.execPath, [wranglerBin, 'whoami'], { encoding: 'utf8' });
+  if (whoami.status !== 0) {
+    console.error('CLOUD SNAPSHOT FAIL: wrangler whoami did not pass. No snapshot was written.');
+    process.exit(2);
+  }
 }
 
 const account = 'bd152b38c981856eca68a275982f2070';
@@ -15,11 +18,19 @@ const workers = {
   production: 'azrail-pulse',
 };
 
-const tomlPath = join(process.env.APPDATA || '', 'xdg.config/.wrangler/config/default.toml');
-const toml = readFileSync(tomlPath, 'utf8');
-const token = (toml.match(/oauth_token\s*=\s*"([^"]+)"/) || [])[1];
+function wranglerOAuthToken() {
+  const tomlPath = join(process.env.APPDATA || '', 'xdg.config/.wrangler/config/default.toml');
+  let toml = '';
+  try {
+    toml = readFileSync(tomlPath, 'utf8');
+  } catch {
+    return undefined;
+  }
+  return (toml.match(/oauth_token\s*=\s*"([^"]+)"/) || [])[1];
+}
+const token = envToken || wranglerOAuthToken();
 if (!token) {
-  console.error('CLOUD SNAPSHOT FAIL: wrangler oauth token is missing. No request was sent.');
+  console.error('CLOUD SNAPSHOT FAIL: no API token (CLOUDFLARE_API_TOKEN) and no wrangler oauth token. No request was sent.');
   process.exit(2);
 }
 
