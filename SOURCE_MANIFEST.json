@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T23:04:42.728Z",
+  "generated_at": "2026-11-21T23:10:44.427Z",
   "excludes_self": true,
   "file_count": 1326,
   "files": [
@@ -5522,8 +5522,8 @@
     },
     {
       "path": "tests/ui-workflow.test.ts",
-      "bytes": 6990,
-      "sha256": "e02d2a5bbe0a1a0b62f44a03331912c86a31f7598eb170ce662f527da83075f1"
+      "bytes": 7014,
+      "sha256": "105049a286b23a0039d7b548ad777ffa222aba0d6b9c0683817448a1abd95b7d"
     },
     {
       "path": "tests/ultimate-ui.test.ts",
