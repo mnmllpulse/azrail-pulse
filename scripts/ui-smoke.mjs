@@ -27,6 +27,7 @@ const account = { id: 'smoke', name: 'Smoke' };
 const json = (route, body, status = 200) => route.fulfill({ status, contentType: 'application/json', body: JSON.stringify(body) });
 const sizes = [['desktop', 1440, 900], ['tablet', 820, 1180], ['phone', 390, 844]];
 const modes = [['guest', false], ['signed-in', true]];
+const sections = ['account', 'appearance', 'voice', 'models', 'providers', 'connections', 'permissions', 'agent', 'usage', 'data', 'shortcuts', 'about'];
 const failures = [];
 const browser = await chromium.launch();
 
@@ -69,6 +70,25 @@ for (const [mode, signedIn] of modes) {
       );
       for (const item of small) failures.push(`${label}: цель касания меньше 44px: ${item}`);
     }
+    if (signedIn && size !== 'tablet') {
+      for (const section of sections) {
+        await page.evaluate((name) => {
+          history.pushState(null, '', `/settings/${name}`);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }, section);
+        await page.waitForTimeout(350);
+        const empty = await page.evaluate(() => (document.querySelector('#settings-root')?.textContent || '').trim().length < 20);
+        if (empty) failures.push(`${label}/settings/${section}: раздел пустой`);
+        const sectionOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        if (sectionOverflow > 0) failures.push(`${label}/settings/${section}: горизонтальный скролл ${sectionOverflow}px`);
+        const sectionViolations = await page.evaluate(async () => {
+          const result = await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa'] });
+          return result.violations.map((v) => `${v.id}(${v.impact}) x${v.nodes.length}: ${v.nodes[0].target.join(' ').slice(0, 80)}`);
+        });
+        for (const violation of sectionViolations) failures.push(`${label}/settings/${section}: axe ${violation}`);
+      }
+      if (errors.length) failures.push(`${label}/settings: ошибки JS: ${[...new Set(errors)].join('; ')}`);
+    }
     await context.close();
   }
 }
@@ -80,4 +100,4 @@ if (failures.length) {
   for (const failure of failures) console.error(` - ${failure}`);
   process.exit(1);
 }
-console.log(`UI SMOKE PASS: ${modes.length * sizes.length} прогонов (гость и вход × 3 размера): без ошибок JS, переполнения, нарушений axe WCAG A/AA, цели касания ≥44px на телефоне.`);
+console.log(`UI SMOKE PASS: ${modes.length * sizes.length} прогонов (гость и вход × 3 размера) и ${sections.length} разделов настроек на десктопе и телефоне: без ошибок JS, переполнения, нарушений axe WCAG A/AA, цели касания ≥44px на телефоне.`);

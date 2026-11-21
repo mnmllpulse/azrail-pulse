@@ -704,7 +704,7 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
  if(section==='appearance'){
   settingsHeading(content,'Внешний вид','Предпочтения сохраняются только в этом браузере и применяются сразу после загрузки.');
   const prefs=readDisplayPrefs();
-  const field=(text:string,control:HTMLElement)=>{const label=document.createElement('label');label.textContent=text;return [label,control];};
+  const field=(text:string,control:HTMLElement)=>{const label=document.createElement('label');label.textContent=text;if(control.id)label.htmlFor=control.id;return [label,control];};
   const select=(id:string,options:ReadonlyArray<readonly [string,string]>,value:string)=>{const el=document.createElement('select');el.id=id;for(const [v,l] of options){const option=document.createElement('option');option.value=v;option.textContent=l;el.append(option);}el.value=value;return el;};
   const density=select('settings-density',[['comfortable','Комфортная'],['compact','Компактная'],['spacious','Свободная']],prefs.density);
   const textScale=select('settings-text-scale',[['normal','Обычный'],['large','Увеличенный (110%)']],prefs.textScale);
