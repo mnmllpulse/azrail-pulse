@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T22:48:25.250Z",
+  "generated_at": "2026-11-21T23:04:42.728Z",
   "excludes_self": true,
   "file_count": 1326,
   "files": [
@@ -277,8 +277,8 @@
     },
     {
       "path": "docs/current/QUALITY_RU.md",
-      "bytes": 3090,
-      "sha256": "d86cde8efffe69622d33d7ca5bb3c667054192655be94a75273792a5effc81e6"
+      "bytes": 3503,
+      "sha256": "2f01c2ab054edde304fc8fc380b0737c4d937b964cb3041f373fd89101b3104c"
     },
     {
       "path": "docs/current/README_RU.md",
