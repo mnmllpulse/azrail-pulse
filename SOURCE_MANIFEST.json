@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T23:02:57.320Z",
+  "generated_at": "2026-11-21T23:10:44.427Z",
   "excludes_self": true,
-  "file_count": 1325,
+  "file_count": 1326,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -276,9 +276,14 @@
       "sha256": "bdaa02377eefa9280ea1b16599d2e8e9c97a48374543aff3fd6c31d8ada351e9"
     },
     {
+      "path": "docs/current/QUALITY_RU.md",
+      "bytes": 3503,
+      "sha256": "2f01c2ab054edde304fc8fc380b0737c4d937b964cb3041f373fd89101b3104c"
+    },
+    {
       "path": "docs/current/README_RU.md",
-      "bytes": 4198,
-      "sha256": "3dd8d69cf3ec7f1d26a5d5f1eed8f54add170cec6870d990231c1521641dcc24"
+      "bytes": 4334,
+      "sha256": "0bb068a25d1a1d0366d185399af5b8fdf7c1ffd4d9060de7f7c00aeca6d59026"
     },
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
