@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T04:33:41.233Z",
+  "generated_at": "2026-11-21T04:42:20.113Z",
   "excludes_self": true,
   "file_count": 1322,
   "files": [
@@ -582,8 +582,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1447311,
-      "sha256": "9cbb591a0a4e78e04193ea8def124262ae13a467049ec88bd4fac0f70174fae2"
+      "bytes": 1448126,
+      "sha256": "eb4b3545bdb103d706a7f016e63a824366a03d7944f450e5385a92a8dee70ea5"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3273,7 +3273,7 @@
     {
       "path": "site/app.html",
       "bytes": 25684,
-      "sha256": "9d1c049cf4be70194ec010bb1470dffcd2fab45eb3f447e9c18653cd61f00f0a"
+      "sha256": "d45061d237f0cf767c3c7a9b22fb88a798ae703f456bb47c4d1ee0f2b00425fc"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3282,13 +3282,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 177775,
-      "sha256": "aab90d64b1eed905d125b24e0691e9950024386c3a7607bd5ec75c9c7c8258a6"
+      "bytes": 178136,
+      "sha256": "3b1ae49a146c1cdb8ad24521a760c8355134d05a3fc1e157a20335ffa2036957"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 514099,
-      "sha256": "63c5c209b9aa029a40344513904d0f21636b0f7ef8d022de3c29aec3ff5a0f44"
+      "bytes": 514553,
+      "sha256": "c09e0ad76e4d45fc7e4cbba7f58efea0bcf4d168dbd41ac064800e4eaba366a7"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3568,7 +3568,7 @@
     {
       "path": "site/index.html",
       "bytes": 25684,
-      "sha256": "9d1c049cf4be70194ec010bb1470dffcd2fab45eb3f447e9c18653cd61f00f0a"
+      "sha256": "d45061d237f0cf767c3c7a9b22fb88a798ae703f456bb47c4d1ee0f2b00425fc"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5967,8 +5967,8 @@
     },
     {
       "path": "ui/premium-workspace.css",
-      "bytes": 27675,
-      "sha256": "7c19232dc7ff727f8b75b3523ace9db06cd4a73bcc2e597b2adf32d50a8d1ce3"
+      "bytes": 28103,
+      "sha256": "9d1e7c30c72ea178d19abd484e4e46a09c17c9c34191c76fe6ea413535d93714"
     },
     {
       "path": "ui/projects.ts",
