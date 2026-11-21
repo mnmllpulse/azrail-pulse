@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T04:28:59.056Z",
+  "generated_at": "2026-11-21T04:33:41.233Z",
   "excludes_self": true,
   "file_count": 1322,
   "files": [
@@ -5357,8 +5357,8 @@
     },
     {
       "path": "tests/routing-matrix.test.ts",
-      "bytes": 11131,
-      "sha256": "23750948ed92879ac05ea2774e46468471cee2abdc607978adacc33907eb60f4"
+      "bytes": 10866,
+      "sha256": "b04168a00b6e7a4dd0d80172fedab3860c95877545d546fc2d38c1b529c12f86"
     },
     {
       "path": "tests/routing.test.ts",
@@ -5842,8 +5842,8 @@
     },
     {
       "path": "ui/draw-intent.ts",
-      "bytes": 1991,
-      "sha256": "56581dc81509f499ac6c1c4ede421bc6e073d7cac4a0d1874b3283d3810ae95f"
+      "bytes": 2445,
+      "sha256": "1d8db0ea826ced5ca79b286bb876a2b6a0667171b91c714e2d5d622ebd5be40f"
     },
     {
       "path": "ui/dry-speech.ts",
