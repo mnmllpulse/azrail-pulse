@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T06:40:25.794Z",
+  "generated_at": "2026-11-22T06:53:17.648Z",
   "excludes_self": true,
   "file_count": 1326,
   "files": [
@@ -587,8 +587,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1448514,
-      "sha256": "97bb714ddcf8ab9b2f796dec76c18d2ec49495035b2397ad83b96b08debff8ee"
+      "bytes": 1448593,
+      "sha256": "854348f2e1ce7d757f62144b4397c7ed7baeb8c3cae5090bb552e45343ddd58d"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "scripts/ui-smoke.mjs",
-      "bytes": 11061,
-      "sha256": "83b7718b66a7dac7de2ccf1029f3c3f51ebcb1a4d1cca1b059599306c86728fb"
+      "bytes": 12596,
+      "sha256": "a8da010fd5927e134eba756ee93e23c5d3d5c83c8b7bde2f4c55458ab754eb8c"
     },
     {
       "path": "scripts/verify-release-package.mjs",
@@ -3283,7 +3283,7 @@
     {
       "path": "site/app.html",
       "bytes": 25708,
-      "sha256": "c68a14b87e8dba0377c34e4421445e3643b4348f67f32b5b46259d2e7e66bd2e"
+      "sha256": "96788f8cd04c718730fde5f07374fdb184eba6c5310660e768e6f16a398d5a2a"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3298,7 +3298,7 @@
     {
       "path": "site/assets/app.js",
       "bytes": 515061,
-      "sha256": "7dd49b0749163d9ce8481e4e575e6c5ffaa76824fc677a092b2713f376a9a871"
+      "sha256": "7a63f2b332cc7a01ba878ab7a0106d739774225181708ebb287d2055daa9c8a3"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3476,9 +3476,9 @@
       "sha256": "b4d5996572e4c5aeae14ba1db0dcd45031831578db68cc0234025ae58e3bfea5"
     },
     {
-      "path": "site/assets/video-QOJN2CHJ.js",
-      "bytes": 39798,
-      "sha256": "d8561fe7ca4d9a9527960ad34b76d318f4e26561cef96633880e71b154ea68bf"
+      "path": "site/assets/video-KBWKYGNJ.js",
+      "bytes": 39877,
+      "sha256": "2b822188ba0e67a9a0692f21f42d5f3bfde32aceaf5b555f2613f59efe199b01"
     },
     {
       "path": "site/assets/web-LNICZTFX.js",
@@ -3578,7 +3578,7 @@
     {
       "path": "site/index.html",
       "bytes": 25708,
-      "sha256": "c68a14b87e8dba0377c34e4421445e3643b4348f67f32b5b46259d2e7e66bd2e"
+      "sha256": "96788f8cd04c718730fde5f07374fdb184eba6c5310660e768e6f16a398d5a2a"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -6142,8 +6142,8 @@
     },
     {
       "path": "ui/video-studio-2.ts",
-      "bytes": 51784,
-      "sha256": "e15dec4e72501da4ed802f54bc4ddb9a8d7f299848e6a07826d62bcfcd326351"
+      "bytes": 51863,
+      "sha256": "e402a1f82fbc3a049e8f632ce950b7ea734006e1f05147ca06519e3f0a4a9e43"
     },
     {
       "path": "ui/web-flow.ts",

@@ -28,6 +28,7 @@ const json = (route, body, status = 200) => route.fulfill({ status, contentType:
 const sizes = [['desktop', 1440, 900], ['tablet', 820, 1180], ['phone', 390, 844]];
 const modes = [['guest', false], ['signed-in', true]];
 const sections = ['account', 'appearance', 'voice', 'models', 'providers', 'connections', 'permissions', 'agent', 'usage', 'data', 'shortcuts', 'about'];
+const studioIds = ['web', 'image', 'music', 'video', 'lab', 'ledger', 'data', 'als', 'audio', 'prose'];
 const failures = [];
 const browser = await chromium.launch();
 
@@ -88,6 +89,24 @@ for (const [mode, signedIn] of modes) {
         for (const violation of sectionViolations) failures.push(`${label}/settings/${section}: axe ${violation}`);
       }
       if (errors.length) failures.push(`${label}/settings: ошибки JS: ${[...new Set(errors)].join('; ')}`);
+      for (const studio of ['', ...studioIds]) {
+        const where = `${label}/studios${studio ? `/${studio}` : ''}`;
+        await page.evaluate((name) => {
+          history.pushState(null, '', name ? `/studios/${name}` : '/studios');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        }, studio);
+        await page.waitForTimeout(350);
+        const visibleText = await page.evaluate(() => (document.querySelector('main')?.innerText || document.body.innerText || '').trim().length);
+        if (visibleText < 20) failures.push(`${where}: экран пустой`);
+        const studioOverflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+        if (studioOverflow > 0) failures.push(`${where}: горизонтальный скролл ${studioOverflow}px`);
+        const studioViolations = await page.evaluate(async () => {
+          const result = await axe.run(document, { runOnly: ['wcag2a', 'wcag2aa', 'wcag21aa'] });
+          return result.violations.map((v) => `${v.id}(${v.impact}) x${v.nodes.length}: ${v.nodes[0].target.join(' ').slice(0, 80)}`);
+        });
+        for (const violation of studioViolations) failures.push(`${where}: axe ${violation}`);
+      }
+      if (errors.length) failures.push(`${label}/studios: ошибки JS: ${[...new Set(errors)].join('; ')}`);
     }
     await context.close();
   }
@@ -160,4 +179,4 @@ if (failures.length) {
   for (const failure of failures) console.error(` - ${failure}`);
   process.exit(1);
 }
-console.log(`UI SMOKE PASS: ${modes.length * sizes.length} прогонов (гость и вход × 3 размера) и ${sections.length} разделов настроек на десктопе и телефоне: без ошибок JS, переполнения, нарушений axe WCAG A/AA, цели касания ≥44px на телефоне; ${chatScenarios.length} сценариев чата на десктопе и телефоне (чат, рисование, повтор, вложенная картинка).`);
+console.log(`UI SMOKE PASS: ${modes.length * sizes.length} прогонов (гость и вход × 3 размера) и ${sections.length} разделов настроек и ${studioIds.length + 1} экранов студий на десктопе и телефоне: без ошибок JS, переполнения, нарушений axe WCAG A/AA, цели касания ≥44px на телефоне; ${chatScenarios.length} сценариев чата на десктопе и телефоне (чат, рисование, повтор, вложенная картинка).`);
