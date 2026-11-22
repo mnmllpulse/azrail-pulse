@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T11:53:45.423Z",
+  "generated_at": "2026-11-22T12:35:26.852Z",
   "excludes_self": true,
-  "file_count": 1332,
+  "file_count": 1334,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -2757,8 +2757,8 @@
     },
     {
       "path": "scripts/check-approval-architecture.mjs",
-      "bytes": 3513,
-      "sha256": "a6eb54b375b3f939cdf297f0ca9ab2d003e11c598d81a31596535a96a95bcbe1"
+      "bytes": 3577,
+      "sha256": "37045effc22528cbda92b532d9cb54722d9b88197afcc163c9c46dab6455a82a"
     },
     {
       "path": "scripts/check-attachment-architecture.mjs",
@@ -2772,8 +2772,8 @@
     },
     {
       "path": "scripts/check-backup-restore-proof.mjs",
-      "bytes": 6568,
-      "sha256": "15e19ab69909ca29ad3ebf4c82951ab16be72da7fe1082eeaa2d666c4cc7bfa9"
+      "bytes": 6647,
+      "sha256": "0fb064e5e9ef4a3175c69097413d4680c133c821353756404321e19b0b113f2f"
     },
     {
       "path": "scripts/check-connections-architecture.mjs",
@@ -3187,8 +3187,8 @@
     },
     {
       "path": "scripts/release-preflight.mjs",
-      "bytes": 51603,
-      "sha256": "e8433095140182c5f1af7a3a276bd6b5e323284266b5a0509558bee2da669eb8"
+      "bytes": 51637,
+      "sha256": "ded89b811ae0fedb02c142fcd6607a07273f41bf8ed63f18e1539884954a98e4"
     },
     {
       "path": "scripts/security-check.mjs",
@@ -3792,8 +3792,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 101191,
-      "sha256": "d2293571b2e4300f7602b101930bdd2cdb5f201419b2d10b40406bf80fcd0e08"
+      "bytes": 98571,
+      "sha256": "43ec9792897ad0f94060c1b7c35e6bdef57858d317477c36f180cc61eff56c18"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4371,6 +4371,11 @@
       "sha256": "8c8c6eecbb46aa8d68df9017902ecb64f28b86a31dcb7ba56360d42310d7f93f"
     },
     {
+      "path": "src/routes/backups.ts",
+      "bytes": 3597,
+      "sha256": "cf73f2492e55cb3f60175cf9b5ad1d864810fe98870e82e1607b89974b6d55a5"
+    },
+    {
       "path": "src/routes/health.ts",
       "bytes": 1820,
       "sha256": "ba632840717821ff484bbefb65d531e0131d647d08cd00ed7cba3348750a2aeb"
@@ -4704,6 +4709,11 @@
       "path": "tests/avatar-upload-paste.test.ts",
       "bytes": 4168,
       "sha256": "a2d2a01f95a2d54e4db70f3827fdbc5e54e001233e88379b3981880e05826244"
+    },
+    {
+      "path": "tests/backups-route.test.ts",
+      "bytes": 838,
+      "sha256": "285ef0938f319a06aa886e740066d4c2dd71f0689923c7fb5b8f340c5f6ab19d"
     },
     {
       "path": "tests/bench.test.ts",
@@ -5357,8 +5367,8 @@
     },
     {
       "path": "tests/regressions.test.ts",
-      "bytes": 197113,
-      "sha256": "2a312fb45dd522bc481aff9c5ba320c8551934f973db74067a238f2878167281"
+      "bytes": 197138,
+      "sha256": "5daa2b8b8ea22397b847c9c23afd10f9cb2f4558e825f7b620469a011c3f6109"
     },
     {
       "path": "tests/replan.test.ts",

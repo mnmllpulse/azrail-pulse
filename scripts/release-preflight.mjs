@@ -400,7 +400,7 @@ const connectorGateway = readFileSync('src/unified/connectors.ts','utf8');
 if (!gitAgent.includes('actionType: "github_pr"') || !gitAgent.includes('actionType: "external_write"')) fail('Git writes/PR must stay approval-gated');
 if (!deployAgent.includes('actionType: "deployment"')) fail('deployment agent must stay approval-gated');
 if (!connectorGateway.includes("actionType:'connector_mutation'")) fail('connector mutation must stay approval-gated');
-if (!indexSource.includes('actionType:"restore"')) fail('backup restore must stay approval-gated');
+if (!readFileSync('src/routes/backups.ts', 'utf8').includes('actionType:"restore"')) fail('backup restore must stay approval-gated');
 if (!schema.includes('CREATE TABLE IF NOT EXISTS schema_migrations')) fail('schema.sql: schema_migrations missing');
 for (const marker of ['version TEXT PRIMARY KEY','filename TEXT NOT NULL UNIQUE','checksum TEXT NOT NULL','applied_at TEXT NOT NULL','applied_by TEXT NOT NULL','duration_ms INTEGER NOT NULL','status TEXT NOT NULL']) {
   if (!schema.includes(marker)) fail(`schema.sql: migration ledger missing ${marker}`);
