@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T06:26:35.902Z",
+  "generated_at": "2026-11-22T06:40:25.794Z",
   "excludes_self": true,
   "file_count": 1326,
   "files": [
@@ -62,8 +62,8 @@
     },
     {
       "path": ".github/workflows/staging-auto-deploy.yml",
-      "bytes": 1560,
-      "sha256": "c8c15b9c64167120f5299f3b2fb56dcf18e536e84773a7e3a37b531672504539"
+      "bytes": 1969,
+      "sha256": "ce52942e9c0eef5eb18851ba5ae68f5eeedd53d49184223e9bfa88b103285e92"
     },
     {
       "path": ".gitignore",
