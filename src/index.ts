@@ -1,13 +1,13 @@
 import { readModelPolicy, setModelPolicy, modelBlockReason, FREE_MODEL_SLUGS, ModelPolicyError } from "./lib/model-policy";
 import { parseInput, errorPayload } from "./lib/validation";
 import { BudgetError } from "./unified/ledger";
-import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema } from "./shared/schemas";
+import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema } from "./shared/schemas";
 import { readLiveCatalog } from "./lib/model-catalog";
 import { openRouterStatus, syncOpenRouter } from "./lib/openrouter-sync";
 import { withProjectLock } from "./lib/project-control";
 import { quarantineStaleRunningToolReceipts } from "./lib/checkpoints";
 import { dispatchOutbox } from "./lib/outbox";
-import { authenticate, authorizeRequest, createAccount, requireResource, activeAccount, anonymous, AccessError, type Principal } from "./lib/accounts";
+import { authenticate, authorizeRequest, requireResource, activeAccount, anonymous, AccessError, type Principal } from "./lib/accounts";
 import { getAgentByName } from "agents";
 import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
 import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, positiveLimit } from "./lib/quota";
@@ -66,6 +66,7 @@ import { healthReport } from "./routes/health";
 import { backupsRoute } from "./routes/backups";
 import { billingRoute } from "./routes/billing";
 import { approvalsRoute } from "./routes/approvals";
+import { accountsRoute } from "./routes/accounts";
 import { listTraceLinks, requestTrace, traceLog, type TraceContext } from "./lib/observability-context";
 import { projectRoute } from "./unified/projects";
 import { webWorkbenchRoute } from "./unified/web-workbench";
@@ -484,23 +485,9 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     }
     { const response=await webWorkbenchRoute(request,env,principal,trace); if(response) return new Response(response.body,{status:response.status,statusText:response.statusText,headers:getCors(env,response.headers)}); }
     { const response=await projectRoute(request,env,principal); if(response) return new Response(response.body,{status:response.status,statusText:response.statusText,headers:getCors(env,response.headers)}); }
-    if(url.pathname === "/api/admin/accounts" && request.method === "POST") {
-      const accountInput=parseInput(accountCreateSchema,parsedBody);
-      const account=await createAccount(env,accountInput.name,accountInput.role,accountInput.days);
-      return json({account},env,201);
-    }
-    if(url.pathname === "/api/admin/accounts" && request.method === "GET") {
-      return json({accounts:(await env.AZRAIL_D1.prepare("SELECT id,name,role,expires_at,disabled FROM access_accounts").all()).results},env);
-    }
-    if(url.pathname === "/api/admin/accounts/revoke" && request.method === "POST") {
-      await env.AZRAIL_D1.prepare("UPDATE access_accounts SET disabled=1 WHERE id=?").bind(parseInput(accountRevokeSchema,parsedBody).accountId).run();
-      return json({success:true},env);
-    }
-    if(url.pathname === "/api/admin/permissions" && request.method === "POST") {
-      const permission=parseInput(permissionSchema,parsedBody);
-      const project=permission.projectId,capability=permission.capability;
-      const sql=permission.enabled===true?"INSERT OR IGNORE INTO project_permissions(project_id,capability) VALUES(?,?)":"DELETE FROM project_permissions WHERE project_id=? AND capability=?";
-      await env.AZRAIL_D1.prepare(sql).bind(project,capability).run();return json({success:true},env);
+    {
+      const accounts = await accountsRoute(request, url, env, parsedBody);
+      if (accounts) return accounts;
     }
 
     /* Билет на подключение к потоку. Выдаётся по обычному токену в
