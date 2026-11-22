@@ -1,13 +1,12 @@
 import { readModelPolicy, setModelPolicy, modelBlockReason, FREE_MODEL_SLUGS, ModelPolicyError } from "./lib/model-policy";
 import { parseInput, queryObject, errorPayload } from "./lib/validation";
 import { BudgetError } from "./unified/ledger";
-import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, approvalListQuerySchema, approvalDecisionSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
+import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, approvalListQuerySchema, approvalDecisionSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema } from "./shared/schemas";
 import { readLiveCatalog } from "./lib/model-catalog";
 import { openRouterStatus, syncOpenRouter } from "./lib/openrouter-sync";
 import { withProjectLock } from "./lib/project-control";
 import { quarantineStaleRunningToolReceipts } from "./lib/checkpoints";
 import { dispatchOutbox } from "./lib/outbox";
-import { reconcileModelCall } from "./lib/billing";
 import { authenticate, authorizeRequest, createAccount, requireResource, activeAccount, anonymous, AccessError, type Principal } from "./lib/accounts";
 import { getAgentByName } from "agents";
 import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
@@ -65,6 +64,7 @@ import { previewRetention, parseRetentionPreviewRequest } from "./lib/retention-
 import { BUILD_VERSION } from "./build-info";
 import { healthReport } from "./routes/health";
 import { backupsRoute } from "./routes/backups";
+import { billingRoute } from "./routes/billing";
 import {
   decideApproval,
   getApproval,
@@ -451,33 +451,11 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         return json({error:error instanceof Error?error.message:String(error)},env,400);
       }
     }
-    if(url.pathname === "/api/admin/billing" && request.method === "GET") {
-      const limits=await env.AZRAIL_D1.prepare("SELECT * FROM spend_limits ORDER BY scope LIMIT 100").all();
-      const prices=await env.AZRAIL_D1.prepare("SELECT * FROM model_prices ORDER BY model LIMIT 200").all();
-      const unresolved=await env.AZRAIL_D1.prepare(`SELECT id,scope,model,status,started_at,finished_at,reserved_micro_usd,actual_micro_usd,error
-        FROM model_calls WHERE status IN ('uncertain','unpriced') ORDER BY started_at DESC LIMIT 100`).all();
-      return json({limits:limits.results,prices:prices.results,unresolved:unresolved.results,mode:env.AZRAIL_METERING??"off"},env);
+    {
+      const billing = await billingRoute(request, url, env, parsedBody);
+      if (billing) return billing;
     }
-    if(url.pathname === "/api/admin/billing" && request.method === "POST") {
-      parseInput(billingUpdateSchema,parsedBody);
-      if(parsedBody.reconcileCallId) {
-        try {
-          return json({reconciled:await reconcileModelCall(env,String(parsedBody.reconcileCallId),Number(parsedBody.actualMicroUsd),String(parsedBody.evidence??''))},env);
-        } catch(error) {
-          return json({error:error instanceof Error?error.message:String(error)},env,409);
-        }
-      }
-      if(parsedBody.model) {
-        const input=Number(parsedBody.inputRate),output=Number(parsedBody.outputRate);
-        if(!Number.isSafeInteger(input)||!Number.isSafeInteger(output)||input<0||output<0||input>1e12||output>1e12) return json({error:"Тарифы задаются в micro-USD за миллион токенов, от 0 до 1e12."},env,400);
-        await env.AZRAIL_D1.prepare("INSERT INTO model_prices VALUES(?,?,?,?) ON CONFLICT(model) DO UPDATE SET input_micro_usd_per_million=excluded.input_micro_usd_per_million,output_micro_usd_per_million=excluded.output_micro_usd_per_million,updated_at=excluded.updated_at").bind(String(parsedBody.model),input,output,Date.now()).run();
-      } else {
-        const usd=Number(parsedBody.usd),scope=String(parsedBody.scope??"global");
-        if(!Number.isFinite(usd)||usd<=0||usd>1000||scope.length>256)return json({error:"Допустимый бюджет: больше 0, до 1000 USD; область до 256 символов."},env,400);
-        await env.AZRAIL_D1.prepare("INSERT INTO spend_limits(scope,limit_micro_usd) VALUES(?,?) ON CONFLICT(scope) DO UPDATE SET limit_micro_usd=excluded.limit_micro_usd").bind(scope,Math.floor(usd*1e6)).run();
-      }
-      return json({success:true,mode:env.AZRAIL_METERING??"off"},env);
-    }
+
     if(url.pathname === "/api/admin/ownership" && request.method === "POST") {
       const {kind,resourceId:id,accountId:account}=parseInput(ownershipSchema,parsedBody);
       if(!await activeAccount(env,account))return json({error:"Неверный владелец или тип ресурса."},env,400);

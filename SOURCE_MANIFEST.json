@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T12:35:26.852Z",
+  "generated_at": "2026-11-22T12:48:00.972Z",
   "excludes_self": true,
-  "file_count": 1334,
+  "file_count": 1336,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3792,8 +3792,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 98571,
-      "sha256": "43ec9792897ad0f94060c1b7c35e6bdef57858d317477c36f180cc61eff56c18"
+      "bytes": 96191,
+      "sha256": "5dee8d7e1bf4bfb3c356169a21e109ce1420583095ee4f9506adcc9405c6f456"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4376,6 +4376,11 @@
       "sha256": "cf73f2492e55cb3f60175cf9b5ad1d864810fe98870e82e1607b89974b6d55a5"
     },
     {
+      "path": "src/routes/billing.ts",
+      "bytes": 3122,
+      "sha256": "53881dfaf03a980c955c3f2fe15b9f862ff127478215392d7cdfcdbe92e6704f"
+    },
+    {
       "path": "src/routes/health.ts",
       "bytes": 1820,
       "sha256": "ba632840717821ff484bbefb65d531e0131d647d08cd00ed7cba3348750a2aeb"
@@ -4719,6 +4724,11 @@
       "path": "tests/bench.test.ts",
       "bytes": 14036,
       "sha256": "21af7ec434f6a34ae85f93af5daccc4487c64651bb6c6d90c43dce2e8bc4deea"
+    },
+    {
+      "path": "tests/billing-route.test.ts",
+      "bytes": 2777,
+      "sha256": "a7961d5853502d05279ed295e525fc6ebc1833e58b887d06124672ac5a3a7cbc"
     },
     {
       "path": "tests/calc.test.ts",
