@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T13:27:16.301Z",
+  "generated_at": "2026-11-22T16:28:47.729Z",
   "excludes_self": true,
   "file_count": 1340,
   "files": [
@@ -587,8 +587,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1449215,
-      "sha256": "e947091b6e94d0b7d0829371130113a9e951e66b0ce338dfe53ebd438708ffce"
+      "bytes": 1450597,
+      "sha256": "172ee5cf5c7dd16d68edf9e9fe3a4f49651db66d21e91e3e2123a9e2392bb844"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "scripts/ui-smoke.mjs",
-      "bytes": 12596,
-      "sha256": "a8da010fd5927e134eba756ee93e23c5d3d5c83c8b7bde2f4c55458ab754eb8c"
+      "bytes": 13398,
+      "sha256": "94cc410428aa281e7e94f45b334c62c7b2be335add17b73cc6896424e848f2db"
     },
     {
       "path": "scripts/verify-release-package.mjs",
@@ -3283,7 +3283,7 @@
     {
       "path": "site/app.html",
       "bytes": 25708,
-      "sha256": "1949288a27e8392ef74dc16203292b4c812ccbfb4e8fa43c42dfe9eb21931c9b"
+      "sha256": "27bdbb024e7cdc3ffa1d8a0400db08ba942f07b023525e86e913551a2960dcfb"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3297,8 +3297,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 515683,
-      "sha256": "3d43cc40758513afb996113afc72e54af19352293bec33ba4a031d85bfe52859"
+      "bytes": 517065,
+      "sha256": "b833a7e4e7e953ba928d130f5868582bedafea420bcea14f443cd303e89e0d32"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3578,7 +3578,7 @@
     {
       "path": "site/index.html",
       "bytes": 25708,
-      "sha256": "1949288a27e8392ef74dc16203292b4c812ccbfb4e8fa43c42dfe9eb21931c9b"
+      "sha256": "27bdbb024e7cdc3ffa1d8a0400db08ba942f07b023525e86e913551a2960dcfb"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4937,8 +4937,8 @@
     },
     {
       "path": "tests/draw-intent.test.ts",
-      "bytes": 2576,
-      "sha256": "8ebd05674187e1eeb04c1b04395526df6582c9a9d4c230edbf02f672849817a5"
+      "bytes": 5706,
+      "sha256": "afddb7beb36f7cb69b63ba0738bde94c41101f4951e395fa21ff12992302c346"
     },
     {
       "path": "tests/effort-level.test.ts",
@@ -5927,8 +5927,8 @@
     },
     {
       "path": "ui/draw-intent.ts",
-      "bytes": 2445,
-      "sha256": "1d8db0ea826ced5ca79b286bb876a2b6a0667171b91c714e2d5d622ebd5be40f"
+      "bytes": 3896,
+      "sha256": "6db903a4a966bbaadc72f7e37bdbb4377c60413121c979ea93b6edf8e201df4a"
     },
     {
       "path": "ui/dry-speech.ts",

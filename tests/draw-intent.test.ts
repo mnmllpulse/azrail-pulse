@@ -57,3 +57,59 @@ describe("«рисуй» без описания и правка приложе�
     expect(contextPrompt(undefined)).toBe("");
   });
 });
+
+describe("рисуй в разговоре: реальные фразы из чатов", () => {
+  const previous =
+    "Череп на чёрном фоне, фронтальный ракурс, три четверти влево. Освещение жёсткое, один источник сверху-слева.";
+  const ctx = { hasImage: false, previous };
+
+  it("промпт и «рисуй» в конце одного сообщения рисуют сам промпт", () => {
+    const body =
+      "Череп на чёрном фоне, фронтальный ракурс.\nОсвещение жёсткое, один источник сверху-слева.\nФон абсолютно чёрный.";
+    const clean = body.replace(/\.$/, "");
+    expect(drawRequest(`${body}   рисуй`, none)).toEqual({ text: clean });
+    expect(drawRequest(`${body}. Нарисуй!`, none)).toEqual({ text: clean });
+  });
+
+  it("жалоба со ссылкой на промпт рисует прошлый промпт, а не жалобу", () => {
+    expect(
+      drawRequest(
+        "бля рисуй картику я дал тебе промпт ты шо тупой или куку рисуй",
+        ctx,
+      ),
+    ).toEqual({ text: previous });
+    expect(drawRequest("я же дал промпт, нарисуй его", ctx)).toEqual({
+      text: previous,
+    });
+  });
+
+  it("«это был промпт для картинки» и «мне надо картинка» рисуют прошлый промпт", () => {
+    expect(
+      drawRequest("мне надо картинка это был промпт для картинки", ctx),
+    ).toEqual({ text: previous });
+    expect(drawRequest("мне нужна картинка", ctx)).toEqual({ text: previous });
+  });
+
+  it("«тогда нарисуй» и «ладно рисуй» понимаются как просто «рисуй»", () => {
+    expect(drawRequest("тогда нарисуй", ctx)).toEqual({ text: previous });
+    expect(drawRequest("ладно, рисуй", ctx)).toEqual({ text: previous });
+  });
+
+  it("отрицание, вопрос и обычные заказы не перехватываются", () => {
+    expect(drawRequest("не рисуй пока, я дал промпт", ctx)).toBeNull();
+    expect(drawRequest("не надо рисовать, нарисуй потом", ctx)).toBeNull();
+    expect(drawRequest("ты можешь рисовать по промпту?", ctx)).toBeNull();
+    expect(drawRequest("мне нужна картинка заката над морем", ctx)).toBeNull();
+    expect(drawRequest("рисуй кота в шляпе", ctx)).toBeNull();
+    expect(drawRequest("я дал промпт, он плохой", ctx)).toBeNull();
+  });
+
+  it("жалоба без прошлого промпта ничего не рисует", () => {
+    expect(
+      drawRequest(
+        "бля рисуй картику я дал тебе промпт ты шо тупой или куку рисуй",
+        none,
+      ),
+    ).toBeNull();
+  });
+});
