@@ -22,7 +22,7 @@ RC54 сохраняет clean layout для active runtime, но возвращ�
 
 | Параметр | Значение |
 |---|---|
-| Рабочий сайт | воркер `azrail-pulse`, `AZRAIL_WORKERS_PLAN=paid`, потолок платных моделей 6000 нейронов в сутки |
+| Рабочий сайт | воркер `azrail-pulse`, `AZRAIL_WORKERS_PLAN=paid`, потолок платных моделей 9000 нейронов в сутки |
 | Выкладка рабочего сайта | автоматически: Cloudflare Workers Builds после слияния PR в `main`; проверки GitHub эту сборку не блокируют |
 | Учебная копия | `azrail-pulse-staging`, Free, автодеплой GitHub Actions после зелёного Verify и проверка `/health/live` |
 | Репозиторий | закрытый `mnmllpulse/azrail-pulse`, PR сливает владелец (Squash and merge) |

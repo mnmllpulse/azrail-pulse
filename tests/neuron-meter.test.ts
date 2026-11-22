@@ -130,7 +130,7 @@ describe("расчёт нейронов", () => {
     expect(upper).toBeGreaterThanOrEqual(neuronsFor(DEEPSEEK_FLASH, { promptTokens: 4000, completionTokens: 2500, totalTokens: 6500 }));
   });
   it("потолок: значение по умолчанию, разумное и некорректное", () => {
-    expect(dailyNeuronCap(undefined)).toBe(6000);
+    expect(dailyNeuronCap(undefined)).toBe(9000);
     expect(dailyNeuronCap("8000")).toBe(8000);
     expect(dailyNeuronCap("10001")).toBe(0);
     expect(dailyNeuronCap("abc")).toBe(0);

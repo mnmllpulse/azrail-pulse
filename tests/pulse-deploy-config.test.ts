@@ -15,7 +15,7 @@ describe('Git-connected azrail-pulse deployment', () => {
     expect(config.migrations.some((m: { new_sqlite_classes?: string[] }) => m.new_sqlite_classes?.includes('Sandbox'))).toBe(true);
     expect(config.vars.AZRAIL_WORKERS_PLAN).toBe('paid');
     expect(config.vars.AZRAIL_FORCE_FREE).toBe('false');
-    expect(config.vars.AZRAIL_DAILY_NEURONS).toBe('6000');
+    expect(config.vars.AZRAIL_DAILY_NEURONS).toBe('9000');
     expect(config.vars.AZRAIL_SWITCH_SANDBOX).toBe('on');
     expect(config.vars.AUTH_MODE).toBe('oidc');
     expect(config.vars.AZRAIL_TOKEN).toBeUndefined();
