@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T13:08:26.165Z",
+  "generated_at": "2026-11-22T13:27:16.301Z",
   "excludes_self": true,
-  "file_count": 1338,
+  "file_count": 1340,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3792,8 +3792,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 94547,
-      "sha256": "bf50b062d4a87552652d8af5e4542f965e8422432f87ef82d8dab30439f25bed"
+      "bytes": 93327,
+      "sha256": "e72118f386ba211443f93e37612b2951a1a02cf8f5eb7e1d9666442f717dcef8"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4371,6 +4371,11 @@
       "sha256": "8c8c6eecbb46aa8d68df9017902ecb64f28b86a31dcb7ba56360d42310d7f93f"
     },
     {
+      "path": "src/routes/accounts.ts",
+      "bytes": 1985,
+      "sha256": "6ab414f34bf8d4880955ec279c0d8a68ab46bba9df03a970c2533b5c6b7739aa"
+    },
+    {
       "path": "src/routes/approvals.ts",
       "bytes": 2462,
       "sha256": "2075dbbe4c85f7a14e6eccec3cbcf5067e1da7a275d922590a75c7cb09c3a5d5"
@@ -4569,6 +4574,11 @@
       "path": "tests/account-menu.test.ts",
       "bytes": 2873,
       "sha256": "9309a806af612a6cce4593c8cd12e3e016ae64b6490c398af397eacf78353afe"
+    },
+    {
+      "path": "tests/accounts-route.test.ts",
+      "bytes": 2519,
+      "sha256": "9cb51b0c448c7b3a5b2bc869165977e0faac025437012363500a635988e3982f"
     },
     {
       "path": "tests/admission-release.test.ts",
@@ -5387,8 +5397,8 @@
     },
     {
       "path": "tests/regressions.test.ts",
-      "bytes": 197190,
-      "sha256": "696b56214ade332b056fcfe22453624165bb42371c90ddd95574ab050ba4ed3d"
+      "bytes": 197319,
+      "sha256": "f382fb9e40d72f1c8d9b89476ecbeb938660aa827e8a8972002f32140612a78f"
     },
     {
       "path": "tests/replan.test.ts",

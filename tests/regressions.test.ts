@@ -1695,7 +1695,7 @@ describe("Документы не обещают несуществующего"
   // содержал SHA-256 давно устаревшего архива — по такому документу
   // проверка целостности показала бы, что зип испорчен. И в папке лежал
   // временный файл verify-extract-tmp.mjs, который уехал бы в репозиторий.
-  const idx = ["src/index.ts", "src/routes/backups.ts", "src/routes/approvals.ts", "src/routes/billing.ts", "src/unified/studios.ts", "src/unified/connectors.ts"].map(src).join("\n");
+  const idx = ["src/index.ts", "src/routes/backups.ts", "src/routes/approvals.ts", "src/routes/billing.ts", "src/routes/accounts.ts", "src/unified/studios.ts", "src/unified/connectors.ts"].map(src).join("\n");
   const docs = ["README.md", "DEPLOY.md", "docs/product/AZRAIL_PRODUCT_SPEC_v0.5.md"];
 
   it("каждый упомянутый /api/* существует в коде", () => {
@@ -2367,7 +2367,7 @@ describe("Данные не копятся впустую", () => {
   // инструментов, вердикты проверок и заблокированные запросы. Это ровно
   // те данные, которых не хватало для трассировки прогона — и они уже
   // собирались.
-  const files = ["src/index.ts", "src/agents/orchestrator.ts", "src/core/execution-engine.ts", "src/lib/billing.ts", "src/lib/event-store.ts", "src/lib/chat-store.ts", "src/lib/memory-agent.ts", "src/lib/versions.ts", "src/lib/ledger-studio.ts"];
+  const files = ["src/index.ts", "src/routes/accounts.ts", "src/routes/approvals.ts", "src/routes/backups.ts", "src/routes/billing.ts", "src/agents/orchestrator.ts", "src/core/execution-engine.ts", "src/lib/billing.ts", "src/lib/event-store.ts", "src/lib/chat-store.ts", "src/lib/memory-agent.ts", "src/lib/versions.ts", "src/lib/ledger-studio.ts"];
   const all = files.map((f) => src(f)).join("\n");
 
   it("у каждой таблицы, в которую пишут, есть чтение", () => {
