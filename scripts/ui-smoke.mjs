@@ -102,6 +102,9 @@ const chatScenarios = [
   { name: 'просьба написать промпт не рисует', send: ['напиши промпт для картинки закат'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
   { name: 'нарисуй кота идёт в рисование', send: ['нарисуй кота'], expect: [['POST', '/api/studio/image', 'кот']], forbid: [] },
   { name: 'нарисуй ещё повторяет прошлый запрос', send: ['нарисуй красного дракона', 'нарисуй ещё'], expect: [['POST', '/api/studio/image', 'дракон'], ['POST', '/api/studio/image', 'дракон']], forbid: [] },
+  { name: 'с картинкой: опиши картинку идёт в чат с вложением', attach: true, send: ['опиши картинку'], expect: [['POST', '/api/chat', 'smoke-upload.png']], forbid: ['/api/studio/image'] },
+  { name: 'с картинкой: промпт этой картинки идёт в чат, а не в рисование', attach: true, send: ['напиши промпт этой картинки'], expect: [['POST', '/api/chat', 'smoke-upload.png']], forbid: ['/api/studio/image'] },
+  { name: 'с картинкой: убери фон идёт в правку картинки', attach: true, send: ['убери фон'], expect: [['POST', '/api/studio/image']], forbid: ['/api/chat'] },
 ];
 for (const [size, width, height] of [sizes[0], sizes[2]]) {
   for (const scenario of chatScenarios) {
@@ -119,11 +122,17 @@ for (const [size, width, height] of [sizes[0], sizes[2]]) {
       if (path === '/api/me') return json(route, { account: ownerAccount });
       if (path === '/api/chat' && request.method() === 'POST') return json(route, { success: true, result: { status: 'completed', summary: 'Ответ-заглушка' } });
       if (path === '/api/studio/image') return json(route, { items: [{ name: 'smoke.png', url: tinyPng, seed: 1 }] });
+      if (path === '/api/studio/artifacts' && request.method() === 'POST') return json(route, { id: 'smoke-artifact' });
+      if (path === '/api/upload') return json(route, { r2Key: 'smoke-upload.png', fileName: 'smoke.png', inputType: 'image', size: 70 });
       if (path.includes('model-catalog')) return json(route, { models: [], items: [] });
       return json(route, { items: [], ok: true });
     });
     await page.goto(`${base}/app.html`, { waitUntil: 'load' });
     await page.waitForTimeout(1000);
+    if (scenario.attach) {
+      await page.setInputFiles('#attachments', { name: 'smoke.png', mimeType: 'image/png', buffer: Buffer.from(tinyPng.split(',')[1], 'base64') });
+      await page.waitForTimeout(800);
+    }
     for (const text of scenario.send) {
       const before = calls.length;
       await page.fill('#prompt', text);
@@ -151,4 +160,4 @@ if (failures.length) {
   for (const failure of failures) console.error(` - ${failure}`);
   process.exit(1);
 }
-console.log(`UI SMOKE PASS: ${modes.length * sizes.length} прогонов (гость и вход × 3 размера) и ${sections.length} разделов настроек на десктопе и телефоне: без ошибок JS, переполнения, нарушений axe WCAG A/AA, цели касания ≥44px на телефоне; ${chatScenarios.length} сценариев чата на десктопе и телефоне (чат, рисование, повтор).`);
+console.log(`UI SMOKE PASS: ${modes.length * sizes.length} прогонов (гость и вход × 3 размера) и ${sections.length} разделов настроек на десктопе и телефоне: без ошибок JS, переполнения, нарушений axe WCAG A/AA, цели касания ≥44px на телефоне; ${chatScenarios.length} сценариев чата на десктопе и телефоне (чат, рисование, повтор, вложенная картинка).`);

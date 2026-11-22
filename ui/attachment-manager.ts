@@ -75,14 +75,10 @@ export function createAttachmentManager(deps:Deps){
  function isImage(file:File){return /^image\//i.test(file.type)||/\.(png|jpe?g|webp|gif)$/i.test(file.name);}
  async function upload(item:ManagedAttachment){
   const local:AttachmentRef={fileName:item.file.name,inputType:'image',size:item.file.size,mimeType:item.file.type||'image/png'};
-  if(isImage(item.file)&&!deps.getProjectId()){
-   item.state='ready';item.progress=100;item.ref=local;render();
-   return;
-  }
   try{
    item.state='uploading';item.progress=15;item.error=undefined;render();
-   const projectId=deps.getProjectId();if(!projectId)throw Error('Сначала выберите или создайте проект.');
-   const form=new FormData();form.set('file',item.file);form.set('projectId',projectId);item.progress=45;render();
+   const projectId=deps.getProjectId();
+   const form=new FormData();form.set('file',item.file);if(projectId)form.set('projectId',projectId);item.progress=45;render();
    const result=await deps.api('/api/upload',{method:'POST',body:form});item.progress=100;
    item.ref={r2Key:result.r2Key,fileName:result.fileName,inputType:result.inputType as InputType,size:result.size,mimeType:item.file.type||'application/octet-stream'};
    item.state='ready';render();

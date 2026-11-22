@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T23:19:45.695Z",
+  "generated_at": "2026-11-22T06:26:35.902Z",
   "excludes_self": true,
   "file_count": 1326,
   "files": [
@@ -277,8 +277,8 @@
     },
     {
       "path": "docs/current/QUALITY_RU.md",
-      "bytes": 3723,
-      "sha256": "03b99df5f77c40ab43b57d977d561c7b1697b9caa6d1fed7da511c552d08f3a5"
+      "bytes": 4007,
+      "sha256": "befe5a5fe4db12515b48c9ac592b5ed8f6f0afd8100115e40646dbb57009ffc3"
     },
     {
       "path": "docs/current/README_RU.md",
@@ -587,8 +587,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1448817,
-      "sha256": "7777c59172a65844d63c0a931e855484522914056a5a500307eff47923a96c97"
+      "bytes": 1448514,
+      "sha256": "97bb714ddcf8ab9b2f796dec76c18d2ec49495035b2397ad83b96b08debff8ee"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "scripts/ui-smoke.mjs",
-      "bytes": 9809,
-      "sha256": "a0cd10203a45b7c3bb322e48cbddbef08a567b348beef2255747324d413ce01d"
+      "bytes": 11061,
+      "sha256": "83b7718b66a7dac7de2ccf1029f3c3f51ebcb1a4d1cca1b059599306c86728fb"
     },
     {
       "path": "scripts/verify-release-package.mjs",
@@ -3283,7 +3283,7 @@
     {
       "path": "site/app.html",
       "bytes": 25708,
-      "sha256": "43fdf7a30bf84a2ed6988cd061669409bbb4c135385d93c81c40402ef7f8d3d7"
+      "sha256": "c68a14b87e8dba0377c34e4421445e3643b4348f67f32b5b46259d2e7e66bd2e"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3297,8 +3297,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 515364,
-      "sha256": "f413d0da888ca05134c0862ed11e2cde1844867c393ac1fdfcd334bb16c4fdb6"
+      "bytes": 515061,
+      "sha256": "7dd49b0749163d9ce8481e4e575e6c5ffaa76824fc677a092b2713f376a9a871"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3578,7 +3578,7 @@
     {
       "path": "site/index.html",
       "bytes": 25708,
-      "sha256": "43fdf7a30bf84a2ed6988cd061669409bbb4c135385d93c81c40402ef7f8d3d7"
+      "sha256": "c68a14b87e8dba0377c34e4421445e3643b4348f67f32b5b46259d2e7e66bd2e"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4962,8 +4962,8 @@
     },
     {
       "path": "tests/image-attachment-upload.test.ts",
-      "bytes": 1173,
-      "sha256": "45ed3a0f731dda14732f2f3388997effe267f2176bbf37f7dd5d413c79a26ba5"
+      "bytes": 1249,
+      "sha256": "ab3ed521cc44c6ef2fa03557f1347d2a89d4586e9a04107743a03cd117887ea5"
     },
     {
       "path": "tests/image-request.test.ts",
@@ -5667,8 +5667,8 @@
     },
     {
       "path": "ui/attachment-manager.ts",
-      "bytes": 8587,
-      "sha256": "20bcf3ba55e3acfe5d238c61a5016c4b6831f0a9c584183e5df660a674275550"
+      "bytes": 8373,
+      "sha256": "7f9592fd7e6b1373e54234710d39cb57d93f1ba1fe1c5e8a062f274175f6a44b"
     },
     {
       "path": "ui/attachment-upload.ts",
