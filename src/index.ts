@@ -1,10 +1,9 @@
 import { readModelPolicy, setModelPolicy, modelBlockReason, FREE_MODEL_SLUGS, ModelPolicyError } from "./lib/model-policy";
 import { parseInput, queryObject, errorPayload } from "./lib/validation";
 import { BudgetError } from "./unified/ledger";
-import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, approvalListQuerySchema, approvalDecisionSchema, backupCreateSchema, backupQuerySchema, backupDeleteQuerySchema, backupRestoreSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
+import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, approvalListQuerySchema, approvalDecisionSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema, billingUpdateSchema } from "./shared/schemas";
 import { readLiveCatalog } from "./lib/model-catalog";
 import { openRouterStatus, syncOpenRouter } from "./lib/openrouter-sync";
-import { backupProject, deleteBackup, restoreBackup } from "./lib/backups";
 import { withProjectLock } from "./lib/project-control";
 import { quarantineStaleRunningToolReceipts } from "./lib/checkpoints";
 import { dispatchOutbox } from "./lib/outbox";
@@ -65,17 +64,14 @@ import { previewR2GarbageCollection, parseR2GcRequest } from "./lib/r2-gc";
 import { previewRetention, parseRetentionPreviewRequest } from "./lib/retention-preview";
 import { BUILD_VERSION } from "./build-info";
 import { healthReport } from "./routes/health";
+import { backupsRoute } from "./routes/backups";
 import {
-  approvalDigest,
-  claimApproval,
-  completeApproval,
   decideApproval,
   getApproval,
   listApprovals,
-  requestApproval,
 } from "./lib/approval-engine";
 import type { ApprovalStatus } from "./lib/approval-types";
-import { childTrace, listTraceLinks, requestTrace, traceLog, type TraceContext } from "./lib/observability-context";
+import { listTraceLinks, requestTrace, traceLog, type TraceContext } from "./lib/observability-context";
 import { projectRoute } from "./unified/projects";
 import { webWorkbenchRoute } from "./unified/web-workbench";
 import { publishedSiteResponse } from "./lib/web-sites";
@@ -526,38 +522,9 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       return json({approval},env);
     }
 
-    if(url.pathname === "/api/backups" && request.method === "POST") {
-      const project=parseInput(backupCreateSchema,parsedBody).projectId;
-      return json(await backupProject(env,project),env,201);
-    }
-    if(url.pathname === "/api/backups" && request.method === "GET") {
-      const project=parseInput(backupQuerySchema,queryObject(url)).projectId;
-      return json({backups:(await env.AZRAIL_D1.prepare("SELECT id,created_at,file_count FROM backup_manifests WHERE project_id=? ORDER BY created_at DESC LIMIT 50").bind(project).all()).results},env);
-    }
-    if(url.pathname === "/api/backups" && request.method === "DELETE") {
-      const {projectId:project,backupId}=parseInput(backupDeleteQuerySchema,queryObject(url));
-      return json(await deleteBackup(env,project,backupId),env);
-    }
-    if(url.pathname === "/api/backups/restore" && request.method === "POST") {
-      const restoreInput=parseInput(backupRestoreSchema,parsedBody);
-      const project=restoreInput.projectId,target=restoreInput.targetProjectId,backupId=restoreInput.backupId;
-      const payloadDigest=await approvalDigest({projectId:project,targetProjectId:target,backupId});
-      const scopeId=`${project}:${backupId}:${target}`;
-      const approvalId=restoreInput.approvalId??"";
-      if(!approvalId){
-        const approval=await requestApproval(env,{accountId:principal.id,projectId:project,actionType:"restore",risk:"critical",scopeType:"backup_restore",scopeId,payloadDigest,summary:`Восстановить backup ${backupId} проекта ${project} в новый проект ${target}`,requestedBy:`account:${principal.id}`,trace});
-        return json({error:"Нужно отдельное подтверждение восстановления.",approvalRequired:true,approval},env,409);
-      }
-      await claimApproval(env,{id:approvalId,actionType:"restore",scopeType:"backup_restore",scopeId,payloadDigest,actor:`restore:${principal.id}`});
-      try {
-        await requireResource(env,principal,"project",target,true);
-        const restored=await restoreBackup(env,project,backupId,target,childTrace(trace,{approvalId}));
-        await completeApproval(env,{id:approvalId,actor:`restore:${principal.id}`,outcome:"executed",detail:{restored:restored.restored,target}});
-        return json(restored,env);
-      } catch(error) {
-        await completeApproval(env,{id:approvalId,actor:`restore:${principal.id}`,outcome:"failed",detail:{error:error instanceof Error?error.message:String(error)}}).catch(()=>{});
-        throw error;
-      }
+    {
+      const backups = await backupsRoute(request, url, env, principal, parsedBody, trace);
+      if (backups) return backups;
     }
 
     if(url.pathname === "/api/me" && request.method === "GET") return json({account:principal},env);
