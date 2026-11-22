@@ -1,3 +1,4 @@
+import { fixDrawVerbs } from "./typo";
 import type { StudioId } from "./studio-types";
 
 /** Куда чат отдаёт фразу. talk остаётся разговором. */
@@ -223,7 +224,7 @@ export function skillsReply(text: string): string | null {
 
 /** Фраза → поручение. Вопрос остаётся разговором. Спорные слова (деплой, тесты, аудит) тоже. */
 export function readAssignment(text: string): Assignment {
-  const source = (text ?? "").trim();
+  const source = fixDrawVerbs((text ?? "").trim());
   if (!source || source.length > 4000) return TALK;
   if (TEXT_ABOUT_IMAGE.test(source) && !DRAW_VERB.test(source)) return TALK;
   if (NOT_ASKED.test(source)) return TALK;
