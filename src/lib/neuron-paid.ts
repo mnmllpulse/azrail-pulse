@@ -30,7 +30,7 @@ export const NEURON_RATES: Readonly<Record<string, { input: number; output: numb
   [INKLING_SMALL]: { input: 27_273, output: 90_909 },
 };
 
-export const DEFAULT_DAILY_NEURONS = 6000;
+export const DEFAULT_DAILY_NEURONS = 9000;
 
 export class NeuronBudgetError extends Error {
   constructor() {

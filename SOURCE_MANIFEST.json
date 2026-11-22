@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T21:40:10.334Z",
+  "generated_at": "2026-11-22T21:53:39.829Z",
   "excludes_self": true,
   "file_count": 1344,
   "files": [
@@ -138,7 +138,7 @@
     {
       "path": "docs/NEURON_BUDGET.md",
       "bytes": 3764,
-      "sha256": "705f63c386b04e873aeab0abb7bab12020b300e1094b29ca002bd0e3f51b5bc7"
+      "sha256": "f81fe942ef7fd37e405950635b8d7b483ad6477c4e5667e7b15725735ae2e060"
     },
     {
       "path": "docs/README.md",
@@ -223,7 +223,7 @@
     {
       "path": "docs/current/MODELS_RU.md",
       "bytes": 6376,
-      "sha256": "edc5bce279821b44d85b315565718f4dc799b01fddadb34b9ccc9da5bc176df0"
+      "sha256": "636e682bcf83c6a5bb1208cdde3d62bbcea961aca46d7c3b7b7d0dedf2a873c9"
     },
     {
       "path": "docs/current/MUSIC_STUDIO_RU.md",
@@ -288,7 +288,7 @@
     {
       "path": "docs/current/RELEASE_STATUS_RU.md",
       "bytes": 22889,
-      "sha256": "d8b199f0871b254c590dd1de8dbbb4bff72ade6b6dc0148c2ed594c6140f7f3c"
+      "sha256": "acde88f47d0d0b897eefbb44a652caf94187a9597ed126d4d6bd0ff39ca64ca6"
     },
     {
       "path": "docs/current/REPOSITORY_AUDIT_RU.md",
@@ -4113,7 +4113,7 @@
     {
       "path": "src/lib/neuron-paid.ts",
       "bytes": 4544,
-      "sha256": "83519ca0cd15b1591601ea70382c69d4d84ef85bda7aa3022c8e786c0c9f2464"
+      "sha256": "01a946f68bae1b2e8662134b767b4a85c624016c8d6228aef5320877cb8c9702"
     },
     {
       "path": "src/lib/observability-context.ts",
@@ -5223,7 +5223,7 @@
     {
       "path": "tests/neuron-meter.test.ts",
       "bytes": 8319,
-      "sha256": "9ed9fa2e6686ce59b4b27f712ff70cc88052b1f64d05870c2834943ce0b2262f"
+      "sha256": "f55967753fa7be81208110bd02b72242cf3daa13c7b857d796ff3501b9138807"
     },
     {
       "path": "tests/nickname.test.ts",
@@ -5328,7 +5328,7 @@
     {
       "path": "tests/pulse-deploy-config.test.ts",
       "bytes": 1928,
-      "sha256": "73ae1e733d62f599d27b14b2159018b72d02b7dd3d02aac99a6a4953061cc816"
+      "sha256": "56a87cc08f36d29ac59909adb1022c8bfa2309b5e48e3eeee98dd05d18be83a9"
     },
     {
       "path": "tests/pulse-lab.test.ts",
@@ -6713,7 +6713,7 @@
     {
       "path": "wrangler.jsonc",
       "bytes": 2201,
-      "sha256": "b326e87ff7799eb5a0b4f484074f2cd41126459409e08bf0027d61b9c9430f50"
+      "sha256": "a680348f662c2ce5b4d16898bc8367daadc9750ddb85e3739cc52bef45bcce66"
     },
     {
       "path": "wrangler.production.json",
