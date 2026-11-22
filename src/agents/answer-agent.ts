@@ -1,3 +1,4 @@
+import { unavailableReason } from "../lib/model-failure";
 import { answerStyle } from "../lib/answer-style";
 import { withBillingScope, projectBillingScope } from "../lib/billing-context";
 import { Agent } from "agents";
@@ -271,7 +272,7 @@ export class AnswerAgent extends Agent<Env, AnswerAgentState> {
           ? "Файл длиннее окна модели. Серый держит 24 тысячи токенов, архив с запасом ответа за них вышел."
           : /не уложилась|timeout/i.test(raw)
             ? "Модель не успела ответить за 55 секунд. Запрос с большим файлом тяжёлый: сузь вопрос или прикрепи часть файлов."
-            : "Модель недоступна.",
+            : unavailableReason(raw),
         error: raw,
       };
     }

@@ -107,3 +107,19 @@ export async function cleanupSecurityState(env: Env): Promise<void> {
     env.AZRAIL_D1.prepare("UPDATE model_calls SET status='uncertain',finished_at=?,error='no result recorded' WHERE status='running' AND started_at < ?").bind(now, now - 15 * 60_000),
   ]);
 }
+
+/** Суточный потолок нейронов платных моделей (только то, что считает сам Azrail). null — цифра сейчас неизвестна. */
+export async function readNeuronBudget(env: Env) {
+  const scope = `neurons:${new Date().toISOString().slice(0, 10)}`;
+  try {
+    const row = await env.AZRAIL_D1.prepare(
+      "SELECT committed_units, limit_units FROM resource_budgets WHERE scope = ? AND unit = 'neuron'",
+    ).bind(scope).first<{ committed_units: number; limit_units: number }>();
+    if (!row) return null;
+    const used = Number(row.committed_units ?? 0);
+    const limit = Number(row.limit_units ?? 0);
+    return { used, limit, left: Math.max(0, limit - used) };
+  } catch {
+    return null;
+  }
+}
