@@ -1,6 +1,7 @@
 import {renderMission} from './mission-view';
 import {createSettingsPage} from './settings-page';
 import {APIError} from './api-error';
+import {chatRequestBody,chatReplyOf,chatFailureOf} from './chat-send';
 import {hydrateIcons} from './icons';
 import {createAccountMenu} from './account-menu';
 import {mountWorkspaceShell} from './components/workspace-shell';
@@ -1605,17 +1606,15 @@ async function runChat(){
  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft(prompt.value);workspace.resizePrompt();
  syncChatUI();workspace.toLatest();
  try{
-  const body=JSON.stringify({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:sentRefs,...(preferredModel?{preferredModel}:{}),...(modelMenu.effort()!=='medium'?{effort:modelMenu.effort()}:{})});
+  const body=chatRequestBody({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:sentRefs,preferredModel:preferredModel||undefined,effort:modelMenu.effort()});
   const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':requestKey},body});
-  const reply=String(r.result?.summary||r.result?.error||r.error||'Пустой ответ.');
-  const status=r.result?.status==='failed'||r.success===false?'failed':'completed';
+  const {reply,status}=chatReplyOf(r);
   chatHistory.report(requestKey,reply,status);
   syncChatUI();workspace.toLatest();
   void syncServerChats();
  }
  catch(e){
-  const daily=e instanceof APIError&&(e.code==='chat_daily_limit'||e.code==='provider_daily_limit'||/лимит/i.test(e.message));
-  const text=daily?(e instanceof Error&&e.message?e.message:'Лимит моделей на сегодня. Попробуйте позже.'):e instanceof Error?e.message:'Не удалось получить ответ.';
+  const {daily,text}=chatFailureOf(e);
   chatHistory.report(requestKey,text,'failed');
   syncChatUI();workspace.toLatest();
   if(daily)notice(text,true);
