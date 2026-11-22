@@ -8,8 +8,9 @@ describe("картинка во вложении чата", () => {
   it("в запрос уходят только вложения с ключом хранилища", () => {
     expect(manager).toContain("i.state==='ready'&&i.ref?.r2Key");
   });
-  it("картинка грузится в хранилище, если есть проект, а при сбое остаётся локальной", () => {
-    expect(manager).toContain("isImage(item.file)&&!deps.getProjectId()");
+  it("картинка грузится в хранилище и без проекта, а при сбое остаётся локальной", () => {
+    expect(manager).not.toContain("isImage(item.file)&&!deps.getProjectId()");
+    expect(manager).toContain("if(projectId)form.set('projectId',projectId)");
     expect(manager).toContain("if(isImage(item.file)){item.state='ready'");
   });
   it("сервер по-прежнему отклоняет вложение без r2Key", () => {
