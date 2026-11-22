@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T12:23:35.241Z",
+  "generated_at": "2026-11-22T12:31:22.060Z",
   "excludes_self": true,
   "file_count": 1334,
   "files": [
@@ -3187,8 +3187,8 @@
     },
     {
       "path": "scripts/release-preflight.mjs",
-      "bytes": 51603,
-      "sha256": "e8433095140182c5f1af7a3a276bd6b5e323284266b5a0509558bee2da669eb8"
+      "bytes": 51637,
+      "sha256": "ded89b811ae0fedb02c142fcd6607a07273f41bf8ed63f18e1539884954a98e4"
     },
     {
       "path": "scripts/security-check.mjs",
