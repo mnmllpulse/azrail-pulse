@@ -82,10 +82,17 @@ async function githubNote(env: Env, owner: string, repo: string): Promise<string
 }
 
 /** Короткий факт для модели: связи, публичный README и источники поиска. */
+const ASKS_LINKS = /(?<![\p{L}])(?:подключ\p{L}*|связ[ьи]\p{L}*|доступ\p{L}*|токен\p{L}*|github|гитхаб\p{L}*|push|пуш\p{L}*|деплой\p{L}*|выкладк\p{L}*|figma|фигм\p{L}*|canva|канв\p{L}*|gmail|гмейл\p{L}*|google\s*drive|гугл\s*драйв|песочниц\p{L}*|озвучк\p{L}*|расписани\p{L}*|браузер\p{L}*|интеграци\p{L}*|заглушк\p{L}*|что\s+(?:ты\s+)?(?:умеешь|можешь)|что\s+(?:ещ[её]\s+)?не\s+работает)(?![\p{L}])/iu;
+
+/** Блок «состояние связей» нужен только на вопрос о подключениях: иначе слабая модель пересказывает его на любую фразу. */
+export function wantsLinkStatus(message: string): boolean {
+  return ASKS_LINKS.test(message);
+}
+
 export async function chatSupplements(env: Env, message: string): Promise<string> {
-  const parts = [linkStatus(env)];
+  const parts = wantsLinkStatus(message) ? [linkStatus(env)] : [];
   const repo = GITHUB.exec(message);
   if (repo && !SKIP_OWNER.has(repo[1].toLowerCase())) parts.push(await githubNote(env, repo[1], repo[2].replace(/\.git$/, "")));
   if (RESEARCH.test(message)) parts.push(await researchNote(message));
-  return `\n\n${parts.join("\n\n")}`;
+  return parts.length ? `\n\n${parts.join("\n\n")}` : "";
 }

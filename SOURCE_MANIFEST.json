@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T17:10:23.984Z",
+  "generated_at": "2026-11-22T21:27:08.381Z",
   "excludes_self": true,
-  "file_count": 1342,
+  "file_count": 1343,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "scripts/ui-smoke.mjs",
-      "bytes": 13603,
-      "sha256": "f0ff39a99ad42f33a1e35b384dfd3cea0611a2b7e57a0f5a8248cee6e457b0d4"
+      "bytes": 13884,
+      "sha256": "f43c083384faae82faef8e4f1378bd0cdab3b78b9f207eaafd87203c1a71fb70"
     },
     {
       "path": "scripts/verify-release-package.mjs",
@@ -3822,8 +3822,8 @@
     },
     {
       "path": "src/lib/answer-style.ts",
-      "bytes": 3492,
-      "sha256": "8d4e821a93a81208dd98abca529a13a441b7dbcec4d683a04fd33e4589f7eaa7"
+      "bytes": 3756,
+      "sha256": "528a2f6a13ee9af9ba011fb6344e96859f613515ca8360b62f04b332d0a35f43"
     },
     {
       "path": "src/lib/api-contract.ts",
@@ -3897,8 +3897,8 @@
     },
     {
       "path": "src/lib/chat-context.ts",
-      "bytes": 5005,
-      "sha256": "942b547921f21386b46d4ab819385467ed88dd06fee084a0e578f2a966eb5b95"
+      "bytes": 5929,
+      "sha256": "1c03c31b3e233aeb6c495cac662296858ef6f4e0d7c2e8c4a86880b8ebf5c5c8"
     },
     {
       "path": "src/lib/chat-store.ts",
@@ -4791,6 +4791,11 @@
       "sha256": "0990570f037e6c3e2663e234574d8b57e5e556649067dd91626dcac26f6e7f45"
     },
     {
+      "path": "tests/chat-link-status.test.ts",
+      "bytes": 1423,
+      "sha256": "2a54f0e487b70ad426435f501fd70d5c1d67d7e85ad9eb66c000b88677c072a9"
+    },
+    {
       "path": "tests/chat-local-commands.test.ts",
       "bytes": 3214,
       "sha256": "70bb09939d048a5e2869ef45bfdda1933a4ffdd59870d045757658306f711586"
@@ -5437,8 +5442,8 @@
     },
     {
       "path": "tests/routing-matrix.test.ts",
-      "bytes": 10866,
-      "sha256": "b04168a00b6e7a4dd0d80172fedab3860c95877545d546fc2d38c1b529c12f86"
+      "bytes": 12563,
+      "sha256": "eed189f7a417a3d483a85589d8dae5642ddffcfac314df66e1b78e94c70b1c5e"
     },
     {
       "path": "tests/routing.test.ts",
@@ -5727,8 +5732,8 @@
     },
     {
       "path": "ui/assignment.ts",
-      "bytes": 13156,
-      "sha256": "1ca4070b46b7cade8e5c4c2cecf94e5b1b82448c5cffbcfe6031c3ae01795b0a"
+      "bytes": 16322,
+      "sha256": "131f930f7d9f3c5962f742c6e9eb80b261f551d58d04d2af7bb65f8e52b7f05f"
     },
     {
       "path": "ui/attachment-chip.ts",

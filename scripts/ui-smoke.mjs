@@ -116,6 +116,7 @@ for (const [mode, signedIn] of modes) {
 const tinyPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
 const ownerAccount = { ...account, operator: true, role: 'admin' };
 const chatScenarios = [
+  { name: 'сказка на пять страниц идёт в чат, а не в студию сайта', send: ['напиши сказку на пять страниц по 2000 знаков'], expect: [['POST', '/api/chat', 'сказку']], forbid: ['/api/studio/image'] },
   { name: 'приветствие идёт в чат', send: ['привет'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
   { name: 'вопрос идёт в чат', send: ['объясни DNS'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
   { name: 'просьба написать промпт не рисует', send: ['напиши промпт для картинки закат'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
