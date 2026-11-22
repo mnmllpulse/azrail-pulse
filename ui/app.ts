@@ -1,6 +1,7 @@
 import {renderMission} from './mission-view';
 import {createSettingsPage} from './settings-page';
 import {APIError} from './api-error';
+import {localCommandOf,blockedReply} from './chat-local-commands';
 import {chatRequestBody,chatReplyOf,chatFailureOf} from './chat-send';
 import {hydrateIcons} from './icons';
 import {createAccountMenu} from './account-menu';
@@ -1498,8 +1499,9 @@ async function runChat(){
  const only=openOnlyPath(message);
  if(only&&opened){noteLocal(message,`Открыл ${opened}.`);return;}
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
- if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?архив[.!?]?$/iu.test(message)){await saveFromScreen('zip',message);return;}
- if(/^скачай(?:те)?\s+(?:этот\s+|текущий\s+)?файл[.!?]?$/iu.test(message)){await saveFromScreen('file',message);return;}
+ const local=localCommandOf(message);
+ if(local==='save-zip'){await saveFromScreen('zip',message);return;}
+ if(local==='save-file'){await saveFromScreen('file',message);return;}
  if(await chatCommands(message))return;
  const studioKind=studioIntent(message,attachmentManager.files());
  if(studioKind){
@@ -1532,7 +1534,7 @@ async function runChat(){
    return;
   }
  }
- if(/^верни\s+файл[.!?]?$/iu.test(message)){
+ if(local==='restore-file'){
   const field=document.querySelector<HTMLTextAreaElement>('#home-code');
   const back=restoreFileShot(activePath(),field?.value??'');
   if(!back){noteLocal(message,'Прошлой правки файла на экране нет.');return;}
@@ -1540,15 +1542,14 @@ async function runChat(){
   noteLocal(message,`На экране снова ${back.path}.`);
   return;
  }
- if(/^(?:запусти|выполни|прогони)\s+тесты[.!?]?$/iu.test(message)){
+ if(local==='run-tests'){
   try{
    const r=await api('/api/trial/sandbox',{method:'POST',body:JSON.stringify({projectId:project||''})}) as {note?:string;output?:string};
    noteLocal(message,String(r.note||r.output||'Готово.'));
   }catch(e){noteLocal(message,e instanceof Error?e.message:'Команды в контейнере выключены.');}
   return;
  }
- if(/^(?:запусти|выполни|прогони)\s+(?:npm|сборку|сервер|dev|команд\p{L}*)[.!?]?$/iu.test(message)){noteLocal(message,'Произвольные команды закрыты пробным лимитом. В настройках можно включить только прогон тестов, не больше 3 раз.');return;}
- if(/^(?:выложи|задеплой|сделай\s+push|отправь\s+в\s+github)[.!?]?$/iu.test(message)){noteLocal(message,'Выкладка из чата закрыта. Пробный лимит на неё — ноль, токен GitHub её не запускает.');return;}
+ if(local==='blocked-commands'||local==='blocked-deploy'){noteLocal(message,blockedReply[local]);return;}
  const skills=skillsReply(message);
  if(wantsPageRestore(message)){
   const restored=takeBackPage(heldPlan);
