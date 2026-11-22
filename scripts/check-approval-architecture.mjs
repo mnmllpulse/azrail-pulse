@@ -28,7 +28,8 @@ for(const marker of ['approvalDigest','payload_digest','claimApproval','complete
   if(!engine.includes(marker)) fail(`engine invariant missing: ${marker}`);
 }
 if(!engine.includes("status='approved'") || !engine.includes("payload_digest=?")) fail('claim must be single-use and payload-bound');
-if(!index.includes('/api/approvals') || !index.includes('/decision')) fail('approval API routes missing');
+const approvalRoutes=readFileSync('src/routes/approvals.ts','utf8');
+if(!approvalRoutes.includes('/api/approvals') || !approvalRoutes.includes('/decision')) fail('approval API routes missing');
 const backups=readFileSync('src/routes/backups.ts','utf8');
 if(!backups.includes('actionType:"restore"') || !backups.includes('claimApproval(env,{id:approvalId')) fail('backup restore is not approval-gated');
 if(!connectors.includes("actionType:'connector_mutation'") || !connectors.includes('decideApproval') || !connectors.includes('claimApproval')) fail('connector mutations are not unified-approval gated');

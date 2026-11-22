@@ -1,7 +1,7 @@
 import { readModelPolicy, setModelPolicy, modelBlockReason, FREE_MODEL_SLUGS, ModelPolicyError } from "./lib/model-policy";
-import { parseInput, queryObject, errorPayload } from "./lib/validation";
+import { parseInput, errorPayload } from "./lib/validation";
 import { BudgetError } from "./unified/ledger";
-import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, approvalListQuerySchema, approvalDecisionSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema } from "./shared/schemas";
+import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, accountCreateSchema, accountRevokeSchema, permissionSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema } from "./shared/schemas";
 import { readLiveCatalog } from "./lib/model-catalog";
 import { openRouterStatus, syncOpenRouter } from "./lib/openrouter-sync";
 import { withProjectLock } from "./lib/project-control";
@@ -65,12 +65,7 @@ import { BUILD_VERSION } from "./build-info";
 import { healthReport } from "./routes/health";
 import { backupsRoute } from "./routes/backups";
 import { billingRoute } from "./routes/billing";
-import {
-  decideApproval,
-  getApproval,
-  listApprovals,
-} from "./lib/approval-engine";
-import type { ApprovalStatus } from "./lib/approval-types";
+import { approvalsRoute } from "./routes/approvals";
 import { listTraceLinks, requestTrace, traceLog, type TraceContext } from "./lib/observability-context";
 import { projectRoute } from "./unified/projects";
 import { webWorkbenchRoute } from "./unified/web-workbench";
@@ -469,35 +464,9 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       const calls=await env.AZRAIL_D1.prepare("SELECT COUNT(*) AS calls,SUM(prompt_tokens) AS input_tokens,SUM(completion_tokens) AS output_tokens,SUM(actual_micro_usd) AS measured_micro_usd,SUM(CASE WHEN actual_micro_usd IS NULL THEN 1 ELSE 0 END) AS unknown_cost_calls,AVG(finished_at-started_at) AS mean_ms FROM model_calls WHERE scope=? OR scope IN (SELECT 'mission:'||id FROM missions WHERE project_id=?)").bind(`project:${project}`,project).first();
       return json({missions:missions.results,models:calls,metering:env.AZRAIL_METERING??"off"},env);
     }
-    if(url.pathname === "/api/approvals" && request.method === "GET") {
-      const query = parseInput(approvalListQuerySchema, queryObject(url));
-      const approvals = await listApprovals(env,{
-        accountId: principal.role === "admin" ? undefined : principal.id,
-        projectId: query.projectId,
-        missionId: query.missionId,
-        status: query.status as ApprovalStatus | undefined,
-        limit: query.limit,
-      });
-      return json({approvals},env);
-    }
-    const approvalItem = url.pathname.match(/^\/api\/approvals\/([^/]+)$/);
-    if(approvalItem && request.method === "GET") {
-      const approval = await getApproval(env,decodeURIComponent(approvalItem[1]));
-      if(!approval || (principal.role !== "admin" && approval.account_id !== principal.id)) return json({error:"Approval не найден."},env,404);
-      const receipts = (await env.AZRAIL_D1.prepare("SELECT event_type,actor,payload_digest,detail_json,created_at FROM approval_receipts WHERE approval_id=? ORDER BY created_at").bind(approval.id).all()).results;
-      return json({approval,receipts},env);
-    }
-    const approvalDecision = url.pathname.match(/^\/api\/approvals\/([^/]+)\/decision$/);
-    if(approvalDecision && request.method === "POST") {
-      const input = parseInput(approvalDecisionSchema, parsedBody);
-      const approval = await decideApproval(env,{
-        id:decodeURIComponent(approvalDecision[1]),
-        actor:`account:${principal.id}`,
-        decision:input.decision,
-        reason:input.reason,
-        expectedDigest:input.payloadDigest,
-      });
-      return json({approval},env);
+    {
+      const approvals = await approvalsRoute(request, url, env, principal, parsedBody);
+      if (approvals) return approvals;
     }
 
     {

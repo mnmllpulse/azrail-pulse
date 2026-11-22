@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T12:48:00.972Z",
+  "generated_at": "2026-11-22T13:08:26.165Z",
   "excludes_self": true,
-  "file_count": 1336,
+  "file_count": 1338,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -2757,8 +2757,8 @@
     },
     {
       "path": "scripts/check-approval-architecture.mjs",
-      "bytes": 3577,
-      "sha256": "37045effc22528cbda92b532d9cb54722d9b88197afcc163c9c46dab6455a82a"
+      "bytes": 3664,
+      "sha256": "8c11294fa141a73fe7ab642419729b76204ed80be528e342d976904e4a778ee1"
     },
     {
       "path": "scripts/check-attachment-architecture.mjs",
@@ -3792,8 +3792,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 96191,
-      "sha256": "5dee8d7e1bf4bfb3c356169a21e109ce1420583095ee4f9506adcc9405c6f456"
+      "bytes": 94547,
+      "sha256": "bf50b062d4a87552652d8af5e4542f965e8422432f87ef82d8dab30439f25bed"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4371,6 +4371,11 @@
       "sha256": "8c8c6eecbb46aa8d68df9017902ecb64f28b86a31dcb7ba56360d42310d7f93f"
     },
     {
+      "path": "src/routes/approvals.ts",
+      "bytes": 2462,
+      "sha256": "2075dbbe4c85f7a14e6eccec3cbcf5067e1da7a275d922590a75c7cb09c3a5d5"
+    },
+    {
       "path": "src/routes/backups.ts",
       "bytes": 3597,
       "sha256": "cf73f2492e55cb3f60175cf9b5ad1d864810fe98870e82e1607b89974b6d55a5"
@@ -4644,6 +4649,11 @@
       "path": "tests/approval-engine.test.ts",
       "bytes": 3124,
       "sha256": "096e013aee058841d81d3b031e09a38ca7883e01d2be7d2853eb847f9972fbc0"
+    },
+    {
+      "path": "tests/approvals-route.test.ts",
+      "bytes": 2427,
+      "sha256": "bafa0cd1f2b8073cd39f3efbe65fc9043838bf8e0ece82b8eb763e57886605a0"
     },
     {
       "path": "tests/assignment-plan.test.ts",
@@ -5377,8 +5387,8 @@
     },
     {
       "path": "tests/regressions.test.ts",
-      "bytes": 197138,
-      "sha256": "5daa2b8b8ea22397b847c9c23afd10f9cb2f4558e825f7b620469a011c3f6109"
+      "bytes": 197190,
+      "sha256": "696b56214ade332b056fcfe22453624165bb42371c90ddd95574ab050ba4ed3d"
     },
     {
       "path": "tests/replan.test.ts",
