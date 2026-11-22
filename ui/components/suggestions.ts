@@ -103,7 +103,7 @@ function getSuggestions(context:SuggestionContext):Suggestion[]{
 
 export function mountSuggestionBar(host:HTMLElement,context:SuggestionContext,onSelect:(suggestion:Suggestion)=>void){
  const render=(next:SuggestionContext)=>{
-  host.replaceChildren();host.className='suggestion-bar';host.setAttribute('aria-label','Рекомендуемые следующие действия');
+  host.replaceChildren();host.className='suggestion-bar';host.setAttribute('role','region');host.setAttribute('aria-label','Рекомендуемые следующие действия');
   const head=document.createElement('div');head.className='suggestion-head';const title=document.createElement('strong');title.textContent='Следующий шаг';const note=document.createElement('span');note.textContent='Контекстные подсказки';head.append(title,note);host.append(head);
   const row=document.createElement('div');row.className='suggestion-chips';for(const suggestion of getSuggestions(next)){const button=document.createElement('button');button.type='button';button.className='suggestion-chip';if(suggestion.kind==='primary')button.dataset.kind='primary';button.textContent=suggestion.label;if(suggestion.reason)button.title=suggestion.reason;button.onclick=()=>onSelect(suggestion);row.append(button);}host.append(row);
  };
