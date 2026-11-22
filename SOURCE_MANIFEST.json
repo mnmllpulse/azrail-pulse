@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T11:38:57.991Z",
+  "generated_at": "2026-11-22T11:53:45.423Z",
   "excludes_self": true,
-  "file_count": 1330,
+  "file_count": 1332,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -587,8 +587,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1448932,
-      "sha256": "878a7d3f9f8c6019479694516fb1ac86d1f2da54788317ed0a237a74115c64e0"
+      "bytes": 1449215,
+      "sha256": "e947091b6e94d0b7d0829371130113a9e951e66b0ce338dfe53ebd438708ffce"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3283,7 +3283,7 @@
     {
       "path": "site/app.html",
       "bytes": 25708,
-      "sha256": "f2a759c47c305e2e7597129c0e8d88dc3b9b39873e09ecb512064e4e20eff7d2"
+      "sha256": "1949288a27e8392ef74dc16203292b4c812ccbfb4e8fa43c42dfe9eb21931c9b"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3297,8 +3297,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 515400,
-      "sha256": "3f1d4c7d44fd26f68fd1ca63503c1f7cc9d63c29ff2928b48732fb98c3676c35"
+      "bytes": 515683,
+      "sha256": "3d43cc40758513afb996113afc72e54af19352293bec33ba4a031d85bfe52859"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3578,7 +3578,7 @@
     {
       "path": "site/index.html",
       "bytes": 25708,
-      "sha256": "f2a759c47c305e2e7597129c0e8d88dc3b9b39873e09ecb512064e4e20eff7d2"
+      "sha256": "1949288a27e8392ef74dc16203292b4c812ccbfb4e8fa43c42dfe9eb21931c9b"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -3792,8 +3792,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 103650,
-      "sha256": "e311c090d1128cfae92561f613f7b2cf685073d37b5bfa961eeb2324f574429c"
+      "bytes": 101191,
+      "sha256": "d2293571b2e4300f7602b101930bdd2cdb5f201419b2d10b40406bf80fcd0e08"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4369,6 +4369,11 @@
       "path": "src/lib/zip-store.ts",
       "bytes": 2912,
       "sha256": "8c8c6eecbb46aa8d68df9017902ecb64f28b86a31dcb7ba56360d42310d7f93f"
+    },
+    {
+      "path": "src/routes/health.ts",
+      "bytes": 1820,
+      "sha256": "ba632840717821ff484bbefb65d531e0131d647d08cd00ed7cba3348750a2aeb"
     },
     {
       "path": "src/services/github-client.ts",
@@ -4949,6 +4954,11 @@
       "path": "tests/health-live-route.test.ts",
       "bytes": 398,
       "sha256": "210e9aaf6ff09d8465693c8561b5a96556ffcd02b8f567aa15ec1e9bda4fbf4d"
+    },
+    {
+      "path": "tests/health-report.test.ts",
+      "bytes": 1756,
+      "sha256": "1e7fb96013b5de42893204c0d3becc8c6a9688fd30afdd44136523f9abd7a955"
     },
     {
       "path": "tests/helpers/core-source.ts",

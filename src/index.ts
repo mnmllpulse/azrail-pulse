@@ -64,6 +64,7 @@ import { syncWorkspaceToSandbox } from "./core/workspace-sync";
 import { previewR2GarbageCollection, parseR2GcRequest } from "./lib/r2-gc";
 import { previewRetention, parseRetentionPreviewRequest } from "./lib/retention-preview";
 import { BUILD_VERSION } from "./build-info";
+import { healthReport } from "./routes/health";
 import {
   approvalDigest,
   claimApproval,
@@ -235,59 +236,8 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
     if (url.pathname === "/health") {
       const auth = await authenticate(request, env);
       if (!auth.ok) return json({ error: auth.error }, env, auth.status ?? 401);
-      // Раньше здесь проверялось только наличие биндинга (`!!env.AZRAIL_D1`) —
-      // это показывало "всё зелено" даже когда D1 недоступна. Теперь делается
-      // реальный round-trip к каждому сервису.
-      const check = async (name: string, probe: () => Promise<unknown>) => {
-        const t0 = Date.now();
-        try {
-          await probe();
-          return { name, status: "ok" as const, ms: Date.now() - t0, error: null };
-        } catch (err) {
-          return {
-            name,
-            status: "error" as const,
-            ms: Date.now() - t0,
-            error: err instanceof Error ? err.message : String(err),
-          };
-        }
-      };
-
-      const services = await Promise.all([
-        env.AZRAIL_D1
-          ? check("d1", () => env.AZRAIL_D1.prepare("SELECT 1").all())
-          : Promise.resolve({ name: "d1", status: "absent" as const, ms: null, error: null }),
-        env.AZRAIL_KV
-          ? check("kv", () => env.AZRAIL_KV.get("__healthcheck__")) // отсутствие ключа — не ошибка, важен сам ответ
-          : Promise.resolve({ name: "kv", status: "absent" as const, ms: null, error: null }),
-        env.AZRAIL_R2
-          ? check("r2", () => env.AZRAIL_R2.head("__healthcheck__"))
-          : Promise.resolve({ name: "r2", status: "absent" as const, ms: null, error: null }),
-      ]);
-
-      // AI/Vectorize/Queue намеренно не пробуем: вызов модели ради health-check
-      // стоит денег и времени, а put в очередь порождал бы мусорные сообщения.
-      // Для них честнее показать наличие биндинга и так и назвать это.
-      const bindingsOnly = {
-        ai: !!env.AI ? "bound" : "absent",
-        vectorize: !!env.AZRAIL_VECTORIZE ? "bound" : "absent",
-        queue: !!env.AZRAIL_QUEUE ? "bound" : "absent",
-      };
-
-      const degraded = services.some((s) => s.status !== "ok");
-      return json(
-        {
-          system: "AZRAIL OS",
-          version: BUILD_VERSION,
-          status: degraded ? "degraded" : "healthy",
-          services, // реально проверены round-trip'ом
-          bindings: bindingsOnly, // только наличие биндинга, не проверка работоспособности
-          agents: describeRegistry().length,
-          timestamp: new Date().toISOString(),
-        },
-        env,
-        degraded ? 503 : 200,
-      );
+      const report = await healthReport(env, BUILD_VERSION, describeRegistry().length);
+      return json(report.body, env, report.status);
     }
 
     if (url.pathname.startsWith("/s/")) {
