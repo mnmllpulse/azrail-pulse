@@ -121,6 +121,8 @@ const chatScenarios = [
   { name: 'просьба написать промпт не рисует', send: ['напиши промпт для картинки закат'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
   { name: 'нарисуй кота идёт в рисование', send: ['нарисуй кота'], expect: [['POST', '/api/studio/image', 'кот']], forbid: [] },
   { name: 'нарисуй ещё повторяет прошлый запрос', send: ['нарисуй красного дракона', 'нарисуй ещё'], expect: [['POST', '/api/studio/image', 'дракон'], ['POST', '/api/studio/image', 'дракон']], forbid: [] },
+  { name: 'промпт и «рисуй» в конце одним сообщением рисует', send: ['Череп на чёрном фоне, фронтальный ракурс, три четверти влево. Освещение жёсткое, один источник сверху-слева.   рисуй'], expect: [['POST', '/api/studio/image', 'череп']], forbid: ['/api/chat'] },
+  { name: 'жалоба со ссылкой на промпт рисует прошлый промпт', send: ['нарисуй красного дракона над горами в тумане', 'бля рисуй картику я дал тебе промпт ты шо тупой или куку рисуй'], expect: [['POST', '/api/studio/image', 'дракон']], forbid: ['/api/chat'] },
   { name: 'с картинкой: опиши картинку идёт в чат с вложением', attach: true, send: ['опиши картинку'], expect: [['POST', '/api/chat', 'smoke-upload.png']], forbid: ['/api/studio/image'] },
   { name: 'с картинкой: промпт этой картинки идёт в чат, а не в рисование', attach: true, send: ['напиши промпт этой картинки'], expect: [['POST', '/api/chat', 'smoke-upload.png']], forbid: ['/api/studio/image'] },
   { name: 'с картинкой: убери фон идёт в правку картинки', attach: true, send: ['убери фон'], expect: [['POST', '/api/studio/image']], forbid: ['/api/chat'] },
