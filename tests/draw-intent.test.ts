@@ -113,3 +113,32 @@ describe("рисуй в разговоре: реальные фразы из ч�
     ).toBeNull();
   });
 });
+
+describe("опечатки в глаголе рисования", () => {
+  const previous =
+    "Dark surreal sci-fi digital art, two women on rocks at night";
+  it.each(["нгарисуй", "нарисй", "нарсиуй это", "давай нарисуйй"])(
+    "«%s» берёт прошлый промпт",
+    (phrase) => {
+      expect(drawRequest(phrase, { hasImage: false, previous })).toEqual({
+        text: previous,
+      });
+    },
+  );
+  it("«так я тебе дал добро рисовать» рисует прошлый промпт", () => {
+    expect(
+      drawRequest("так я тебе дал добро рисовать", {
+        hasImage: false,
+        previous,
+      }),
+    ).toEqual({ text: previous });
+  });
+  it.each([
+    "я рисую кота",
+    "он нарисовал дом",
+    "нарисуем вместе",
+    "нарисованный кот",
+  ])("«%s» не считается заказом", (phrase) => {
+    expect(drawRequest(phrase, { hasImage: false, previous })).toBeNull();
+  });
+});
