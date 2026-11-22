@@ -93,6 +93,57 @@ for (const [mode, signedIn] of modes) {
   }
 }
 
+
+const tinyPng = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==';
+const ownerAccount = { ...account, operator: true, role: 'admin' };
+const chatScenarios = [
+  { name: 'приветствие идёт в чат', send: ['привет'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
+  { name: 'вопрос идёт в чат', send: ['объясни DNS'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
+  { name: 'просьба написать промпт не рисует', send: ['напиши промпт для картинки закат'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
+  { name: 'нарисуй кота идёт в рисование', send: ['нарисуй кота'], expect: [['POST', '/api/studio/image', 'кот']], forbid: [] },
+  { name: 'нарисуй ещё повторяет прошлый запрос', send: ['нарисуй красного дракона', 'нарисуй ещё'], expect: [['POST', '/api/studio/image', 'дракон'], ['POST', '/api/studio/image', 'дракон']], forbid: [] },
+];
+for (const [size, width, height] of [sizes[0], sizes[2]]) {
+  for (const scenario of chatScenarios) {
+    const label = `chat/${size}/${scenario.name}`;
+    const context = await browser.newContext({ viewport: { width, height } });
+    const page = await context.newPage();
+    const errors = [];
+    const calls = [];
+    page.on('pageerror', (error) => errors.push(error.message));
+    await page.route('**/auth/status', (route) => json(route, { account: ownerAccount, configured: true, key: true }));
+    await page.route('**/api/**', (route) => {
+      const request = route.request();
+      const path = new URL(request.url()).pathname;
+      if (request.method() === 'POST') calls.push({ path, body: request.postData() || '' });
+      if (path === '/api/me') return json(route, { account: ownerAccount });
+      if (path === '/api/chat' && request.method() === 'POST') return json(route, { success: true, result: { status: 'completed', summary: 'Ответ-заглушка' } });
+      if (path === '/api/studio/image') return json(route, { items: [{ name: 'smoke.png', url: tinyPng, seed: 1 }] });
+      if (path.includes('model-catalog')) return json(route, { models: [], items: [] });
+      return json(route, { items: [], ok: true });
+    });
+    await page.goto(`${base}/app.html`, { waitUntil: 'load' });
+    await page.waitForTimeout(1000);
+    for (const text of scenario.send) {
+      const before = calls.length;
+      await page.fill('#prompt', text);
+      await page.click('#submit');
+      for (let i = 0; i < 30 && calls.length === before; i += 1) await page.waitForTimeout(100);
+      await page.waitForTimeout(500);
+    }
+    for (const [method, path, word] of scenario.expect) {
+      const hit = calls.filter((c) => c.path === path && (!word || c.body.toLowerCase().includes(word))).length;
+      const need = scenario.expect.filter((e) => e[1] === path && e[2] === word).length;
+      if (method === 'POST' && hit < need) failures.push(`${label}: ожидался POST ${path}${word ? ` со словом «${word}»` : ''} (${need}), было ${hit}`);
+    }
+    for (const path of scenario.forbid) {
+      if (calls.some((c) => c.path === path)) failures.push(`${label}: не должно быть запроса ${path}`);
+    }
+    if (errors.length) failures.push(`${label}: ошибки JS: ${[...new Set(errors)].join('; ')}`);
+    await context.close();
+  }
+}
+
 await browser.close();
 server.close();
 if (failures.length) {
@@ -100,4 +151,4 @@ if (failures.length) {
   for (const failure of failures) console.error(` - ${failure}`);
   process.exit(1);
 }
-console.log(`UI SMOKE PASS: ${modes.length * sizes.length} прогонов (гость и вход × 3 размера) и ${sections.length} разделов настроек на десктопе и телефоне: без ошибок JS, переполнения, нарушений axe WCAG A/AA, цели касания ≥44px на телефоне.`);
+console.log(`UI SMOKE PASS: ${modes.length * sizes.length} прогонов (гость и вход × 3 размера) и ${sections.length} разделов настроек на десктопе и телефоне: без ошибок JS, переполнения, нарушений axe WCAG A/AA, цели касания ≥44px на телефоне; ${chatScenarios.length} сценариев чата на десктопе и телефоне (чат, рисование, повтор).`);

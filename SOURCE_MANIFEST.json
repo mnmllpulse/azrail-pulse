@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-21T23:10:44.427Z",
+  "generated_at": "2026-11-21T23:19:45.695Z",
   "excludes_self": true,
   "file_count": 1326,
   "files": [
@@ -277,8 +277,8 @@
     },
     {
       "path": "docs/current/QUALITY_RU.md",
-      "bytes": 3503,
-      "sha256": "2f01c2ab054edde304fc8fc380b0737c4d937b964cb3041f373fd89101b3104c"
+      "bytes": 3723,
+      "sha256": "03b99df5f77c40ab43b57d977d561c7b1697b9caa6d1fed7da511c552d08f3a5"
     },
     {
       "path": "docs/current/README_RU.md",
@@ -3272,8 +3272,8 @@
     },
     {
       "path": "scripts/ui-smoke.mjs",
-      "bytes": 6090,
-      "sha256": "79e00b4df9cd577d939a36a8a40592dc5940584a7465c7d1c9a75b5013100aa0"
+      "bytes": 9809,
+      "sha256": "a0cd10203a45b7c3bb322e48cbddbef08a567b348beef2255747324d413ce01d"
     },
     {
       "path": "scripts/verify-release-package.mjs",
