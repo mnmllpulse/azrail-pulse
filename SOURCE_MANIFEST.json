@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T21:53:39.829Z",
+  "generated_at": "2026-11-22T21:58:50.980Z",
   "excludes_self": true,
   "file_count": 1344,
   "files": [
@@ -123,7 +123,7 @@
     {
       "path": "config/environments.json",
       "bytes": 4971,
-      "sha256": "a95d574d703696ac2405faefca4525e60c501314e1d94e59bf5b388244984dad"
+      "sha256": "fdb710db6daf48f07154e43e5cdb7466d25a62940f2c54bc237ef15d49543182"
     },
     {
       "path": "docs/DOCS_RULES.md",
