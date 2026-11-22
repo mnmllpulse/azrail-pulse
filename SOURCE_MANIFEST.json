@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T12:31:22.060Z",
+  "generated_at": "2026-11-22T12:35:26.852Z",
   "excludes_self": true,
   "file_count": 1334,
   "files": [
@@ -2757,8 +2757,8 @@
     },
     {
       "path": "scripts/check-approval-architecture.mjs",
-      "bytes": 3513,
-      "sha256": "a6eb54b375b3f939cdf297f0ca9ab2d003e11c598d81a31596535a96a95bcbe1"
+      "bytes": 3577,
+      "sha256": "37045effc22528cbda92b532d9cb54722d9b88197afcc163c9c46dab6455a82a"
     },
     {
       "path": "scripts/check-attachment-architecture.mjs",
@@ -2772,8 +2772,8 @@
     },
     {
       "path": "scripts/check-backup-restore-proof.mjs",
-      "bytes": 6568,
-      "sha256": "15e19ab69909ca29ad3ebf4c82951ab16be72da7fe1082eeaa2d666c4cc7bfa9"
+      "bytes": 6647,
+      "sha256": "0fb064e5e9ef4a3175c69097413d4680c133c821353756404321e19b0b113f2f"
     },
     {
       "path": "scripts/check-connections-architecture.mjs",

@@ -39,7 +39,8 @@ requireCheck(migrate.includes('No backup bucket in deployment config') && migrat
 for(const marker of ['MAX_BACKUPS_PER_PROJECT = 50','target===project','Целевой проект должен быть пустым','All hashes validated before the first write','await sha(bytes)!==f.sha256','publishWorkspace(env,target']) {
   requireCheck(backups.includes(marker),`project-backup:${marker}`,'Project backup/restore integrity and non-destructive restore contract is present.');
 }
-requireCheck(index.includes('actionType:"restore"') && index.includes('claimApproval(env,{id:approvalId'),'restore-approval-boundary','Application backup restore remains approval-gated.');
+const backupsRoute=readFileSync('src/routes/backups.ts','utf8');
+requireCheck(backupsRoute.includes('actionType:"restore"') && backupsRoute.includes('claimApproval(env,{id:approvalId'),'restore-approval-boundary','Application backup restore remains approval-gated.');
 requireCheck(release.includes('Нельзя считать backup подтверждённым без restore drill.'),'release-order','Release runbook requires a restore drill before backup is considered proven.');
 requireCheck(existsSync('scripts/backup-restore-simulate.mjs'),'local-drill-script','Local disposable restore simulation exists.');
 requireCheck(existsSync('docs/runbooks/BACKUP_RESTORE_PROOF_RU.md'),'runbook','Backup/restore proof runbook exists.');

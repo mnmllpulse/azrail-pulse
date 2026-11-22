@@ -29,7 +29,8 @@ for(const marker of ['approvalDigest','payload_digest','claimApproval','complete
 }
 if(!engine.includes("status='approved'") || !engine.includes("payload_digest=?")) fail('claim must be single-use and payload-bound');
 if(!index.includes('/api/approvals') || !index.includes('/decision')) fail('approval API routes missing');
-if(!index.includes('actionType:"restore"') || !index.includes('claimApproval(env,{id:approvalId')) fail('backup restore is not approval-gated');
+const backups=readFileSync('src/routes/backups.ts','utf8');
+if(!backups.includes('actionType:"restore"') || !backups.includes('claimApproval(env,{id:approvalId')) fail('backup restore is not approval-gated');
 if(!connectors.includes("actionType:'connector_mutation'") || !connectors.includes('decideApproval') || !connectors.includes('claimApproval')) fail('connector mutations are not unified-approval gated');
 for(const marker of ['claimApproval','completeApproval']) if(!git.includes(marker)) fail(`Git approval gate missing: ${marker}`);
 const gitPrBindings=(git.match(/actionType:\s*"github_pr"/g)??[]).length;
