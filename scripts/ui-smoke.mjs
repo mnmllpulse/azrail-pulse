@@ -119,6 +119,7 @@ const chatScenarios = [
   { name: 'приветствие идёт в чат', send: ['привет'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
   { name: 'вопрос идёт в чат', send: ['объясни DNS'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
   { name: 'просьба написать промпт не рисует', send: ['напиши промпт для картинки закат'], expect: [['POST', '/api/chat']], forbid: ['/api/studio/image'] },
+  { name: 'сколько осталось читает лимиты и не идёт в модель', send: ['сколько осталось'], expect: [], forbid: ['/api/chat', '/api/studio/image'] },
   { name: 'нарисуй кота идёт в рисование', send: ['нарисуй кота'], expect: [['POST', '/api/studio/image', 'кот']], forbid: [] },
   { name: 'нарисуй ещё повторяет прошлый запрос', send: ['нарисуй красного дракона', 'нарисуй ещё'], expect: [['POST', '/api/studio/image', 'дракон'], ['POST', '/api/studio/image', 'дракон']], forbid: [] },
   { name: 'промпт и «рисуй» в конце одним сообщением рисует', send: ['Череп на чёрном фоне, фронтальный ракурс, три четверти влево. Освещение жёсткое, один источник сверху-слева.   рисуй'], expect: [['POST', '/api/studio/image', 'череп']], forbid: ['/api/chat'] },

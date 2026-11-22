@@ -1,7 +1,7 @@
 import {renderMission} from './mission-view';
 import {createSettingsPage} from './settings-page';
 import {APIError} from './api-error';
-import {localCommandOf,blockedReply} from './chat-local-commands';
+import {localCommandOf,blockedReply,limitsText,type LimitsRead} from './chat-local-commands';
 import {chatRequestBody,chatReplyOf,chatFailureOf} from './chat-send';
 import {hydrateIcons} from './icons';
 import {createAccountMenu} from './account-menu';
@@ -66,6 +66,7 @@ if(typeof window!=='undefined'){
 }
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
 const local=!/^https?:$/.test(location.protocol);
+const isLocalPage=local;
 applyDisplayPrefs(readDisplayPrefs());
 type Account={id:string;name:string;nickname?:string;picture?:string;operator?:boolean;role?:'viewer'|'editor'|'admin'};
 let account:Account|null=null,project='',mission='',pollTimer=0,epoch=0,studioEpoch=0,mediaCleanup=()=>{},lastBlob:Blob|null=null;
@@ -1215,10 +1216,7 @@ async function todayNote(plan:WorkPlan){
  const video=plan.parts.some(part=>part.kind==='video')?'Ролик будет раскадровкой, внешняя съёмка не вызывается.':'';
  if(!account||local)return ['После входа будет виден остаток на сегодня.',video].filter(Boolean).join(' ');
  try{
-  const read=await api('/api/limits') as {chat?:{left:number;limit:number}|null;generation?:{left:number;limit:number}|null};
-  const chat=read.chat?`Чат: осталось ${read.chat.left} из ${read.chat.limit}.`:'Остаток чата сейчас не прочитан. Потолок 200.';
-  const generation=read.generation?`Генерация: осталось ${read.generation.left} из ${read.generation.limit}.`:'Остаток генерации сейчас не прочитан. Потолок 500.';
-  return [chat,generation,video].filter(Boolean).join(' ');
+  return [limitsText(await api('/api/limits') as LimitsRead),video].filter(Boolean).join(' ');
  }catch{
   return ['Остаток на сегодня сейчас не прочитан. Потолок чата 200, генерации 500.',video].filter(Boolean).join(' ');
  }
@@ -1500,6 +1498,11 @@ async function runChat(){
  if(only&&opened){noteLocal(message,`Открыл ${opened}.`);return;}
  if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
  const local=localCommandOf(message);
+ if(local==='quota'){
+  let read:LimitsRead|null=null;
+  if(account&&!isLocalPage)try{read=await api('/api/limits') as LimitsRead;}catch{read=null;}
+  noteLocal(message,account&&!isLocalPage?limitsText(read):'После входа будет виден остаток на сегодня.');return;
+ }
  if(local==='save-zip'){await saveFromScreen('zip',message);return;}
  if(local==='save-file'){await saveFromScreen('file',message);return;}
  if(await chatCommands(message))return;

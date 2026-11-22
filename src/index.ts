@@ -10,7 +10,7 @@ import { dispatchOutbox } from "./lib/outbox";
 import { authenticate, authorizeRequest, requireResource, activeAccount, anonymous, AccessError, type Principal } from "./lib/accounts";
 import { getAgentByName } from "agents";
 import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
-import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, positiveLimit } from "./lib/quota";
+import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, readNeuronBudget, positiveLimit } from "./lib/quota";
 import { enforceOperationLimit } from "./lib/operation-limit";
 import { speakRemote, spokenVoice } from "./lib/speech-remote";
 import { readPermissionMode, writePermissionMode } from "./lib/permission-setting";
@@ -481,7 +481,8 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       const chatLimit = positiveLimit(env.CHAT_DAILY_LIMIT, 200);
       const chat = await readDailyQuota(env, caller, chatLimit);
       const generation = await readGenerationBudget(env);
-      return json({ success: true, chat, generation }, env);
+      const neurons = await readNeuronBudget(env);
+      return json({ success: true, chat, generation, neurons }, env);
     }
     { const response=await webWorkbenchRoute(request,env,principal,trace); if(response) return new Response(response.body,{status:response.status,statusText:response.statusText,headers:getCors(env,response.headers)}); }
     { const response=await projectRoute(request,env,principal); if(response) return new Response(response.body,{status:response.status,statusText:response.statusText,headers:getCors(env,response.headers)}); }
