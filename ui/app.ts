@@ -52,6 +52,7 @@ import {diagramLines,diagramModel,diagramSvg} from './diagram';
 import {asksToWrite,buildOffice,isBareFileRequest} from '../src/lib/office-file';
 import {installImageViewer} from './image-viewer';
 import {withRetry} from './account-retry';
+import {longTarget,writeLong} from './long-text';
 import {htmlBlockOf} from './chat-code';
 installImageViewer();
 export {};
@@ -1648,8 +1649,17 @@ async function runChat(){
  syncChatUI();workspace.toLatest();
  try{
   const body=chatRequestBody({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:sentRefs,preferredModel:preferredModel||undefined,effort:modelMenu.effort()});
-  const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':requestKey},body});
-  const {reply:full,status}=chatReplyOf(r);
+  const longAsk=asksToWrite(message)?longTarget(message):null;
+  let full:string,status:'failed'|'completed';
+  if(longAsk){
+   const out=await writeLong({message,chars:longAsk.chars,capped:longAsk.capped,progress:text=>{chatHistory.report(requestKey,text,'queued');syncChatUI();},ask:async text=>{const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:chatRequestBody({message:text,projectId:project,conversationId,voice:chatVoice,attachments:[],preferredModel:preferredModel||undefined,effort:modelMenu.effort()})});const row=chatReplyOf(r);if(row.status==='failed')throw Error(row.reply);return row.reply;}});
+   const note=out.failed?`\n\n_Написано глав: ${out.done} из ${out.total}. ${out.failed} Напиши «продолжай», когда лимит вернётся._`:out.capped?'\n\n_Текст ограничен 45 000 знаков: это предел одного заказа._':'';
+   full=out.text?out.text+note:out.failed||'Пустой ответ.';
+   status=out.text?'completed':'failed';
+  }else{
+   const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':requestKey},body});
+   ({reply:full,status}=chatReplyOf(r));
+  }
   const shownCode=status==='completed'?htmlBlockOf(full):null;
   const reply=shownCode?shownCode.text:full;
   if(shownCode){document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:shownCode.html}));workspace.setPreview(true);}
