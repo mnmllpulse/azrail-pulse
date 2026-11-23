@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { createChatCommands, type ChatCommandContext } from "../ui/chat-commands";
+import type { CardSpec } from "../ui/approval-card";
 
 const models = [
   { slug: "@cf/zai-org/glm-5.3", label: "GLM 5.3", free: false },
@@ -9,6 +10,7 @@ const models = [
 function setup(over: Partial<ChatCommandContext> = {}, signedIn = true) {
   const notes: string[] = [];
   const calls: string[] = [];
+  const cards: CardSpec[] = [];
   let preferred = "";
   const api = async (path: string, init?: RequestInit) => {
     calls.push(`${init?.method ?? "GET"} ${path}`);
@@ -28,9 +30,10 @@ function setup(over: Partial<ChatCommandContext> = {}, signedIn = true) {
     setPreferredModel: (slug) => { preferred = slug; },
     models: () => models,
     labelOf: (slug) => (slug ? models.find((m) => m.slug === slug)?.label ?? slug : "Auto · AZRAIL"),
+    showCard: (spec) => { cards.push(spec); return { update: (next) => { cards.push(next); }, close: () => {} }; },
     ...over,
   };
-  return { handle: createChatCommands(ctx), notes, calls, preferred: () => preferred };
+  return { handle: createChatCommands(ctx), notes, calls, cards, preferred: () => preferred };
 }
 
 describe("команды чата", () => {
@@ -121,5 +124,29 @@ describe("команды чата", () => {
     const t = setup();
     expect(await t.handle("да")).toBe(false);
     expect(t.preferred()).toBe("");
+  });
+
+  it("агент выключен → карточка «Включить», настройки не нужны", async () => {
+    const { handle, notes, cards, calls } = setup({ api: async (path: string) => (path === "/api/agent/status" ? { enabled: false, jobs: [] } : {}) });
+    expect(await handle("покажи git status на компьютере")).toBe(true);
+    expect(notes[0]).toContain("карточке");
+    expect(cards[0].actions.map((a) => a.label)).toEqual(["Включить на 1 час", "Не сейчас"]);
+    expect(calls).toEqual([]);
+  });
+
+  it("ожидание подтверждения → карточка; «Разрешить» одобряет задачу", async () => {
+    const { handle, notes, cards, calls } = setup();
+    expect(await handle("покажи git status на компьютере")).toBe(true);
+    expect(cards[0].actions.map((a) => a.label)).toEqual(["Разрешить", "Отклонить"]);
+    await cards[0].actions[0].run();
+    expect(calls).toContain("POST /api/agent/jobs/j1/approve");
+    expect(notes.at(-1)).toContain("чисто");
+  });
+
+  it("«Отклонить» отклоняет задачу", async () => {
+    const { handle, cards, calls } = setup();
+    await handle("покажи git status на компьютере");
+    await cards[0].actions[1].run();
+    expect(calls).toContain("POST /api/agent/jobs/j1/reject");
   });
 });

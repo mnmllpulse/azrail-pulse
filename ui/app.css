@@ -620,3 +620,12 @@ html[data-settings-contrast="high"] button {border-color:#8089a6;}
 .icon-download:focus-visible{outline:2px solid currentColor;outline-offset:2px}
 .thing-foot{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:8px}
 .thing-caption{margin:0;flex:1;min-width:0;font-size:var(--fs-caption);line-height:1.45;opacity:.72;overflow-wrap:anywhere}
+
+.approval-card{margin:0 auto 10px;width:min(100%,720px);padding:14px 16px;border:1px solid var(--line);border-radius:14px;background:var(--surface-raised);box-shadow:0 8px 28px rgba(0,0,0,.32);display:grid;gap:8px}
+.approval-card strong{font-size:var(--fs-body)}
+.approval-card p{margin:0;font-size:var(--fs-caption);opacity:.82;line-height:1.5}
+.approval-code{width:100%;resize:none;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:inherit;padding:10px;font:12px/1.5 ui-monospace,monospace}
+.approval-actions{display:flex;flex-wrap:wrap;gap:8px}
+.approval-actions button{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;cursor:pointer}
+.approval-actions button[data-primary]{background:#e8e8ee;color:#0b0b10;border-color:transparent;font-weight:600}
+.approval-actions button:disabled{opacity:.55;cursor:default}
