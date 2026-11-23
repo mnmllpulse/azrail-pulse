@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T08:23:05.344Z",
+  "generated_at": "2026-11-23T09:07:19.714Z",
   "excludes_self": true,
-  "file_count": 1354,
+  "file_count": 1356,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -217,8 +217,8 @@
     },
     {
       "path": "docs/current/METATRON_LAB_RU.md",
-      "bytes": 4482,
-      "sha256": "f3cb2b0f58562190fe8799b93a5ab69c50f3bc3ee248a86876d6928035c7d8fe"
+      "bytes": 4626,
+      "sha256": "494e2c8fd211478eedb69c542f44df552d5caf0f99b24db43decf43127a942f2"
     },
     {
       "path": "docs/current/MODELS_RU.md",
@@ -382,8 +382,8 @@
     },
     {
       "path": "docs/product/AZRAIL_2_MIGRATION_MATRIX.md",
-      "bytes": 4827,
-      "sha256": "55aa2cc8c6e1eb374ea93648758709bc20713946d28fbbb0d9503f77ba7ce669"
+      "bytes": 5022,
+      "sha256": "4b624f4193bea87dc18169202a8f699896e6ae32d5f7309de1458628f3576e0d"
     },
     {
       "path": "docs/product/AZRAIL_2_RELEASE_ROADMAP.md",
@@ -414,6 +414,16 @@
       "path": "docs/product/MASTER_SPECIFICATION.md",
       "bytes": 23015,
       "sha256": "29f08656daeb1be6ec707724b86637997d4c3fc2e5a83678f3f6257cc41d78a3"
+    },
+    {
+      "path": "docs/product/METATRON_LAB_2_AUDIT.md",
+      "bytes": 13700,
+      "sha256": "f42876276be34b3e386bf300927d24754d277089e07660bcee8781180e7e2962"
+    },
+    {
+      "path": "docs/product/METATRON_LAB_2_SCENARIO.pdf",
+      "bytes": 418633,
+      "sha256": "1bd3e2cf9d82384cee566b3a02c5a17bc6e3b6e04344b89773f631e41e6eddd6"
     },
     {
       "path": "docs/product/README.md",
