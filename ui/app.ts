@@ -51,6 +51,7 @@ import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,site
 import {diagramLines,diagramModel,diagramSvg} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
 import {installImageViewer} from './image-viewer';
+import {withRetry} from './account-retry';
 installImageViewer();
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
@@ -619,12 +620,18 @@ bind('account-action',async()=>{
 });
 async function refreshAccount(){
  if(local){syncChatAccount();$('local-notice').textContent='Локальный просмотр · WAV/MIDI, аудиоанализ и CSV доступны на устройстве. Для AI и проектов нужен вход в развёрнутое приложение.';$('local-notice').hidden=false;return;}
- const a=await api('/auth/status');account=a.account;oidcConfigured=!!a.configured;if(typeof a.key==='boolean')keyLogin=a.key;
+ const a=await withRetry(()=>api('/auth/status'),3,400,e=>!(e instanceof APIError)||e.status>=500);account=a.account;oidcConfigured=!!a.configured;if(typeof a.key==='boolean')keyLogin=a.key;
  if(!account&&authToken){try{const me=await api('/api/me');account=me.account;}catch{authToken='';session(()=>sessionStorage.removeItem('pulse.token'))}}
  syncChatAccount();void refreshComposerModels();
  if(account){setAccountLabel();await refreshMode();ensureEventStream();if(mission&&expertOn()){if(composerPage==='create')navigation.navigate({page:'mission'});$('mission-panel').hidden=false;await poll(++epoch);}}
  else if(!oidcConfigured)notice('OIDC не настроен. Войдите по токену через кнопку «Аккаунт» — регистрация внешнего приложения не нужна.');
 }
+async function recheckAccount(){
+ if(account||local)return !!account;
+ try{await refreshAccount();}catch{/* сеть: решит следующая проверка */}
+ return !!account;
+}
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!account&&!local)void recheckAccount();});
 async function refreshMode(){return api('/api/routing-settings');}
 function currentModelLabel(){
  const hit=preferredModel?composerModels.find(preferredModel):undefined;
@@ -1198,6 +1205,7 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
  const paint=(next:Assignment,status='completed')=>{showAssignment(next);chatHistory.report(requestKey,formatAssignment(next),status);syncChatUI();workspace.toLatest();};
  try{
+  if(!account&&plan.kind!=='music')await recheckAccount();
   if(!account&&plan.kind!=='music'){paint({...plan,needsYou:'Войди в аккаунт, и я начну это поручение.'});return;}
   if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
   showAssignment(plan);
@@ -1250,6 +1258,7 @@ async function runPlan(plan:WorkPlan,message:string,resume=false,onlyId=''){
  const aimed=onlyId?plan.parts.filter(part=>part.id===onlyId):plan.parts;
  const needsAccount=aimed.some(part=>part.kind!=='music'&&part.state!=='done');
  try{
+  if(!account&&needsAccount)await recheckAccount();
   if(!account&&needsAccount){paint('Войди в аккаунт, и я начну части, которым нужен вход.');return;}
   if(account?.role==='viewer')throw Error('Ваш аккаунт разрешает только просмотр.');
   const groups=wavesToRun(plan,onlyId||undefined);
@@ -1722,6 +1731,7 @@ async function runStudioRoom(){
   if(promptStudios.has(room)){
    writeStudioPrompt(message);
    const run=document.getElementById('studio-run') as HTMLButtonElement|null;
+   if(!account)await recheckAccount();
    if(!account){studioRooms.replace(room,reply.id,'Текст уже в поле студии. Войди в аккаунт и отправь ещё раз, чтобы студия собрала результат.');return;}
    if(run?.disabled){studioRooms.replace(room,reply.id,'Сейчас у этого аккаунта нет права запустить студию. Текст сохранён в её поле.');return;}
    if(room==='video'){

@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T03:05:01.984Z",
+  "generated_at": "2026-11-23T03:22:26.600Z",
   "excludes_self": true,
-  "file_count": 1347,
+  "file_count": 1349,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -587,8 +587,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1460535,
-      "sha256": "74fb0796dc9cf7f9a5f2684519a5e7a3adca401c470bbfac0d016fb19dfe7e9a"
+      "bytes": 1460989,
+      "sha256": "c547a47c61daaf1d96ae045b42d5b53bdeb2e7ad148f9e7e6b0aef1c066be28b"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3283,7 +3283,7 @@
     {
       "path": "site/app.html",
       "bytes": 25755,
-      "sha256": "b922a276b0a2f6283874cdabc37a7b996c7f8a793b542976d3d60a93c40fa2c8"
+      "sha256": "c8fc9158f4486660dd31c2052ff7faec3a67f439e87fd8f0a43a09eacbf6814e"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3297,8 +3297,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 521326,
-      "sha256": "633a53925310d6de282aff882c889a16f88016ff061f0b710380b303575cbe81"
+      "bytes": 521773,
+      "sha256": "ba41511e80bb866c4f58277fa86fa4e3597617ad5e345aa18e4d4a6617ecb01f"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3578,7 +3578,7 @@
     {
       "path": "site/index.html",
       "bytes": 25755,
-      "sha256": "b922a276b0a2f6283874cdabc37a7b996c7f8a793b542976d3d60a93c40fa2c8"
+      "sha256": "c8fc9158f4486660dd31c2052ff7faec3a67f439e87fd8f0a43a09eacbf6814e"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4579,6 +4579,11 @@
       "path": "tests/account-menu.test.ts",
       "bytes": 2873,
       "sha256": "9309a806af612a6cce4593c8cd12e3e016ae64b6490c398af397eacf78353afe"
+    },
+    {
+      "path": "tests/account-retry.test.ts",
+      "bytes": 1221,
+      "sha256": "3335d919b0f9e7fb9862194bf9603a890ed34e40c999d6f09d7da65d068c0678"
     },
     {
       "path": "tests/accounts-route.test.ts",
@@ -5701,6 +5706,11 @@
       "sha256": "f5c5c56f249bf0b76b07a9fe69841ee83b44b7fe17efac8b20c0e89381ce2a6e"
     },
     {
+      "path": "ui/account-retry.ts",
+      "bytes": 669,
+      "sha256": "0803365fdff2c152be9eaa10adf3771d957c8daafcd18fa05e9dd329454c27cf"
+    },
+    {
       "path": "ui/agent-browser.ts",
       "bytes": 8640,
       "sha256": "c5b570bb17e9c49f83b8e5d70442a9812d15559d7c0acb02773ed94cdce7d404"
@@ -5737,8 +5747,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 144882,
-      "sha256": "61430bb112a9882ec5c43b828131fa20f9fe8eec1fdd672c2617d8d3ab01aae6"
+      "bytes": 145443,
+      "sha256": "26b0250745f19f363ef7ca7a6da4cff9b29a28de7cfacdea58ae84c528bbf8b4"
     },
     {
       "path": "ui/assignment.ts",
