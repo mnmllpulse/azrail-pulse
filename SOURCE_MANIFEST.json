@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T09:07:19.714Z",
+  "generated_at": "2026-11-23T13:43:20.070Z",
   "excludes_self": true,
-  "file_count": 1356,
+  "file_count": 1358,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -597,8 +597,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1470245,
-      "sha256": "04a88f0e91acb9e8f6280d243562d4585fa2af64a0751fbaa736336055bb50be"
+      "bytes": 1476805,
+      "sha256": "56f45bb465838b6ae75612c3f7dcf60cec23483e42a9f25a7a9401e01c99666e"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3293,7 +3293,7 @@
     {
       "path": "site/app.html",
       "bytes": 25838,
-      "sha256": "feeabb0dd8cb397c3d0f478ab48cc8e441992002c40763af3fd31cc503083dc9"
+      "sha256": "07896f6bf6e06b7f9ed52bab568a88ffdaa51a6d7debdedfec670ce7a7bd1569"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3302,13 +3302,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 179318,
-      "sha256": "e98ea33db0f6640e82b5c636ad23be60ec2ae3d50b44632a02f8eae882396896"
+      "bytes": 180228,
+      "sha256": "a18ba9d4e7eb25c2a1dec2402063c3a7b42fc71c1b4d24284698150ada20efe8"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 530939,
-      "sha256": "82ecb3e7c414113c7dc5936bbd6336e9d37b1047c7c8e9eea3bdf15c0a97b801"
+      "bytes": 536589,
+      "sha256": "5a13d66793c0f31eb72c43969a13cc8168fb662640263fc6bbfb4d38cbf1722f"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3588,7 +3588,7 @@
     {
       "path": "site/index.html",
       "bytes": 25838,
-      "sha256": "feeabb0dd8cb397c3d0f478ab48cc8e441992002c40763af3fd31cc503083dc9"
+      "sha256": "07896f6bf6e06b7f9ed52bab568a88ffdaa51a6d7debdedfec670ce7a7bd1569"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4676,6 +4676,11 @@
       "sha256": "bfdfccab867d534183e7ed9ec87b6e93192c8e42757dc222bc28ad64d5720930"
     },
     {
+      "path": "tests/approval-card.test.ts",
+      "bytes": 2434,
+      "sha256": "fc871be400b56c0bd523ceba4918fc00d9f3f28a0d08f492851c74b44245393a"
+    },
+    {
       "path": "tests/approval-engine.test.ts",
       "bytes": 3124,
       "sha256": "096e013aee058841d81d3b031e09a38ca7883e01d2be7d2853eb847f9972fbc0"
@@ -4802,8 +4807,8 @@
     },
     {
       "path": "tests/chat-commands.test.ts",
-      "bytes": 6314,
-      "sha256": "62eee44af60e95f2c6c4f6293b26443f78f9e11fce1ffa0a6a59a7e1013b3e3d"
+      "bytes": 7944,
+      "sha256": "86279fa74e2eb1fb36ba151c8f7ef8d69e176851b67ad89c2c2cb349576b6a4f"
     },
     {
       "path": "tests/chat-file-link.test.ts",
@@ -5762,8 +5767,8 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 128910,
-      "sha256": "c3655a384fe2c57ce62874ea7e374ffffc7ec6c071fc7eb7ce680f9dac37f012"
+      "bytes": 129835,
+      "sha256": "284bc1be704a209486e345318952404f2bf254a167d4521aab86d90a1de0f87d"
     },
     {
       "path": "ui/app.html",
@@ -5772,8 +5777,13 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 147938,
-      "sha256": "28614ba8eaba325ae57faa3df3897bfe9a40873241462ccba036b38b39c8bba2"
+      "bytes": 148028,
+      "sha256": "c39d82fa6d2e05e13a2ece87db7cb3adcbe2fab04804e989670e492f1abf745e"
+    },
+    {
+      "path": "ui/approval-card.ts",
+      "bytes": 2278,
+      "sha256": "f4644ebb8b37c37206cde82bc8e8999819d6042fb4f726ffd3df8f140be5f789"
     },
     {
       "path": "ui/assignment.ts",
@@ -5827,8 +5837,8 @@
     },
     {
       "path": "ui/chat-commands.ts",
-      "bytes": 8324,
-      "sha256": "51ca49c4990d2fb287f8dbe017df8a8473fe0687f6776318a4c694cb14361322"
+      "bytes": 12079,
+      "sha256": "39c7156ecbe55f4138f58378fabc8c25e448968f0bafea5048433e35badff38a"
     },
     {
       "path": "ui/chat-fixloop.ts",

@@ -1,5 +1,7 @@
 import { agentGap, agentHint, agentIntent, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView, type AgentState } from './chat-agent';
 import { activeRootField } from './agent-roots';
+import { agentCommand } from './agent-paths';
+import type { CardHandle, CardSpec } from './approval-card';
 import { fixIntent, fixConsentText, runFixLoop, FIX_APPROVE, rollbackIntent, rollbackConsentText, runRollback } from './chat-fixloop';
 import { modelIntent, proposalText, YES, ROLLBACK, type ModelProposal } from './chat-settings';
 
@@ -18,6 +20,8 @@ export type ChatCommandContext = {
   models: () => Array<{ slug: string; label: string; free: boolean }>;
   /** Подпись текущей модели; пустой slug — автоматический выбор. */
   labelOf: (slug: string) => string;
+  /** Карточка разрешения над полем ввода. */
+  showCard: (spec: CardSpec) => CardHandle;
 };
 
 const FIX_RESTORE_KEY = 'azrail.fixRestore.v1';
@@ -50,9 +54,63 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
   };
   const agentReady = async (message: string): Promise<boolean> => {
     if (!ctx.signedIn()) throw Error('Войдите, чтобы работать с компьютером.');
-    const gap = agentGap((await api('/api/agent/status')) as AgentState);
-    if (gap) { noteLocal(message, gap); return false; }
-    return true;
+    const state = (await api('/api/agent/status')) as AgentState;
+    const gap = agentGap(state);
+    if (!gap) return true;
+    if (!state.enabled) {
+      noteLocal(message, 'Нужен агент на компьютере. Подтверди включение в карточке ниже: настройки открывать не нужно.');
+      offerAgent();
+    } else noteLocal(message, gap);
+    return false;
+  };
+  const decide = async (id: string, approve: boolean, label: string) => {
+    agentWaiting = '';
+    try {
+      await api(`/api/agent/jobs/${id}/${approve ? 'approve' : 'reject'}`, { method: 'POST', body: '{}' });
+      noteLocal(label, jobReply(await waitJob(api, id, sleep, 90)));
+    } catch (error) { failed(label, error, 'Агент не ответил.'); }
+  };
+  const askApproval = (job: AgentJobView) => {
+    const card = ctx.showCard({
+      title: 'Нужно твоё разрешение',
+      text: approvalText(job).replace(/ Напиши «разреши» или «отклони»\.$/u, ''),
+      actions: [
+        { label: 'Разрешить', primary: true, run: async () => { card.close(); await decide(job.id, true, 'Разрешить'); } },
+        { label: 'Отклонить', run: async () => { card.close(); await decide(job.id, false, 'Отклонить'); } },
+      ],
+    });
+  };
+  const offerAgent = () => {
+    const card = ctx.showCard({
+      title: 'Включить агента на компьютере?',
+      text: 'Он получит доступ только к папке, которую ты укажешь, на 1 час. Запись файлов и запуск команд всё равно спросят отдельно.',
+      actions: [
+        { label: 'Включить на 1 час', primary: true, run: async () => {
+          try {
+            const { token } = (await api('/api/agent/enable', { method: 'POST', body: '{}' })) as { token: string };
+            let root = '';
+            try { root = localStorage.getItem('pulse.agentRoot') ?? ''; } catch { /* хранилище недоступно */ }
+            const command = agentCommand(location.origin, token, root);
+            card.update({
+              title: 'Ключ выдан на 1 час',
+              text: 'Открой PowerShell в папке azrail-pulse, вставь команду целиком и оставь окно открытым. Как только агент подключится, я скажу.',
+              code: command,
+              actions: [
+                { label: 'Скопировать команду', primary: true, run: async () => { try { await navigator.clipboard.writeText(`${command}\n`); ctx.notice('Команда скопирована.'); } catch { ctx.notice('Выдели текст и скопируй вручную (Ctrl+C).'); } } },
+                { label: 'Закрыть', run: () => card.close() },
+              ],
+            });
+            for (let i = 0; i < 60; i++) {
+              await sleep(3000);
+              const state = (await api('/api/agent/status')) as AgentState;
+              if (!state.enabled) return;
+              if (state.connected) { card.update({ title: 'Агент подключён', text: 'Теперь повтори свой запрос.', actions: [{ label: 'Хорошо', primary: true, run: () => card.close() }] }); return; }
+            }
+          } catch (error) { ctx.notice(error instanceof Error ? error.message : 'Не удалось включить агента.'); }
+        } },
+        { label: 'Не сейчас', run: () => card.close() },
+      ],
+    });
   };
   const failed = (message: string, error: unknown, fallback: string) => noteLocal(message, error instanceof Error ? error.message : fallback);
 
@@ -124,7 +182,7 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
       try {
         if (!(await agentReady(message))) return true;
         const made = (await api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ ...forAgent, ...activeRootField() }) })).job as AgentJobView;
-        if (made.status === 'awaiting_approval') { agentWaiting = made.id; noteLocal(message, approvalText(made)); return true; }
+        if (made.status === 'awaiting_approval') { agentWaiting = made.id; noteLocal(message, approvalText(made)); askApproval(made); return true; }
         noteLocal(message, jobReply(await waitJob(api, made.id, sleep)));
       } catch (error) { failed(message, error, 'Агент недоступен.'); }
       return true;

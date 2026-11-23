@@ -52,6 +52,7 @@ import {diagramLines,diagramModel,diagramSvg} from './diagram';
 import {asksToWrite,buildOffice,isBareFileRequest} from '../src/lib/office-file';
 import {installImageViewer} from './image-viewer';
 import {withRetry} from './account-retry';
+import {showApprovalCard} from './approval-card';
 import {longTarget,writeLong} from './long-text';
 import {htmlBlockOf} from './chat-code';
 installImageViewer();
@@ -1527,6 +1528,7 @@ const chatCommands=createChatCommands({
  setPreferredModel:slug=>setPreferredModel(slug),
  models:()=>pickerModels().map(m=>({slug:m.slug,label:modelLabel(m),free:!!m.freeAllowlisted&&m.availability!=='unavailable'})),
  labelOf:slug=>{const here=composerModels.find(slug);return here?modelLabel(here):(slug?modelDisplayName(slug):'Auto · AZRAIL');},
+ showCard:spec=>showApprovalCard(spec),
 });
 async function runChat(){
  if(missionSubmitting)return;
