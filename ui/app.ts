@@ -49,7 +49,7 @@ import {studioIntent,budgetSummary,ledgerSummary,pulseSummary,dataSummary,audioS
 import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArchive,holdPlain,matchHeldPath,openOnlyPath,restoreFileShot,saveBytes,siteFromZip,sourceIsHeld} from './zip-site';
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
 import {diagramLines,diagramModel,diagramSvg} from './diagram';
-import {buildOffice} from '../src/lib/office-file';
+import {asksToWrite,buildOffice,isBareFileRequest} from '../src/lib/office-file';
 import {installImageViewer} from './image-viewer';
 import {withRetry} from './account-retry';
 import {htmlBlockOf} from './chat-code';
@@ -1233,6 +1233,21 @@ async function runAssignment(plan:Assignment&{versions?:PlanThing[];seed?:number
  }
  finally{missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}
 }
+async function fileContent(phrase:string):Promise<string|undefined>{
+ if(asksToWrite(phrase)){
+  const ask=`${phrase}\n\nОтветь только готовым текстом документа: без вступлений, пояснений и вопросов в конце.`;
+  const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':crypto.randomUUID()},body:chatRequestBody({message:ask,projectId:project,conversationId:chatHistory.current()?.id??'',voice:chatVoice,attachments:[],effort:'medium'})});
+  const {reply,status}=chatReplyOf(r);
+  if(status==='failed')throw Error(reply);
+  return reply;
+ }
+ if(isBareFileRequest(phrase)){
+  const previous=chatHistory.current()?.turns.at(-1)?.reply?.trim();
+  if(!previous)throw Error('Нечего класть в файл: сначала попроси меня написать текст, потом скажи «сделай pdf».');
+  return previous;
+ }
+ return undefined;
+}
 async function todayNote(plan:WorkPlan){
  const video=plan.parts.some(part=>part.kind==='video')?'Ролик будет раскадровкой, внешняя съёмка не вызывается.':'';
  if(!account||local)return ['После входа будет виден остаток на сегодня.',video].filter(Boolean).join(' ');
@@ -1431,7 +1446,7 @@ async function runPlanPart(part:PlanPart){
  }
  if(part.kind==='file'){
   if(!account)throw Error('Войдите, чтобы собрать файл.');
-  const made=buildOffice(part.text);
+  const made=buildOffice(part.text,await fileContent(part.text));
   const saved=await api('/api/studio/artifacts',{method:'POST',headers:{'Content-Type':made.mime,'X-Filename':encodeURIComponent(made.name),'X-Studio-Id':'data'},body:made.bytes.buffer.slice(made.bytes.byteOffset,made.bytes.byteOffset+made.bytes.byteLength) as ArrayBuffer}) as {url?:string};
   const url=safeMediaPath(String(saved.url??''));
   if(!url)throw Error('Файл собран, но ссылка не сохранилась.');

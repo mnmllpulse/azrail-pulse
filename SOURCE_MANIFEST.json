@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T03:30:54.201Z",
+  "generated_at": "2026-11-23T03:44:36.675Z",
   "excludes_self": true,
-  "file_count": 1351,
+  "file_count": 1352,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -587,8 +587,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1462043,
-      "sha256": "bc84e646a7a7c9c16581a892445e247b703732093a0bbc116c1c066291278c52"
+      "bytes": 1464410,
+      "sha256": "d4efe261107f467c1855a3812e6fb641042f7c995599fdeca658f4add440a063"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3283,7 +3283,7 @@
     {
       "path": "site/app.html",
       "bytes": 25838,
-      "sha256": "8dab968990ad8a755c965e965528a307f75b7e2ab97eae8bfbf4850de799e98c"
+      "sha256": "2591db85595014bb0741bcf50d52a6451d87f543c6c7a30fa23caef591af314a"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3297,8 +3297,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 522744,
-      "sha256": "25da915181e790dc26f559558501930f0d0fbb4f7ac0aa6c49dbe666b8e72abe"
+      "bytes": 525107,
+      "sha256": "84cd7c106c39f568259ea03803705bbb0c1b9568a92bbe35fa2aacb3691da832"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3578,7 +3578,7 @@
     {
       "path": "site/index.html",
       "bytes": 25838,
-      "sha256": "8dab968990ad8a755c965e965528a307f75b7e2ab97eae8bfbf4850de799e98c"
+      "sha256": "2591db85595014bb0741bcf50d52a6451d87f543c6c7a30fa23caef591af314a"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4122,8 +4122,8 @@
     },
     {
       "path": "src/lib/office-file.ts",
-      "bytes": 10185,
-      "sha256": "b0919a51e30ca5cadcbd8a362879cd38deb9751be0d5ddb7742289f45a47165e"
+      "bytes": 12822,
+      "sha256": "28ded86ac1cd365040adea1a9d1e1749549e5660d04e93517dcad9e94582144b"
     },
     {
       "path": "src/lib/office-pdf.ts",
@@ -5256,6 +5256,11 @@
       "sha256": "798865167b052abdfa7e8a212f3638c3fe8aeb8b3669f588b3e59e47afa75375"
     },
     {
+      "path": "tests/office-from-reply.test.ts",
+      "bytes": 2163,
+      "sha256": "3de3d01ae389aeb6b02704618a681ce8c2b57efa062fd8caf88bef69e2456a85"
+    },
+    {
       "path": "tests/oidc-admin-groups.test.ts",
       "bytes": 4383,
       "sha256": "44df6395e4ea3e855e7ad438850ad2a34be3833ab5f46cba297c6e1ad78c5d49"
@@ -5752,8 +5757,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 145794,
-      "sha256": "c2640e3a31c29de37c0fbf601a70e75c16bf10756b93fb42db30518aa015385b"
+      "bytes": 146806,
+      "sha256": "c2d07045ebe9a6663a5378a09a8e24c0f63d75f6c596f030a5cb5f4bb871d2a3"
     },
     {
       "path": "ui/assignment.ts",
