@@ -1,8 +1,21 @@
 import type { Env, AttachmentRef } from "../types";
 import { officePlain } from "./office-text";
-import { listZip, readEntry, ZipError, type ZipEntry, type ZipListing } from "./zip-reader";
-import { gunzip, isGzip, listTar, looksLikeTar, readTarEntry } from "./tar-reader";
+import {
+  listZip,
+  readEntry,
+  ZipError,
+  type ZipEntry,
+  type ZipListing,
+} from "./zip-reader";
+import {
+  gunzip,
+  isGzip,
+  listTar,
+  looksLikeTar,
+  readTarEntry,
+} from "./tar-reader";
 import { redactSecrets } from "./secret-scan";
+import { CloudflareSpeechToTextAdapter } from "../unified/voice";
 
 /**
  * ЧТЕНИЕ ВЛОЖЕНИЙ ОБРАТНО ИЗ R2
@@ -40,12 +53,15 @@ const ZIP_MAX_TOTAL = 192 * 1024;
 const ZIP_MAX_ONE = 64 * 1024;
 
 /** Шум сборки: в перечень не попадает — он ничего не говорит о проекте. */
-export const ZIP_NOISE = /(^|\/)(__MACOSX|node_modules|\.git|dist|build|coverage|\.wrangler)(\/|$)|(^|\/)\.DS_Store$/;
+export const ZIP_NOISE =
+  /(^|\/)(__MACOSX|node_modules|\.git|dist|build|coverage|\.wrangler)(\/|$)|(^|\/)\.DS_Store$/;
 
 /** Файлы, по которым понятен проект. Читаются первыми, до общей очереди. */
-const ZIP_PRIORITY = /(^|\/)(readme|package\.json|wrangler\.|tsconfig|schema\.sql|index\.|main\.|app\.)/i;
+const ZIP_PRIORITY =
+  /(^|\/)(readme|package\.json|wrangler\.|tsconfig|schema\.sql|index\.|main\.|app\.)/i;
 
-const ZIP_LOW = /(^|\/)(legacy|references|vendor|fixtures?|snapshots?|__snapshots__|\.cursor|\.github)(\/|$)|(^|\/)[^/]*(lock|\.min\.|\.map)(\.|$)/i;
+const ZIP_LOW =
+  /(^|\/)(legacy|references|vendor|fixtures?|snapshots?|__snapshots__|\.cursor|\.github)(\/|$)|(^|\/)[^/]*(lock|\.min\.|\.map)(\.|$)/i;
 const ZIP_SOURCE = /(^|\/)(src|lib|app|server|api|worker|workers)\//i;
 const ZIP_SUPPORT = /(^|\/)(tests?|scripts?|docs?|migrations)\//i;
 
@@ -61,16 +77,84 @@ export function zipTier(path: string): number {
 
 /** Расширения, которые имеет смысл читать как текст. */
 export const TEXT_EXT = new Set([
-  "ts", "tsx", "js", "jsx", "mjs", "cjs", "json", "md", "txt", "css", "html",
-  "yml", "yaml", "toml", "sql", "sh", "py", "rs", "go", "java", "kt", "swift",
-  "c", "h", "cpp", "hpp", "rb", "php", "xml", "svg", "csv", "env", "gitignore",
-  "tsv", "ini", "cfg", "conf", "log", "vue", "svelte", "scss", "sass", "less", "lua", "ps1",
-  "kts", "gradle", "dart", "scala", "r", "tex", "rst", "srt", "vtt", "jsonl", "ndjson",
-  "graphql", "gql", "proto", "prisma", "properties", "dockerfile", "makefile", "mk", "ipynb",
+  "ts",
+  "tsx",
+  "js",
+  "jsx",
+  "mjs",
+  "cjs",
+  "json",
+  "md",
+  "txt",
+  "css",
+  "html",
+  "yml",
+  "yaml",
+  "toml",
+  "sql",
+  "sh",
+  "py",
+  "rs",
+  "go",
+  "java",
+  "kt",
+  "swift",
+  "c",
+  "h",
+  "cpp",
+  "hpp",
+  "rb",
+  "php",
+  "xml",
+  "svg",
+  "csv",
+  "env",
+  "gitignore",
+  "tsv",
+  "ini",
+  "cfg",
+  "conf",
+  "log",
+  "vue",
+  "svelte",
+  "scss",
+  "sass",
+  "less",
+  "lua",
+  "ps1",
+  "kts",
+  "gradle",
+  "dart",
+  "scala",
+  "r",
+  "tex",
+  "rst",
+  "srt",
+  "vtt",
+  "jsonl",
+  "ndjson",
+  "graphql",
+  "gql",
+  "proto",
+  "prisma",
+  "properties",
+  "dockerfile",
+  "makefile",
+  "mk",
+  "ipynb",
 ]);
 
 /** Архивы: распознаём, чтобы сказать правду, а не молчать. */
-const ARCHIVE_EXT = new Set(["zip", "tar", "gz", "tgz", "rar", "7z", "bz2", "xz"]);
+const ARCHIVE_EXT = new Set([
+  "zip",
+  "tar",
+  "gz",
+  "tgz",
+  "rar",
+  "7z",
+  "bz2",
+  "xz",
+]);
 const TAR_FAMILY = new Set(["tar", "gz", "tgz"]);
 
 /** Сколько байт начала файла смотреть, чтобы понять, текст это или двоичное. */
@@ -94,7 +178,21 @@ export function looksLikeText(head: Uint8Array): boolean {
 
 /** Офисные пакеты — это ZIP с XML. PDF и картинки идут через Workers AI. */
 const OFFICE_EXT = new Set(["docx", "xlsx", "pptx"]);
-const MARKDOWN_EXT = new Set(["pdf", "png", "jpg", "jpeg", "webp", "gif", "bmp", "svg", "xls", "xlsm", "xlsb", "ods", "odt"]);
+const MARKDOWN_EXT = new Set([
+  "pdf",
+  "png",
+  "jpg",
+  "jpeg",
+  "webp",
+  "gif",
+  "bmp",
+  "svg",
+  "xls",
+  "xlsm",
+  "xlsb",
+  "ods",
+  "odt",
+]);
 const MARKDOWN_MIME: Record<string, string> = {
   pdf: "application/pdf",
   png: "image/png",
@@ -111,6 +209,20 @@ const MARKDOWN_MIME: Record<string, string> = {
   odt: "application/vnd.oasis.opendocument.text",
 };
 const RICH_MAX_BYTES = 10 * 1024 * 1024;
+export const AUDIO_EXT = new Set([
+  "mp3",
+  "wav",
+  "m4a",
+  "ogg",
+  "oga",
+  "flac",
+  "aac",
+  "opus",
+  "weba",
+]);
+const AUDIO_MAX_BYTES = 8 * 1024 * 1024;
+export const AUDIO_NOTE =
+  "РАСШИФРОВКА СЛОВ ИЗ АУДИО (автоматическая, может ошибаться). Звук, музыку, голос и темп ты не слышишь: опирайся только на этот текст и прямо скажи, если слов нет или их мало.";
 
 export function extOf(name: string): string {
   const i = name.lastIndexOf(".");
@@ -135,29 +247,57 @@ export interface LoadedAttachment {
  * остальные от меньшего к большему — так в бюджет влезает больше разных
  * файлов, а не один толстый.
  */
-async function readZip(buf: ArrayBuffer, archiveName: string): Promise<LoadedAttachment[]> {
-  return readArchive(listZip(buf, ZIP_MAX_LISTED), (entry, max) => readEntry(buf, entry, max), archiveName);
+async function readZip(
+  buf: ArrayBuffer,
+  archiveName: string,
+): Promise<LoadedAttachment[]> {
+  return readArchive(
+    listZip(buf, ZIP_MAX_LISTED),
+    (entry, max) => readEntry(buf, entry, max),
+    archiveName,
+  );
 }
 
 /** tar, tar.gz, tgz и одиночный gz: распаковка в память под жёстким потолком, дальше тот же бюджет, что у ZIP. */
-async function readTarLike(buf: ArrayBuffer, archiveName: string): Promise<LoadedAttachment[]> {
+async function readTarLike(
+  buf: ArrayBuffer,
+  archiveName: string,
+): Promise<LoadedAttachment[]> {
   let bytes: Uint8Array = new Uint8Array(buf);
   if (isGzip(bytes)) bytes = await gunzip(bytes);
-  if (bytes.byteLength === 0) return [{ fileName: archiveName, skipped: "файл пуст" }];
+  if (bytes.byteLength === 0)
+    return [{ fileName: archiveName, skipped: "файл пуст" }];
   if (looksLikeTar(bytes)) {
-    return readArchive(listTar(bytes, ZIP_MAX_LISTED), async (entry, max) => readTarEntry(bytes, entry, max), archiveName);
+    return readArchive(
+      listTar(bytes, ZIP_MAX_LISTED),
+      async (entry, max) => readTarEntry(bytes, entry, max),
+      archiveName,
+    );
   }
   if (!looksLikeText(bytes.subarray(0, SNIFF_BYTES))) {
-    return [{ fileName: archiveName, skipped: "после распаковки это не tar и не текст" }];
+    return [
+      {
+        fileName: archiveName,
+        skipped: "после распаковки это не tar и не текст",
+      },
+    ];
   }
   const inner = archiveName.replace(/\.gz$/i, "");
   const cut = bytes.byteLength > MAX_TEXT_BYTES;
-  return [{
-    fileName: `${archiveName} → ${inner}`,
-    text: new TextDecoder("utf-8").decode(cut ? bytes.subarray(0, MAX_TEXT_BYTES) : bytes),
-    bytes: bytes.byteLength,
-    ...(cut ? { skipped: `показаны первые ${Math.round(MAX_TEXT_BYTES / 1024)} КБ из ${Math.round(bytes.byteLength / 1024)} КБ` } : {}),
-  }];
+  return [
+    {
+      fileName: `${archiveName} → ${inner}`,
+      text: new TextDecoder("utf-8").decode(
+        cut ? bytes.subarray(0, MAX_TEXT_BYTES) : bytes,
+      ),
+      bytes: bytes.byteLength,
+      ...(cut
+        ? {
+            skipped: `показаны первые ${Math.round(MAX_TEXT_BYTES / 1024)} КБ из ${Math.round(bytes.byteLength / 1024)} КБ`,
+          }
+        : {}),
+    },
+  ];
 }
 
 async function readArchive(
@@ -169,21 +309,36 @@ async function readArchive(
   const visible = entries.filter((e) => !ZIP_NOISE.test(e.path));
 
   if (visible.length === 0) {
-    return [{ fileName: archiveName, skipped: "архив пуст или содержит только служебные файлы" }];
+    return [
+      {
+        fileName: archiveName,
+        skipped: "архив пуст или содержит только служебные файлы",
+      },
+    ];
   }
 
   const listing = visible
-    .map((e) => `  ${e.path}  (${e.size >= 1024 ? Math.round(e.size / 1024) + " КБ" : e.size + " Б"})`)
+    .map(
+      (e) =>
+        `  ${e.path}  (${e.size >= 1024 ? Math.round(e.size / 1024) + " КБ" : e.size + " Б"})`,
+    )
     .join("\n");
 
-  const hiddenNote = total > visible.length ? `\n  …и ${total - visible.length} файлов вне показанного перечня (служебные или превышение лимита) — пропущены` : "";
+  const hiddenNote =
+    total > visible.length
+      ? `\n  …и ${total - visible.length} файлов вне показанного перечня (служебные или превышение лимита) — пропущены`
+      : "";
 
-  const out: LoadedAttachment[] = [{
-    fileName: `${archiveName} — оглавление`,
-    text: "",
-  }];
+  const out: LoadedAttachment[] = [
+    {
+      fileName: `${archiveName} — оглавление`,
+      text: "",
+    },
+  ];
 
-  const readable = visible.filter((e) => !e.skipped && TEXT_EXT.has(extOf(e.path)));
+  const readable = visible.filter(
+    (e) => !e.skipped && TEXT_EXT.has(extOf(e.path)),
+  );
   const queue = [...readable].sort((a, b) => {
     const ta = zipTier(a.path);
     const tb = zipTier(b.path);
@@ -203,7 +358,11 @@ async function readArchive(
     try {
       const bytes = await readOne(entry, Math.min(ZIP_MAX_ONE, budget));
       const text = new TextDecoder("utf-8").decode(bytes);
-      out.push({ fileName: `${archiveName} → ${entry.path}`, text, bytes: bytes.byteLength });
+      out.push({
+        fileName: `${archiveName} → ${entry.path}`,
+        text,
+        bytes: bytes.byteLength,
+      });
       budget -= bytes.byteLength;
       read++;
     } catch (err) {
@@ -242,7 +401,10 @@ export async function loadAttachments(
 ): Promise<LoadedAttachment[]> {
   if (!Array.isArray(refs) || refs.length === 0) return [];
   if (!env.AZRAIL_R2) {
-    return refs.map((r) => ({ fileName: r.fileName, skipped: "хранилище файлов недоступно" }));
+    return refs.map((r) => ({
+      fileName: r.fileName,
+      skipped: "хранилище файлов недоступно",
+    }));
   }
 
   const out: LoadedAttachment[] = [];
@@ -256,7 +418,10 @@ export async function loadAttachments(
       if (!readable) {
         // rar/7z/bz2/xz — другие форматы, каждый со своей распаковкой.
         // Честный отказ лучше молчаливого пустого результата.
-        out.push({ fileName: name, skipped: `формат «${ext}» не распаковывается; пришли ZIP, tar или tar.gz` });
+        out.push({
+          fileName: name,
+          skipped: `формат «${ext}» не распаковывается; пришли ZIP, tar или tar.gz`,
+        });
         continue;
       }
       if (!ref.r2Key) {
@@ -269,11 +434,21 @@ export async function loadAttachments(
           out.push({ fileName: name, skipped: "файл не найден в хранилище" });
           continue;
         }
-        if (obj.size > 50 * 1024 * 1024) throw new ZipError("архив превышает 50 МБ");
+        if (obj.size > 50 * 1024 * 1024)
+          throw new ZipError("архив превышает 50 МБ");
         const buf = await obj.arrayBuffer();
-        out.push(...(ext === "zip" ? await readZip(buf, name) : await readTarLike(buf, name)));
+        out.push(
+          ...(ext === "zip"
+            ? await readZip(buf, name)
+            : await readTarLike(buf, name)),
+        );
       } catch (err) {
-        const why = err instanceof ZipError ? err.message : err instanceof Error ? err.message : String(err);
+        const why =
+          err instanceof ZipError
+            ? err.message
+            : err instanceof Error
+              ? err.message
+              : String(err);
         out.push({ fileName: name, skipped: why });
       }
       continue;
@@ -291,8 +466,58 @@ export async function loadAttachments(
         continue;
       }
 
-      if (obj.size > RICH_MAX_BYTES && (OFFICE_EXT.has(ext) || MARKDOWN_EXT.has(ext))) {
+      if (
+        obj.size > RICH_MAX_BYTES &&
+        (OFFICE_EXT.has(ext) || MARKDOWN_EXT.has(ext))
+      ) {
         out.push({ fileName: name, skipped: "файл больше 10 МБ" });
+        continue;
+      }
+
+      if (AUDIO_EXT.has(ext)) {
+        if (!env.AI) {
+          out.push({
+            fileName: name,
+            skipped: "я не слышу аудио: распознавание речи сейчас недоступно",
+          });
+          continue;
+        }
+        if (obj.size > AUDIO_MAX_BYTES) {
+          out.push({
+            fileName: name,
+            skipped:
+              "аудио больше 8 МБ: я не слышу звук, расшифровка не сделана",
+          });
+          continue;
+        }
+        try {
+          const result = await new CloudflareSpeechToTextAdapter(
+            env,
+          ).transcribe({ audio: await obj.arrayBuffer() });
+          const words = result.text.trim();
+          if (words.length < 3)
+            out.push({
+              fileName: name,
+              skipped: "в аудио не нашлось слов: я не слышу музыку и звук",
+            });
+          else
+            out.push({
+              fileName: name,
+              text: words.slice(0, 40_000),
+              bytes: obj.size,
+              skipped: AUDIO_NOTE,
+            });
+        } catch (err) {
+          const noWords =
+            err instanceof Error &&
+            err.message.includes("не вернул текстовую расшифровку");
+          out.push({
+            fileName: name,
+            skipped: noWords
+              ? "в аудио не нашлось слов: я не слышу музыку и звук"
+              : "я не слышу аудио: расшифровка не удалась",
+          });
+        }
         continue;
       }
 
@@ -305,34 +530,55 @@ export async function loadAttachments(
 
       if (MARKDOWN_EXT.has(ext)) {
         if (!env.AI?.toMarkdown) {
-          out.push({ fileName: name, skipped: "разбор этого типа сейчас недоступен" });
+          out.push({
+            fileName: name,
+            skipped: "разбор этого типа сейчас недоступен",
+          });
           continue;
         }
-        const converted = (await env.AI.toMarkdown([{
-          name,
-          blob: new Blob([await obj.arrayBuffer()], { type: MARKDOWN_MIME[ext] ?? "application/octet-stream" }),
-        }])) as Array<{ data?: string; error?: string; format?: string }>;
+        const converted = (await env.AI.toMarkdown([
+          {
+            name,
+            blob: new Blob([await obj.arrayBuffer()], {
+              type: MARKDOWN_MIME[ext] ?? "application/octet-stream",
+            }),
+          },
+        ])) as Array<{ data?: string; error?: string; format?: string }>;
         const row = converted[0];
         const text = row?.data?.trim() ?? "";
         if (!text || row?.format === "error") {
-          out.push({ fileName: name, skipped: row?.error || "разбор не вернул текст" });
+          out.push({
+            fileName: name,
+            skipped: row?.error || "разбор не вернул текст",
+          });
           continue;
         }
-        out.push({ fileName: name, text: text.slice(0, 80_000), bytes: obj.size });
+        out.push({
+          fileName: name,
+          text: text.slice(0, 80_000),
+          bytes: obj.size,
+        });
         continue;
       }
 
       // Двоичное читать как текст бессмысленно: модель получит мусор и
       // будет рассуждать о нём как о коде.
-      let looksText = TEXT_EXT.has(ext) || (ref.mimeType ?? "").startsWith("text/");
+      let looksText =
+        TEXT_EXT.has(ext) || (ref.mimeType ?? "").startsWith("text/");
       if (!looksText) {
         // Расширение не решает: Dockerfile, LICENSE, .rc-файлы и любой текст
         // с чужим суффиксом определяются по содержимому начала файла.
-        const head = await env.AZRAIL_R2.get(ref.r2Key, { range: { offset: 0, length: SNIFF_BYTES } });
-        looksText = !!head && looksLikeText(new Uint8Array(await head.arrayBuffer()));
+        const head = await env.AZRAIL_R2.get(ref.r2Key, {
+          range: { offset: 0, length: SNIFF_BYTES },
+        });
+        looksText =
+          !!head && looksLikeText(new Uint8Array(await head.arrayBuffer()));
       }
       if (!looksText) {
-        out.push({ fileName: name, skipped: `двоичный файл${ext ? ` (тип «${ext}»)` : ""}: как текст не читается` });
+        out.push({
+          fileName: name,
+          skipped: `двоичный файл${ext ? ` (тип «${ext}»)` : ""}: как текст не читается`,
+        });
         continue;
       }
 
@@ -340,7 +586,9 @@ export async function loadAttachments(
       // R2 ranged reads bound memory and subrequest payload at the storage layer.
       const truncated = obj.size > MAX_TEXT_BYTES;
       const readable = truncated
-        ? await env.AZRAIL_R2.get(ref.r2Key, { range: { offset: 0, length: MAX_TEXT_BYTES } })
+        ? await env.AZRAIL_R2.get(ref.r2Key, {
+            range: { offset: 0, length: MAX_TEXT_BYTES },
+          })
         : obj;
       if (!readable) {
         out.push({ fileName: name, skipped: "файл исчез во время чтения" });
@@ -359,7 +607,10 @@ export async function loadAttachments(
 
       out.push({ fileName: name, text, bytes: obj.size });
     } catch (err) {
-      out.push({ fileName: name, skipped: err instanceof Error ? err.message : String(err) });
+      out.push({
+        fileName: name,
+        skipped: err instanceof Error ? err.message : String(err),
+      });
     }
   }
 
@@ -395,19 +646,33 @@ export function attachmentsToText(loaded: LoadedAttachment[]): string {
 }
 
 const ARCHIVE_MARK = /\[АРХИВ r2=(\S+) name=([^\]]+)\]/g;
-const NAMED_FILE = /(?:^|[\s`'"(])((?:[\w.-]+\/)+[\w.-]+\.[\w]+|[\w.-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|md|txt|css|html|yml|yaml|toml|sql|py|rs|go|xml|svg|csv))/giu;
+const NAMED_FILE =
+  /(?:^|[\s`'"(])((?:[\w.-]+\/)+[\w.-]+\.[\w]+|[\w.-]+\.(?:ts|tsx|js|jsx|mjs|cjs|json|md|txt|css|html|yml|yaml|toml|sql|py|rs|go|xml|svg|csv))/giu;
 
 /** Строка для сохранённой реплики: следующий вопрос сможет открыть этот же архив. */
 export function zipArchiveNote(refs: AttachmentRef[] | undefined): string {
   if (!Array.isArray(refs)) return "";
   return refs
-    .filter((ref) => ref.r2Key && ref.fileName.toLowerCase().endsWith(".zip") && !/[\r\n\]]/.test(ref.r2Key))
-    .map((ref) => `[АРХИВ r2=${ref.r2Key} name=${ref.fileName.replace(/[\[\]]/g, "").trim()}]`)
+    .filter(
+      (ref) =>
+        ref.r2Key &&
+        ref.fileName.toLowerCase().endsWith(".zip") &&
+        !/[\r\n\]]/.test(ref.r2Key),
+    )
+    .map(
+      (ref) =>
+        `[АРХИВ r2=${ref.r2Key} name=${ref.fileName.replace(/[\[\]]/g, "").trim()}]`,
+    )
     .join("\n");
 }
 
-export function archivesFromText(text: string): Array<{ r2Key: string; fileName: string }> {
-  return [...text.matchAll(ARCHIVE_MARK)].map((item) => ({ r2Key: item[1], fileName: item[2].trim() }));
+export function archivesFromText(
+  text: string,
+): Array<{ r2Key: string; fileName: string }> {
+  return [...text.matchAll(ARCHIVE_MARK)].map((item) => ({
+    r2Key: item[1],
+    fileName: item[2].trim(),
+  }));
 }
 
 /** Имена из новой фразы, не из старого оглавления. */
@@ -415,7 +680,8 @@ export function fileNamesInQuestion(text: string): string[] {
   const found: string[] = [];
   for (const item of text.matchAll(NAMED_FILE)) {
     const path = item[1].replace(/^\.?\//, "");
-    if (path.length > 180 || path.includes("..") || found.includes(path)) continue;
+    if (path.length > 180 || path.includes("..") || found.includes(path))
+      continue;
     found.push(path);
     if (found.length >= 3) break;
   }
@@ -437,7 +703,10 @@ export function censusLine(text: string): string | null {
   return `Прочитано ${found[1]} из ${found[2]}.`;
 }
 
-export function uploadKeyForProject(key: string, projectId: string | undefined): boolean {
+export function uploadKeyForProject(
+  key: string,
+  projectId: string | undefined,
+): boolean {
   if (!projectId || !/^[A-Za-z0-9_-]{1,128}$/.test(projectId)) return false;
   return key.startsWith(`uploads/${projectId}/`) && !key.includes("..");
 }
@@ -451,28 +720,46 @@ export async function readNamedFromZip(
   if (!env.AZRAIL_R2 || paths.length === 0) return [];
   try {
     const obj = await env.AZRAIL_R2.get(archive.r2Key);
-    if (!obj) return [{ fileName: archive.fileName, skipped: "архив уже не лежит в хранилище" }];
-    if (obj.size > 50 * 1024 * 1024) return [{ fileName: archive.fileName, skipped: "архив превышает 50 МБ" }];
+    if (!obj)
+      return [
+        {
+          fileName: archive.fileName,
+          skipped: "архив уже не лежит в хранилище",
+        },
+      ];
+    if (obj.size > 50 * 1024 * 1024)
+      return [{ fileName: archive.fileName, skipped: "архив превышает 50 МБ" }];
     const buf = await obj.arrayBuffer();
     const { entries } = listZip(buf, 8000);
     const out: LoadedAttachment[] = [];
     for (const want of paths) {
       const needle = want.toLowerCase();
-      const exact = entries.find((entry) => entry.path.toLowerCase() === needle);
+      const exact = entries.find(
+        (entry) => entry.path.toLowerCase() === needle,
+      );
       const tail = entries
         .filter((entry) => entry.path.toLowerCase().endsWith(`/${needle}`))
         .sort((a, b) => a.path.length - b.path.length)[0];
       const entry = exact ?? tail;
       if (!entry) {
-        out.push({ fileName: `${archive.fileName} → ${want}`, skipped: "в архиве нет такого пути" });
+        out.push({
+          fileName: `${archive.fileName} → ${want}`,
+          skipped: "в архиве нет такого пути",
+        });
         continue;
       }
       if (entry.skipped || !TEXT_EXT.has(extOf(entry.path))) {
-        out.push({ fileName: `${archive.fileName} → ${entry.path}`, skipped: entry.skipped ?? "этот тип из архива не читается как текст" });
+        out.push({
+          fileName: `${archive.fileName} → ${entry.path}`,
+          skipped: entry.skipped ?? "этот тип из архива не читается как текст",
+        });
         continue;
       }
       if (entry.size > MAX_TEXT_BYTES) {
-        out.push({ fileName: `${archive.fileName} → ${entry.path}`, skipped: `файл больше ${Math.round(MAX_TEXT_BYTES / 1024)} КБ` });
+        out.push({
+          fileName: `${archive.fileName} → ${entry.path}`,
+          skipped: `файл больше ${Math.round(MAX_TEXT_BYTES / 1024)} КБ`,
+        });
         continue;
       }
       const bytes = await readEntry(buf, entry, MAX_TEXT_BYTES);
@@ -484,7 +771,12 @@ export async function readNamedFromZip(
     }
     return out;
   } catch (err) {
-    return [{ fileName: archive.fileName, skipped: err instanceof Error ? err.message : String(err) }];
+    return [
+      {
+        fileName: archive.fileName,
+        skipped: err instanceof Error ? err.message : String(err),
+      },
+    ];
   }
 }
 
@@ -494,17 +786,35 @@ export async function findOwnedZip(
   projectId: string,
   names: string[],
 ): Promise<{ r2Key: string; fileName: string } | null> {
-  if (!env.AZRAIL_R2 || !uploadKeyForProject(`uploads/${projectId}/x`, projectId) || names.length === 0) return null;
+  if (
+    !env.AZRAIL_R2 ||
+    !uploadKeyForProject(`uploads/${projectId}/x`, projectId) ||
+    names.length === 0
+  )
+    return null;
   const wanted = new Set(names.map((name) => sanitizeZipName(name)));
   let cursor: string | undefined;
   for (let page = 0; page < 3; page++) {
-    const listed = await env.AZRAIL_R2.list({ prefix: `uploads/${projectId}/`, limit: 100, cursor });
+    const listed = await env.AZRAIL_R2.list({
+      prefix: `uploads/${projectId}/`,
+      limit: 100,
+      cursor,
+    });
     for (const object of listed.objects ?? []) {
       const key = object.key;
-      if (!key.toLowerCase().endsWith(".zip") || !uploadKeyForProject(key, projectId)) continue;
+      if (
+        !key.toLowerCase().endsWith(".zip") ||
+        !uploadKeyForProject(key, projectId)
+      )
+        continue;
       const leaf = key.slice(key.lastIndexOf("/") + 1);
       for (const name of wanted) {
-        if (leaf.endsWith(`-${name}`) || leaf === name) return { r2Key: key, fileName: names.find((item) => sanitizeZipName(item) === name) ?? name };
+        if (leaf.endsWith(`-${name}`) || leaf === name)
+          return {
+            r2Key: key,
+            fileName:
+              names.find((item) => sanitizeZipName(item) === name) ?? name,
+          };
       }
     }
     if (!listed.truncated || !listed.cursor) break;
@@ -514,5 +824,10 @@ export async function findOwnedZip(
 }
 
 function sanitizeZipName(name: string): string {
-  return name.replace(/\.{2,}/g, ".").replace(/[^a-zA-Z0-9._-]/g, "_").slice(0, 120) || "file";
+  return (
+    name
+      .replace(/\.{2,}/g, ".")
+      .replace(/[^a-zA-Z0-9._-]/g, "_")
+      .slice(0, 120) || "file"
+  );
 }

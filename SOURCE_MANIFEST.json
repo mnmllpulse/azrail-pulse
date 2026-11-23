@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-22T21:58:50.980Z",
+  "generated_at": "2026-11-23T02:39:25.098Z",
   "excludes_self": true,
-  "file_count": 1344,
+  "file_count": 1345,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3847,8 +3847,8 @@
     },
     {
       "path": "src/lib/attachments.ts",
-      "bytes": 24474,
-      "sha256": "dd19fbb22f91c6eb4ce099caa558850d530b0b3f760566f6ae33b9eeb446b926"
+      "bytes": 28125,
+      "sha256": "d9c3f81ed2f81cebebac245a5aa172df6730e9dad65c0a05a92b408205f2f1d0"
     },
     {
       "path": "src/lib/auth.ts",
@@ -4704,6 +4704,11 @@
       "path": "tests/audio-analysis.test.ts",
       "bytes": 4614,
       "sha256": "5eb640aecf2e057d4d666db6d3ec9df68911b5fbecbc9ba85f714b5fcdf609b8"
+    },
+    {
+      "path": "tests/audio-attachment.test.ts",
+      "bytes": 2263,
+      "sha256": "524ee9b4a9ed05375e819313550da8a3fd973af38935d96cc1e0e4112a089b9e"
     },
     {
       "path": "tests/audio-codecs.test.ts",
