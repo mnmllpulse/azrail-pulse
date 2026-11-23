@@ -34,7 +34,7 @@ Migration `034-metatron-lab-2.sql` добавляет:
 - `mission_memory_reads`;
 - `mission_fault_runs`.
 
-Migration включена в локальный source package, но **не применялась к Cloudflare D1**.
+Состояние на 23.11.2026: все пять таблиц есть в боевой D1 `azrail-pulse-db` (проверено запросом к `sqlite_master`). Раньше здесь стояло «не применялась»; это устарело.
 
 ## Границы доказательства
 
