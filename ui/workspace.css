@@ -210,7 +210,8 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell #mission-summary { font-size: 14px; line-height: 1.8; white-space: pre-wrap; }
 .app-shell #mission-status { color: var(--muted); font-size: var(--fs-caption); }
 .app-shell .mission-plan { font-size: var(--fs-caption); }
-.app-shell .jump-latest { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 2; border-radius: 99px; background: #302537; border-color: #6b527d; padding: 6px 15px; min-height: 34px; font-size: var(--fs-caption); white-space: nowrap; }
+.app-shell .jump-latest { position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%); z-index: 2; width: 40px; height: 40px; min-height: 40px; padding: 0; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; background: rgba(38, 30, 44, 0.92); border: 1px solid #4b3a58; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35); backdrop-filter: blur(8px); }
+.app-shell .jump-latest:hover { background: #3a2d45; }
 .app-shell .context-panel { min-width: 0; min-height: 0; display: flex; flex-direction: column; background: #121016; border-left: 1px solid #302637; }
 .app-shell .context-heading { padding: 22px 20px; border-bottom: 1px solid #302637; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .app-shell .context-heading .kicker { margin: 0 0 7px; font-size: var(--fs-micro); }

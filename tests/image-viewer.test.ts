@@ -18,7 +18,9 @@ describe("просмотр картинки в чате", () => {
       "/media/a.png",
     );
     expect(viewer?.querySelector("a")?.hasAttribute("download")).toBe(true);
-    expect(viewer?.querySelector("button")?.textContent).toBe("Закрыть");
+    expect(viewer?.querySelector("button")?.getAttribute("aria-label")).toBe(
+      "Закрыть",
+    );
   });
   it("картинки вне чата не затрагиваются", () => {
     installImageViewer();
