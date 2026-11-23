@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T02:39:25.098Z",
+  "generated_at": "2026-11-23T02:48:45.735Z",
   "excludes_self": true,
-  "file_count": 1345,
+  "file_count": 1347,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -587,8 +587,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1457219,
-      "sha256": "22e80a372065487e6495b4fd43f4a4ddf2d7cabbb42193030b4b350f2c7e781b"
+      "bytes": 1459159,
+      "sha256": "51123562eb7cbf722e33c4374f597070e4cafa43567f9511e768c8b085b8bfc9"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3283,7 +3283,7 @@
     {
       "path": "site/app.html",
       "bytes": 25708,
-      "sha256": "eb2b13c092ef854fdd263ff1e9564c3d96c15c3233973f10e78d281c105bacc6"
+      "sha256": "39506ab9ece67432a698f8218be9f276b39cf57b8aef044fb797d2ce909bd501"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3292,13 +3292,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 178136,
-      "sha256": "3b1ae49a146c1cdb8ad24521a760c8355134d05a3fc1e157a20335ffa2036957"
+      "bytes": 178814,
+      "sha256": "6c76abdea4117e5576c61d893ea5c6a1424b38e41450e1c3e8f5bcd3843c50bb"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 519303,
-      "sha256": "2efec10271e43a3683918b7c67a97cb7c51b3b6527dbf308ba1494493b1a6c2a"
+      "bytes": 520565,
+      "sha256": "09f35aa5fd82c2497b6115cbb1106ad4b5c07d9a23c7f3eaa63d6e15b1cf6718"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3578,7 +3578,7 @@
     {
       "path": "site/index.html",
       "bytes": 25708,
-      "sha256": "eb2b13c092ef854fdd263ff1e9564c3d96c15c3233973f10e78d281c105bacc6"
+      "sha256": "39506ab9ece67432a698f8218be9f276b39cf57b8aef044fb797d2ce909bd501"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5051,6 +5051,11 @@
       "sha256": "5c1e48dae7c3caf6128e7329bb7682abf226585208862dcaf4562043af845bce"
     },
     {
+      "path": "tests/image-viewer.test.ts",
+      "bytes": 1726,
+      "sha256": "ff5c9240047960b331f0dc5e91220e02adfa51b9b67c35b3832bc6320ae0cea7"
+    },
+    {
       "path": "tests/incident-runbooks.test.ts",
       "bytes": 977,
       "sha256": "dc95406437cd45164303144d8dd9adb1b8984bd7e29c37aa820d80435d47e42b"
@@ -5722,8 +5727,8 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 127830,
-      "sha256": "3b3673f2efeb9caee04f85738116497d0fde6d5262d7a7a2c9a2e65be042439a"
+      "bytes": 128521,
+      "sha256": "dc80f109a2feabfa9bacb2b533bca012fb166632598dc943ed75c407e0e77daf"
     },
     {
       "path": "ui/app.html",
@@ -5732,8 +5737,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 144412,
-      "sha256": "ca551b2ab43f8762e80c2cc55b2f176ff6cec69643aa37e9dcce2450f31755bf"
+      "bytes": 144485,
+      "sha256": "8ec4d63a5d1039a6f6626139d1276e1ed1f42e32a60078ff7d60ea05248bd7f0"
     },
     {
       "path": "ui/assignment.ts",
@@ -5984,6 +5989,11 @@
       "path": "ui/image-studio-2.ts",
       "bytes": 17020,
       "sha256": "c826502c640bfd9432c1f6ac99dd68f713ebeb74b9013428a897fdd7972563f7"
+    },
+    {
+      "path": "ui/image-viewer.ts",
+      "bytes": 1774,
+      "sha256": "807947133fa00185093b79a36ac8e042a0c48e49e06aedddb6a354b185353f19"
     },
     {
       "path": "ui/ledger-studio.ts",

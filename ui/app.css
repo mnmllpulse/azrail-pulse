@@ -609,3 +609,10 @@ html[data-settings-contrast="high"] button {border-color:#8089a6;}
 .agent-browser-root {margin:0;font-size: var(--fs-caption);color:var(--muted);overflow-wrap:anywhere;}
 
 .settings-page-heading h1:focus,.settings-page-heading h1:focus-visible {outline:none;box-shadow:none;}
+
+.thing-card img,.assignment-pair img,.assignment-versions img{cursor:zoom-in}
+.image-viewer{max-width:96vw;max-height:96vh;padding:12px;border:0;border-radius:12px;background:var(--surface,#111);color:inherit}
+.image-viewer::backdrop{background:rgba(0,0,0,.82)}
+.image-viewer img{display:block;max-width:92vw;max-height:80vh;margin:0 auto;object-fit:contain}
+.image-viewer-bar{display:flex;gap:12px;justify-content:center;margin-top:12px}
+.image-viewer-bar a,.image-viewer-bar button{min-height:44px;padding:0 18px;display:inline-flex;align-items:center;border-radius:10px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;text-decoration:none;cursor:pointer}
