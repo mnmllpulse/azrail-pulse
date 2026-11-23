@@ -1,7 +1,18 @@
-import { activePath, bytesForArchive, bytesForFile, fileShotReady, openHeld, rememberPath, restoreFileShot, saveBytes, snapFile, sourceIsHeld } from './zip-site';
+import {
+  activePath,
+  bytesForArchive,
+  bytesForFile,
+  fileShotReady,
+  openHeld,
+  rememberPath,
+  restoreFileShot,
+  saveBytes,
+  snapFile,
+  sourceIsHeld,
+} from "./zip-site";
 
-const STORAGE_KEY='pulse.home-code';
-const STARTER=`<!doctype html>
+const STORAGE_KEY = "pulse.home-code";
+const STARTER = `<!doctype html>
 <html lang="ru">
 <head>
 <meta charset="utf-8">
@@ -23,165 +34,241 @@ const STARTER=`<!doctype html>
 </html>
 `;
 
-function looksLikeHtml(source:string){
- return /<!doctype|<html|<body|<div|<section|<style|<h1|<p[\s>]|<main/i.test(source);
+function looksLikeHtml(source: string) {
+  return /<!doctype|<html|<body|<div|<section|<style|<h1|<p[\s>]|<main/i.test(
+    source,
+  );
 }
 
-function previewParts(source:string){
- const code=source.trim()||STARTER;
- const html=looksLikeHtml(code)?code:`<!doctype html><html lang="ru"><head><meta charset="utf-8"><style>body{margin:0;background:#09090f;color:#f4f2f8;font:14px/1.6 ui-monospace,monospace}pre{margin:0;padding:20px;white-space:pre-wrap}</style></head><body><pre>${code.replace(/[&<>]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[char]!))}</pre></body></html>`;
- const css:string[]=[];
- const body=html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi,(_,block:string)=>{css.push(block);return '';});
- return {html:body,css:css.join('\n')};
+function previewParts(source: string) {
+  const code = source.trim() || STARTER;
+  const html = looksLikeHtml(code)
+    ? code
+    : `<!doctype html><html lang="ru"><head><meta charset="utf-8"><style>body{margin:0;background:#09090f;color:#f4f2f8;font:14px/1.6 ui-monospace,monospace}pre{margin:0;padding:20px;white-space:pre-wrap}</style></head><body><pre>${code.replace(/[&<>]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[char]!)}</pre></body></html>`;
+  const css: string[] = [];
+  const body = html.replace(
+    /<style\b[^>]*>([\s\S]*?)<\/style>/gi,
+    (_, block: string) => {
+      css.push(block);
+      return "";
+    },
+  );
+  return { html: body, css: css.join("\n") };
 }
 
-export function mountHomeCanvas(){
- const code=document.querySelector<HTMLTextAreaElement>('#home-code');
- const screen=document.querySelector<HTMLIFrameElement>('#home-screen');
- const kind=document.querySelector<HTMLElement>('#home-canvas-kind');
- const codeTab=document.querySelector<HTMLButtonElement>('#home-mode-code');
- const screenTab=document.querySelector<HTMLButtonElement>('#home-mode-screen');
- const termTab=document.querySelector<HTMLButtonElement>('#home-mode-terminal');
- const term=document.querySelector<HTMLElement>('#home-terminal');
- const fileLabel=document.querySelector<HTMLElement>('#home-files-label');
- const filePick=document.querySelector<HTMLSelectElement>('#home-files');
- const saveFile=document.querySelector<HTMLButtonElement>('#home-save-file');
- const saveZip=document.querySelector<HTMLButtonElement>('#home-save-zip');
- const restoreFile=document.querySelector<HTMLButtonElement>('#home-restore-file');
- const markSource=()=>{
-  const on=sourceIsHeld();
-  if(saveFile)saveFile.hidden=!on;
-  if(saveZip)saveZip.hidden=!on;
-  if(restoreFile)restoreFile.hidden=!fileShotReady();
- };
- const save=(kind:'file'|'zip')=>{
-  const path=activePath();
-  const text=code?.value??'';
-  const run=kind==='zip'?bytesForArchive(path,text):Promise.resolve(bytesForFile(path,text));
-  void run.then(packed=>{if(packed)saveBytes(packed.name,packed.bytes);});
- };
- if(!code||!screen||!kind||!codeTab||!screenTab)return;
- let saved='';
- try{saved=localStorage.getItem(STORAGE_KEY)??'';}catch{saved='';}
- code.value=saved.trim()?saved:STARTER;
- const paint=()=>{
-  kind.textContent=looksLikeHtml(code.value)?'HTML':'Текст';
-  if(screen.hidden)return;
-  const parts=previewParts(code.value);
-  const sheet=`data:text/css;charset=utf-8,${encodeURIComponent(parts.css)}`;
-  const linked=parts.html.includes('</head>')?parts.html.replace('</head>',`<link rel="stylesheet" href="${sheet}"></head>`):`<link rel="stylesheet" href="${sheet}">${parts.html}`;
-  screen.removeAttribute('src');
-  screen.srcdoc=linked;
- };
- const show=(mode:'code'|'screen'|'terminal')=>{
-  const preview=mode==='screen';
-  const shell=mode==='terminal';
-  code.hidden=preview||shell;
-  screen.hidden=!preview;
-  if(term)term.hidden=!shell;
-  codeTab.setAttribute('aria-selected',String(mode==='code'));
-  screenTab.setAttribute('aria-selected',String(preview));
-  termTab?.setAttribute('aria-selected',String(shell));
-  codeTab.classList.toggle('active',mode==='code');
-  screenTab.classList.toggle('active',preview);
-  termTab?.classList.toggle('active',shell);
-  paint();
- };
- let armed:{path:string;text:string}|null=null;
- code.addEventListener('focus',()=>{armed={path:activePath(),text:code.value};});
- code.addEventListener('blur',()=>{
-  if(!armed||armed.text===code.value)return;
-  snapFile(armed.path||activePath()||'index.html',armed.text);
-  armed=null;
-  markSource();
- });
- code.addEventListener('input',()=>{
-  try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
-  paint();
- });
- codeTab.addEventListener('click',()=>show('code'));
- screenTab.addEventListener('click',()=>show('screen'));
- termTab?.addEventListener('click',()=>show('terminal'));
- document.addEventListener('azrail:preview-open',()=>paint());
- document.addEventListener('azrail:site-preview',(event)=>{
-  const html=(event as CustomEvent<string>).detail;
-  if(typeof html!=='string'||!html.trim())return;
-  code.value=html;
-  try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
-  show('screen');
-  markSource();
- });
- document.addEventListener('azrail:zip-catalog',(event)=>{
-  const paths=(event as CustomEvent<string[]>).detail;
-  if(!fileLabel||!filePick||!Array.isArray(paths)||!paths.length)return;
-  filePick.replaceChildren();
-  for(const path of paths){
-   const option=document.createElement('option');
-   option.value=path;
-   option.textContent=path;
-   filePick.append(option);
+export function mountHomeCanvas() {
+  const code = document.querySelector<HTMLTextAreaElement>("#home-code");
+  const screen = document.querySelector<HTMLIFrameElement>("#home-screen");
+  const kind = document.querySelector<HTMLElement>("#home-canvas-kind");
+  const codeTab = document.querySelector<HTMLButtonElement>("#home-mode-code");
+  const screenTab =
+    document.querySelector<HTMLButtonElement>("#home-mode-screen");
+  const termTab = document.querySelector<HTMLButtonElement>(
+    "#home-mode-terminal",
+  );
+  const term = document.querySelector<HTMLElement>("#home-terminal");
+  const fileLabel = document.querySelector<HTMLElement>("#home-files-label");
+  const filePick = document.querySelector<HTMLSelectElement>("#home-files");
+  const saveFile = document.querySelector<HTMLButtonElement>("#home-save-file");
+  const saveZip = document.querySelector<HTMLButtonElement>("#home-save-zip");
+  const restoreFile =
+    document.querySelector<HTMLButtonElement>("#home-restore-file");
+  const markSource = () => {
+    const on = sourceIsHeld();
+    if (saveFile) saveFile.hidden = !on;
+    if (saveZip) saveZip.hidden = !on;
+    if (restoreFile) restoreFile.hidden = !fileShotReady();
+  };
+  const save = (kind: "file" | "zip") => {
+    const path = activePath();
+    const text = code?.value ?? "";
+    const run =
+      kind === "zip"
+        ? bytesForArchive(path, text)
+        : Promise.resolve(bytesForFile(path, text));
+    void run.then((packed) => {
+      if (packed) saveBytes(packed.name, packed.bytes);
+    });
+  };
+  if (!code || !screen || !kind || !codeTab || !screenTab) return;
+  let saved = "";
+  try {
+    saved = localStorage.getItem(STORAGE_KEY) ?? "";
+  } catch {
+    saved = "";
   }
-  fileLabel.hidden=false;
-  rememberPath(filePick.value);
-  markSource();
- });
- document.addEventListener('azrail:zip-open',(event)=>{
-  const path=(event as CustomEvent<string>).detail;
-  if(typeof path!=='string'||!path)return;
-  if(filePick){
-   if(![...filePick.options].some(option=>option.value===path)){
-    const option=document.createElement('option');
-    option.value=path;
-    option.textContent=path;
-    filePick.append(option);
-   }
-   filePick.value=path;
-   if(fileLabel)fileLabel.hidden=false;
-   rememberPath(path);
-   markSource();
-  }
-  void openHeld(path).then(body=>{
-   if(body==null)return;
-   code.value=body;
-   try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
-   show(/\.html?$/i.test(path)?'screen':'code');
+  code.value = saved.trim() ? saved : STARTER;
+  const paint = () => {
+    kind.textContent = looksLikeHtml(code.value) ? "HTML" : "Текст";
+    if (screen.hidden) return;
+    const parts = previewParts(code.value);
+    const sheet = `data:text/css;charset=utf-8,${encodeURIComponent(parts.css)}`;
+    const linked = parts.html.includes("</head>")
+      ? parts.html.replace(
+          "</head>",
+          `<link rel="stylesheet" href="${sheet}"></head>`,
+        )
+      : `<link rel="stylesheet" href="${sheet}">${parts.html}`;
+    screen.removeAttribute("src");
+    screen.srcdoc = linked;
+  };
+  const show = (mode: "code" | "screen" | "terminal") => {
+    const preview = mode === "screen";
+    const shell = mode === "terminal";
+    code.hidden = preview || shell;
+    screen.hidden = !preview;
+    if (term) term.hidden = !shell;
+    codeTab.setAttribute("aria-selected", String(mode === "code"));
+    screenTab.setAttribute("aria-selected", String(preview));
+    termTab?.setAttribute("aria-selected", String(shell));
+    codeTab.classList.toggle("active", mode === "code");
+    screenTab.classList.toggle("active", preview);
+    termTab?.classList.toggle("active", shell);
+    paint();
+  };
+  let armed: { path: string; text: string } | null = null;
+  code.addEventListener("focus", () => {
+    armed = { path: activePath(), text: code.value };
   });
- });
- document.addEventListener('azrail:file-shown',(event)=>{
-  const detail=(event as CustomEvent<{path?:string;text?:string}>).detail;
-  if(!detail||typeof detail.text!=='string'||typeof detail.path!=='string')return;
-  code.value=detail.text;
-  rememberPath(detail.path);
-  if(filePick){
-   if(![...filePick.options].some(option=>option.value===detail.path)){
-    const option=document.createElement('option');
-    option.value=detail.path;
-    option.textContent=detail.path;
-    filePick.append(option);
-   }
-   filePick.value=detail.path;
-   if(fileLabel)fileLabel.hidden=false;
-  }
-  try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
-  show(/\.html?$/i.test(detail.path)?'screen':'code');
-  markSource();
- });
- restoreFile?.addEventListener('click',()=>{
-  const back=restoreFileShot(activePath(),code.value);
-  if(!back)return;
-  document.dispatchEvent(new CustomEvent('azrail:file-shown',{detail:back}));
- });
- saveFile?.addEventListener('click',()=>save('file'));
- saveZip?.addEventListener('click',()=>save('zip'));
- filePick?.addEventListener('change',()=>{
-  const path=filePick.value;
-  rememberPath(path);
-  void openHeld(path).then(body=>{
-   if(!body)return;
-   code.value=body;
-   try{localStorage.setItem(STORAGE_KEY,code.value);}catch{/* private mode */}
-   show(/\.html?$/i.test(path)?'screen':'code');
+  code.addEventListener("blur", () => {
+    if (!armed || armed.text === code.value) return;
+    snapFile(armed.path || activePath() || "index.html", armed.text);
+    armed = null;
+    markSource();
   });
- });
- show('code');
+  code.addEventListener("input", () => {
+    try {
+      localStorage.setItem(STORAGE_KEY, code.value);
+    } catch {
+      /* private mode */
+    }
+    paint();
+  });
+  codeTab.addEventListener("click", () => show("code"));
+  screenTab.addEventListener("click", () => show("screen"));
+  termTab?.addEventListener("click", () => show("terminal"));
+  const clear = () => {
+    code.value = STARTER;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      /* private mode */
+    }
+    if (fileLabel) fileLabel.hidden = true;
+    show("code");
+    markSource();
+  };
+  document
+    .querySelector<HTMLButtonElement>("#home-clear")
+    ?.addEventListener("click", clear);
+  document.addEventListener("azrail:canvas-clear", clear);
+  document.addEventListener("azrail:preview-open", () => paint());
+  document.addEventListener("azrail:site-preview", (event) => {
+    const html = (event as CustomEvent<string>).detail;
+    if (typeof html !== "string" || !html.trim()) return;
+    code.value = html;
+    try {
+      localStorage.setItem(STORAGE_KEY, code.value);
+    } catch {
+      /* private mode */
+    }
+    show("screen");
+    markSource();
+  });
+  document.addEventListener("azrail:zip-catalog", (event) => {
+    const paths = (event as CustomEvent<string[]>).detail;
+    if (!fileLabel || !filePick || !Array.isArray(paths) || !paths.length)
+      return;
+    filePick.replaceChildren();
+    for (const path of paths) {
+      const option = document.createElement("option");
+      option.value = path;
+      option.textContent = path;
+      filePick.append(option);
+    }
+    fileLabel.hidden = false;
+    rememberPath(filePick.value);
+    markSource();
+  });
+  document.addEventListener("azrail:zip-open", (event) => {
+    const path = (event as CustomEvent<string>).detail;
+    if (typeof path !== "string" || !path) return;
+    if (filePick) {
+      if (![...filePick.options].some((option) => option.value === path)) {
+        const option = document.createElement("option");
+        option.value = path;
+        option.textContent = path;
+        filePick.append(option);
+      }
+      filePick.value = path;
+      if (fileLabel) fileLabel.hidden = false;
+      rememberPath(path);
+      markSource();
+    }
+    void openHeld(path).then((body) => {
+      if (body == null) return;
+      code.value = body;
+      try {
+        localStorage.setItem(STORAGE_KEY, code.value);
+      } catch {
+        /* private mode */
+      }
+      show(/\.html?$/i.test(path) ? "screen" : "code");
+    });
+  });
+  document.addEventListener("azrail:file-shown", (event) => {
+    const detail = (event as CustomEvent<{ path?: string; text?: string }>)
+      .detail;
+    if (
+      !detail ||
+      typeof detail.text !== "string" ||
+      typeof detail.path !== "string"
+    )
+      return;
+    code.value = detail.text;
+    rememberPath(detail.path);
+    if (filePick) {
+      if (
+        ![...filePick.options].some((option) => option.value === detail.path)
+      ) {
+        const option = document.createElement("option");
+        option.value = detail.path;
+        option.textContent = detail.path;
+        filePick.append(option);
+      }
+      filePick.value = detail.path;
+      if (fileLabel) fileLabel.hidden = false;
+    }
+    try {
+      localStorage.setItem(STORAGE_KEY, code.value);
+    } catch {
+      /* private mode */
+    }
+    show(/\.html?$/i.test(detail.path) ? "screen" : "code");
+    markSource();
+  });
+  restoreFile?.addEventListener("click", () => {
+    const back = restoreFileShot(activePath(), code.value);
+    if (!back) return;
+    document.dispatchEvent(
+      new CustomEvent("azrail:file-shown", { detail: back }),
+    );
+  });
+  saveFile?.addEventListener("click", () => save("file"));
+  saveZip?.addEventListener("click", () => save("zip"));
+  filePick?.addEventListener("change", () => {
+    const path = filePick.value;
+    rememberPath(path);
+    void openHeld(path).then((body) => {
+      if (!body) return;
+      code.value = body;
+      try {
+        localStorage.setItem(STORAGE_KEY, code.value);
+      } catch {
+        /* private mode */
+      }
+      show(/\.html?$/i.test(path) ? "screen" : "code");
+    });
+  });
+  show("code");
 }

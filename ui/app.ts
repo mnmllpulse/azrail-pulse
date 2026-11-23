@@ -51,6 +51,7 @@ import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,site
 import {diagramLines,diagramModel,diagramSvg} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
 import {installImageViewer} from './image-viewer';
+import {htmlBlockOf} from './chat-code';
 installImageViewer();
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
@@ -270,6 +271,7 @@ function openChat(id:string){
 function newChat(){
  if(!canSwitchChat())return;
  saveComposerDraft();skipComposerSave=true;chatHistory.create();resetMissionView();clearAttachments();clearHeldPlan();
+ document.dispatchEvent(new CustomEvent('azrail:canvas-clear'));
  project='';mission='';prompt.value='';remember();ensureEventStream();navigation.navigate({page:'create'});workspace.setContext(false);syncChatUI();workspace.toLatest();prompt.focus();
 }
 function syncChatAccount(){
@@ -1614,7 +1616,10 @@ async function runChat(){
  try{
   const body=chatRequestBody({message:shown,projectId:project,conversationId,voice:chatVoice,attachments:sentRefs,preferredModel:preferredModel||undefined,effort:modelMenu.effort()});
   const r=await api('/api/chat',{method:'POST',headers:{'Idempotency-Key':requestKey},body});
-  const {reply,status}=chatReplyOf(r);
+  const {reply:full,status}=chatReplyOf(r);
+  const shownCode=status==='completed'?htmlBlockOf(full):null;
+  const reply=shownCode?shownCode.text:full;
+  if(shownCode){document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:shownCode.html}));workspace.setPreview(true);}
   chatHistory.report(requestKey,reply,status);
   syncChatUI();workspace.toLatest();
   void syncServerChats();
