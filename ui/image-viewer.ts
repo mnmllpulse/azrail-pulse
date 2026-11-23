@@ -1,3 +1,5 @@
+import { icon } from "./icons";
+
 const SELECTOR =
   ".thing-card img, .assignment-pair img, .assignment-versions img";
 
@@ -24,10 +26,16 @@ export function openImageViewer(
   const save = document.createElement("a");
   save.href = url;
   save.download = "azrail-image.png";
-  save.textContent = "Скачать";
+  save.className = "icon-download";
+  save.title = "Скачать";
+  save.setAttribute("aria-label", "Скачать");
+  save.innerHTML = icon("download", 20);
   const close = document.createElement("button");
   close.type = "button";
-  close.textContent = "Закрыть";
+  close.className = "icon-download";
+  close.title = "Закрыть";
+  close.setAttribute("aria-label", "Закрыть");
+  close.innerHTML = icon("close", 20);
   close.onclick = () => dialog.close();
   bar.append(save, close);
   dialog.append(img, bar);

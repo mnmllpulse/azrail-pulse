@@ -3,7 +3,7 @@ import {createSettingsPage} from './settings-page';
 import {APIError} from './api-error';
 import {localCommandOf,blockedReply,limitsText,type LimitsRead} from './chat-local-commands';
 import {chatRequestBody,chatReplyOf,chatFailureOf} from './chat-send';
-import {hydrateIcons} from './icons';
+import {hydrateIcons,icon} from './icons';
 import {createAccountMenu} from './account-menu';
 import {mountWorkspaceShell} from './components/workspace-shell';
 import {createChatHistory,renderChatMessages} from './chat-history';
@@ -727,7 +727,10 @@ function downloadLink(url:string,name:string){
  const link=document.createElement('a');
  link.href=url;
  link.download=name;
- link.textContent='Скачать';
+ link.className='icon-download';
+ link.title='Скачать';
+ link.setAttribute('aria-label','Скачать');
+ link.innerHTML=icon('download',18);
  return link;
 }
 function stageFiles(files:Array<{path:string;text:string}>,name?:string){
@@ -745,7 +748,13 @@ function appendThing(parent:HTMLElement,thing:PlanThing,earlier=false,poster='',
   draw(thing.url);
   if(!earlier)for(const alt of thing.alts??[])draw(alt);
   host.append(row);
-  if(!earlier)host.append(downloadLink(thing.url,downloadName(thing,'png')));
+  if(!earlier){
+   const foot=document.createElement('div');
+   foot.className='thing-foot';
+   if(thing.caption){const cap=document.createElement('p');cap.className='thing-caption';cap.textContent=thing.caption;foot.append(cap);}
+   foot.append(downloadLink(thing.url,downloadName(thing,'png')));
+   host.append(foot);
+  }
   parent.append(host);return;
  }
  if(thing.type==='audio'&&thing.url){
@@ -1373,7 +1382,7 @@ async function runPlanPart(part:PlanPart){
   if(typeof seed==='number')part.seed=seed;
   part.state='done';
   part.ready=stuck?`Закончила зависшую сборку «${name}».`:grow?`Детализация «${name}» сохранена.`:urls.length>1?`${urls.length} варианта «${name}».`:`Картинка «${name}» сохранена.`;
-  if(urls[0])part.thing={type:'image',url:urls[0],title:name,...(urls.length>1?{alts:urls.slice(1,3)}:{})};
+  if(urls[0])part.thing={type:'image',url:urls[0],title:name,caption:part.text.slice(0,300),...(urls.length>1?{alts:urls.slice(1,3)}:{})};
   return;
  }
  if(part.kind==='music'){
