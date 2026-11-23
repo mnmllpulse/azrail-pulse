@@ -50,6 +50,8 @@ import {activePath,archiveMarks,askedPaths,bytesForArchive,bytesForFile,holdArch
 import {applySiteNote,draftFromLine,draftFromPhrase,draftLine,filesForDraft,siteDelta,siteZip} from './chat-site';
 import {diagramLines,diagramModel,diagramSvg} from './diagram';
 import {buildOffice} from '../src/lib/office-file';
+import {installImageViewer} from './image-viewer';
+installImageViewer();
 export {};
 // Global safety net: uncaught errors and unhandled promise rejections surface to the user instead of failing silently.
 function reportGlobalError(source:string,reason:unknown){
