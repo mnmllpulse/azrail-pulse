@@ -546,6 +546,32 @@ h1,h2,h3,h4,.brand,.card h3,.section-heading h2 {color:var(--heading);font-weigh
 .ui-icon{display:block;flex:none;stroke-width:1.5;}
 .ui-icon-wrap,[data-icon]{display:inline-flex;align-items:center;justify-content:center;flex:none;line-height:0;}
 .agent-browser-steps{margin:6px 0 10px;padding-left:20px;display:grid;gap:4px;color:var(--muted,#b9aec6);font-size: var(--fs-small)}
+/* Чат без подписей «Вы» и «AZRAIL · …»: остаются для чтения с экрана */
+.app-shell .chat-message .message-heading{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Боковое меню: минимализм, жирный белый текст, плотные строки */
+.app-shell #sidebar-close,.app-shell .history-heading #chat-count{display:none}
+.app-shell .workspace-nav{gap:0;margin:2px 0 10px}
+.app-shell .new-chat,.app-shell .workspace-nav .nav{min-height:44px;padding:4px 10px;gap:12px;color:#fff;font-size:var(--fs-small);font-weight:700}
+.app-shell .new-chat>span:first-child,.app-shell .workspace-nav .nav>span:first-child{color:#fff}
+.app-shell .new-chat .ui-icon,.app-shell .workspace-nav .nav .ui-icon{width:22px;height:22px;stroke-width:2.2}
+.app-shell .workspace-nav .nav:hover,.app-shell .new-chat:hover{color:#fff}
+
+/* Настройки: крупное жирное белое меню, плотно; на телефоне без лишних надписей под ним */
+.settings-nav-item{color:#fff;font-weight:700}
+.settings-nav-item .ui-icon{stroke-width:2.2}
+.settings-nav-heading,.settings-search-label{color:#fff}
+.settings-nav-heading{opacity:.85}
+@media (max-width:759px){
+ .settings-shell{padding:8px 10px 24px;gap:10px}
+ .settings-sidebar{padding:10px 8px}
+ .settings-sidebar-head{display:none}
+ .settings-nav{grid-template-columns:1fr;gap:6px;max-height:none;overflow:visible}
+ .settings-nav-item{min-height:46px;padding:6px 10px;gap:12px;font-size:var(--fs-small);line-height:1.25}
+ .settings-nav-item .ui-icon{width:22px;height:22px}
+ .settings-shell:not(.has-section) .settings-main{display:none}
+}
+
 @media (max-width:600px) {
  .settings-nav-group {grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:4px;}
  .settings-nav-heading {grid-column:1/-1;margin:4px 8px;}

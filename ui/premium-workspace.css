@@ -924,7 +924,6 @@ body {
 @media (hover: none), (pointer: coarse) {
   .app-shell .chat-row-actions {
     opacity: 1;
-    visibility: visible;
   }
 
   .app-shell .chat-row-actions button {

@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T14:15:01.999Z",
+  "generated_at": "2026-11-23T20:40:04.877Z",
   "excludes_self": true,
   "file_count": 1361,
   "files": [
@@ -597,8 +597,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1479921,
-      "sha256": "62acbf6de20f8f15a3bc6e234384bc3c5dd0b72c834483baa70e126a661814b4"
+      "bytes": 1481211,
+      "sha256": "5766182e78f42aa7e326de6094222dcc595aa68cf95b936b2af0b888c95d043e"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3292,8 +3292,8 @@
     },
     {
       "path": "site/app.html",
-      "bytes": 25838,
-      "sha256": "cc889585295f9b0decda7dd469a264f5a53cc24d06258bfe52e07c8c0947553a"
+      "bytes": 25823,
+      "sha256": "9608e0e3bdd8263daf17edeeba193db3fbc8da6407612af5157622f4a9a0c190"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3302,8 +3302,8 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 180644,
-      "sha256": "0ff2d59815674d5c28523990cc9684f706970fcb56266c2d5b630cdb4744e637"
+      "bytes": 181949,
+      "sha256": "f80f6275634827ae2bd170fbf3105503e829b0f68b1d4eb3613abaea5bc22a09"
     },
     {
       "path": "site/assets/app.js",
@@ -3587,8 +3587,8 @@
     },
     {
       "path": "site/index.html",
-      "bytes": 25838,
-      "sha256": "cc889585295f9b0decda7dd469a264f5a53cc24d06258bfe52e07c8c0947553a"
+      "bytes": 25823,
+      "sha256": "9608e0e3bdd8263daf17edeeba193db3fbc8da6407612af5157622f4a9a0c190"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5777,13 +5777,13 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 130258,
-      "sha256": "cf26288cf96cbc29a924e5000ee4622f7a8a8f55de3f961162b15faa10565788"
+      "bytes": 132013,
+      "sha256": "4b99bc621d8c8e7bee8763cd08fd0bac8a358a97b136262233183dbbb08de123"
     },
     {
       "path": "ui/app.html",
-      "bytes": 25812,
-      "sha256": "cc6322ef52c62c3cdaf790fae700760e2f72ddc6484ce94e0b4d7952ea394ac8"
+      "bytes": 25797,
+      "sha256": "c82517805e5c54e09a2ee14d1f78ec5caec41d4ba4692899dbed3354d0a1bf62"
     },
     {
       "path": "ui/app.ts",
@@ -6152,8 +6152,8 @@
     },
     {
       "path": "ui/premium-workspace.css",
-      "bytes": 28103,
-      "sha256": "9d1e7c30c72ea178d19abd484e4e46a09c17c9c34191c76fe6ea413535d93714"
+      "bytes": 28078,
+      "sha256": "4bffd6b6659979d8be04c12962badf07506e59e368e67ccfb1d613552e3079ed"
     },
     {
       "path": "ui/projects.ts",
