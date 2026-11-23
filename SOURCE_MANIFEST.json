@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T20:50:10.652Z",
+  "generated_at": "2026-11-23T20:59:50.406Z",
   "excludes_self": true,
-  "file_count": 1363,
+  "file_count": 1365,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -597,8 +597,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1483496,
-      "sha256": "3b3aad8a0346a8881e838b5318ec68d73bf062efec16e50ca60404dc577cb842"
+      "bytes": 1483858,
+      "sha256": "6e1b60bc2dcb911d90d3893c4eb27829c38e74bab34df65d3dbb5623343247ea"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3293,7 +3293,7 @@
     {
       "path": "site/app.html",
       "bytes": 25819,
-      "sha256": "77ea396685e19d974cdb423f4b6182997b0a9b826cd14c42b6a2ebdd5b70df7e"
+      "sha256": "4424539032825153cedfcb6af6811339fc3f4378ab7288611b4d94894cdc193c"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3302,13 +3302,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 182134,
-      "sha256": "244ca67fa7026424c87cde2e6228880513c4a483dbc5f334d2e97883ddb2b35e"
+      "bytes": 182346,
+      "sha256": "50be6b8362a9523ccf661cd5ef793aefa8bc20000b0ca862fc75b82dfd5376e5"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 541400,
-      "sha256": "dc0d64d9299b6f31c7f7716d0535ce10b6f0a699b8ebb41e66c3aa90f8df553c"
+      "bytes": 541553,
+      "sha256": "9a8266bc9428c055898b30af5d2d453e533b7ddb6b489fd1b91e08e1e5ded267"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3588,7 +3588,7 @@
     {
       "path": "site/index.html",
       "bytes": 25819,
-      "sha256": "77ea396685e19d974cdb423f4b6182997b0a9b826cd14c42b6a2ebdd5b70df7e"
+      "sha256": "4424539032825153cedfcb6af6811339fc3f4378ab7288611b4d94894cdc193c"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4022,8 +4022,8 @@
     },
     {
       "path": "src/lib/metatron-ops.ts",
-      "bytes": 16256,
-      "sha256": "5d3fb265c41568ce884d3acf3aa8666bd805c9d13fa94f1b393a31e3eb5aec4a"
+      "bytes": 16883,
+      "sha256": "ee528615b8916c5b295a81f0124f3998ccd06e8533ce750d97f083102cb8a313"
     },
     {
       "path": "src/lib/mission-admission.ts",
@@ -4069,6 +4069,11 @@
       "path": "src/lib/mission-recovery-state.ts",
       "bytes": 2040,
       "sha256": "4d57e110186edf2b210da450da78bb31df310e9703163535a0e3c217fb2d1b13"
+    },
+    {
+      "path": "src/lib/mission-report.ts",
+      "bytes": 4416,
+      "sha256": "8c744ef8e6ed5acc3b5d1ba2aee20944d7c58071647371033ebf4c9160d6ccb6"
     },
     {
       "path": "src/lib/mission-snapshot.ts",
@@ -5191,6 +5196,11 @@
       "sha256": "7c8eabbe6bd22d6b055d588b2c1f46b6ed2b3c8f75e285465b00f3bd6fb814dd"
     },
     {
+      "path": "tests/mission-report.test.ts",
+      "bytes": 2865,
+      "sha256": "0b0efaf7315b769a628f88b043ec1e3524bdefb14b73433af24125bca134918e"
+    },
+    {
       "path": "tests/mission-status-view.test.ts",
       "bytes": 2623,
       "sha256": "d02894fadeec38f26cb030411500a0f0282d43c8f5425f88c77dd2e157729865"
@@ -5782,8 +5792,8 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 132200,
-      "sha256": "129c52255c27a1a0f7d7a1da0db62c227038226f33ae6e0ca57a5c33bb425966"
+      "bytes": 132414,
+      "sha256": "d2614214d77eec91b86cece0cdc511eb10bbb5ab04e446f0043e5de7c6f782e1"
     },
     {
       "path": "ui/app.html",
@@ -6082,8 +6092,8 @@
     },
     {
       "path": "ui/metatron-lab.ts",
-      "bytes": 16837,
-      "sha256": "962337eecd3a376b6ccf08dddc4c8798f91acc89ebd807b64af43fad9328944c"
+      "bytes": 17065,
+      "sha256": "5947b4bc908e1846ef413a50b7baadb468b101a623c775f3852308d08bb54388"
     },
     {
       "path": "ui/mission-brief.ts",
