@@ -633,3 +633,6 @@ html[data-settings-contrast="high"] button {border-color:#8089a6;}
 .metatron-attention{margin:0;padding:8px 12px;border:1px solid var(--status-accent,var(--line));border-radius:10px;font-size:var(--fs-caption);line-height:1.5}
 .metatron-attention.status-waiting_approval{--status-accent:#f0a6d9}
 .metatron-attention.status-blocked{--status-accent:#e6be72}
+
+.mission-layers{display:grid;gap:.9rem}
+.mission-layer{display:grid;gap:.4rem;padding-left:.8rem;border-left:2px solid var(--line)}

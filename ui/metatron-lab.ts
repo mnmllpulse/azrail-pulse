@@ -1,4 +1,5 @@
 import {createProjectEventClient,type StreamEvent} from './event-stream';
+import {graphCaption,layerGraph} from './mission-layers';
 
 type Api=(path:string,options?:RequestInit)=>Promise<any>;
 type MissionListItem={id:string;goal:string;status:string;progress:number;created_at:string;updated_at:string;finished_at:string|null};
@@ -99,8 +100,9 @@ export function mountMetatronLab(options:Options):()=>void{
   ];
   for(const [key,value] of cards){const card=el('article','metatron-stat');card.append(el('small','',key),el('strong','',value));summary.append(card);}
 
-  graph.body.replaceChildren();const graphNote=el('p','context-note',`DAG mode: ${data.graph.mode}. ${data.graph.warning??''}`);graph.body.append(graphNote);
-  const flow=el('div','mission-graph');for(const node of data.graph.nodes){const n=el('article','mission-node');n.append(badge(node.status),el('strong','',node.label),el('small','muted',node.dependencies.length?`depends on: ${node.dependencies.join(', ')}`:'root'));flow.append(n);}graph.body.append(flow);
+  graph.body.replaceChildren();const layers=layerGraph(data.graph.nodes);graph.body.append(el('p','context-note',`${graphCaption(data.graph.mode,layers)} ${data.graph.warning??''}`.trim()));
+  const labelById=new Map(data.graph.nodes.map((node,index)=>[node.id,`${index+1}. ${node.label}`]));
+  const flow=el('div','mission-layers');layers.forEach((layer,index)=>{const row=el('section','mission-layer');row.append(el('small','muted',index?`Уровень ${index+1}`:'Уровень 1 · можно начать сразу'));const cells=el('div','mission-graph');for(const node of layer){const n=el('article','mission-node');n.append(badge(node.status),el('strong','',node.label),el('small','muted',node.dependencies.length?`ждёт: ${node.dependencies.map(id=>labelById.get(id)??id).join('; ')}`:'ничего не ждёт'));cells.append(n);}row.append(cells);flow.append(row);});graph.body.append(flow);
 
   agents.body.replaceChildren();const agentGrid=el('div','metatron-agent-grid');
   const runtimeById=new Map(data.agentCards.runtime.map(item=>[item.agent_id,item]));

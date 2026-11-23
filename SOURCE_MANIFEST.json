@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T13:59:28.862Z",
+  "generated_at": "2026-11-23T14:15:01.999Z",
   "excludes_self": true,
-  "file_count": 1359,
+  "file_count": 1361,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -597,8 +597,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1477424,
-      "sha256": "9e035ac8688490b9d4bdb15cb957a794632830cf14d3b93bfa6319868c6708e9"
+      "bytes": 1479921,
+      "sha256": "62acbf6de20f8f15a3bc6e234384bc3c5dd0b72c834483baa70e126a661814b4"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3293,7 +3293,7 @@
     {
       "path": "site/app.html",
       "bytes": 25838,
-      "sha256": "d788aec40fdd29a7b5a29e2b624738ef192169637de2c63b478849a0ba280805"
+      "sha256": "cc889585295f9b0decda7dd469a264f5a53cc24d06258bfe52e07c8c0947553a"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3302,13 +3302,13 @@
     },
     {
       "path": "site/assets/app.css",
-      "bytes": 180514,
-      "sha256": "a63831bffb5aabc8385ba29fb586ee84f8b40d8450e42d6f2b968ae30aba85e9"
+      "bytes": 180644,
+      "sha256": "0ff2d59815674d5c28523990cc9684f706970fcb56266c2d5b630cdb4744e637"
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 536916,
-      "sha256": "d51877824ba7100db263d1eb37d13e11f10e39bb8fd1b8aff9cf7eeb740b3672"
+      "bytes": 539291,
+      "sha256": "e0c2fb52e48672a3028f20d55a3232d073c719c179f40aee4a367e619e843c67"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3588,7 +3588,7 @@
     {
       "path": "site/index.html",
       "bytes": 25838,
-      "sha256": "d788aec40fdd29a7b5a29e2b624738ef192169637de2c63b478849a0ba280805"
+      "sha256": "cc889585295f9b0decda7dd469a264f5a53cc24d06258bfe52e07c8c0947553a"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5176,6 +5176,11 @@
       "sha256": "6d18cb3047a63cca81b0cbe68b3d9fa81267bc88e47eb525a379c27210449e9e"
     },
     {
+      "path": "tests/mission-layers.test.ts",
+      "bytes": 1378,
+      "sha256": "b4251b88e2a91c17438e59c59206ada50be0131354b091a918eaabe32813f71d"
+    },
+    {
       "path": "tests/mission-limits.test.ts",
       "bytes": 2328,
       "sha256": "7c8eabbe6bd22d6b055d588b2c1f46b6ed2b3c8f75e285465b00f3bd6fb814dd"
@@ -5772,8 +5777,8 @@
     },
     {
       "path": "ui/app.css",
-      "bytes": 130125,
-      "sha256": "c05216848ef09a8c64dc1b9c112915219fde6eec7cf2c01ee57660ea19362f47"
+      "bytes": 130258,
+      "sha256": "cf26288cf96cbc29a924e5000ee4622f7a8a8f55de3f961162b15faa10565788"
     },
     {
       "path": "ui/app.html",
@@ -6072,8 +6077,13 @@
     },
     {
       "path": "ui/metatron-lab.ts",
-      "bytes": 16131,
-      "sha256": "4586cc0fe482ab253df53f5aa18689fe84d9be603a7e4d162a9fcbb699c62216"
+      "bytes": 16636,
+      "sha256": "c4127e2ea175a0957af8f49daeb679d792cd7d31dbecc9df08394f6d29795bfa"
+    },
+    {
+      "path": "ui/mission-layers.ts",
+      "bytes": 1882,
+      "sha256": "46f03a16fffcb0041605964b647583fd1123e7003723239cb385a15907026e27"
     },
     {
       "path": "ui/mission-view.ts",
