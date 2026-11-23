@@ -494,7 +494,7 @@ function renderRoute(route:Route,initial:boolean){
  if(route.page==='mission'){if(mission&&account){missionPanel.hidden=false;void poll(epoch).catch(failure);}void refreshMissionHistory().catch(failure);}
  if(route.page==='metatron')metatronCleanup=mountMetatronLab({root:$('metatron-page'),api,local,account,getProjectId:()=>project,getMissionId:()=>mission,setMissionId:id=>{mission=id;remember();},notice,failure});
  syncComposer(route);
- const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='settings'?settingsTitle(route.section,route.provider):route.page==='create'?'Чат':route.page==='mission'?'Ход задачи':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Метратрон':route.page==='connections'?'Подключения':'Страница не найдена';
+ const title=route.page==='studio'?studioById(route.studio)!.title:route.page==='settings'?settingsTitle(route.section,route.provider):route.page==='create'?'Чат':route.page==='mission'?'Ход задачи':route.page==='projects'?'Проекты':route.page==='studios'?'Студии':route.page==='metatron'?'Метатрон':route.page==='connections'?'Подключения':'Страница не найдена';
  document.title=`${title} · AZRAIL MNMLL PULSE OS`;
  $('workspace-page-title').textContent=route.page==='create'?(chatHistory.current()?.title??'Новый чат'):title;
  workspace.routeChanged();syncChatUI();
