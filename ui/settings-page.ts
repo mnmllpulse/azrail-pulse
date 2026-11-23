@@ -110,7 +110,7 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
   const expert=document.createElement('button');expert.type='button';expert.className='settings-choice';expert.setAttribute('role','switch');
   const paintExpert=(on=expertOn())=>{expert.setAttribute('aria-checked',String(on));expert.textContent=`${on?'✓ ':''}Режим эксперта: ${on?'включён':'выключен'}`;};
   expert.onclick=()=>{const next=!expertOn();$('expert-mode').click();paintExpert(next);};paintExpert();
-  settingsText(content,'Режим эксперта показывает «Ход задачи», «Студии», «Метратрон», панель контекста и поиск команд.');content.append(expert);
+  settingsText(content,'Режим эксперта показывает «Ход задачи», «Студии», «Метатрон», панель контекста и поиск команд.');content.append(expert);
   const form=document.createElement('div');form.className='settings-form-grid';form.append(...field('Плотность интерфейса',density),...field('Размер текста',textScale),...field('Шрифт',font));content.append(form);
   settingsText(content,'Цветовая тема AZRAIL — только Dark Premium: светлой темы в продукте нет, в интерфейсе ~770 жёстко заданных цветов, их перевод на токены отдельный этап. Шрифты — только установленные в системе, внешние шрифты не загружаются.');
   settingsButton(content,'Сохранить внешний вид',()=>{

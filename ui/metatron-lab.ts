@@ -1,5 +1,6 @@
 import {createProjectEventClient,type StreamEvent} from './event-stream';
 import {graphCaption,layerGraph} from './mission-layers';
+import {missionBrief,missionStatusLabel} from './mission-brief';
 
 type Api=(path:string,options?:RequestInit)=>Promise<any>;
 type MissionListItem={id:string;goal:string;status:string;progress:number;created_at:string;updated_at:string;finished_at:string|null};
@@ -48,8 +49,9 @@ export function mountMetatronLab(options:Options):()=>void{
  const toolbar=el('div','metatron-toolbar');
  const missionSelect=el('select') as HTMLSelectElement;missionSelect.id='metatron-mission-select';missionSelect.setAttribute('aria-label','Миссия');
  const refreshButton=el('button','','Обновить');
- const status=el('span','metatron-live-status','Loading…');
- toolbar.append(missionSelect,refreshButton,status);root.append(toolbar);
+ const status=el('span','metatron-live-status','Загрузка…');
+ const brief=el('p','metatron-brief');brief.setAttribute('role','status');
+ toolbar.append(missionSelect,refreshButton,status);root.append(brief,toolbar);
 
  const control=el('div','metatron-controls');
  for(const [action,label] of [['start','Start'],['pause','Pause'],['resume','Resume'],['cancel','Cancel'],['terminate','Terminate']] as const){
@@ -82,8 +84,8 @@ export function mountMetatronLab(options:Options):()=>void{
 
  async function refreshMissions(){
   const r=await api(`/api/metatron/missions?projectId=${encodeURIComponent(projectId)}`) as {items:MissionListItem[]};
-  missionSelect.replaceChildren();
-  for(const item of r.items){const option=el('option') as HTMLOptionElement;option.value=item.id;option.textContent=`${item.status.toUpperCase()} · ${item.goal.slice(0,72)}`;missionSelect.append(option);}
+  missionSelect.replaceChildren();brief.textContent=missionBrief(r.items);
+  for(const item of r.items){const option=el('option') as HTMLOptionElement;option.value=item.id;option.textContent=`${missionStatusLabel(item.status)} · ${item.goal.slice(0,72)}`;missionSelect.append(option);}
   if(selectedMission&&r.items.some(item=>item.id===selectedMission))missionSelect.value=selectedMission;
   else selectedMission=r.items[0]?.id??'';
   if(selectedMission){missionSelect.value=selectedMission;options.setMissionId(selectedMission);}
