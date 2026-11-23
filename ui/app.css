@@ -615,4 +615,8 @@ html[data-settings-contrast="high"] button {border-color:#8089a6;}
 .image-viewer::backdrop{background:rgba(0,0,0,.82)}
 .image-viewer img{display:block;max-width:92vw;max-height:80vh;margin:0 auto;object-fit:contain}
 .image-viewer-bar{display:flex;gap:12px;justify-content:center;margin-top:12px}
-.image-viewer-bar a,.image-viewer-bar button{min-height:44px;padding:0 18px;display:inline-flex;align-items:center;border-radius:10px;border:1px solid currentColor;background:transparent;color:inherit;font:inherit;text-decoration:none;cursor:pointer}
+.icon-download{width:36px;height:36px;display:inline-flex;align-items:center;justify-content:center;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);color:inherit;text-decoration:none;cursor:pointer;padding:0;transition:background .15s}
+.icon-download:hover{background:rgba(255,255,255,.14)}
+.icon-download:focus-visible{outline:2px solid currentColor;outline-offset:2px}
+.thing-foot{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-top:8px}
+.thing-caption{margin:0;flex:1;min-width:0;font-size:var(--fs-caption);line-height:1.45;opacity:.72;overflow-wrap:anywhere}
