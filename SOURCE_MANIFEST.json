@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T03:44:36.675Z",
+  "generated_at": "2026-11-23T08:23:05.344Z",
   "excludes_self": true,
-  "file_count": 1352,
+  "file_count": 1354,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -587,8 +587,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1464410,
-      "sha256": "d4efe261107f467c1855a3812e6fb641042f7c995599fdeca658f4add440a063"
+      "bytes": 1470245,
+      "sha256": "04a88f0e91acb9e8f6280d243562d4585fa2af64a0751fbaa736336055bb50be"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3283,7 +3283,7 @@
     {
       "path": "site/app.html",
       "bytes": 25838,
-      "sha256": "2591db85595014bb0741bcf50d52a6451d87f543c6c7a30fa23caef591af314a"
+      "sha256": "feeabb0dd8cb397c3d0f478ab48cc8e441992002c40763af3fd31cc503083dc9"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3297,8 +3297,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 525107,
-      "sha256": "84cd7c106c39f568259ea03803705bbb0c1b9568a92bbe35fa2aacb3691da832"
+      "bytes": 530939,
+      "sha256": "82ecb3e7c414113c7dc5936bbd6336e9d37b1047c7c8e9eea3bdf15c0a97b801"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3578,7 +3578,7 @@
     {
       "path": "site/index.html",
       "bytes": 25838,
-      "sha256": "2591db85595014bb0741bcf50d52a6451d87f543c6c7a30fa23caef591af314a"
+      "sha256": "feeabb0dd8cb397c3d0f478ab48cc8e441992002c40763af3fd31cc503083dc9"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -5116,6 +5116,11 @@
       "sha256": "45e84a2d92b5a1f99a534991992e4cf285af382f6301c5a0bee785748cbbfaf8"
     },
     {
+      "path": "tests/long-text.test.ts",
+      "bytes": 3673,
+      "sha256": "ff70b06f3b6ace02c11e0fe582e0d378102ceba7d5bfa36c704a695004db92ad"
+    },
+    {
       "path": "tests/main-screen.test.ts",
       "bytes": 2521,
       "sha256": "15e8078399e5b8d791b8308f1bea96eca30955f6872c082b5d914860fe02c3e4"
@@ -5757,8 +5762,8 @@
     },
     {
       "path": "ui/app.ts",
-      "bytes": 146806,
-      "sha256": "c2d07045ebe9a6663a5378a09a8e24c0f63d75f6c596f030a5cb5f4bb871d2a3"
+      "bytes": 147938,
+      "sha256": "28614ba8eaba325ae57faa3df3897bfe9a40873241462ccba036b38b39c8bba2"
     },
     {
       "path": "ui/assignment.ts",
@@ -6029,6 +6034,11 @@
       "path": "ui/local-agent.ts",
       "bytes": 12155,
       "sha256": "6cc77d5ca4d7657b205f6fbb8c97f348d8eb737a3f91df72992a01be154121e3"
+    },
+    {
+      "path": "ui/long-text.ts",
+      "bytes": 4968,
+      "sha256": "14a64b9eddfd003e4b2fc459c1c05e6ceb1af37c87b5d5c466d172a10e02e951"
     },
     {
       "path": "ui/media.ts",
