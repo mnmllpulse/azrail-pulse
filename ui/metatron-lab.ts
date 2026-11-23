@@ -3,6 +3,7 @@ import {createProjectEventClient,type StreamEvent} from './event-stream';
 type Api=(path:string,options?:RequestInit)=>Promise<any>;
 type MissionListItem={id:string;goal:string;status:string;progress:number;created_at:string;updated_at:string;finished_at:string|null};
 type MetatronSnapshot={
+ statusView?:{state:string;label:string;reason:string};
  mission:{id:string;project_id:string;goal:string;status:string;progress?:number;created_at?:string;updated_at?:string;finished_at?:string|null};
  control?:{desired_state?:string;generation?:number}|null;
  graph:{mode:string;warning?:string;nodes:Array<{id:string;label:string;status:string;dependencies:string[];note?:string|null}>};
@@ -88,10 +89,11 @@ export function mountMetatronLab(options:Options):()=>void{
  }
 
  function renderSnapshot(data:MetatronSnapshot){
-  status.replaceChildren(badge(data.mission.status));
+  status.replaceChildren(badge(data.statusView?.state??data.mission.status));
+  if(data.statusView&&['waiting_approval','blocked'].includes(data.statusView.state)){const note=el('p',`metatron-attention status-${data.statusView.state}`);note.setAttribute('role','status');note.append(el('strong','',data.statusView.label),document.createTextNode(` · ${data.statusView.reason}`));status.append(note);}
   summary.replaceChildren();
   const cards:[string,string][]=[
-   ['MISSION',data.mission.goal],['STATUS',data.mission.status.toUpperCase()],['COST',money(data.resources.actualMicroUsd||data.resources.reservedMicroUsd)],
+   ['MISSION',data.mission.goal],['STATUS',data.statusView?.label??data.mission.status.toUpperCase()],['COST',money(data.resources.actualMicroUsd||data.resources.reservedMicroUsd)],
    ['ELAPSED',duration(data.resources.elapsedMs)],['RISK',data.resources.risk],['FENCE',data.resources.fenceToken===null?'—':String(data.resources.fenceToken)],
    ['TOKENS',`${data.resources.promptTokens} in / ${data.resources.completionTokens} out`],['GRAPH',data.graph.mode],
   ];

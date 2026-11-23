@@ -629,3 +629,7 @@ html[data-settings-contrast="high"] button {border-color:#8089a6;}
 .approval-actions button{min-height:44px;padding:0 18px;border-radius:10px;border:1px solid var(--line);background:transparent;color:inherit;font:inherit;cursor:pointer}
 .approval-actions button[data-primary]{background:#e8e8ee;color:#0b0b10;border-color:transparent;font-weight:600}
 .approval-actions button:disabled{opacity:.55;cursor:default}
+
+.metatron-attention{margin:0;padding:8px 12px;border:1px solid var(--status-accent,var(--line));border-radius:10px;font-size:var(--fs-caption);line-height:1.5}
+.metatron-attention.status-waiting_approval{--status-accent:#f0a6d9}
+.metatron-attention.status-blocked{--status-accent:#e6be72}

@@ -71,6 +71,40 @@ export function readMissionGraph(steps:Array<{id?:string;position:number;title:s
   };
 }
 
+export type MissionStatusView={state:'waiting_approval'|'blocked'|'running'|'paused'|'done'|'failed'|'stopped';label:string;reason:string};
+const NODE_DEAD=['failed','cancelled','blocked'];
+const NODE_IDLE=['waiting','queued','pending','ready'];
+
+/** Узел, чья зависимость упала или заблокирована, сам не стартует: показываем «blocked», а не вечное «waiting». */
+export function markBlockedNodes<T extends {id:string;status:string;dependencies:string[]}>(nodes:T[]):T[]{
+  const status=new Map(nodes.map(node=>[node.id,node.status]));
+  let changed=true;
+  while(changed){
+    changed=false;
+    for(const node of nodes){
+      const current=status.get(node.id)??node.status;
+      if(NODE_IDLE.includes(current)&&node.dependencies.some(id=>NODE_DEAD.includes(status.get(id)??''))){status.set(node.id,'blocked');changed=true;}
+    }
+  }
+  return nodes.map(node=>({...node,status:status.get(node.id)??node.status}));
+}
+
+/** Человеческий статус миссии. Приоритет: ждёт разрешения → заблокирована → остальное. */
+export function missionStatusView(input:{
+  status:string;pendingApprovals:Array<{summary:string}>;uncertainCount:number;blockedNodes:number;
+}):MissionStatusView{
+  const pending=input.pendingApprovals[0];
+  if(input.status==='waiting_approval'||pending)return{state:'waiting_approval',label:'Ждёт твоего разрешения',reason:pending?.summary||'Шаг остановлен до подтверждения.'};
+  if(input.uncertainCount>0)return{state:'blocked',label:'Заблокирована',reason:'Результат внешнего действия неизвестен. Повтор запрещён, пока исход не сверен.'};
+  if(input.blockedNodes>0)return{state:'blocked',label:'Заблокирована',reason:'Часть шагов не стартует: предыдущий шаг упал или остановлен.'};
+  if(input.status==='paused'||input.status==='pausing')return{state:'paused',label:'На паузе',reason:'Продолжится после «Resume».'};
+  if(input.status==='completed')return{state:'done',label:'Готово',reason:'Результат проверен.'};
+  if(input.status==='unverified')return{state:'done',label:'Готово, не проверено',reason:'Результат есть, но проверка его не подтвердила.'};
+  if(input.status==='failed')return{state:'failed',label:'Ошибка',reason:'Миссия завершилась ошибкой.'};
+  if(['cancelled','cancelling','terminated'].includes(input.status))return{state:'stopped',label:'Остановлена',reason:'Остановлена владельцем.'};
+  return{state:'running',label:'В работе',reason:'Агенты выполняют шаги.'};
+}
+
 function checkpointUncertain(points:MissionCheckpoint[]){
   return points.filter(point=>point.status==='uncertain'||point.receipt_status==='uncertain').map(point=>({
     step:point.step,tool:point.tool,status:'uncertain',result:parseJson(point.result_json,point.result_json),
@@ -110,12 +144,16 @@ export async function metatronSnapshot(env:Env,missionId:string){
   const finished=mission.finished_at?new Date(String(mission.finished_at)).getTime():Date.now();
   const elapsedMs=Number.isFinite(started)?Math.max(0,finished-started):0;
   const uncertainty=checkpointUncertain(checkpoints);
+  const graph=readMissionGraph(steps);
+  const nodes=markBlockedNodes(graph.nodes);
+  const statusView=missionStatusView({status:String(mission.status),pendingApprovals:approvals.filter(a=>a.status==='pending'),uncertainCount:uncertainty.length,blockedNodes:nodes.filter(n=>n.status==='blocked').length});
   const risk=uncertainty.length?'HIGH':approvals.some(a=>a.status==='pending')?'MEDIUM':'LOW';
   const registered=AGENT_REGISTRY.map(agent=>({id:agent.id,name:agent.name,capabilities:agent.capabilities,status:'registered'}));
   return {
     mission,
     control,
-    graph:readMissionGraph(steps),
+    graph:{...graph,nodes},
+    statusView,
     agentCards:{registered,runtime:agents},
     live:{transport:'project-websocket+durable-replay',events},
     traceExplorer:{links:traceLinks,toolCalls,modelCalls},
