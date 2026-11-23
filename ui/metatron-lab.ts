@@ -6,6 +6,7 @@ type Api=(path:string,options?:RequestInit)=>Promise<any>;
 type MissionListItem={id:string;goal:string;status:string;progress:number;created_at:string;updated_at:string;finished_at:string|null};
 type MetatronSnapshot={
  statusView?:{state:string;label:string;reason:string};
+ report?:{headline:string;text:string};
  mission:{id:string;project_id:string;goal:string;status:string;progress?:number;created_at?:string;updated_at?:string;finished_at?:string|null};
  control?:{desired_state?:string;generation?:number}|null;
  graph:{mode:string;warning?:string;nodes:Array<{id:string;label:string;status:string;dependencies:string[];note?:string|null}>};
@@ -60,10 +61,10 @@ export function mountMetatronLab(options:Options):()=>void{
  root.append(control);
 
  const summary=el('div','metatron-summary');root.append(summary);
- const graph=panel('Live Mission Graph');const agents=panel('Agent Cards');const logs=panel('Live Logs · durable replay');
+ const report=panel('Отчёт');const graph=panel('Live Mission Graph');const agents=panel('Agent Cards');const logs=panel('Live Logs · durable replay');
  const trace=panel('Trace Explorer');const checkpoints=panel('Checkpoint System / Mission Replay');const effects=panel('uncertain_effect / Effect Reconciliation');
  const approvals=panel('Human Approval Nodes');const memory=panel('Memory Inspector');const decisions=panel('Decision Explanation Panel');const fault=panel('Fault Injection Lab · SIMULATION ONLY');
- for(const p of [graph,agents,logs,trace,checkpoints,effects,approvals,memory,decisions,fault])root.append(p.wrap);
+ for(const p of [report,graph,agents,logs,trace,checkpoints,effects,approvals,memory,decisions,fault])root.append(p.wrap);
 
  const scenario=el('select') as HTMLSelectElement;
  for(const key of ['timeout','provider_down','d1_failure','network_loss']){const option=el('option') as HTMLOptionElement;option.value=key;option.textContent=key;scenario.append(option);}
@@ -102,6 +103,7 @@ export function mountMetatronLab(options:Options):()=>void{
   ];
   for(const [key,value] of cards){const card=el('article','metatron-stat');card.append(el('small','',key),el('strong','',value));summary.append(card);}
 
+  report.body.replaceChildren();if(data.report){const text=el('pre','metatron-report');text.textContent=data.report.text;report.body.append(text);}
   graph.body.replaceChildren();const layers=layerGraph(data.graph.nodes);graph.body.append(el('p','context-note',`${graphCaption(data.graph.mode,layers)} ${data.graph.warning??''}`.trim()));
   const labelById=new Map(data.graph.nodes.map((node,index)=>[node.id,`${index+1}. ${node.label}`]));
   const flow=el('div','mission-layers');layers.forEach((layer,index)=>{const row=el('section','mission-layer');row.append(el('small','muted',index?`Уровень ${index+1}`:'Уровень 1 · можно начать сразу'));const cells=el('div','mission-graph');for(const node of layer){const n=el('article','mission-node');n.append(badge(node.status),el('strong','',node.label),el('small','muted',node.dependencies.length?`ждёт: ${node.dependencies.map(id=>labelById.get(id)??id).join('; ')}`:'ничего не ждёт'));cells.append(n);}row.append(cells);flow.append(row);});graph.body.append(flow);

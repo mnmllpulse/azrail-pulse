@@ -4,6 +4,8 @@ import {loadCheckpoints,type MissionCheckpoint} from './checkpoints';
 import {listMissionEvents} from './event-store';
 import {readDependencyNote} from '../core/planner';
 import {validateMissionGraph,type MissionGraphNode} from './mission-graph';
+import {buildMissionReport} from './mission-report';
+import type {TaskResult} from '../types';
 
 export type MetatronControlAction='start'|'pause'|'resume'|'cancel'|'terminate'|'retry_step';
 export type FaultScenario='timeout'|'provider_down'|'d1_failure'|'network_loss';
@@ -147,6 +149,12 @@ export async function metatronSnapshot(env:Env,missionId:string){
   const graph=readMissionGraph(steps);
   const nodes=markBlockedNodes(graph.nodes);
   const statusView=missionStatusView({status:String(mission.status),pendingApprovals:approvals.filter(a=>a.status==='pending'),uncertainCount:uncertainty.length,blockedNodes:nodes.filter(n=>n.status==='blocked').length});
+  const stored=(await env.AZRAIL_D1.prepare('SELECT result_json FROM missions WHERE id=?').bind(missionId).first<{result_json:string|null}>().catch(()=>null))?.result_json;
+  const outcome=parseJson<TaskResult|null>(stored,null);
+  const report=buildMissionReport({
+    goal:String(mission.goal??''),status:String(mission.status),summary:outcome?.summary,error:outcome?.error,quality:outcome?.quality,
+    steps:steps.map(step=>({title:step.title,status:step.status})),approvals,uncertainCount:uncertainty.length,
+  });
   const risk=uncertainty.length?'HIGH':approvals.some(a=>a.status==='pending')?'MEDIUM':'LOW';
   const registered=AGENT_REGISTRY.map(agent=>({id:agent.id,name:agent.name,capabilities:agent.capabilities,status:'registered'}));
   return {
@@ -154,6 +162,7 @@ export async function metatronSnapshot(env:Env,missionId:string){
     control,
     graph:{...graph,nodes},
     statusView,
+    report,
     agentCards:{registered,runtime:agents},
     live:{transport:'project-websocket+durable-replay',events},
     traceExplorer:{links:traceLinks,toolCalls,modelCalls},
