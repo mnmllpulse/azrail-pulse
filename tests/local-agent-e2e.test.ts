@@ -139,15 +139,14 @@ describe("сквозной сценарий: сервер ↔ настоящий
       expect(done(job).result ?? "").not.toContain("за пределами папки");
     }
     expect(agentLog).not.toContain(token);
-  }, 45_000);
 
-  it("после закрытия сессии агент получает 401 и завершается", async () => {
+    // Финал того же сценария: закрытие сессии. Отдельным тестом он зависел бы от порядка запуска.
     const state = (await store.getState())!;
     await store.setState({ ...state, expiresAt: Date.now() - 1 } as AgentState);
     await until(() => agent!.exitCode !== null, 10_000);
     expect(agent!.exitCode).toBe(0);
     expect(agentLog).toContain("Сессия агента закончилась");
-  }, 15_000);
+  }, 60_000);
 
   it("сервер отклоняет закрытые пути до очереди", async () => {
     await store.setState({ ...(await store.getState())!, expiresAt: Date.now() + 60_000 } as AgentState);
