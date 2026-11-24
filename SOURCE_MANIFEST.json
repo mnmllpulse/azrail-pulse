@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-23T20:59:50.406Z",
+  "generated_at": "2026-11-24T01:49:27.294Z",
   "excludes_self": true,
-  "file_count": 1365,
+  "file_count": 1367,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3707,8 +3707,8 @@
     },
     {
       "path": "src/core/execution-engine.ts",
-      "bytes": 68205,
-      "sha256": "b129d8970a08302e59ef9d64cdcfc2f951deb5d6e996be7c6219fc0bb26517e6"
+      "bytes": 69268,
+      "sha256": "24d0689a5ab3988d82e7967a24bb75fb657cd4bf8959682be7a8887fb6090a6f"
     },
     {
       "path": "src/core/execution-journal.ts",
@@ -3904,6 +3904,11 @@
       "path": "src/lib/canon.ts",
       "bytes": 11238,
       "sha256": "5cdd76087a7e9820b9b74ea1099ef9447e5b2b5f23a30e8d15403b58c3b6717a"
+    },
+    {
+      "path": "src/lib/change-review.ts",
+      "bytes": 3040,
+      "sha256": "16bcc8038ae5578fca8b5a5e4127d7d6a0ecd8d48417d67fcbadd026e96fc099"
     },
     {
       "path": "src/lib/chat-context.ts",
@@ -4794,6 +4799,11 @@
       "path": "tests/canon-check.test.ts",
       "bytes": 4616,
       "sha256": "941dae26e97de81503fb553483fddb1c6441491b93f92fb52253b806d5a781d6"
+    },
+    {
+      "path": "tests/change-review.test.ts",
+      "bytes": 2203,
+      "sha256": "370fa31423b081b812bf82642ffb53a489f4665d19fcb54f8a31f8b413842a56"
     },
     {
       "path": "tests/chat-agent.test.ts",
