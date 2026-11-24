@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-24T02:04:21.134Z",
+  "generated_at": "2026-11-24T02:35:12.927Z",
   "excludes_self": true,
   "file_count": 1369,
   "files": [
@@ -5127,8 +5127,8 @@
     },
     {
       "path": "tests/local-agent-e2e.test.ts",
-      "bytes": 7992,
-      "sha256": "3485ecbf83e875e49bd014d26f347133340a15870273c820908c64fa27f5e745"
+      "bytes": 8031,
+      "sha256": "7890a83beb1bb5216cef2ba84b58dddc897818167e3c4b93925b9a401c4c1a61"
     },
     {
       "path": "tests/local-agent-terminal.test.ts",
