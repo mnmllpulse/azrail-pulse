@@ -18,34 +18,94 @@ function parts(count: number): string {
 
 export type ChatStep = { t: string; s?: string; d?: string };
 
-export function commandsBlock(doc: Document, steps: ChatStep[], live = false): HTMLDetailsElement {
-  const title = live ? `Ход выполнения · шагов: ${steps.length}` : `Выполнил команд: ${steps.length}`;
-  const { root, body } = thinkingBlock(doc, steps.length, live, title);
-  root.classList.add('commands-block');
-  const list = doc.createElement('ul');
+export function commandsBlock(doc: Document, steps: ChatStep[], live = false): HTMLElement {
+  const root = doc.createElement('div');
+  root.className = 'commands-block';
+  root.dataset.live = live ? 'true' : 'false';
+  const row = doc.createElement('button');
+  row.type = 'button';
+  row.className = 'commands-row';
+  row.setAttribute('aria-haspopup', 'dialog');
+  const last = steps.at(-1);
+  const title = live && last ? `${last.t}…` : `Выполнил команд: ${steps.length}`;
+  row.setAttribute('aria-label', `${title}. Открыть список`);
+  const label = doc.createElement('span');
+  label.className = 'commands-row-label';
+  label.textContent = title;
+  const chevron = doc.createElement('span');
+  chevron.className = 'commands-row-chevron';
+  chevron.setAttribute('aria-hidden', 'true');
+  chevron.innerHTML = icon('chevron', 16);
+  row.append(iconElement('mission', 16, doc), label, chevron);
+  row.onclick = () => openStepsSheet(doc, steps, row);
+  root.append(row);
+  return root;
+}
+
+export function openStepsSheet(doc: Document, steps: ChatStep[], opener?: HTMLElement): HTMLElement {
+  doc.querySelector('.steps-sheet-backdrop')?.remove();
+  const backdrop = doc.createElement('div');
+  backdrop.className = 'steps-sheet-backdrop';
+  const sheet = doc.createElement('section');
+  sheet.className = 'steps-sheet';
+  sheet.setAttribute('role', 'dialog');
+  sheet.setAttribute('aria-modal', 'true');
+  sheet.setAttribute('aria-label', `Выполнил команд: ${steps.length}`);
+  const head = doc.createElement('header');
+  const close = doc.createElement('button');
+  close.type = 'button';
+  close.className = 'steps-sheet-close';
+  close.setAttribute('aria-label', 'Закрыть');
+  close.innerHTML = icon('close', 20);
+  const title = doc.createElement('h2');
+  title.textContent = `Выполнил команд: ${steps.length}`;
+  head.append(close, title);
+  const list = doc.createElement('ol');
+  list.className = 'steps-timeline';
   for (const step of steps) {
     const li = doc.createElement('li');
     const label = step.s ? `${step.t} · ${step.s}` : step.t;
     if (step.d) {
       const item = doc.createElement('details');
       item.className = 'command-step';
-      const head = doc.createElement('summary');
+      const summary = doc.createElement('summary');
+      const badge = doc.createElement('span');
+      badge.className = 'steps-badge';
+      badge.setAttribute('aria-hidden', 'true');
+      badge.innerHTML = icon('terminal', 16);
       const name = doc.createElement('span');
+      name.className = 'steps-name';
       name.textContent = label;
       const chevron = doc.createElement('span');
-      chevron.className = 'thinking-chevron';
+      chevron.className = 'commands-row-chevron';
       chevron.setAttribute('aria-hidden', 'true');
-      chevron.innerHTML = icon('chevron', 14);
-      head.append(name, chevron);
+      chevron.innerHTML = icon('chevron', 16);
+      summary.append(badge, name, chevron);
       const pre = doc.createElement('pre');
       pre.textContent = step.d;
-      item.append(head, pre);
+      item.append(summary, pre);
       li.append(item);
-    } else li.textContent = label;
+    } else {
+      const dot = doc.createElement('span');
+      dot.className = 'steps-dot';
+      dot.setAttribute('aria-hidden', 'true');
+      const text = doc.createElement('span');
+      text.className = 'steps-text';
+      text.textContent = label;
+      li.append(dot, text);
+    }
     list.append(li);
   }
-  body.append(list);
-  return root;
+  sheet.append(head, list);
+  backdrop.append(sheet);
+  const shut = () => { backdrop.remove(); doc.removeEventListener('keydown', onKey); opener?.focus(); };
+  const onKey = (event: Event) => { if ((event as KeyboardEvent).key === 'Escape') shut(); };
+  close.onclick = shut;
+  backdrop.onclick = (event) => { if (event.target === backdrop) shut(); };
+  doc.addEventListener('keydown', onKey);
+  doc.body.append(backdrop);
+  close.focus();
+  return backdrop;
 }
 
 export function stepsOf(value: unknown): ChatStep[] {
