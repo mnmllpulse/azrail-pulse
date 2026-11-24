@@ -5,7 +5,7 @@ import { fenceUntrusted, injectionSignals, UNTRUSTED_RULE } from '../src/lib/unt
 export const FIX_ROUNDS = 3;
 export const FIX_FILES = 3;
 const FIX_VERB = /(?:исправь|почини|поправь)\s/iu;
-export const FIX_APPROVE = /^[\s«»"'“”]*(?:разреши(?:\s+цикл)?|запускай(?:\s+цикл)?|ок|окей|ok|да|подтверждаю|согласен)[\s«»"'“”.!]*$/iu;
+export const FIX_APPROVE = /^[\s«»"'“”]*(?:разреши(?:\s+цикл)?|запускай(?:\s+цикл)?|ок|окей|ok|да|подтверждаю|согласен|\+1?|👍)[\s«»"'“”.!]*$/iu;
 const SOURCE = /([\w./-]+\.(?:tsx?|mjs|cjs|jsx?|json|css|html|md))(?=[:(\s'"]|$)/g;
 
 export type FixDeps = {

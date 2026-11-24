@@ -20,8 +20,8 @@ export const WHERE = /(?:на\s+(?:(?:моём|моем|этом|своём|св
 const PATH = /((?:[\w.-]+\/)*[\w.-]+\.[A-Za-z0-9]{1,8})(?![\w/])/u;
 const LIST = /^\s*(?:покажи|выведи|дай|открой)?\s*(?:список\s+)?файл\p{L}*(?:\s+(?:в|из)\s+((?:[\w.-]+\/?)+))?/iu;
 const QUOTES = '[\\s«»"\'“”„]*';
-export const APPROVE = new RegExp(`^${QUOTES}(?:разреши(?:\\s+(?:запись|запуск))?|разрешаю|одобряю|подтверждаю|согласен|ок|окей|ok|okay|да|yes)${QUOTES}[.!]*${QUOTES}$`, 'iu');
-export const REJECT = new RegExp(`^${QUOTES}(?:отклони(?:\\s+(?:запись|запуск))?|отклоняю|не\\s+записывай|отмена|нет|no)${QUOTES}[.!]*${QUOTES}$`, 'iu');
+export const APPROVE = new RegExp(`^${QUOTES}(?:разреши(?:\\s+(?:запись|запуск))?|разрешаю|одобряю|подтверждаю|согласен|ок|окей|ok|okay|да|yes|\\+1?|👍)${QUOTES}[.!]*${QUOTES}$`, 'iu');
+export const REJECT = new RegExp(`^${QUOTES}(?:отклони(?:\\s+(?:запись|запуск))?|отклоняю|не\\s+записывай|отмена|нет|no|-1|👎)${QUOTES}[.!]*${QUOTES}$`, 'iu');
 
 /** Только явная просьба про компьютер: «прочитай src/a.ts на компьютере». Остальное остаётся обычным чатом. */
 export function agentIntent(message: string): AgentIntent {
