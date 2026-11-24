@@ -1011,7 +1011,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
 
       const plan = await pick(`SELECT position, title, status, note FROM mission_steps WHERE mission_id = ? ORDER BY position`);
       const calls = await pick(
-        `SELECT tool, status, started_at, finished_at FROM tool_calls WHERE mission_id = ? ORDER BY started_at`,
+        `SELECT tool, status, started_at, finished_at, substr(input,1,1500) AS input, substr(output,1,1500) AS output, substr(error,1,500) AS error FROM tool_calls WHERE mission_id = ? ORDER BY started_at`,
       );
       const checks = await pick(`SELECT attempt, passed, reason, created_at FROM mission_checks WHERE mission_id = ? ORDER BY attempt`);
 

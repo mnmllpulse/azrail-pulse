@@ -16,13 +16,47 @@ function parts(count: number): string {
   return last >= 2 && last <= 4 ? 'части' : 'частей';
 }
 
-export function commandsBlock(doc: Document, lines: string[]): HTMLDetailsElement {
-  const { root, body } = thinkingBlock(doc, lines.length, false, `Выполнил команд: ${lines.length}`);
+export type ChatStep = { t: string; s?: string; d?: string };
+
+export function commandsBlock(doc: Document, steps: ChatStep[], live = false): HTMLDetailsElement {
+  const title = live ? `Ход выполнения · шагов: ${steps.length}` : `Выполнил команд: ${steps.length}`;
+  const { root, body } = thinkingBlock(doc, steps.length, live, title);
   root.classList.add('commands-block');
   const list = doc.createElement('ul');
-  for (const line of lines) { const li = doc.createElement('li'); li.textContent = line; list.append(li); }
+  for (const step of steps) {
+    const li = doc.createElement('li');
+    const label = step.s ? `${step.t} · ${step.s}` : step.t;
+    if (step.d) {
+      const item = doc.createElement('details');
+      item.className = 'command-step';
+      const head = doc.createElement('summary');
+      const name = doc.createElement('span');
+      name.textContent = label;
+      const chevron = doc.createElement('span');
+      chevron.className = 'thinking-chevron';
+      chevron.setAttribute('aria-hidden', 'true');
+      chevron.innerHTML = icon('chevron', 14);
+      head.append(name, chevron);
+      const pre = doc.createElement('pre');
+      pre.textContent = step.d;
+      item.append(head, pre);
+      li.append(item);
+    } else li.textContent = label;
+    list.append(li);
+  }
   body.append(list);
   return root;
+}
+
+export function stepsOf(value: unknown): ChatStep[] {
+  if (!Array.isArray(value)) return [];
+  return value.slice(0, 40).flatMap((x): ChatStep[] => {
+    if (typeof x === 'string') return x ? [{ t: x.slice(0, 120) }] : [];
+    if (!x || typeof x !== 'object') return [];
+    const o = x as Record<string, unknown>;
+    if (typeof o.t !== 'string' || !o.t) return [];
+    return [{ t: o.t.slice(0, 120), ...(typeof o.s === 'string' ? { s: o.s.slice(0, 40) } : {}), ...(typeof o.d === 'string' && o.d ? { d: o.d.slice(0, 3200) } : {}) }];
+  });
 }
 
 export function thinkingBlock(doc: Document, steps: number, open = false, title = ''): { root: HTMLDetailsElement; body: HTMLDivElement } {

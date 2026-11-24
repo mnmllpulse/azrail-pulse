@@ -243,6 +243,12 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .commands-block ul { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 4px; }
 .app-shell .commands-block li { padding: 4px 0; border-top: 1px solid var(--line); }
 .app-shell .commands-block li:first-child { border-top: 0; }
+/* Шаг-команда с раскрываемыми подробностями */
+.app-shell .command-step > summary { display: flex; align-items: center; gap: 8px; cursor: pointer; list-style: none; color: var(--muted); }
+.app-shell .command-step > summary::-webkit-details-marker { display: none; }
+.app-shell .command-step > summary:hover { color: var(--heading); }
+.app-shell .command-step[open] > summary .thinking-chevron { transform: rotate(180deg); }
+.app-shell .command-step > pre { margin: 6px 0 2px; padding: 8px 10px; max-height: 220px; overflow: auto; border-radius: 8px; background: rgba(0,0,0,.28); color: var(--text, #d7d9e6); font-size: var(--fs-micro); white-space: pre-wrap; overflow-wrap: anywhere; }
 @keyframes thinking-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .app-shell .thinking-body { animation: none; } .app-shell .thinking-chevron { transition: none; } }
 .app-shell .message-attachments { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }

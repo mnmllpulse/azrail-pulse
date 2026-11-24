@@ -1,4 +1,5 @@
 import {visibleMissionText} from '../src/lib/mission-copy';
+import type {ChatStep} from './thinking-block';
 type Item = Record<string, unknown>;
 export interface MissionReport {
  mission?: Item; status?: string; result?: Item | null;
@@ -7,8 +8,11 @@ export interface MissionReport {
 const labels: Record<string,string> = {queued:'Задача принята',planning:'Составляю план',executing:'Выполняю задачу',verifying:'Проверяю результат',waiting_approval:'Нужно ваше действие',completed:'Проверено · завершено',unverified:'Завершено без подтверждения',failed:'Работа остановлена',cancelling:'Останавливаю задачу',cancelled:'Задача отменена'};
 const tools: Record<string,string> = {read_file:'Чтение файла',write_file:'Создание файла',edit_file:'Правка файла',apply_patch:'Изменение кода',list_files:'Просмотр проекта',search_files:'Поиск в проекте',call_model:'Анализ задачи',sandbox_test:'Проверка проекта',sandbox_exec:'Выполнение команды',run_tests:'Запуск тестов',connector_call:'Внешний инструмент',connector_search:'Поиск инструмента'};
 const text=(value:unknown,fallback='')=>typeof value==='string'?value.slice(0,10000):fallback;
-export function missionSteps(report: MissionReport): string[] {
- return (report.calls??[]).slice(0,40).map(call=>`${tools[text(call.tool)]??'Инструмент'} · ${call.status==='done'?'готово':call.status==='failed'?'ошибка':'в работе'}`);
+export function missionSteps(report: MissionReport): ChatStep[] {
+ return (report.calls??[]).slice(0,40).map(call=>{
+  const detail=[text(call.input)&&`Вход:\n${text(call.input).slice(0,1500)}`,text(call.output)&&`Результат:\n${text(call.output).slice(0,1500)}`,text(call.error)&&`Ошибка:\n${text(call.error).slice(0,500)}`].filter(Boolean).join('\n\n');
+  return {t:tools[text(call.tool)]??'Инструмент',s:call.status==='done'?'готово':call.status==='failed'?'ошибка':'в работе',...(detail?{d:detail}:{})};
+ });
 }
 export function renderMission(root: Document, report: MissionReport, operator=false) {
  const get=(id:string)=>root.getElementById(id)!;

@@ -1,9 +1,9 @@
 import {appendAssistantActions,appendUserActions,type MessageActionHandlers} from './chat-actions';
 import {attachmentChip,attachmentImage,splitAttachments} from './attachment-chip';
-import {commandsBlock,splitProcess,thinkingBlock} from './thinking-block';
+import {commandsBlock,splitProcess,stepsOf,thinkingBlock,type ChatStep} from './thinking-block';
 import {fillMarkdownContent} from './chat-markdown';
 
-export type ChatTurn={missionId:string;requestKey:string;user:string;reply:string;status:string;steps?:string[]};
+export type ChatTurn={missionId:string;requestKey:string;user:string;reply:string;status:string;steps?:ChatStep[]};
 export type ChatThread={id:string;title:string;projectId:string;missionId:string;draft:string;updatedAt:number;pinned:boolean;archived:boolean;customTitle:boolean;turns:ChatTurn[]};
 export type RemoteConversation={id:string;project_id?:string|null;preview?:string|null;title?:string|null;pinned?:number|boolean|null;archived?:number|boolean|null;created_at?:string|number|null;last_message_at?:string|number|null;message_count?:number|null};
 export type RemoteMessage={id?:string;role?:string;content?:string;created_at?:string|number|null};
@@ -83,7 +83,7 @@ export function createChatHistory(storage:Storage|undefined,onStorageError:()=>v
      state.threads=raw.threads.slice(0,50).filter((t:any)=>t&&typeof t.id==='string').map((t:any)=>({
       id:str(t.id,128),title:str(t.title,90)||'Новый чат',projectId:str(t.projectId,128),missionId:str(t.missionId,128),draft:str(t.draft),updatedAt:Number.isFinite(t.updatedAt)?t.updatedAt:0,
       pinned:!!t.pinned,archived:!!t.archived,customTitle:!!t.customTitle,
-      turns:(Array.isArray(t.turns)?t.turns:[]).slice(-40).filter((v:any)=>v&&typeof v.missionId==='string').map((v:any)=>({missionId:str(v.missionId,128),requestKey:str(v.requestKey,128),user:str(v.user),reply:str(v.reply),status:str(v.status,40),steps:Array.isArray(v.steps)?v.steps.slice(0,40).map((x:unknown)=>str(x,120)).filter(Boolean):undefined})),
+      turns:(Array.isArray(t.turns)?t.turns:[]).slice(-40).filter((v:any)=>v&&typeof v.missionId==='string').map((v:any)=>({missionId:str(v.missionId,128),requestKey:str(v.requestKey,128),user:str(v.user),reply:str(v.reply),status:str(v.status,40),steps:stepsOf(v.steps).length?stepsOf(v.steps):undefined})),
      }));sortThreads(state.threads);state.active=state.threads.some(t=>t.id===raw.active)?raw.active:'';
     }
    }catch{/* A malformed or unavailable cache must not prevent opening the app. */}
@@ -136,9 +136,9 @@ export function createChatHistory(storage:Storage|undefined,onStorageError:()=>v
    }
    if(thread&&turn&&(turn.reply!==reply||turn.status!==status)){turn.reply=reply.slice(0,20000);turn.status=status;touch(thread);}
   },
-  setSteps(id:string,steps:string[]){
-   const thread=state.threads.find(t=>t.turns.some(t2=>t2.missionId===id));
-   const turn=thread?.turns.filter(t2=>t2.missionId===id).at(-1);
+  setSteps(id:string,steps:ChatStep[]){
+   const thread=state.threads.find(t=>t.turns.some(t2=>t2.missionId===id||t2.requestKey===id));
+   const turn=thread?.turns.filter(t2=>t2.missionId===id||t2.requestKey===id).at(-1);
    if(!thread||!turn||JSON.stringify(turn.steps??[])===JSON.stringify(steps))return;
    turn.steps=steps.length?steps:undefined;touch(thread);
   },
@@ -193,11 +193,11 @@ export function createChatHistory(storage:Storage|undefined,onStorageError:()=>v
 export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,liveMission:string,handlers:MessageActionHandlers={}) {
  host.replaceChildren();
  const doc=host.ownerDocument;
- function message(role:'user'|'assistant',content:string,status?:string,turn=-1,steps?:string[]){
+ function message(role:'user'|'assistant',content:string,status?:string,turn=-1,steps?:ChatStep[],live=false){
   const item=doc.createElement('article');item.className='chat-message';item.dataset.role=role;
   const heading=doc.createElement('h3');heading.className='message-heading';heading.textContent=role==='user'?'Вы':(handlers.assistantLabel||'AZRAIL');
   item.append(heading);
-  if(role==='assistant'&&steps?.length)item.append(commandsBlock(doc,steps));
+  if(role==='assistant'&&steps?.length)item.append(commandsBlock(doc,steps,live));
   if(role==='assistant'&&content){
    const {process,rest,steps}=splitProcess(content);
    if(process){
@@ -231,9 +231,9 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
   const turn=turns[index];
   message('user',turn.user);
   const liveMissionTurn=!!liveMission&&turn.missionId===liveMission&&!turn.reply&&turn.status!=='queued'&&turn.status!=='failed';
-  if(liveMissionTurn)continue;
+  if(liveMissionTurn){if(turn.steps?.length)message('assistant','','live',index,turn.steps,true);continue;}
   if(turn.reply)message('assistant',turn.reply,undefined,index,turn.steps);
-  else if(turn.status==='queued')message('assistant','', 'queued');
+  else if(turn.status==='queued')message('assistant','', 'queued',-1,turn.steps,true);
   else if(turn.status==='failed')message('assistant',turn.reply||'Не удалось получить ответ.','failed');
  }
 }
