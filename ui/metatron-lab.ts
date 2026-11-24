@@ -1,6 +1,7 @@
 import {createProjectEventClient,type StreamEvent} from './event-stream';
 import {graphCaption,layerGraph} from './mission-layers';
 import {missionBrief,missionStatusLabel} from './mission-brief';
+import {decisionRow} from './approval-actions';
 
 type Api=(path:string,options?:RequestInit)=>Promise<any>;
 type MissionListItem={id:string;goal:string;status:string;progress:number;created_at:string;updated_at:string;finished_at:string|null};
@@ -17,7 +18,7 @@ type MetatronSnapshot={
  checkpoints:Array<{step:number;tool:string;status:string;receipt_status?:string|null;updated_at?:number}>;
  uncertainEffects:Array<{step:number;tool:string;status:string;result:unknown}>;
  reconciliationEngine:{mode:string;automaticRetry:boolean;checkpointRule:string;connector:{method:string;path:string;outcomes:string[];evidenceRequired:boolean};model:{method:string;path:string;fields:string[];evidenceRequired:boolean};note:string};
- approvals:Array<{id:string;action_type:string;status:string;risk:string;summary:string;requested_at:number}>;
+ approvals:Array<{id:string;action_type:string;status:string;risk:string;summary:string;requested_at:number;payload_digest?:string}>;
  memoryInspector:Array<{memory_id:string;category:string;memory_key:string;source:string;created_at:number}>;
  decisions:Array<{id:string;step:number|null;decision_kind:string;choice:string;reason:string;evidence:unknown;created_at:number}>;
  faultInjection:Array<{id:string;scenario:string;simulation_only:number;status:string;created_at:number}>;
@@ -50,6 +51,7 @@ export function mountMetatronLab(options:Options):()=>void{
  const toolbar=el('div','metatron-toolbar');
  const missionSelect=el('select') as HTMLSelectElement;missionSelect.id='metatron-mission-select';missionSelect.setAttribute('aria-label','Миссия');
  const refreshButton=el('button','','Обновить');
+ const decisionButtons=(approval:{id:string;payload_digest?:string})=>decisionRow(async decision=>{await api(`/api/approvals/${encodeURIComponent(approval.id)}/decision`,{method:'POST',body:JSON.stringify({decision,payloadDigest:approval.payload_digest})});await refreshSnapshot(true);},failure);
  const status=el('span','metatron-live-status','Загрузка…');
  const brief=el('p','metatron-brief');brief.setAttribute('role','status');
  toolbar.append(missionSelect,refreshButton,status);root.append(brief,toolbar);
@@ -133,7 +135,7 @@ export function mountMetatronLab(options:Options):()=>void{
   effects.body.append(reconciliation);
   if(!data.uncertainEffects.length)effects.body.append(el('p','muted','Нет uncertain_effect.'));else for(const effect of data.uncertainEffects){const row=el('article','metatron-warning');row.append(el('strong','',`Step ${effect.step} · ${effect.tool}`),badge('uncertain_effect'),el('pre','',jsonText(effect.result)),el('p','context-note','Автоматический retry запрещён. Сначала сверить внешний outcome через соответствующий Connector/Ledger reconciliation flow.'));effects.body.append(row);}
 
-  approvals.body.replaceChildren();if(!data.approvals.length)approvals.body.append(el('p','muted','Approval nodes отсутствуют.'));else for(const approval of data.approvals){const row=el('article','metatron-checkpoint');row.append(el('strong','',approval.summary),badge(approval.status),el('small','muted',`${approval.action_type} · risk ${approval.risk}`));approvals.body.append(row);}
+  approvals.body.replaceChildren();if(!data.approvals.length)approvals.body.append(el('p','muted','Запросов на разрешение нет.'));else for(const approval of data.approvals){const row=el('article','metatron-checkpoint');row.append(el('strong','',approval.summary),badge(approval.status),el('small','muted',`${approval.action_type} · риск ${approval.risk}`));if(approval.status==='pending')row.append(decisionButtons(approval));approvals.body.append(row);}
   renderList(memory.body,data.memoryInspector,'Эта миссия ещё не использовала Project Memory или аудит появился до rc.60.');
   decisions.body.replaceChildren();if(!data.decisions.length)decisions.body.append(el('p','muted','Decision receipts появятся у шагов, выполненных rc.60+.'));else for(const d of data.decisions.slice(-80)){const row=el('article','metatron-decision');row.append(badge(d.decision_kind),el('strong','',d.choice),el('p','',d.reason));decisions.body.append(row);}
 
