@@ -5,7 +5,6 @@ export type MessageActionHandlers = {
   onSpeak?: (text: string) => void;
   onEdit?: (text: string) => void;
   onRetry?: (text: string) => void;
-  onBranch?: (turnIndex: number) => void;
   assistantLabel?: string;
 };
 
@@ -291,12 +290,6 @@ export function appendAssistantActions(
     handlers.onSpeak?.(content);
   };
   bar.append(copyButton(doc, content, 'Копировать ответ', handlers), speak);
-  if (turnIndex >= 0) {
-    const branch = iconButton(doc, 'Создать ветвь в новом чате', 'Создать ветвь в новом чате', ICONS.branch);
-    branch.classList.add('message-action-branch');
-    branch.onclick = () => handlers.onBranch?.(turnIndex);
-    bar.append(branch);
-  }
   item.append(bar);
 }
 
