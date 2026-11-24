@@ -67,6 +67,7 @@ const PATHS = {
   retry:
     '<path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>',
   chevron: '<path d="m6 9 6 6 6-6"/>',
+  terminal: '<path d="m5 8 4 4-4 4"/><path d="M12 17h7"/>',
   arrowDown: '<path d="M12 5v14"/><path d="m19 12-7 7-7-7"/>',
   download:
     '<path d="M12 15V3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/>',

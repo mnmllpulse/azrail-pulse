@@ -170,30 +170,40 @@ describe("подпись под картинкой и блок команд", ()
     expect(users[1].textContent).toContain("напиши промпт");
     expect(users[1].querySelector(".message-actions")).not.toBeNull();
   });
-  it("у ответа с командами есть свёрнутый блок «Выполнил команд»", () => {
-    const { host } = setup();
+  it("у ответа с командами — строка «Выполнил команд», список открывается шторкой", () => {
+    const { host, w } = setup();
     const { thread } = threadWith([{ user: "сделай", reply: "готово" }]);
     thread.turns[0].steps = [{ t: "Чтение файла", s: "готово", d: "Вход:\nsrc/a.ts" }, { t: "Правка файла", s: "готово" }];
     renderChatMessages(host, thread, "");
-    const block = host.querySelector(".commands-block") as HTMLDetailsElement;
-    expect(block.open).toBe(false);
-    expect(block.textContent).toContain("Выполнил команд: 2");
-    expect(block.querySelectorAll("li").length).toBe(2);
-    const step = block.querySelector(".command-step") as HTMLDetailsElement;
+    const row = host.querySelector(".commands-block .commands-row") as HTMLButtonElement;
+    expect(row.textContent).toContain("Выполнил команд: 2");
+    expect(w.document.querySelector(".steps-sheet")).toBeNull();
+    row.click();
+    const sheet = w.document.querySelector(".steps-sheet") as HTMLElement;
+    expect(sheet.querySelector("h2")?.textContent).toBe("Выполнил команд: 2");
+    expect(sheet.querySelectorAll("ol > li").length).toBe(2);
+    const step = sheet.querySelector(".command-step") as HTMLDetailsElement;
     expect(step.open).toBe(false);
     expect(step.querySelector("pre")?.textContent).toContain("src/a.ts");
-    expect(block.querySelectorAll(".command-step").length).toBe(1);
+    (sheet.querySelector(".steps-sheet-close") as HTMLButtonElement).click();
+    expect(w.document.querySelector(".steps-sheet")).toBeNull();
   });
-  it("пока ответ идёт, блок шагов раскрыт и виден", () => {
+  it("пока ответ идёт, в строке виден текущий шаг", () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "сделай", reply: "" }]);
     thread.turns[0].status = "queued";
     thread.turns[0].steps = [{ t: "Запрос отправлен", s: "готово" }, { t: "Модель отвечает", s: "в работе" }];
     renderChatMessages(host, thread, "");
-    const block = host.querySelector(".commands-block") as HTMLDetailsElement;
-    expect(block.open).toBe(true);
+    const block = host.querySelector(".commands-block") as HTMLElement;
+    expect(block.dataset.live).toBe("true");
     expect(block.textContent).toContain("Модель отвечает");
     expect(host.textContent).toContain("Думаю");
+  });
+  it("без команд блока нет", () => {
+    const { host } = setup();
+    const { thread } = threadWith([{ user: "привет", reply: "привет" }]);
+    renderChatMessages(host, thread, "");
+    expect(host.querySelector(".commands-block")).toBeNull();
   });
   it("старые строковые шаги читаются", async () => {
     const { stepsOf } = await import("../ui/thinking-block");
@@ -205,11 +215,5 @@ describe("подпись под картинкой и блок команд", ()
     expect(out[0]).toMatchObject({ t: "Чтение файла", s: "готово" });
     expect(out[0].d).toContain("a.ts");
     expect(out[0].d).toContain("код");
-  });
-  it("без команд блока нет", () => {
-    const { host } = setup();
-    const { thread } = threadWith([{ user: "привет", reply: "привет" }]);
-    renderChatMessages(host, thread, "");
-    expect(host.querySelector(".commands-block")).toBeNull();
   });
 });
