@@ -33,9 +33,9 @@ describe("чат ставит задачи локальному агенту", (
     expect(APPROVE.test("разреши запись")).toBe(true);
     expect(REJECT.test("отклони")).toBe(true);
     expect(APPROVE.test("разреши мне войти")).toBe(false);
-    for (const ok of ["ок", "«ок»", "разреши»", "Да!", "OK", " «разреши» ", "разреши запуск"]) expect(APPROVE.test(ok), ok).toBe(true);
-    for (const no of ["ок, но сначала объясни", "да, расскажи про Cloudflare", "окно"]) expect(APPROVE.test(no), no).toBe(false);
-    for (const bad of ["нет", "«отмена»", "отклони запуск"]) expect(REJECT.test(bad), bad).toBe(true);
+    for (const ok of ["+", "+1", " + ", "👍", "ок", "«ок»", "разреши»", "Да!", "OK", " «разреши» ", "разреши запуск"]) expect(APPROVE.test(ok), ok).toBe(true);
+    for (const no of ["+ объясни", "1+1", "++", "ок, но сначала объясни", "да, расскажи про Cloudflare", "окно"]) expect(APPROVE.test(no), no).toBe(false);
+    for (const bad of ["нет", "-1", "👎", "«отмена»", "отклони запуск"]) expect(REJECT.test(bad), bad).toBe(true);
   });
   it("ответы по состояниям", () => {
     const job = { id: "1", kind: "read", path: "a.ts", status: "done", result: "x".repeat(7000), error: null };

@@ -12,7 +12,7 @@ describe("цикл исправления: намерение и разбор", 
     expect(fixIntent("запусти тесты на компьютере")).toBeNull();
   });
   it("согласие на цикл принимает «ок» и кавычки, но не фразы с продолжением", () => {
-    for (const ok of ["разреши цикл", "«ок»", "разреши»", "да"]) expect(FIX_APPROVE.test(ok), ok).toBe(true);
+    for (const ok of ["+", "👍", "разреши цикл", "«ок»", "разреши»", "да"]) expect(FIX_APPROVE.test(ok), ok).toBe(true);
     for (const no of ["да, но не трогай src", "исправь ошибки сборки на компьютере"]) expect(FIX_APPROVE.test(no), no).toBe(false);
   });
   it("пути из лога: без выхода из папки и служебных каталогов", () => {
