@@ -16,14 +16,23 @@ function parts(count: number): string {
   return last >= 2 && last <= 4 ? 'части' : 'частей';
 }
 
-export function thinkingBlock(doc: Document, steps: number, open = false): { root: HTMLDetailsElement; body: HTMLDivElement } {
+export function commandsBlock(doc: Document, lines: string[]): HTMLDetailsElement {
+  const { root, body } = thinkingBlock(doc, lines.length, false, `Выполнил команд: ${lines.length}`);
+  root.classList.add('commands-block');
+  const list = doc.createElement('ul');
+  for (const line of lines) { const li = doc.createElement('li'); li.textContent = line; list.append(li); }
+  body.append(list);
+  return root;
+}
+
+export function thinkingBlock(doc: Document, steps: number, open = false, title = ''): { root: HTMLDetailsElement; body: HTMLDivElement } {
   const root = doc.createElement('details');
   root.className = 'thinking-block';
   root.open = open;
   const summary = doc.createElement('summary');
   summary.append(iconElement('mission', 16, doc));
   const label = doc.createElement('span');
-  label.textContent = `Ход выполнения · ${steps} ${parts(steps)}`;
+  label.textContent = title || `Ход выполнения · ${steps} ${parts(steps)}`;
   const chevron = doc.createElement('span');
   chevron.className = 'thinking-chevron';
   chevron.setAttribute('aria-hidden', 'true');

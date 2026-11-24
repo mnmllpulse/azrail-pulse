@@ -61,10 +61,10 @@ describe("карточки вложений", () => {
     const links = Array.from({ length: 30 }, (_, i) => `[f${i}.ts](/api/studio/artifacts/id${i})`).join("\n\n");
     thread.turns = [{ missionId: "m", requestKey: "k", user: `Проверь\n\n${links}`, reply: "ok", status: "completed" }];
     renderChatMessages(host, thread, "");
-    const user = host.querySelector('[data-role="user"]')!;
-    expect(user.querySelectorAll(".message-attachments .attachment-chip")).toHaveLength(30);
-    expect(user.querySelectorAll("p")).toHaveLength(1);
-    expect(user.querySelector(".message-content")?.textContent).toBe("Проверь");
-    expect(user.querySelector('.message-actions [aria-label="Редактировать"]')).not.toBeNull();
+    const [files, caption] = Array.from(host.querySelectorAll('[data-role="user"]'));
+    expect(files.querySelectorAll(".message-attachments .attachment-chip")).toHaveLength(30);
+    expect(files.querySelectorAll("p")).toHaveLength(0);
+    expect(caption.querySelector(".message-content")?.textContent).toBe("Проверь");
+    expect(caption.querySelector('.message-actions [aria-label="Редактировать"]')).not.toBeNull();
   });
 });

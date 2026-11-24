@@ -1,4 +1,4 @@
-import {renderMission} from './mission-view';
+import {missionSteps,renderMission} from './mission-view';
 import {createSettingsPage} from './settings-page';
 import {APIError} from './api-error';
 import {localCommandOf,blockedReply,limitsText,type LimitsRead} from './chat-local-commands';
@@ -189,11 +189,6 @@ function syncChatUI(messages=true){
    if(prompt.value.trim()){notice('В поле ввода есть черновик: отправь или очисти его, потом повтори.');return;}
    prompt.value=text;prompt.dispatchEvent(new Event('input',{bubbles:true}));
    $<HTMLFormElement>('composer').requestSubmit();
-  },
-  onBranch:index=>{
-   const current=chatHistory.current();if(!current)return;
-   const branch=chatHistory.fork(current.id,index);if(!branch)return;
-   openChat(branch.id);notice('Ветка создана в новом чате. Сервер контекст не копирует: продолжай как новый диалог.');
   },
  });
  $('chat-welcome').hidden=!!(active?.turns.length||mission);
@@ -1798,6 +1793,7 @@ async function poll(version=epoch){
  try {
   const r=await api(`/api/mission?missionId=${encodeURIComponent(observedMission)}`);if(version!==epoch||observedMission!==mission)return;pollFailures=0;
   const state=renderMission(document,r,!!account?.operator);
+  chatHistory.setSteps(observedMission,missionSteps(r));
   const previous=chatHistory.current()?.turns.find(t=>t.missionId===observedMission)?.status;
   chatHistory.report(observedMission,$('mission-summary').textContent??'',state.status);
   const assignment=$('assignment-live');

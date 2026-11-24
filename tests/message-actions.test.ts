@@ -31,12 +31,12 @@ function threadWith(turns: Array<{ user: string; reply: string }>) {
 }
 
 describe("hover-действия сообщений", () => {
-  it("ответ: копировать, слушать, ветвь; сохранения в память нет", () => {
+  it("ответ: копировать, слушать; ветки и сохранения в память нет", () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "вопрос", reply: "ответ" }]);
     renderChatMessages(host, thread, "");
     const bar = host.querySelector('[data-role="assistant"] .message-actions')!;
-    expect(Array.from(bar.querySelectorAll("button")).map((b) => b.getAttribute("aria-label"))).toEqual(["Копировать", "Слушать", "Создать ветвь в новом чате"]);
+    expect(Array.from(bar.querySelectorAll("button")).map((b) => b.getAttribute("aria-label"))).toEqual(["Копировать", "Слушать"]);
   });
   it("запрос пользователя: повторить, редактировать, копировать", () => {
     const { host } = setup();
@@ -48,14 +48,12 @@ describe("hover-действия сообщений", () => {
   it("обработчики получают текст, роль и индекс хода", async () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "один", reply: "ответ 1" }, { user: "два", reply: "ответ 2" }]);
-    const handlers = { onEdit: vi.fn(), onRetry: vi.fn(), onBranch: vi.fn() };
+    const handlers = { onEdit: vi.fn(), onRetry: vi.fn() };
     renderChatMessages(host, thread, "", handlers);
     const users = host.querySelectorAll('[data-role="user"]');
     const answers = host.querySelectorAll('[data-role="assistant"]');
     (users[1].querySelector('[aria-label="Редактировать"]') as HTMLButtonElement).click();
     expect(handlers.onEdit).toHaveBeenCalledWith("два");
-    (answers[0].querySelector('[aria-label="Создать ветвь в новом чате"]') as HTMLButtonElement).click();
-    expect(handlers.onBranch).toHaveBeenCalledWith(0);
     (users[0].querySelector('[aria-label="Повторить"]') as HTMLButtonElement).click();
     expect(handlers.onRetry).toHaveBeenCalledWith("один");
     expect(answers.length).toBe(2);
@@ -156,5 +154,36 @@ describe("озвучивание: плей / пауза / продолжить",
     expect(first.getAttribute("aria-label")).toBe("Слушать");
     expect(second.getAttribute("aria-label")).toBe("Приостановить");
     expect(calls).toContain("cancel");
+  });
+});
+
+describe("подпись под картинкой и блок команд", () => {
+  it("подпись к картинке — отдельное сообщение под картинкой, кнопки у подписи", () => {
+    const { host } = setup();
+    const { thread } = threadWith([{ user: "напиши промпт\n\n![a.png](/api/studio/artifacts/abc123)", reply: "ок" }]);
+    renderChatMessages(host, thread, "");
+    const users = host.querySelectorAll('[data-role="user"]');
+    expect(users.length).toBe(2);
+    expect(users[0].querySelector("img")).not.toBeNull();
+    expect(users[0].textContent).not.toContain("напиши промпт");
+    expect(users[0].querySelector(".message-actions")).toBeNull();
+    expect(users[1].textContent).toContain("напиши промпт");
+    expect(users[1].querySelector(".message-actions")).not.toBeNull();
+  });
+  it("у ответа с командами есть свёрнутый блок «Выполнил команд»", () => {
+    const { host } = setup();
+    const { thread } = threadWith([{ user: "сделай", reply: "готово" }]);
+    thread.turns[0].steps = ["Чтение файла · готово", "Правка файла · готово"];
+    renderChatMessages(host, thread, "");
+    const block = host.querySelector(".commands-block") as HTMLDetailsElement;
+    expect(block.open).toBe(false);
+    expect(block.textContent).toContain("Выполнил команд: 2");
+    expect(block.querySelectorAll("li").length).toBe(2);
+  });
+  it("без команд блока нет", () => {
+    const { host } = setup();
+    const { thread } = threadWith([{ user: "привет", reply: "привет" }]);
+    renderChatMessages(host, thread, "");
+    expect(host.querySelector(".commands-block")).toBeNull();
   });
 });

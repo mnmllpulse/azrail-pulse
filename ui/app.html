@@ -153,7 +153,7 @@
       <form id="composer" class="composer">
         <label for="prompt" class="sr-only">Сообщение AZRAIL</label>
         <div class="composer-field">
-        <textarea id="prompt" rows="1" maxlength="20000" placeholder="Ответить" aria-describedby="composer-keyboard"></textarea>
+        <textarea id="prompt" rows="1" maxlength="20000" placeholder="Ответить" aria-describedby="composer-hints"></textarea>
           <button id="submit" class="send-button" type="submit" aria-label="Отправить сообщение" title="Отправить · Enter" data-icon="enter" data-icon-size="16"></button>
         </div>
         <div id="attachment-names" class="muted"></div><div id="attachment-manager" class="attachment-manager" aria-live="polite" hidden></div>
@@ -174,10 +174,9 @@
         </div>
         <input type="file" id="attachments" multiple hidden>
       </form>
-      <div class="composer-footnote"><button id="studio-talk-open" class="text-button" type="button" hidden>Разговор</button><button id="composer-open-chat" class="text-button" type="button" hidden>Открыть диалог</button><span id="composer-hints"><span id="composer-limits">Чат 200 · генерация 500 в сутки</span><span id="composer-keyboard">Enter — отправить · Shift + Enter — новая строка</span></span></div>
+      <div class="composer-footnote"><button id="studio-talk-open" class="text-button" type="button" hidden>Разговор</button><button id="composer-open-chat" class="text-button" type="button" hidden>Открыть диалог</button><span id="composer-hints">AZRAIL × MNMLL PULSE — это ИИ и может ошибаться.</span><!-- UNIFIED / 1.5.0-rc.63 --></div>
     </div>
-    <footer class="workspace-footer"><span>AZRAIL × MNMLL PULSE</span><!-- UNIFIED / 1.5.0-rc.63 --></footer>
-  </div>
+      </div>
   <aside id="preview-panel" class="preview-panel" aria-labelledby="preview-heading" hidden>
     <div class="preview-heading">
       <div><p class="kicker">КОД И ЖИВОЙ ЭКРАН</p><h2 id="preview-heading">Редактор</h2></div>

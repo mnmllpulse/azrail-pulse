@@ -33,10 +33,10 @@ describe("сообщение с картинкой", () => {
       history.indexOf("const {text,files}=splitAttachments(content);"),
     );
     expect(block.indexOf("className='message-images'")).toBeLessThan(
-      block.indexOf("'message-content message-caption'"),
+      block.indexOf("message('user',text"),
     );
     expect(block.indexOf("className='message-attachments'")).toBeLessThan(
-      block.indexOf("'message-content message-caption'"),
+      block.indexOf("message('user',text"),
     );
   });
 });

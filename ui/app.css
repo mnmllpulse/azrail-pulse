@@ -551,6 +551,7 @@ h1,h2,h3,h4,.brand,.card h3,.section-heading h2 {color:var(--heading);font-weigh
 
 /* Действия сообщений: у запроса — под пузырём справа, вне подсветки; у ответа — компактно */
 .app-shell .chat-message[data-role="user"]{margin-bottom:30px}
+.app-shell .chat-message[data-role="user"]:not(:has(.message-actions)){margin-bottom:8px}
 .app-shell .chat-message[data-role="user"] .message-actions{position:absolute;right:0;top:100%;margin-top:0;padding-top:2px}
 .app-shell .chat-message .message-action{width:32px;height:32px}
 .app-shell .chat-message .message-action-speak svg{fill:currentColor;stroke:none}
