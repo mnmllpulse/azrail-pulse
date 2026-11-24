@@ -1,9 +1,8 @@
-import { readModelPolicy, setModelPolicy, modelBlockReason, FREE_MODEL_SLUGS, ModelPolicyError } from "./lib/model-policy";
+import { readModelPolicy, modelBlockReason, FREE_MODEL_SLUGS } from "./lib/model-policy";
 import { parseInput, errorPayload } from "./lib/validation";
 import { BudgetError } from "./unified/ledger";
 import { chatSchema, missionStartSchema, missionRefSchema, missionHintSchema, benchSchema, polishSchema, planDraftSchema, conversationPatchSchema, conversationPlanSchema, ownershipSchema, streamTicketSchema, metatronControlSchema, faultInjectionSchema } from "./shared/schemas";
-import { readLiveCatalog } from "./lib/model-catalog";
-import { openRouterStatus, syncOpenRouter } from "./lib/openrouter-sync";
+import { syncOpenRouter } from "./lib/openrouter-sync";
 import { withProjectLock } from "./lib/project-control";
 import { quarantineStaleRunningToolReceipts } from "./lib/checkpoints";
 import { dispatchOutbox } from "./lib/outbox";
@@ -13,8 +12,7 @@ import type { Env, TaskRequest, TaskResult, AttachmentRef } from "./types";
 import { cleanupSecurityState, reserveDailyQuota, readDailyQuota, readGenerationBudget, readNeuronBudget, positiveLimit } from "./lib/quota";
 import { enforceOperationLimit } from "./lib/operation-limit";
 import { speakRemote, spokenVoice } from "./lib/speech-remote";
-import { readPermissionMode, writePermissionMode } from "./lib/permission-setting";
-import { consumeTrial, readTrial, runTrialSandbox, trialView, writeTrialFlags } from "./lib/trial";
+import { consumeTrial } from "./lib/trial";
 import { readBoundedBody, BodyLimitError, validateJsonObject } from "./lib/request-body";
 import { getCors } from "./lib/cors";
 import { Orchestrator } from "./agents/orchestrator";
@@ -67,6 +65,7 @@ import { backupsRoute } from "./routes/backups";
 import { billingRoute } from "./routes/billing";
 import { approvalsRoute } from "./routes/approvals";
 import { accountsRoute } from "./routes/accounts";
+import { settingsRoute } from "./routes/settings";
 import { listTraceLinks, requestTrace, traceLog, type TraceContext } from "./lib/observability-context";
 import { projectRoute } from "./unified/projects";
 import { webWorkbenchRoute } from "./unified/web-workbench";
@@ -376,60 +375,9 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
       }
     }
 
-    if (url.pathname === "/api/routing-settings" && request.method === "GET") {
-      const policy = await readModelPolicy(env);
-      const month = `paid-month:${new Date().toISOString().slice(0,7)}`;
-      const spend = await env.AZRAIL_D1.prepare("SELECT spent_micro_usd FROM spend_limits WHERE scope=?").bind(month).first<{spent_micro_usd:number}>();
-      return json({policy, gatewayConfigured:!!env.AI_GATEWAY_ID, workersPlan:env.AZRAIL_WORKERS_PLAN??"unknown",
-        committedUsd:(spend?.spent_micro_usd??0)/1e6, month:month.slice(11),
-        note:"OFF блокирует платные маршруты AZRAIL. Квоты Workers, R2 и других сервисов учитываются отдельно."},env);
-    }
-    if (url.pathname === "/api/admin/routing-settings" && request.method === "POST") {
-      try { return json({policy:await setModelPolicy(env,parsedBody.allowThirdPartyModels,parsedBody.monthlyBudgetUsd)},env); }
-      catch (e) { if(e instanceof ModelPolicyError) return json({error:e.message},env,400); throw e; }
-    }
-    if (url.pathname === "/api/permission-mode" && request.method === "GET") {
-      return json({ mode: await readPermissionMode(env), options: ["ask", "trusted"] }, env);
-    }
-    if (url.pathname === "/api/admin/permission-mode" && request.method === "POST") {
-      if (principal.role !== "admin" && !principal.operator) return json({ error: "Режим меняет только владелец." }, env, 403);
-      try { return json({ mode: await writePermissionMode(env, parsedBody.mode) }, env); }
-      catch (error) { if (error instanceof RangeError) return json({ error: error.message }, env, 400); throw error; }
-    }
-    if (url.pathname === "/api/trial" && request.method === "GET") {
-      return json(trialView(await readTrial(env)), env);
-    }
-    if (url.pathname === "/api/admin/trial" && request.method === "POST") {
-      const speech = parsedBody.speech;
-      const sandbox = parsedBody.sandbox;
-      if (speech !== undefined && typeof speech !== "boolean") return json({ error: "Озвучка включается только да или нет." }, env, 400);
-      if (sandbox !== undefined && typeof sandbox !== "boolean") return json({ error: "Команды включаются только да или нет." }, env, 400);
-      return json(await writeTrialFlags(env, {
-        speech: typeof speech === "boolean" ? speech : undefined,
-        sandbox: typeof sandbox === "boolean" ? sandbox : undefined,
-      }), env);
-    }
-    if (url.pathname === "/api/trial/sandbox" && request.method === "POST") {
-      if (principal.role !== "admin" && !principal.operator) {
-        return json({ error: "Команды пока открыты только владельцу." }, env, 403);
-      }
-      try {
-        return json(await runTrialSandbox(env, String(parsedBody.projectId ?? "")), env);
-      } catch (error) {
-        if (error instanceof AccessError) return json({ error: error.message }, env, error.status);
-        throw error;
-      }
-    }
-    if (url.pathname === "/api/openrouter-status" && request.method === "GET") {
-      return json({ configured: !!env.OPENROUTER_API_KEY?.trim(), status: await openRouterStatus(env) }, env);
-    }
-    if (url.pathname === "/api/admin/openrouter-refresh" && request.method === "POST") {
-      if (principal.role !== "admin" && !principal.operator) return json({ error: "Список обновляет только владелец." }, env, 403);
-      try { return json({ status: await syncOpenRouter(env, { force: true }) }, env); }
-      catch (error) { return json({ error: error instanceof Error ? error.message : "Не удалось обновить список." }, env, 502); }
-    }
-    if (url.pathname === "/api/model-catalog" && request.method === "GET") {
-      return json(await readLiveCatalog(env),env);
+    {
+      const settings = await settingsRoute(request, url, env, principal, parsedBody);
+      if (settings) return settings;
     }
     if(url.pathname === "/api/admin/retention-preview" && request.method === "GET") {
       try {
