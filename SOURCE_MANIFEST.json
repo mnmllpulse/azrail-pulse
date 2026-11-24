@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-24T13:15:53.596Z",
+  "generated_at": "2026-11-24T17:47:06.618Z",
   "excludes_self": true,
-  "file_count": 1371,
+  "file_count": 1373,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3802,8 +3802,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 93499,
-      "sha256": "4a8105356a74dec7af16ca532ef053afdb8dbf98be6a6b99b4cbdd337dfe6a59"
+      "bytes": 89556,
+      "sha256": "63f0e42b7febc79f9de2c01e971e5ab715b6a26b289658634cc132448a258e28"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4419,6 +4419,11 @@
       "path": "src/routes/health.ts",
       "bytes": 1820,
       "sha256": "ba632840717821ff484bbefb65d531e0131d647d08cd00ed7cba3348750a2aeb"
+    },
+    {
+      "path": "src/routes/settings.ts",
+      "bytes": 4971,
+      "sha256": "91ab4af4ef96cd2717617391ed11f4103202e4073ec74759921193d03de5be3c"
     },
     {
       "path": "src/services/github-client.ts",
@@ -5497,8 +5502,8 @@
     },
     {
       "path": "tests/regressions.test.ts",
-      "bytes": 197319,
-      "sha256": "f382fb9e40d72f1c8d9b89476ecbeb938660aa827e8a8972002f32140612a78f"
+      "bytes": 197345,
+      "sha256": "c3fcb6991d11463f939cf5cd2e5d9896a69d5c9dc7a9482955fbeafcc5ddb8a5"
     },
     {
       "path": "tests/replan.test.ts",
@@ -5584,6 +5589,11 @@
       "path": "tests/settings-providers.test.ts",
       "bytes": 6448,
       "sha256": "0f0e3f585ddd4793d449391e579762fb4b0b695e4251178270ad5fa4a2c089f1"
+    },
+    {
+      "path": "tests/settings-route.test.ts",
+      "bytes": 1786,
+      "sha256": "cdcfbe1ecef93e5f5f6e6747bf86d15d17115d6f7f78f712f9eea31c9ae86845"
     },
     {
       "path": "tests/sidebar-nav.test.ts",
