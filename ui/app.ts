@@ -1643,6 +1643,8 @@ async function runChat(){
  const shown=message+await attachmentMarkup(message);chatHistory.accepted(requestKey,shown,project,conversationId);
  const sentRefs=attachmentRefs;clearAttachments();
  chatHistory.report(requestKey,'','queued');
+ const askedAt=Date.now();
+ chatHistory.setSteps(requestKey,[{t:'Запрос отправлен',s:'готово'},{t:'Модель отвечает',s:'в работе'}]);
  if(prompt.value.trim()===message)prompt.value='';chatHistory.setDraft(prompt.value);workspace.resizePrompt();
  syncChatUI();workspace.toLatest();
  try{
@@ -1661,12 +1663,14 @@ async function runChat(){
   const shownCode=status==='completed'?htmlBlockOf(full):null;
   const reply=shownCode?shownCode.text:full;
   if(shownCode){document.dispatchEvent(new CustomEvent('azrail:site-preview',{detail:shownCode.html}));workspace.setPreview(true);}
+  chatHistory.setSteps(requestKey,[{t:'Запрос отправлен',s:'готово'},{t:status==='completed'?'Ответ получен':'Ответ не получен',s:`${Math.max(1,Math.round((Date.now()-askedAt)/1000))} с`}]);
   chatHistory.report(requestKey,reply,status);
   syncChatUI();workspace.toLatest();
   void syncServerChats();
  }
  catch(e){
   const {daily,text}=chatFailureOf(e);
+  chatHistory.setSteps(requestKey,[{t:'Запрос отправлен',s:'готово'},{t:'Ответ не получен',s:'ошибка'}]);
   chatHistory.report(requestKey,text,'failed');
   syncChatUI();workspace.toLatest();
   if(daily)notice(text,true);

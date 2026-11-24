@@ -173,12 +173,38 @@ describe("подпись под картинкой и блок команд", ()
   it("у ответа с командами есть свёрнутый блок «Выполнил команд»", () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "сделай", reply: "готово" }]);
-    thread.turns[0].steps = ["Чтение файла · готово", "Правка файла · готово"];
+    thread.turns[0].steps = [{ t: "Чтение файла", s: "готово", d: "Вход:\nsrc/a.ts" }, { t: "Правка файла", s: "готово" }];
     renderChatMessages(host, thread, "");
     const block = host.querySelector(".commands-block") as HTMLDetailsElement;
     expect(block.open).toBe(false);
     expect(block.textContent).toContain("Выполнил команд: 2");
     expect(block.querySelectorAll("li").length).toBe(2);
+    const step = block.querySelector(".command-step") as HTMLDetailsElement;
+    expect(step.open).toBe(false);
+    expect(step.querySelector("pre")?.textContent).toContain("src/a.ts");
+    expect(block.querySelectorAll(".command-step").length).toBe(1);
+  });
+  it("пока ответ идёт, блок шагов раскрыт и виден", () => {
+    const { host } = setup();
+    const { thread } = threadWith([{ user: "сделай", reply: "" }]);
+    thread.turns[0].status = "queued";
+    thread.turns[0].steps = [{ t: "Запрос отправлен", s: "готово" }, { t: "Модель отвечает", s: "в работе" }];
+    renderChatMessages(host, thread, "");
+    const block = host.querySelector(".commands-block") as HTMLDetailsElement;
+    expect(block.open).toBe(true);
+    expect(block.textContent).toContain("Модель отвечает");
+    expect(host.textContent).toContain("Думаю");
+  });
+  it("старые строковые шаги читаются", async () => {
+    const { stepsOf } = await import("../ui/thinking-block");
+    expect(stepsOf(["Чтение файла · готово", 5, { t: "Х", d: "y" }])).toEqual([{ t: "Чтение файла · готово" }, { t: "Х", d: "y" }]);
+  });
+  it("missionSteps берёт вход и результат вызова", async () => {
+    const { missionSteps } = await import("../ui/mission-view");
+    const out = missionSteps({ calls: [{ tool: "read_file", status: "done", input: "a.ts", output: "код" }] });
+    expect(out[0]).toMatchObject({ t: "Чтение файла", s: "готово" });
+    expect(out[0].d).toContain("a.ts");
+    expect(out[0].d).toContain("код");
   });
   it("без команд блока нет", () => {
     const { host } = setup();
