@@ -666,3 +666,7 @@ html[data-settings-contrast="high"] button {border-color:#8089a6;}
 .metatron-brief{margin:0 0 .8rem;padding:10px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-raised);color:#fff;font-weight:600;font-size:var(--fs-small)}
 
 .metatron-report{margin:0;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:var(--surface-raised);color:#fff;white-space:pre-wrap;font:inherit;font-size:var(--fs-small);line-height:1.6}
+
+.starter-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-top:18px}
+.starter-chip{min-height:44px;padding:0 16px;border:1px solid var(--line);border-radius:999px;background:transparent;color:#fff;font:inherit;font-size:var(--fs-small);font-weight:600;cursor:pointer}
+.starter-chip:hover{background:var(--surface-raised)}
