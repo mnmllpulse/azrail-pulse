@@ -13,6 +13,7 @@ import { readFile } from "../lib/workspace";
 import { availableTools, TOOL_REGISTRY } from "../lib/tool-registry";
 import { extractText, runModel } from "../lib/model-router";
 import { diffWorkspace, renderChanges, type WorkspaceFile } from "./verification";
+import { reviewChanges } from "../lib/change-review";
 import { buildReflection } from "./reflection";
 import { buildRepoMap, renderRepoMap } from "./repo-map";
 import { planScoutQuestions, renderFindings, runScouts, shouldScout } from "./scout";
@@ -553,9 +554,21 @@ export class ExecutionEngine {
           }
         }
 
-        const changes = ctx.projectId
-          ? diffWorkspace(filesBefore, await this.readWorkspace(ctx.projectId))
-          : [];
+        const filesAfter = ctx.projectId ? await this.readWorkspace(ctx.projectId) : [];
+        const changes = ctx.projectId ? diffWorkspace(filesBefore, filesAfter) : [];
+        const review = reviewChanges(changes, filesAfter);
+        await this.note(ctx, review.blocking.length ? "review.blocked" : review.warnings.length ? "review.warnings" : "review.clean", { reason: review.summary });
+        if (review.blocking.length) {
+          if (rejections < CHECK_LIMITS.MAX_REJECTIONS) {
+            rejections++;
+            history.push({ tool: "review", input: {}, ok: false, result: `Ревью не пройдено: ${review.summary}` });
+            continue;
+          }
+          return {status:"done",agent:"execution-engine",
+            summary:`Изменения сохранены, но ревью нашло опасное: ${review.summary}`,
+            quality:{status:"blocked",reason:review.summary,gates:[{name:"review",status:"failed",detail:review.summary}]},
+            data:{missionId:ctx.missionId,steps:history,review,changes}};
+        }
 
         // An LLM verdict must never override absent or failing executable evidence.
         const changesCode = changes.some(c => /(?:\.[cm]?[jt]sx?|\.py|\.go|\.rs|\.html|\.css|package\.json)$/.test(c.path));
@@ -741,7 +754,7 @@ export class ExecutionEngine {
             // одинаково — а это разные вещи.
             (verdict.verified ? "" : ` (UNVERIFIED: ${verdict.reason})`),
           quality: verdict.verified
-            ? { status: "verified", gates: [{ name: "checker", status: "passed", detail: verdict.reason }, ...(executionVerified ? [{ name: "tests", status: "passed" as const }] : [])] }
+            ? { status: "verified", gates: [{ name: "checker", status: "passed", detail: verdict.reason }, { name: "review", status: "passed" as const, detail: review.summary }, ...(executionVerified ? [{ name: "tests", status: "passed" as const }] : [])] }
             : { status: "unverified", reason: verdict.reason, gates: [{ name: "checker", status: "blocked", detail: verdict.reason }] },
           data: {
             missionId: ctx.missionId,
