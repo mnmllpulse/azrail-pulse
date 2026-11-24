@@ -184,12 +184,11 @@ function syncChatUI(messages=true){
   assistantLabel:`AZRAIL · ${VOICES[chatVoice].name}`,
   onCopy:()=>notice('Скопировано.'),
   onEdit:text=>{prompt.value=text;prompt.dispatchEvent(new Event('input',{bubbles:true}));prompt.focus();notice('Запрос в поле ввода: измени и отправь заново.');},
-  onSave:async(text,role)=>{
-   if(!account){notice('Войдите, чтобы сохранять в память.',true);return;}
-   try{
-    await api('/api/studio/intelligence/memory',{method:'POST',body:JSON.stringify({scope:'user',key:`chat-${role}-${Date.now()}`,value:{text:text.slice(0,12000),role,chat:chatHistory.current()?.title??''},source:'chat',whyStored:role==='user'?'Запрос сохранён из чата':'Ответ сохранён из чата'})});
-    notice('Сохранено в Global Memory.');
-   }catch(error){failure(error);}
+  onRetry:text=>{
+   if($<HTMLButtonElement>('submit').disabled){notice('Дождись ответа и повтори.');return;}
+   if(prompt.value.trim()){notice('В поле ввода есть черновик: отправь или очисти его, потом повтори.');return;}
+   prompt.value=text;prompt.dispatchEvent(new Event('input',{bubbles:true}));
+   $<HTMLFormElement>('composer').requestSubmit();
   },
   onBranch:index=>{
    const current=chatHistory.current();if(!current)return;
