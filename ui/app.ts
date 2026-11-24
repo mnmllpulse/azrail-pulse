@@ -1526,22 +1526,20 @@ const chatCommands=createChatCommands({
  labelOf:slug=>{const here=composerModels.find(slug);return here?modelLabel(here):(slug?modelDisplayName(slug):'Auto · AZRAIL');},
  showCard:spec=>showApprovalCard(spec),
 });
-async function runChat(){
- if(missionSubmitting)return;
- const message=prompt.value.trim();if(!message)return;
+async function answerLocally(message:string):Promise<boolean>{
  const opened=revealHeld(message);
  const only=openOnlyPath(message);
- if(only&&opened){noteLocal(message,`Открыл ${opened}.`);return;}
- if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return;}
+ if(only&&opened){noteLocal(message,`Открыл ${opened}.`);return true;}
+ if(only&&sourceIsHeld()&&!opened){noteLocal(message,`В открытых файлах нет ${only}.`);return true;}
  const local=localCommandOf(message);
  if(local==='quota'){
   let read:LimitsRead|null=null;
   if(account&&!isLocalPage)try{read=await api('/api/limits') as LimitsRead;}catch{read=null;}
-  noteLocal(message,account&&!isLocalPage?limitsText(read):'После входа будет виден остаток на сегодня.');return;
+  noteLocal(message,account&&!isLocalPage?limitsText(read):'После входа будет виден остаток на сегодня.');return true;
  }
- if(local==='save-zip'){await saveFromScreen('zip',message);return;}
- if(local==='save-file'){await saveFromScreen('file',message);return;}
- if(await chatCommands(message))return;
+ if(local==='save-zip'){await saveFromScreen('zip',message);return true;}
+ if(local==='save-file'){await saveFromScreen('file',message);return true;}
+ if(await chatCommands(message))return true;
  const studioKind=studioIntent(message,attachmentManager.files());
  if(studioKind){
   try{
@@ -1562,7 +1560,7 @@ async function runChat(){
     clearAttachments();
    }
   }catch(e){noteLocal(message,e instanceof Error?e.message:'Не удалось собрать отчёт.');}
-  return;
+  return true;
  }
  if(wantsZipOfReply(message)){
   const last=[...(chatHistory.current()?.turns??[])].reverse().find(turn=>turn.status==='completed'&&filesFromReply(turn.reply).length>0);
@@ -1570,25 +1568,25 @@ async function runChat(){
   if(last&&bytes){
    saveBytes('azrail-files.zip',bytes);
    noteLocal(message,`Собрал azrail-files.zip: ${filesFromReply(last.reply).map(file=>file.path).join(', ')}.`);
-   return;
+   return true;
   }
  }
  if(local==='restore-file'){
   const field=document.querySelector<HTMLTextAreaElement>('#home-code');
   const back=restoreFileShot(activePath(),field?.value??'');
-  if(!back){noteLocal(message,'Прошлой правки файла на экране нет.');return;}
+  if(!back){noteLocal(message,'Прошлой правки файла на экране нет.');return true;}
   document.dispatchEvent(new CustomEvent('azrail:file-shown',{detail:back}));
   noteLocal(message,`На экране снова ${back.path}.`);
-  return;
+  return true;
  }
  if(local==='run-tests'){
   try{
    const r=await api('/api/trial/sandbox',{method:'POST',body:JSON.stringify({projectId:project||''})}) as {note?:string;output?:string};
    noteLocal(message,String(r.note||r.output||'Готово.'));
   }catch(e){noteLocal(message,e instanceof Error?e.message:'Команды в контейнере выключены.');}
-  return;
+  return true;
  }
- if(local==='blocked-commands'||local==='blocked-deploy'){noteLocal(message,blockedReply[local]);return;}
+ if(local==='blocked-commands'||local==='blocked-deploy'){noteLocal(message,blockedReply[local]);return true;}
  const skills=skillsReply(message);
  if(wantsPageRestore(message)){
   const restored=takeBackPage(heldPlan);
@@ -1604,7 +1602,7 @@ async function runChat(){
    prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();
    if(heldPlan){paintPlan(heldPlan);void rememberWork(heldMessage||message,heldPlan,true);}
    syncChatUI();workspace.toLatest();
-   return;
+   return true;
   }
  }
  if(skills){
@@ -1614,8 +1612,11 @@ async function runChat(){
   chatHistory.accepted(requestKey,message,project,thread.id);
   chatHistory.report(requestKey,skills,'completed');
   prompt.value='';chatHistory.setDraft('');workspace.resizePrompt();syncChatUI();workspace.toLatest();
-  return;
+  return true;
  }
+ return false;
+}
+async function sendChat(message:string){
  missionSubmitting=true;$<HTMLButtonElement>('submit').disabled=true;
  let handed=false;
  try{
@@ -1678,6 +1679,12 @@ async function runChat(){
  }
  finally{if(!handed){missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}}
  }finally{if(!handed){missionSubmitting=false;$<HTMLButtonElement>('submit').disabled=false;}}
+}
+async function runChat(){
+ if(missionSubmitting)return;
+ const message=prompt.value.trim();if(!message)return;
+ if(await answerLocally(message))return;
+ await sendChat(message);
 }
 $('composer').onsubmit=e=>{
  e.preventDefault();
