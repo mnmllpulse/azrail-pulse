@@ -52,6 +52,7 @@ import {diagramLines,diagramModel,diagramSvg} from './diagram';
 import {asksToWrite,buildOffice,isBareFileRequest} from '../src/lib/office-file';
 import {installImageViewer} from './image-viewer';
 import {withRetry} from './account-retry';
+import {mountStarterChips} from './starter-chips';
 import {showApprovalCard} from './approval-card';
 import {longTarget,writeLong} from './long-text';
 import {htmlBlockOf} from './chat-code';
@@ -71,6 +72,7 @@ if(typeof window!=='undefined'){
   window.addEventListener('unhandledrejection',e=>reportGlobalError('unhandledrejection',e.reason));
 }
 const $=<T extends HTMLElement=HTMLElement>(id:string)=>document.getElementById(id) as T;
+mountStarterChips($('starter-chips'),$('prompt') as HTMLTextAreaElement);
 const local=!/^https?:$/.test(location.protocol);
 const isLocalPage=local;
 applyDisplayPrefs(readDisplayPrefs());
