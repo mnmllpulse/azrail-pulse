@@ -546,6 +546,16 @@ h1,h2,h3,h4,.brand,.card h3,.section-heading h2 {color:var(--heading);font-weigh
 .ui-icon{display:block;flex:none;stroke-width:1.5;}
 .ui-icon-wrap,[data-icon]{display:inline-flex;align-items:center;justify-content:center;flex:none;line-height:0;}
 .agent-browser-steps{margin:6px 0 10px;padding-left:20px;display:grid;gap:4px;color:var(--muted,#b9aec6);font-size: var(--fs-small)}
+/* Кнопка «Код и живой экран»: квадрат-панель справа, как у меню слева */
+.app-shell #preview-toggle[aria-expanded="true"]{border-color:rgba(169,149,247,.3);background:rgba(169,149,247,.09);color:#fff}
+
+/* Действия сообщений: у запроса — под пузырём справа, вне подсветки; у ответа — компактно */
+.app-shell .chat-message[data-role="user"]{margin-bottom:30px}
+.app-shell .chat-message[data-role="user"] .message-actions{position:absolute;right:0;top:100%;margin-top:0;padding-top:2px}
+.app-shell .chat-message .message-action{width:32px;height:32px}
+.app-shell .chat-message .message-action-speak svg{fill:currentColor;stroke:none}
+.app-shell .chat-message .message-action-branch{width:28px}
+
 /* Чат без подписей «Вы» и «AZRAIL · …»: остаются для чтения с экрана */
 .app-shell .chat-message .message-heading{position:absolute;width:1px;height:1px;margin:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 

@@ -31,24 +31,24 @@ function threadWith(turns: Array<{ user: string; reply: string }>) {
 }
 
 describe("hover-действия сообщений", () => {
-  it("ответ: копировать, слушать, ветвь, сохранить", () => {
+  it("ответ: копировать, слушать, ветвь; сохранения в память нет", () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "вопрос", reply: "ответ" }]);
     renderChatMessages(host, thread, "");
     const bar = host.querySelector('[data-role="assistant"] .message-actions')!;
-    expect(Array.from(bar.querySelectorAll("button")).map((b) => b.getAttribute("aria-label"))).toEqual(["Копировать", "Слушать", "Создать ветвь в новом чате", "Сохранить"]);
+    expect(Array.from(bar.querySelectorAll("button")).map((b) => b.getAttribute("aria-label"))).toEqual(["Копировать", "Слушать", "Создать ветвь в новом чате"]);
   });
-  it("запрос пользователя: редактировать, копировать, сохранить", () => {
+  it("запрос пользователя: повторить, редактировать, копировать", () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "вопрос", reply: "ответ" }]);
     renderChatMessages(host, thread, "");
     const bar = host.querySelector('[data-role="user"] .message-actions')!;
-    expect(Array.from(bar.querySelectorAll("button")).map((b) => b.getAttribute("aria-label"))).toEqual(["Редактировать", "Копировать", "Сохранить"]);
+    expect(Array.from(bar.querySelectorAll("button")).map((b) => b.getAttribute("aria-label"))).toEqual(["Повторить", "Редактировать", "Копировать"]);
   });
   it("обработчики получают текст, роль и индекс хода", async () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "один", reply: "ответ 1" }, { user: "два", reply: "ответ 2" }]);
-    const handlers = { onEdit: vi.fn(), onSave: vi.fn(), onBranch: vi.fn() };
+    const handlers = { onEdit: vi.fn(), onRetry: vi.fn(), onBranch: vi.fn() };
     renderChatMessages(host, thread, "", handlers);
     const users = host.querySelectorAll('[data-role="user"]');
     const answers = host.querySelectorAll('[data-role="assistant"]');
@@ -56,12 +56,9 @@ describe("hover-действия сообщений", () => {
     expect(handlers.onEdit).toHaveBeenCalledWith("два");
     (answers[0].querySelector('[aria-label="Создать ветвь в новом чате"]') as HTMLButtonElement).click();
     expect(handlers.onBranch).toHaveBeenCalledWith(0);
-    (answers[1].querySelector('[aria-label="Сохранить"]') as HTMLButtonElement).click();
-    await Promise.resolve();
-    expect(handlers.onSave).toHaveBeenCalledWith("ответ 2", "assistant");
-    (users[0].querySelector('[aria-label="Сохранить"]') as HTMLButtonElement).click();
-    await Promise.resolve();
-    expect(handlers.onSave).toHaveBeenCalledWith("один", "user");
+    (users[0].querySelector('[aria-label="Повторить"]') as HTMLButtonElement).click();
+    expect(handlers.onRetry).toHaveBeenCalledWith("один");
+    expect(answers.length).toBe(2);
   });
   it("копирование мгновенно меняет иконку на галочку и возвращает обратно", async () => {
     vi.useFakeTimers();
@@ -106,5 +103,58 @@ describe("ветвь чата", () => {
     expect(history.current()?.turns.map((t) => t.user)).toEqual(["1"]);
     history.hydrate(branch.id, [{ id: "x", role: "user", content: "новый" }, { id: "y", role: "assistant", content: "ответ" }] as never);
     expect(history.current()?.turns.map((t) => t.user)).toEqual(["1", "новый"]);
+  });
+});
+
+describe("озвучивание: плей / пауза / продолжить", () => {
+  function speechSetup() {
+    const calls: string[] = [];
+    let utterance: { onend?: () => void } | null = null;
+    vi.stubGlobal("fetch", vi.fn(async () => { throw new Error("нет сети"); }));
+    vi.stubGlobal("SpeechSynthesisUtterance", class { onend?: () => void; voice: unknown; lang = ""; pitch = 1; rate = 1; constructor(public text: string) { utterance = this; } });
+    vi.stubGlobal("speechSynthesis", {
+      getVoices: () => [{ lang: "ru-RU", name: "Pavel" }],
+      addEventListener: () => {},
+      speak: () => calls.push("speak"),
+      cancel: () => calls.push("cancel"),
+      pause: () => calls.push("pause"),
+      resume: () => calls.push("resume"),
+    });
+    return { calls, end: () => utterance?.onend?.() };
+  }
+  const speakBtn = (host: HTMLElement) => host.querySelector('[data-role="assistant"] .message-action-speak') as HTMLButtonElement;
+
+  it("треугольник → пауза → продолжить → по окончании снова треугольник", async () => {
+    const { host } = setup();
+    const { calls, end } = speechSetup();
+    const { thread } = threadWith([{ user: "в", reply: "ответ для озвучки один" }]);
+    renderChatMessages(host, thread, "");
+    const button = speakBtn(host);
+    expect(button.getAttribute("aria-label")).toBe("Слушать");
+    button.click();
+    expect(button.getAttribute("aria-label")).toBe("Приостановить");
+    await vi.waitFor(() => expect(calls).toContain("speak"));
+    button.click();
+    expect(button.getAttribute("aria-label")).toBe("Продолжить");
+    expect(calls).toContain("pause");
+    button.click();
+    expect(button.getAttribute("aria-label")).toBe("Приостановить");
+    expect(calls).toContain("resume");
+    end();
+    expect(button.getAttribute("aria-label")).toBe("Слушать");
+  });
+
+  it("нажатие на другом ответе останавливает первый и запускает второй", async () => {
+    const { host } = setup();
+    const { calls } = speechSetup();
+    const { thread } = threadWith([{ user: "а", reply: "первый ответ для озвучки" }, { user: "б", reply: "второй ответ для озвучки" }]);
+    renderChatMessages(host, thread, "");
+    const [first, second] = [...host.querySelectorAll('[data-role="assistant"] .message-action-speak')] as HTMLButtonElement[];
+    first.click();
+    await vi.waitFor(() => expect(calls.filter((c) => c === "speak").length).toBe(1));
+    second.click();
+    expect(first.getAttribute("aria-label")).toBe("Слушать");
+    expect(second.getAttribute("aria-label")).toBe("Приостановить");
+    expect(calls).toContain("cancel");
   });
 });

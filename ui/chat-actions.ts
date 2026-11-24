@@ -4,7 +4,7 @@ export type MessageActionHandlers = {
   onCopy?: (text: string) => void;
   onSpeak?: (text: string) => void;
   onEdit?: (text: string) => void;
-  onSave?: (text: string, role: 'user' | 'assistant') => void | Promise<void>;
+  onRetry?: (text: string) => void;
   onBranch?: (turnIndex: number) => void;
   assistantLabel?: string;
 };
@@ -19,7 +19,7 @@ function iconButton(doc: Document, label: string, title: string, svg: string): H
   return btn;
 }
 
-const ICONS = { copy: icon('copy'), check: icon('check'), speak: icon('speak'), edit: icon('edit'), branch: icon('branch'), save: icon('save') };
+const ICONS = { copy: icon('copy'), check: icon('check'), play: icon('play', 16), pause: icon('pause', 16), edit: icon('edit'), branch: icon('branch', 16), retry: icon('retry') };
 
 type SpokenVoice = 'shade' | 'lumen' | 'aria';
 const LOCAL_VOICE: Record<SpokenVoice, { pitch: number; rate: number; match: RegExp }> = {
@@ -63,6 +63,28 @@ function voicesReady(): Promise<SpeechSynthesisVoice[]> {
 let speaking: SpeechSynthesisUtterance | null = null;
 let stopLive: (() => void) | null = null;
 let speakTurn = 0;
+
+export type SpeechState = 'idle' | 'playing' | 'paused';
+let speechState: SpeechState = 'idle';
+let speechOwner = '';
+const speechListeners = new Set<() => void>();
+const ownerKey = (text: string) => text.trim().slice(0, 2000);
+
+function setSpeech(state: SpeechState, owner = speechOwner): void {
+  speechState = state;
+  speechOwner = state === 'idle' ? '' : owner;
+  for (const listener of [...speechListeners]) listener();
+}
+
+/** Состояние озвучивания для кнопки конкретного ответа. */
+export function speechStateFor(text: string): SpeechState {
+  return speechOwner && speechOwner === ownerKey(text) ? speechState : 'idle';
+}
+
+export function onSpeechChange(listener: () => void): () => void {
+  speechListeners.add(listener);
+  return () => void speechListeners.delete(listener);
+}
 const heard = new Map<string, AudioBuffer>();
 let audioCtx: AudioContext | null = null;
 
@@ -91,7 +113,9 @@ function playBuffer(buffer: AudioBuffer, turn: number) {
     try { source.stop(); } catch { /* already ended */ }
   };
   source.onended = () => {
-    if (stopLive) stopLive = null;
+    if (turn !== speakTurn) return;
+    stopLive = null;
+    setSpeech('idle');
   };
   source.start(0);
 }
@@ -156,29 +180,58 @@ async function speakLocal(text: string, voice: SpokenVoice, turn: number) {
   utter.pitch = profile.pitch;
   utter.rate = profile.rate;
   speaking = utter;
-  utter.onend = () => { speaking = null; };
-  utter.onerror = () => { speaking = null; };
+  const finish = () => {
+    if (speaking === utter) speaking = null;
+    if (turn === speakTurn) setSpeech('idle');
+  };
+  utter.onend = finish;
+  utter.onerror = finish;
   speechSynthesis.speak(utter);
 }
 
+function stopSpeech(): void {
+  speakTurn += 1;
+  stopLive?.();
+  stopLive = null;
+  if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
+  speaking = null;
+  void audioCtx?.resume().catch(() => undefined);
+  setSpeech('idle');
+}
+
+function pauseSpeech(): void {
+  if (stopLive) void audioCtx?.suspend().catch(() => undefined);
+  else if (typeof speechSynthesis !== 'undefined') speechSynthesis.pause();
+  setSpeech('paused');
+}
+
+function resumeSpeech(): void {
+  if (stopLive) void audioCtx?.resume().catch(() => undefined);
+  else if (typeof speechSynthesis !== 'undefined') speechSynthesis.resume();
+  setSpeech('playing');
+}
+
+/** Нажатие на «слушать»: старт → пауза → продолжить; нажатие на другом ответе переключает озвучивание на него. */
 export function speakText(text: string): void {
-  if (stopLive || speaking) {
-    stopLive?.();
-    stopLive = null;
-    if (typeof speechSynthesis !== 'undefined') speechSynthesis.cancel();
-    speaking = null;
-    speakTurn += 1;
+  const slice = ownerKey(text);
+  if (!slice) return;
+  if (speechOwner === slice && speechState !== 'idle') {
+    if (speechState === 'playing') pauseSpeech();
+    else resumeSpeech();
     return;
   }
-  const slice = text.trim().slice(0, 2000);
-  if (!slice) return;
+  if (speechState !== 'idle' || stopLive || speaking) stopSpeech();
   const voice = selectedVoice();
   const turn = ++speakTurn;
+  setSpeech('playing', slice);
   void speakFromWorker(slice, voice, turn).then((played) => {
     if (turn !== speakTurn || played) return;
     return speakLocal(slice, voice, turn);
   }).catch(() => {
     if (turn === speakTurn) return speakLocal(slice, voice, turn);
+  }).then(() => {
+    // Ничего не заиграло (нет голоса, нет сети): кнопка не должна застрять в «пауза».
+    if (turn === speakTurn && !stopLive && !speaking) setSpeech('idle');
   });
 }
 
@@ -198,19 +251,6 @@ function copyButton(doc: Document, content: string, title: string, handlers: Mes
   return copy;
 }
 
-function saveButton(doc: Document, content: string, role: 'user' | 'assistant', handlers: MessageActionHandlers): HTMLButtonElement {
-  const save = iconButton(doc, 'Сохранить', role === 'user' ? 'Сохранить запрос в память' : 'Сохранить ответ в память', ICONS.save);
-  save.onclick = async () => {
-    save.disabled = true;
-    try {
-      await handlers.onSave?.(content, role);
-    } finally {
-      save.disabled = false;
-    }
-  };
-  return save;
-}
-
 function toolbar(doc: Document, label: string): HTMLDivElement {
   const bar = doc.createElement('div');
   bar.className = 'message-actions';
@@ -228,7 +268,24 @@ export function appendAssistantActions(
   if (!content.trim()) return;
   const doc = item.ownerDocument;
   const bar = toolbar(doc, 'Действия с ответом');
-  const speak = iconButton(doc, 'Слушать', 'Озвучить ответ', ICONS.speak);
+  const speak = iconButton(doc, 'Слушать', 'Озвучить ответ', ICONS.play);
+  speak.classList.add('message-action-speak');
+  const paint = () => {
+    const state = speechStateFor(content);
+    speak.innerHTML = state === 'playing' ? ICONS.pause : ICONS.play;
+    const label = state === 'playing' ? 'Приостановить' : state === 'paused' ? 'Продолжить' : 'Слушать';
+    speak.setAttribute('aria-label', label);
+    speak.title = label;
+    speak.dataset.state = state;
+  };
+  let seen = false;
+  const refresh = () => {
+    if (speak.isConnected) seen = true;
+    else if (seen) { speechListeners.delete(refresh); return; }
+    paint();
+  };
+  speechListeners.add(refresh);
+  paint();
   speak.onclick = () => {
     speakText(content);
     handlers.onSpeak?.(content);
@@ -236,10 +293,10 @@ export function appendAssistantActions(
   bar.append(copyButton(doc, content, 'Копировать ответ', handlers), speak);
   if (turnIndex >= 0) {
     const branch = iconButton(doc, 'Создать ветвь в новом чате', 'Создать ветвь в новом чате', ICONS.branch);
+    branch.classList.add('message-action-branch');
     branch.onclick = () => handlers.onBranch?.(turnIndex);
     bar.append(branch);
   }
-  bar.append(saveButton(doc, content, 'assistant', handlers));
   item.append(bar);
 }
 
@@ -251,8 +308,10 @@ export function appendUserActions(
   if (!content.trim()) return;
   const doc = item.ownerDocument;
   const bar = toolbar(doc, 'Действия с запросом');
+  const retry = iconButton(doc, 'Повторить', 'Отправить этот запрос ещё раз', ICONS.retry);
+  retry.onclick = () => handlers.onRetry?.(content);
   const edit = iconButton(doc, 'Редактировать', 'Изменить запрос и отправить заново', ICONS.edit);
   edit.onclick = () => handlers.onEdit?.(content);
-  bar.append(edit, copyButton(doc, content, 'Копировать запрос', handlers), saveButton(doc, content, 'user', handlers));
+  bar.append(retry, edit, copyButton(doc, content, 'Копировать запрос', handlers));
   item.append(bar);
 }
