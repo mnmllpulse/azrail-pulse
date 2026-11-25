@@ -37,6 +37,7 @@ import { AUDIT_ASK, AUDIT_NEXT, parseAuditProgress, runZipAudit } from "./lib/zi
 import { loadAttachments, attachmentsToText, zipArchiveNote, archivesFromText, fileNamesInQuestion, zipNamesInHistory, censusLine, uploadKeyForProject, readNamedFromZip, findOwnedZip } from "./lib/attachments";
 import { chatSupplements } from "./lib/chat-context";
 import { recallChats, wantsChatRecall } from "./lib/chat-recall";
+import { browserSupplement } from "./lib/browser-read";
 import { log } from "./lib/resilience";
 import {
   MAX_PENDING_HINTS,
@@ -528,7 +529,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         message += attachmentsToText(await loadAttachments(env, body.attachments as AttachmentRef[]));
       }
       const recallId = body.conversationId ?? body.projectId ?? "";
-      const supplements = (await chatSupplements(env, body.message)) + (wantsChatRecall(body.message) ? await recallChats(env, principal.id, recallId, body.message) : "");
+      const supplements = (await chatSupplements(env, body.message)) + (wantsChatRecall(body.message) ? await recallChats(env, principal.id, recallId, body.message) : "") + (await browserSupplement(env, body.message));
 
       const cid = body.conversationId ?? body.projectId ?? crypto.randomUUID();
       await ensureConversation(env, cid, body.projectId);
