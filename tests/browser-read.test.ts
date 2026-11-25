@@ -117,6 +117,10 @@ describe("просьба в чате", () => {
     expect(pageToRead("прочитай https://news.site.org/x.")).toBe("https://news.site.org/x");
     expect(pageToRead("https://example.com")).toBeNull();
     expect(pageToRead("открой страницу")).toBeNull();
+    expect(pageToRead("сделай скриншот example.com")).toBe("https://example.com");
+    expect(pageToRead("открой www.news.site.org/x?a=1.")).toBe("https://www.news.site.org/x?a=1");
+    expect(pageToRead("прочитай файл notes.txt")).toBeNull();
+    expect(pageToRead("открой почту me@example.com")).toBeNull();
     expect(pageToRead("посмотри https://github.com/a/b")).toBeNull();
   });
   it("вопрос про остаток", () => {

@@ -76,14 +76,19 @@ export async function readPage(env: Env, rawUrl: string, options: { screenshot?:
 }
 
 const URL_IN_TEXT = /https?:\/\/[^\s<>"')\]]+/i;
+const BARE_DOMAIN = /(?<![\p{L}\p{N}@./-])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?::\d+)?(?:\/[^\s<>"')\]]*)?(?![\p{L}\p{N}-])/iu;
 const READ_INTENT = /(?<![\p{L}])(?:открой\p{L}*|откро\p{L}*|прочита\p{L}*|зайди|загляни|посмотри|изучи|проанализируй|перескажи|скриншот\p{L}*|сфотографируй|как\s+выгляд\p{L}*|что\s+(?:на|там|за)|о\s+чём|о\s+чем|суть)(?![\p{L}])/iu;
+const FILE_EXT = /\.(?:txt|md|json|js|ts|tsx|jsx|py|css|html?|png|jpe?g|gif|webp|svg|pdf|docx?|xlsx?|csv|zip|gz|log|yml|yaml|toml|sh|mjs|cjs)$/i;
 const BUDGET_ASK = /(?<![\p{L}])(?:сколько|остал\p{L}*|лимит\p{L}*)[^.?!]{0,40}браузер|браузер[^.?!]{0,40}(?:остал\p{L}*|лимит\p{L}*)/iu;
 const SKIP_HOSTS = /^(?:www\.)?(?:github\.com|raw\.githubusercontent\.com)$/i;
 
 export function pageToRead(message: string): string | null {
-  const match = URL_IN_TEXT.exec(message);
-  if (!match || !READ_INTENT.test(message)) return null;
-  const clean = match[0].replace(/[.,;:!?]+$/, "");
+  if (!READ_INTENT.test(message)) return null;
+  const explicit = URL_IN_TEXT.exec(message)?.[0];
+  const bare = explicit ? undefined : BARE_DOMAIN.exec(message)?.[0];
+  if (!explicit && !bare) return null;
+  if (bare && FILE_EXT.test(bare.split(/[/:]/)[0])) return null;
+  const clean = (explicit ?? `https://${bare}`).replace(/[.,;:!?]+$/, "");
   try {
     if (SKIP_HOSTS.test(new URL(clean).hostname)) return null;
   } catch {
