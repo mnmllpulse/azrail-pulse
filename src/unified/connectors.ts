@@ -1,4 +1,5 @@
 import type {Env} from '../types';
+import {resumeAfterConnectorCall} from '../lib/approval-resume';
 import {AccessError,authenticate,hashToken,activeAccount} from '../lib/accounts';
 import {assertSubsystem} from '../lib/kill-switch';
 import {readJsonRecord} from './request-json';
@@ -215,7 +216,11 @@ export async function connectorRoute(request:Request,env:Env):Promise<Response|n
  }
  if(head==='prepare'&&request.method==='POST')return Response.json(await prepareConnectorCall(env,account,{connectionId:String(body.connectionId??''),tool:String(body.tool??''),arguments:body.arguments,idempotencyKey:request.headers.get('Idempotency-Key')??''},trace),{status:201});
  if(head==='calls'&&parts[1]){
-  if(parts[2]==='execute'&&request.method==='POST')return Response.json(await executeConnectorCall(env,account,parts[1],body.confirm===true,request.signal));
+  if(parts[2]==='execute'&&request.method==='POST'){
+   const executed=await executeConnectorCall(env,account,parts[1],body.confirm===true,request.signal);
+   const resumed=(executed as {status?:string}).status==='succeeded'?await resumeAfterConnectorCall(env,account,parts[1]):[];
+   return Response.json(resumed.length?{...executed,resumed}:executed);
+  }
   if(parts[2]==='reconcile'&&request.method==='POST')return Response.json(await reconcileConnectorCall(env,account,parts[1],body.outcome,body.evidence));
   if(parts[2]==='cancel'&&request.method==='POST'){await callRecord(env,account,parts[1]);const row=await env.AZRAIL_D1.prepare("UPDATE connector_calls SET status='cancelled',updated_at=? WHERE id=? AND account_id=? AND status='prepared' RETURNING id").bind(Date.now(),parts[1],account).first();if(!row)throw new AccessError('Можно отменить только ещё не отправленную операцию.',409);await cancelApprovalByScope(env,{actionType:'connector_mutation',scopeType:'connector_call',scopeId:parts[1],actor:`account:${account}`,reason:'connector call cancelled'});return Response.json({cancelled:true});}
  }
