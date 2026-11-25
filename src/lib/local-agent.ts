@@ -1,6 +1,7 @@
 import { AccessError } from "./accounts";
+import { checkPublicUrl, PublicUrlError } from "./public-url";
 
-export type AgentJobKind = "list" | "read" | "write" | "run";
+export type AgentJobKind = "list" | "read" | "write" | "run" | "web";
 export type AgentJobStatus = "awaiting_approval" | "queued" | "running" | "done" | "failed" | "rejected" | "expired";
 
 export interface AgentRoot {
@@ -135,9 +136,16 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
   const state = await store.getState();
   if (!state || state.expiresAt <= now) throw new AccessError("Агент выключен. Включи его, чтобы ставить задачи.", 409);
   const kind = input.kind;
-  if (kind !== "list" && kind !== "read" && kind !== "write" && kind !== "run") throw new AccessError("Допустимые действия: list, read, write, run.", 400);
+  if (kind !== "list" && kind !== "read" && kind !== "write" && kind !== "run" && kind !== "web") throw new AccessError("Допустимые действия: list, read, write, run, web.", 400);
   let path: string;
-  if (kind === "run") {
+  if (kind === "web") {
+    if (typeof input.path !== "string" || input.path.length > 2000) throw new AccessError("Укажи адрес страницы.", 400);
+    try {
+      path = checkPublicUrl(input.path.trim()).href;
+    } catch (error) {
+      throw new AccessError(error instanceof PublicUrlError ? error.message : "Адрес страницы не распознан.", 400);
+    }
+  } else if (kind === "run") {
     if (typeof input.path !== "string" || !Object.hasOwn(AGENT_COMMANDS, input.path)) throw new AccessError(`Команда не из белого списка. Доступны: ${Object.keys(AGENT_COMMANDS).join(", ")}.`, 400);
     path = input.path;
   } else path = safeAgentPath(input.path, kind === "list");

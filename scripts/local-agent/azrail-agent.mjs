@@ -2,6 +2,7 @@
 import { execFile } from "node:child_process";
 import { mkdir, readdir, readFile, realpath, rename, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve, sep, join } from "node:path";
+import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 const MAX_READ = 200_000;
@@ -45,6 +46,53 @@ export function runCommand(root, id) {
       done({ ok: code === 0, output: `${text}\n[код выхода ${code}]`.trim() });
     });
   });
+}
+
+const WEB_TIMEOUT_MS = 45_000;
+const WEB_TEXT_LIMIT = 20_000;
+const PRIVATE_V4 = [/^0\./, /^10\./, /^127\./, /^169\.254\./, /^172\.(1[6-9]|2\d|3[01])\./, /^192\.168\./, /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./, /^(22[4-9]|2[3-5]\d)\./];
+
+/** Те же правила, что на сервере: только публичные http(s), без логина в адресе, портов, внутренних имён и частных IP. */
+export function isPublicUrl(raw) {
+  let url;
+  try { url = new URL(raw); } catch { return false; }
+  if (url.protocol !== "https:" && url.protocol !== "http:") return false;
+  if (url.username || url.password) return false;
+  if (url.port && url.port !== "80" && url.port !== "443") return false;
+  const host = url.hostname.toLowerCase().replace(/\.$/, "");
+  if (!host || host.includes(":") || host.startsWith("[")) return false;
+  if (host === "localhost" || /\.(local|localhost|internal|lan|home|corp)$/.test(host) || !host.includes(".")) return false;
+  if (/^[\d.]+$/.test(host) && PRIVATE_V4.some((re) => re.test(host))) return false;
+  return true;
+}
+
+/** Профиль браузера лежит отдельно от основного Chrome: вход в сайты делается один раз и остаётся в этой папке. */
+export function browserProfileDir(env) {
+  return env.AZRAIL_BROWSER_PROFILE || join(homedir(), ".azrail-browser");
+}
+
+/** Читает страницу в браузере компьютера под сохранёнными входами. Только чтение: кликов и ввода нет. */
+export async function readWeb(url, env = process.env, loader = () => import("playwright")) {
+  if (!isPublicUrl(url)) throw new Error("Адрес не публичный.");
+  let playwright;
+  try { playwright = await loader(); } catch { throw new Error("Не найден playwright. В папке проекта выполни: npm install"); }
+  const channel = env.AZRAIL_BROWSER_CHANNEL || "chrome";
+  const context = await playwright.chromium.launchPersistentContext(browserProfileDir(env), { channel, headless: env.AZRAIL_BROWSER_HEADED !== "1", viewport: { width: 1280, height: 800 } }).catch((error) => {
+    throw new Error(`Браузер не запустился: ${String(error?.message ?? error).split("\n")[0].slice(0, 200)}. Закрой окна браузера агента или поставь Google Chrome.`);
+  });
+  try {
+    await context.route("**/*", (route) => (isPublicUrl(route.request().url()) ? route.continue() : route.abort()));
+    const page = context.pages()[0] ?? (await context.newPage());
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: WEB_TIMEOUT_MS });
+    await page.waitForLoadState("networkidle", { timeout: 3000 }).catch(() => undefined);
+    if (!isPublicUrl(page.url())) throw new Error("Страница перенаправила на внутренний адрес.");
+    const title = (await page.title()).slice(0, 200);
+    const full = String(await page.evaluate(() => (document.body ? document.body.innerText : ""))).replace(/\n{3,}/g, "\n\n").trim();
+    const cut = full.length > WEB_TEXT_LIMIT ? `${full.slice(0, WEB_TEXT_LIMIT)}\n[текст обрезан]` : full;
+    return `Адрес: ${page.url()}\nЗаголовок: ${title || "нет"}\n\n${cut}`;
+  } finally {
+    await context.close().catch(() => undefined);
+  }
 }
 const MAX_LIST = 500;
 const DENIED = /(^|\/)(\.git|\.ssh|\.gnupg|\.aws|node_modules|\.wrangler)(\/|$)|(^|\/)(\.env[^/]*|\.dev\.vars|id_rsa[^/]*|id_ed25519[^/]*|[^/]*\.(pem|key|pfx|p12|kdbx))$/i;
@@ -132,7 +180,20 @@ export function pickRoot(roots, name) {
   return found;
 }
 
+/** Один раз открывает окно браузера агента: войди в нужные сайты, закрой окно, входы сохранятся в профиле. */
+export async function browserLogin(env = process.env, loader = () => import("playwright")) {
+  const playwright = await loader();
+  const dir = browserProfileDir(env);
+  const context = await playwright.chromium.launchPersistentContext(dir, { channel: env.AZRAIL_BROWSER_CHANNEL || "chrome", headless: false, viewport: null });
+  console.log(`Окно открыто. Войди в нужные сайты и закрой окно. Профиль: ${dir}`);
+  await new Promise((done) => context.on("close", done));
+}
+
 async function main() {
+  if (process.argv.includes("--browser-login")) {
+    await browserLogin();
+    return;
+  }
   const url = process.env.AZRAIL_URL?.replace(/\/$/, "");
   const token = process.env.AZRAIL_AGENT_TOKEN;
   if (!url || !token) {
@@ -154,8 +215,11 @@ async function main() {
       if (job) {
         let body;
         try {
-          const root = pickRoot(roots, job.root).path;
-          body = job.kind === "run" ? await runCommand(root, job.path) : { ok: true, output: await runJob(root, job) };
+          if (job.kind === "web") body = { ok: true, output: await readWeb(job.path) };
+          else {
+            const root = pickRoot(roots, job.root).path;
+            body = job.kind === "run" ? await runCommand(root, job.path) : { ok: true, output: await runJob(root, job) };
+          }
         } catch (error) {
           body = { ok: false, error: error instanceof Error ? error.message : String(error) };
         }

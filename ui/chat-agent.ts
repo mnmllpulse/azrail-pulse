@@ -2,7 +2,7 @@ import { redactSecrets } from '../src/lib/secret-scan';
 
 type Api = (path: string, init?: RequestInit) => Promise<any>;
 
-export type AgentIntent = { kind: 'list' | 'read' | 'write' | 'run'; path: string; content?: string } | null;
+export type AgentIntent = { kind: 'list' | 'read' | 'write' | 'run' | 'web'; path: string; content?: string } | null;
 export type AgentJobView = { id: string; kind: string; path: string; status: string; result: string | null; error: string | null; bytes?: number; command?: string };
 
 const DO = '(?:запусти\\p{L}*|прогони\\p{L}*|выполни\\p{L}*|сделай|проведи|погоняй|проверь|запускай)';
@@ -17,6 +17,23 @@ const RUN: Array<[RegExp, string]> = [
 ];
 
 export const WHERE = /(?:на\s+(?:(?:моём|моем|этом|своём|своем|локальном|локальной|моей|этой|твоём)\s+)*(?:компьютере|компе|комп|пк|pc|ноутбуке|ноуте|машине|windows|винде)(?![\p{L}\d])|у\s+меня\s+(?:на\s+)?(?:компьютере|компе|пк)|на\s+локальн\p{L}*(?![\p{L}\d])|(?:^|\s)локально(?![\p{L}\d])|в\s+(?:моей\s+)?(?:локальной\s+)?папке|локальн\p{L}*\s+(?:файл|папк)\p{L}*)/iu;
+export const BROWSER_WHERE = /(?:(?:в|через)\s+(?:моём|моем|своём|своем|локальном|этом)?\s*(?:браузере|хроме|chrome)(?![\p{L}\d])|под\s+моим\s+(?:входом|аккаунтом|логином)|с\s+моего\s+(?:входа|аккаунта))/iu;
+const WEB_VERB = /^\s*(?:открой|прочитай|прочти|посмотри|зайди|загляни|покажи|изучи|перескажи)(?![\p{L}\d])/iu;
+const WEB_URL = /https?:\/\/[^\s<>"')\]]+/i;
+const WEB_BARE = /(?<![\p{L}\p{N}@./-])(?:www\.)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,24}(?:\/[^\s<>"')\]]*)?(?![\p{L}\p{N}-])/iu;
+const FILE_EXT = /\.(?:txt|md|json|js|ts|tsx|jsx|py|css|html?|png|jpe?g|gif|webp|svg|pdf|docx?|xlsx?|csv|zip|gz|log|yml|yaml|toml|sh|mjs|cjs)(?:\/|$)/i;
+
+/** Адрес страницы из просьбы «открой … в моём браузере»; имена файлов и почта не считаются. */
+export function webTarget(head: string): string | null {
+  if (!WEB_VERB.test(head)) return null;
+  const explicit = WEB_URL.exec(head)?.[0];
+  if (explicit) return explicit.replace(/[.,;:!?]+$/, '');
+  if (!BROWSER_WHERE.test(head)) return null;
+  const bare = WEB_BARE.exec(head)?.[0];
+  if (!bare || FILE_EXT.test(bare)) return null;
+  return `https://${bare.replace(/[.,;:!?]+$/, '')}`;
+}
+
 const PATH = /((?:[\w.-]+\/)*[\w.-]+\.[A-Za-z0-9]{1,8})(?![\w/])/u;
 const LIST = /^\s*(?:покажи|выведи|дай|открой)?\s*(?:список\s+)?файл\p{L}*(?:\s+(?:в|из)\s+((?:[\w.-]+\/?)+))?/iu;
 const QUOTES = '[\\s«»"\'“”„]*';
@@ -26,8 +43,10 @@ export const REJECT = new RegExp(`^${QUOTES}(?:отклони(?:\\s+(?:запи�
 /** Только явная просьба про компьютер: «прочитай src/a.ts на компьютере». Остальное остаётся обычным чатом. */
 export function agentIntent(message: string): AgentIntent {
   const text = message.trim();
-  if (!text || text.length > 20000 || !WHERE.test(text)) return null;
+  if (!text || text.length > 20000 || !(WHERE.test(text) || BROWSER_WHERE.test(text))) return null;
   const head = text.split('\n')[0];
+  const page = webTarget(head);
+  if (page) return { kind: 'web', path: page };
   const run = RUN.find(([pattern]) => pattern.test(head));
   if (run) return { kind: 'run', path: run[1] };
   if (/^\s*(?:запиши|сохрани|перезапиши)\s/iu.test(head)) {
@@ -55,13 +74,14 @@ export const AGENT_HINT = [
   '• «покажи git status на компьютере» — также git diff и git log',
   '• «покажи файлы в src на компьютере», «прочитай src/index.ts на компьютере»',
   '• «запиши в notes/a.txt на компьютере:» и текст с новой строки',
+  '• «открой https://сайт в моём браузере» — прочитаю страницу под твоими входами (только чтение)',
   'Запуск и запись всегда ждут твоего «разреши». Агент включается в «Настройки → Агент на компьютере».',
 ].join('\n');
 
 /** Просьба про компьютер без распознанной команды: подсказка вместо ответа модели «доступа нет». */
 export function agentHint(message: string): string | null {
   const head = message.trim().split('\n')[0];
-  return head.length <= 300 && WHERE.test(head) && ASK.test(head) ? AGENT_HINT : null;
+  return head.length <= 300 && (WHERE.test(head) || BROWSER_WHERE.test(head)) && ASK.test(head) ? AGENT_HINT : null;
 }
 
 export const AGENT_OFF = 'Агент на компьютере выключен. Включи его в настройках: «Агент на компьютере» → «Включить на 1 час».';
@@ -98,7 +118,7 @@ export function jobReply(job: AgentJobView, shown = 6000): string {
   if (job.status === 'done') {
     const body = redactSecrets(job.result ?? '');
     const cut = body.length > shown ? `${body.slice(0, shown)}\n… показано ${shown} из ${body.length} симв.` : body;
-    return job.kind === 'write' ? `Записал ${job.path}.` : `${job.kind === 'list' ? 'Файлы' : job.path}:\n\n\`\`\`\n${cut}\n\`\`\``;
+    return job.kind === 'write' ? `Записал ${job.path}.` : `${job.kind === 'list' ? 'Файлы' : job.kind === 'web' ? 'Страница' : job.path}:\n\n\`\`\`\n${cut}\n\`\`\``;
   }
   if (job.status === 'rejected') return 'Запись отклонена, файл не тронут.';
   if (job.status === 'expired') return 'Задача истекла: агент не ответил за 15 минут.';

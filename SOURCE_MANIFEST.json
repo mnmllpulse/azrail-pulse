@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T06:47:49.635Z",
+  "generated_at": "2026-11-25T10:45:20.234Z",
   "excludes_self": true,
-  "file_count": 1385,
+  "file_count": 1387,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -132,8 +132,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 12742,
-      "sha256": "675087277496cca09fa4f563f35312ce3906e0947426c759b396c42a3127c475"
+      "bytes": 14501,
+      "sha256": "55ec5f96917933d6a44cf1cec0f10ef06dc8aadab76c864b0d25aa45526ea77c"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -597,8 +597,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1495113,
-      "sha256": "897c10fc5dd2a46c661ba8d0c56ca27e087d7786e8d1dd79f8b658303838f8f3"
+      "bytes": 1496676,
+      "sha256": "fec1c92c9ab0aeeaf9c9e1e957962045656dc35aaa906e6d59bd9b44641cd64a"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -3112,8 +3112,8 @@
     },
     {
       "path": "scripts/local-agent/azrail-agent.mjs",
-      "bytes": 8695,
-      "sha256": "a350082a700a2fe41ed3b351bb14c2cab04ade993a2eafb1138bcae2087183c8"
+      "bytes": 13083,
+      "sha256": "3484a840f7fb34800e02f8b69191b4014ac8ab0ee8836c4a495e850c17e0c1cf"
     },
     {
       "path": "scripts/local-contrast.mjs",
@@ -3293,7 +3293,7 @@
     {
       "path": "site/app.html",
       "bytes": 25905,
-      "sha256": "72495d2fcb9e33e6d2485839e632ee336d089006bff527934c78d3aa1f20bf4f"
+      "sha256": "33a442ca9b25fd40ba881b05689c559436766df88fb1c08f6fc0cf820de78843"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3307,8 +3307,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 548697,
-      "sha256": "89de4c9348a1a7cf974a7bcf5e13e94c61715a2d014014ee29846f2ace450d9b"
+      "bytes": 550260,
+      "sha256": "32c7af14a2b9b1d468d3cad50cf9bee272b381ba8a0a5234ed2a4e82e69c2192"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3588,7 +3588,7 @@
     {
       "path": "site/index.html",
       "bytes": 25905,
-      "sha256": "72495d2fcb9e33e6d2485839e632ee336d089006bff527934c78d3aa1f20bf4f"
+      "sha256": "33a442ca9b25fd40ba881b05689c559436766df88fb1c08f6fc0cf820de78843"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -3902,8 +3902,8 @@
     },
     {
       "path": "src/lib/browser-read.ts",
-      "bytes": 9477,
-      "sha256": "7346b41d89694b2597102b335402bf1797c4b94f26f3ae8cfda9871eb216da01"
+      "bytes": 7892,
+      "sha256": "1b87b97c0fd8505cd27f171c16eb9ce0c342736a4854a2d243016dcf4b23e7b8"
     },
     {
       "path": "src/lib/calc.ts",
@@ -4037,8 +4037,8 @@
     },
     {
       "path": "src/lib/local-agent.ts",
-      "bytes": 12148,
-      "sha256": "4b0fe4535b8fa310bd21911cafa7c0b6163bc265bf33ca4a8117ae1bcf972264"
+      "bytes": 12643,
+      "sha256": "28b781829a0e4fda1ffd8db68b8ed92aeae80f920c58e6c6a2a8bc7a85b3cbeb"
     },
     {
       "path": "src/lib/memory-agent.ts",
@@ -4239,6 +4239,11 @@
       "path": "src/lib/prose-studio.ts",
       "bytes": 4321,
       "sha256": "2ea56599c29712ab959138cf7aee5e92577e32c812722e57d33efe55ecd19194"
+    },
+    {
+      "path": "src/lib/public-url.ts",
+      "bytes": 1741,
+      "sha256": "f27a688430057db634b4a901c17a68a4eac452b67241954a4522badc495edc6d"
     },
     {
       "path": "src/lib/pulse-lab.ts",
@@ -4674,6 +4679,11 @@
       "path": "tests/agent-roots.test.ts",
       "bytes": 1087,
       "sha256": "0584d7198af10867b03c611a6988f80d9cc3506e380202ed1245634246b3ab39"
+    },
+    {
+      "path": "tests/agent-web.test.ts",
+      "bytes": 8123,
+      "sha256": "398ae267607066884dbf98d98b0f0b260997532b850451e3f723c2a962e9097a"
     },
     {
       "path": "tests/als-music-parser.test.ts",
@@ -5947,8 +5957,8 @@
     },
     {
       "path": "ui/chat-agent.ts",
-      "bytes": 9242,
-      "sha256": "1344afae2ce3a64775c9363cf66e396eb092648658d3f0a3e5e04f85b6035c9c"
+      "bytes": 10990,
+      "sha256": "a337ce49230734fb0fd0eccf2ec97b9cde73ade938c6aaecf5b10532ae0a325f"
     },
     {
       "path": "ui/chat-code.ts",
@@ -5957,8 +5967,8 @@
     },
     {
       "path": "ui/chat-commands.ts",
-      "bytes": 12079,
-      "sha256": "39c7156ecbe55f4138f58378fabc8c25e448968f0bafea5048433e35badff38a"
+      "bytes": 12114,
+      "sha256": "8836c4f7696a228bbc4e194aef90b19fa4d264f0ca273492d1f016e91fa9cb06"
     },
     {
       "path": "ui/chat-fixloop.ts",
