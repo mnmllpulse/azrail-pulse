@@ -1695,7 +1695,7 @@ describe("Документы не обещают несуществующего"
   // содержал SHA-256 давно устаревшего архива — по такому документу
   // проверка целостности показала бы, что зип испорчен. И в папке лежал
   // временный файл verify-extract-tmp.mjs, который уехал бы в репозиторий.
-  const idx = ["src/index.ts", "src/routes/backups.ts", "src/routes/approvals.ts", "src/routes/billing.ts", "src/routes/accounts.ts", "src/routes/settings.ts", "src/unified/studios.ts", "src/unified/connectors.ts"].map(src).join("\n");
+  const idx = ["src/index.ts", "src/routes/backups.ts", "src/routes/approvals.ts", "src/routes/billing.ts", "src/routes/accounts.ts", "src/routes/settings.ts", "src/routes/metatron.ts", "src/unified/studios.ts", "src/unified/connectors.ts"].map(src).join("\n");
   const docs = ["README.md", "DEPLOY.md", "docs/product/AZRAIL_PRODUCT_SPEC_v0.5.md"];
 
   it("каждый упомянутый /api/* существует в коде", () => {

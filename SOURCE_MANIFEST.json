@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-24T17:47:06.618Z",
+  "generated_at": "2026-11-25T00:12:20.110Z",
   "excludes_self": true,
-  "file_count": 1373,
+  "file_count": 1375,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -2942,8 +2942,8 @@
     },
     {
       "path": "scripts/check-series-f-metatron-runtime.mjs",
-      "bytes": 5928,
-      "sha256": "3aa78c4f66bd16eda95dca89bbee8d08d52fcd9e447a69b50ed0ec71472c75c1"
+      "bytes": 5959,
+      "sha256": "9a470b929cd3514b603348c1fafdd8382939541ecd9d191da945bf8c18919c3a"
     },
     {
       "path": "scripts/check-series-f-music-runtime.mjs",
@@ -3802,8 +3802,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 89556,
-      "sha256": "63f0e42b7febc79f9de2c01e971e5ab715b6a26b289658634cc132448a258e28"
+      "bytes": 83353,
+      "sha256": "90aaa494d2051e783ce7340b9c50e5e485d53b8eeec0262de483a5b85db5288b"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4419,6 +4419,11 @@
       "path": "src/routes/health.ts",
       "bytes": 1820,
       "sha256": "ba632840717821ff484bbefb65d531e0131d647d08cd00ed7cba3348750a2aeb"
+    },
+    {
+      "path": "src/routes/metatron.ts",
+      "bytes": 7358,
+      "sha256": "39058c495eef7b31c227ceb7eca79aa09997aa3776353266bedcb8782fac3f84"
     },
     {
       "path": "src/routes/settings.ts",
@@ -5176,6 +5181,11 @@
       "sha256": "c1722aeda554362625c5b552d69716e644047f6a8129cf97cc090670a2c987fa"
     },
     {
+      "path": "tests/metatron-route.test.ts",
+      "bytes": 1390,
+      "sha256": "d21756ad086fe0858c0d94a7f894c06112574653564ddba471d6a9a47813eafa"
+    },
+    {
       "path": "tests/migration-ledger.test.ts",
       "bytes": 687,
       "sha256": "f6cc6ba38f88e4686b680bb82c62d78d237802419422702d2cbd81826923fc4c"
@@ -5502,8 +5512,8 @@
     },
     {
       "path": "tests/regressions.test.ts",
-      "bytes": 197345,
-      "sha256": "c3fcb6991d11463f939cf5cd2e5d9896a69d5c9dc7a9482955fbeafcc5ddb8a5"
+      "bytes": 197371,
+      "sha256": "35473f9402a80ff0acd4a336eb486bae7c39da65c1798f55da3dbf2a5a761d58"
     },
     {
       "path": "tests/replan.test.ts",
