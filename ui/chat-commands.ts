@@ -183,7 +183,7 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
         if (!(await agentReady(message))) return true;
         const made = (await api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ ...forAgent, ...activeRootField() }) })).job as AgentJobView;
         if (made.status === 'awaiting_approval') { agentWaiting = made.id; noteLocal(message, approvalText(made)); askApproval(made); return true; }
-        noteLocal(message, jobReply(await waitJob(api, made.id, sleep)));
+        noteLocal(message, jobReply(await waitJob(api, made.id, sleep, forAgent.kind === 'web' ? 40 : 20)));
       } catch (error) { failed(message, error, 'Агент недоступен.'); }
       return true;
     }
