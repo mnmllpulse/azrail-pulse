@@ -1695,7 +1695,7 @@ describe("Документы не обещают несуществующего"
   // содержал SHA-256 давно устаревшего архива — по такому документу
   // проверка целостности показала бы, что зип испорчен. И в папке лежал
   // временный файл verify-extract-tmp.mjs, который уехал бы в репозиторий.
-  const idx = ["src/index.ts", "src/routes/backups.ts", "src/routes/approvals.ts", "src/routes/billing.ts", "src/routes/accounts.ts", "src/routes/settings.ts", "src/routes/metatron.ts", "src/unified/studios.ts", "src/unified/connectors.ts"].map(src).join("\n");
+  const idx = ["src/index.ts", "src/routes/backups.ts", "src/routes/approvals.ts", "src/routes/billing.ts", "src/routes/accounts.ts", "src/routes/settings.ts", "src/routes/metatron.ts", "src/routes/conversations.ts", "src/unified/studios.ts", "src/unified/connectors.ts"].map(src).join("\n");
   const docs = ["README.md", "DEPLOY.md", "docs/product/AZRAIL_PRODUCT_SPEC_v0.5.md"];
 
   it("каждый упомянутый /api/* существует в коде", () => {
@@ -2387,7 +2387,7 @@ describe("Данные не копятся впустую", () => {
     // выталкивал последнюю проверку за край. Тест падал на изменении,
     // которое ничего не ломало.
     const from = idx.indexOf("Полная трассировка прогона");
-    const to = idx.indexOf('url.pathname === "/api/conversations"', from);
+    const to = idx.indexOf('url.pathname === "/api/bench"', from);
     const block = idx.slice(from, to);
     for (const part of ["mission_steps", "tool_calls", "mission_checks", "approval_requests"]) {
       expect(block, `${part} не отдаётся`).toContain(part);
@@ -2580,7 +2580,8 @@ describe("Чат и история: параметры совпадают с с�
   });
 
   it("история читает поля, которые сервер отдаёт", () => {
-    const query = idx.slice(idx.indexOf("SELECT c.id, c.project_id"), idx.indexOf("conversations: results"));
+    const convo = src("src/routes/conversations.ts");
+    const query = convo.slice(convo.indexOf("SELECT c.id, c.project_id"), convo.indexOf("conversations: results"));
     const fn = html.slice(html.indexOf("function loadHistory"), html.indexOf("function openConversation"));
     for (const field of [...new Set([...fn.matchAll(/\bc\.([a-z_]+)/g)].map((m) => m[1]))]) {
       expect(query, `поля ${field} нет в запросе`).toContain(field);
@@ -2605,7 +2606,7 @@ describe("Чат и история: параметры совпадают с с�
     // чат работает, таблицы есть, данных нет.
     expect(orch).toContain("ensureConversation");
     expect(orch).toContain("addMessage");
-    expect(idx).toContain("FROM conversations c");
+    expect(src("src/routes/conversations.ts")).toContain("FROM conversations c");
   });
 });
 
