@@ -71,7 +71,7 @@ describe("readWeb", () => {
     const b = fakeBrowser();
     const out = await readWeb("https://example.com/", { AZRAIL_BROWSER_PROFILE: "/p" }, b.loader);
     expect(out).toBe("Адрес: https://example.com/\nЗаголовок: Пример\n\nПривет\n\nмир");
-    expect(b.launch).toHaveBeenCalledWith("/p", expect.objectContaining({ channel: "chrome", headless: true }));
+    expect(b.launch).toHaveBeenCalledWith("/p", expect.objectContaining({ channel: "chrome", headless: true, chromiumSandbox: true }));
     expect(b.context.close).toHaveBeenCalled();
   });
   it("показывает окно только по AZRAIL_BROWSER_HEADED=1", async () => {

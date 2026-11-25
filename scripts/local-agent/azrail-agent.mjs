@@ -77,7 +77,7 @@ export async function readWeb(url, env = process.env, loader = () => import("pla
   let playwright;
   try { playwright = await loader(); } catch { throw new Error("Не найден playwright. В папке проекта выполни: npm install"); }
   const channel = env.AZRAIL_BROWSER_CHANNEL || "chrome";
-  const context = await playwright.chromium.launchPersistentContext(browserProfileDir(env), { channel, headless: env.AZRAIL_BROWSER_HEADED !== "1", viewport: { width: 1280, height: 800 } }).catch((error) => {
+  const context = await playwright.chromium.launchPersistentContext(browserProfileDir(env), { channel, headless: env.AZRAIL_BROWSER_HEADED !== "1", chromiumSandbox: true, viewport: { width: 1280, height: 800 } }).catch((error) => {
     throw new Error(`Браузер не запустился: ${String(error?.message ?? error).split("\n")[0].slice(0, 200)}. Закрой окна браузера агента или поставь Google Chrome.`);
   });
   try {
@@ -184,7 +184,7 @@ export function pickRoot(roots, name) {
 export async function browserLogin(env = process.env, loader = () => import("playwright")) {
   const playwright = await loader();
   const dir = browserProfileDir(env);
-  const context = await playwright.chromium.launchPersistentContext(dir, { channel: env.AZRAIL_BROWSER_CHANNEL || "chrome", headless: false, viewport: null });
+  const context = await playwright.chromium.launchPersistentContext(dir, { channel: env.AZRAIL_BROWSER_CHANNEL || "chrome", headless: false, chromiumSandbox: true, viewport: null });
   console.log(`Окно открыто. Войди в нужные сайты и закрой окно. Профиль: ${dir}`);
   await new Promise((done) => context.on("close", done));
 }
