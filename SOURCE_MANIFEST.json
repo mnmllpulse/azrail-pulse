@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T12:26:45.804Z",
+  "generated_at": "2026-11-25T15:41:04.211Z",
   "excludes_self": true,
-  "file_count": 1390,
+  "file_count": 1395,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -47,8 +47,8 @@
     },
     {
       "path": ".gitattributes",
-      "bytes": 59,
-      "sha256": "527bbe1efdb6e26ba9423fbb03093cca43c606940d613d698456051c4ceace7d"
+      "bytes": 79,
+      "sha256": "51b44360f499de989e1aef93331104ff57a6ed6786895cbc49ecad20f17cb88f"
     },
     {
       "path": ".github/workflows/check.yml",
@@ -86,6 +86,16 @@
       "sha256": "55075b5ec4e8b31936cbbc282b8829116d1fd48f2f2f1856dee592a6650700ce"
     },
     {
+      "path": "Autostart-Off.bat",
+      "bytes": 171,
+      "sha256": "5611e19113246bbdfbf370f471972be5e86aa933f798276f295f819cfa298409"
+    },
+    {
+      "path": "Autostart-On.bat",
+      "bytes": 535,
+      "sha256": "2ac60d35e57f0e51e5deaa14c4a8b3763adee8a4d8a3a5a7333ee879a4283c35"
+    },
+    {
       "path": "DEPLOY.md",
       "bytes": 6454,
       "sha256": "3c8b83f5380b7aaf7b1b0588bad9dbcb0cc105733cb5684b79a8487d56047341"
@@ -101,6 +111,11 @@
       "sha256": "f9ff8016f9f1463ab4fba70e32cbb57ea11ef7a2bc0d64082df40a8b079ac029"
     },
     {
+      "path": "Login-Sites.bat",
+      "bytes": 529,
+      "sha256": "1fcc074535bd38f91b520f810c8879df49e271d4d5815d93b33026455cf76190"
+    },
+    {
       "path": "README.md",
       "bytes": 11757,
       "sha256": "1abff11e509393842c754dddc136e5d59da54f650a4dcab9851dd3fd9a3f31e7"
@@ -109,6 +124,11 @@
       "path": "START_HERE_RU.md",
       "bytes": 3260,
       "sha256": "15b28b8e6d2778e098dd7743ffccaa022942585ceac215165c61bb420261e8a6"
+    },
+    {
+      "path": "Start-Azrail-Agent.bat",
+      "bytes": 648,
+      "sha256": "b76e9403b88deeb34fed32993c67af8ddc2a7abcf8690b0d7d1d08c3628561a9"
     },
     {
       "path": "config/ai-model-registry.json",
@@ -132,8 +152,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 16036,
-      "sha256": "fc763e5bd9f0258b7051bf4d37cbd217728b43919f22e043e0d65febef8958c2"
+      "bytes": 17276,
+      "sha256": "2447146131f044e123f78c2312be6990539fccf9724cd3f248d2b7ce77d26561"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -597,8 +617,8 @@
     },
     {
       "path": "index.html",
-      "bytes": 1496676,
-      "sha256": "fec1c92c9ab0aeeaf9c9e1e957962045656dc35aaa906e6d59bd9b44641cd64a"
+      "bytes": 1501315,
+      "sha256": "e4bb57e7603490b2fd835c16785d8f40aef8f183bf0bb9cf507c82a45b14c86b"
     },
     {
       "path": "migrations/002-mission-async.sql",
@@ -2902,8 +2922,8 @@
     },
     {
       "path": "scripts/check-repo-hygiene.mjs",
-      "bytes": 8567,
-      "sha256": "74c4f8a3a58a5380dcd663785fa28593156bc591512c74f7fa82611aba74558b"
+      "bytes": 8649,
+      "sha256": "bc0054c412da8b8b30c2c7d78857a1d1e37ad0d30daf3b9e39816bb279e6d688"
     },
     {
       "path": "scripts/check-rollout.mjs",
@@ -3293,7 +3313,7 @@
     {
       "path": "site/app.html",
       "bytes": 25905,
-      "sha256": "33a442ca9b25fd40ba881b05689c559436766df88fb1c08f6fc0cf820de78843"
+      "sha256": "51aaad76d5019a78ce667a0d7f0ce72cbdc13529d6b6c63ac19b5c4e68e27380"
     },
     {
       "path": "site/assets/als-SVDWJGPQ.js",
@@ -3307,8 +3327,8 @@
     },
     {
       "path": "site/assets/app.js",
-      "bytes": 550260,
-      "sha256": "32c7af14a2b9b1d468d3cad50cf9bee272b381ba8a0a5234ed2a4e82e69c2192"
+      "bytes": 554909,
+      "sha256": "9f9b854727b3244d3f34a9874045e7c9ef70de49576cc839eaf9f44128f3f799"
     },
     {
       "path": "site/assets/audio-GVYI4XJG.js",
@@ -3588,7 +3608,7 @@
     {
       "path": "site/index.html",
       "bytes": 25905,
-      "sha256": "33a442ca9b25fd40ba881b05689c559436766df88fb1c08f6fc0cf820de78843"
+      "sha256": "51aaad76d5019a78ce667a0d7f0ce72cbdc13529d6b6c63ac19b5c4e68e27380"
     },
     {
       "path": "site/manifest.webmanifest",
@@ -4674,6 +4694,11 @@
       "path": "tests/agent-device.test.ts",
       "bytes": 11810,
       "sha256": "838741722a1b462f96571198b01891b617b6b8a2e23c111997e54c4290aca1c8"
+    },
+    {
+      "path": "tests/agent-launcher.test.ts",
+      "bytes": 5509,
+      "sha256": "5f2b60022e1afeeb16ae479cededf7bc1e4b9ca40862333e4b2fe2400dfbac87"
     },
     {
       "path": "tests/agent-multi-root.test.ts",
@@ -5972,8 +5997,8 @@
     },
     {
       "path": "ui/chat-agent.ts",
-      "bytes": 10990,
-      "sha256": "a337ce49230734fb0fd0eccf2ec97b9cde73ade938c6aaecf5b10532ae0a325f"
+      "bytes": 11091,
+      "sha256": "d9923d8dde855940849eab31627425db735e9da9cd7583b34f778a4762666eb3"
     },
     {
       "path": "ui/chat-code.ts",
@@ -5982,8 +6007,8 @@
     },
     {
       "path": "ui/chat-commands.ts",
-      "bytes": 12114,
-      "sha256": "8836c4f7696a228bbc4e194aef90b19fa4d264f0ca273492d1f016e91fa9cb06"
+      "bytes": 13014,
+      "sha256": "75189ebd931e366540ecd03d58fb1eb6b4fac7d2b944232429b4f612e4167839"
     },
     {
       "path": "ui/chat-fixloop.ts",
@@ -6197,8 +6222,8 @@
     },
     {
       "path": "ui/local-agent.ts",
-      "bytes": 12155,
-      "sha256": "6cc77d5ca4d7657b205f6fbb8c97f348d8eb737a3f91df72992a01be154121e3"
+      "bytes": 14325,
+      "sha256": "75920e8c9c9f2af7c9d32270b984015323604428afe9a47b4093009ef33d1c9a"
     },
     {
       "path": "ui/long-text.ts",
