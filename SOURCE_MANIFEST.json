@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T10:45:20.234Z",
+  "generated_at": "2026-11-25T11:13:15.286Z",
   "excludes_self": true,
   "file_count": 1387,
   "files": [
@@ -3112,8 +3112,8 @@
     },
     {
       "path": "scripts/local-agent/azrail-agent.mjs",
-      "bytes": 13083,
-      "sha256": "3484a840f7fb34800e02f8b69191b4014ac8ab0ee8836c4a495e850c17e0c1cf"
+      "bytes": 13129,
+      "sha256": "02ec5d7cb9fb9ff80ac1964eef2f7024245e2b86181b03d6ee3cddc81c6ec707"
     },
     {
       "path": "scripts/local-contrast.mjs",
@@ -4682,8 +4682,8 @@
     },
     {
       "path": "tests/agent-web.test.ts",
-      "bytes": 8123,
-      "sha256": "398ae267607066884dbf98d98b0f0b260997532b850451e3f723c2a962e9097a"
+      "bytes": 8146,
+      "sha256": "b373efd41cd74987ece62f2ab39f8b6b85f708a6d33f7802adb035809840e4ef"
     },
     {
       "path": "tests/als-music-parser.test.ts",
