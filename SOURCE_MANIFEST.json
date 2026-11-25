@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T05:50:23.004Z",
+  "generated_at": "2026-11-25T06:03:38.036Z",
   "excludes_self": true,
-  "file_count": 1384,
+  "file_count": 1385,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -122,8 +122,8 @@
     },
     {
       "path": "config/environments.json",
-      "bytes": 4971,
-      "sha256": "fdb710db6daf48f07154e43e5cdb7466d25a62940f2c54bc237ef15d49543182"
+      "bytes": 5029,
+      "sha256": "ce45bd79e164ac8576ed3fd60c5f0a9289e69e6e64504fa28189b8acdb3fb6bd"
     },
     {
       "path": "docs/DOCS_RULES.md",
@@ -3062,8 +3062,8 @@
     },
     {
       "path": "scripts/generate-configs.mjs",
-      "bytes": 2917,
-      "sha256": "58573f78ce1f0d9fe7b636c95009ef5d98eb48e4bb5df347eb649a037dd7587e"
+      "bytes": 2946,
+      "sha256": "dbc02a9326b80b7fd750a95ebf462a151712581baa05672a68d808824702ba64"
     },
     {
       "path": "scripts/github-pr-plan.mjs",
@@ -4834,6 +4834,11 @@
       "path": "tests/billing-route.test.ts",
       "bytes": 2777,
       "sha256": "a7961d5853502d05279ed295e525fc6ebc1833e58b887d06124672ac5a3a7cbc"
+    },
+    {
+      "path": "tests/browser-binding-config.test.ts",
+      "bytes": 682,
+      "sha256": "68bc508b9f30d745d0a3ddf2741b8658701079f81ca65d87df1f71d7847058da"
     },
     {
       "path": "tests/browser-read.test.ts",
@@ -6857,8 +6862,8 @@
     },
     {
       "path": "verification/sbom.spdx.json",
-      "bytes": 267798,
-      "sha256": "a9c2b90ef2d2419224cf54171ea432ead54f6f68f6bc2b20232265affd7d88c3"
+      "bytes": 221792,
+      "sha256": "ba61d4b40ac78edf18278d5008cc9df7ad756aa5d5310b1b8c3dcc1a0ec7e8d4"
     },
     {
       "path": "verification/security-permission-matrix.json",
@@ -6912,18 +6917,18 @@
     },
     {
       "path": "wrangler.jsonc",
-      "bytes": 2201,
-      "sha256": "a680348f662c2ce5b4d16898bc8367daadc9750ddb85e3739cc52bef45bcce66"
+      "bytes": 2253,
+      "sha256": "e980ca36e9375c7d33d8b9fb0adf1f25d34fbb5714603dfd3a5db314836e828c"
     },
     {
       "path": "wrangler.production.json",
-      "bytes": 1799,
-      "sha256": "46506d891798fe84af9270a638b2279196125d284b9969fb888f67a9232d8338"
+      "bytes": 1851,
+      "sha256": "8576346cf0c5a2ee8f1d1290986bf2efc1ddee0a7d1dd62ac8da60b1460eaae1"
     },
     {
       "path": "wrangler.staging.json",
-      "bytes": 1872,
-      "sha256": "b3418e020e9e29ac3c8241c1bfe69d5a15086cbce98f53eadcd293207761f963"
+      "bytes": 1924,
+      "sha256": "f629bb922bef6459854f6af707a6f793aaac4b21dbc44e0b83d05003eb12d0da"
     }
   ]
 }
