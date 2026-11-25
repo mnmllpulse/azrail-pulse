@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFile, spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, readdir, readFile, realpath, rename, stat, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve, sep, join } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -203,29 +203,81 @@ export async function browserLogin(env = process.env, spawner = spawn, chrome = 
   });
 }
 
-async function main() {
-  if (process.argv.includes("--browser-login")) {
-    await browserLogin();
-    return;
+export const deviceFile = (env = process.env) => env.AZRAIL_DEVICE_FILE || join(homedir(), ".azrail-agent.json");
+
+export async function loadDevice(file) {
+  try {
+    const data = JSON.parse(await readFile(file, "utf8"));
+    return typeof data?.url === "string" && /^azdev_[a-f0-9]{64}$/.test(data?.token ?? "") ? { url: data.url, token: data.token } : null;
+  } catch {
+    return null;
   }
-  const url = process.env.AZRAIL_URL?.replace(/\/$/, "");
-  const token = process.env.AZRAIL_AGENT_TOKEN;
-  if (!url || !token) {
-    console.error("Нужны AZRAIL_URL и AZRAIL_AGENT_TOKEN.");
-    process.exit(2);
+}
+
+export async function saveDevice(file, data) {
+  await writeFile(file, JSON.stringify(data), { encoding: "utf8", mode: 0o600 });
+}
+
+/** Привязка компьютера: показывает код, ждёт, пока владелец введёт его в AZRAIL, возвращает постоянный ключ. */
+export async function pairWithServer(url, { fetchFn = fetch, sleep = (ms) => new Promise((done) => setTimeout(done, ms)), log = console.log, attempts = 300 } = {}) {
+  let started;
+  for (let tries = 0; ; tries += 1) {
+    const res = await fetchFn(`${url}/api/agent/pair/start`, { method: "POST", headers: { "Content-Type": "application/json" }, body: "{}" });
+    if (res.ok) {
+      started = await res.json();
+      break;
+    }
+    if (res.status !== 429 || tries >= 3) throw new Error(`Сервер не принял запрос привязки (${res.status}).`);
+    await sleep(6000);
   }
-  const roots = await resolveRoots(process.env, process.cwd());
+  log(`\nКод привязки: ${started.code}\nВведи его в AZRAIL: Настройки → Агент на компьютере → «Подтвердить компьютер». Код действует 10 минут.`);
+  for (let i = 0; i < attempts; i += 1) {
+    await sleep(2000);
+    const res = await fetchFn(`${url}/api/agent/pair/poll`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ secret: started.secret }) });
+    if (res.status === 410) throw new Error("Код истёк. Запусти агента заново.");
+    if (!res.ok) throw new Error(`Привязка не удалась (${res.status}).`);
+    const body = await res.json();
+    if (body.status === "approved" && typeof body.token === "string") return body.token;
+  }
+  throw new Error("Код не подтверждён вовремя. Запусти агента заново.");
+}
+
+/** Откуда взять ключ: переменные окружения (старый способ) или сохранённая привязка; иначе новая привязка. */
+export async function resolveCredentials(env, deps = {}) {
+  if (env.AZRAIL_AGENT_TOKEN) return { url: env.AZRAIL_URL?.replace(/\/$/, ""), token: env.AZRAIL_AGENT_TOKEN, device: false };
+  const file = deviceFile(env);
+  const saved = await loadDevice(file);
+  if (saved) return { ...saved, url: saved.url.replace(/\/$/, ""), device: true };
+  const url = env.AZRAIL_URL?.replace(/\/$/, "");
+  if (!url) return null;
+  const token = await pairWithServer(url, deps);
+  await saveDevice(file, { url, token });
+  (deps.log ?? console.log)("Компьютер привязан. Дальше агент подключается сам.");
+  return { url, token, device: true };
+}
+
+async function runAgent({ url, token, device }, roots) {
   const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "X-Agent-Root": encodeURIComponent(roots[0].path), "X-Agent-Roots": encodeURIComponent(JSON.stringify(roots)) };
   console.log(`AZRAIL agent: ${roots.length === 1 ? "папка" : "папки"} ${roots.map((entry) => `${entry.name} = ${entry.path}`).join("; ")}. Остановка: Ctrl+C.`);
   let hotUntil = 0;
+  let waiting = false;
   for (;;) {
     try {
       const res = await fetch(`${url}/api/agent/poll`, { headers });
       if (res.status === 401) {
+        if (device) {
+          await rm(deviceFile(), { force: true });
+          console.log("Компьютер отвязан в AZRAIL. Привяжи его заново.");
+          return "repair";
+        }
         console.log("Сессия агента закончилась. Включи агента в AZRAIL заново.");
-        process.exit(0);
+        return "stop";
       }
-      const { job } = res.ok ? await res.json() : { job: null };
+      const { job, idle } = res.ok ? await res.json() : { job: null };
+      if (idle !== waiting) {
+        waiting = !!idle;
+        console.log(waiting ? "Жду: нажми «Включить» в AZRAIL." : "Доступ открыт.");
+      }
       if (job) {
         let body;
         try {
@@ -245,7 +297,29 @@ async function main() {
     } catch (error) {
       console.error(`Нет связи: ${error instanceof Error ? error.message : error}`);
     }
-    await new Promise((done) => setTimeout(done, Date.now() < hotUntil ? 700 : 3000));
+    await new Promise((done) => setTimeout(done, waiting ? 5000 : Date.now() < hotUntil ? 700 : 3000));
+  }
+}
+
+async function main() {
+  if (process.argv.includes("--browser-login")) {
+    await browserLogin();
+    return;
+  }
+  const roots = await resolveRoots(process.env, process.cwd());
+  for (;;) {
+    let creds;
+    try {
+      creds = await resolveCredentials(process.env);
+    } catch (error) {
+      console.error(error instanceof Error ? error.message : String(error));
+      process.exit(1);
+    }
+    if (!creds?.url || !creds.token) {
+      console.error("Нужен AZRAIL_URL (адрес AZRAIL) для первой привязки компьютера.");
+      process.exit(2);
+    }
+    if ((await runAgent(creds, roots)) !== "repair") return;
   }
 }
 

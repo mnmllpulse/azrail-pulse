@@ -1,9 +1,9 @@
 import { getAgentByName } from "agents";
+import { approvePairing, authenticateAnyAgent, deviceStatus, forgetDevice, pollPairing, startPairing, type AgentDevice, type AgentPairing, type DeviceStore } from "../lib/agent-device";
 import { AccessError, authenticate } from "../lib/accounts";
 import { assertSubsystem } from "../lib/kill-switch";
 import {
   agentStatus,
-  authenticateAgent,
   createJob,
   decideJob,
   disableAgent,
@@ -35,6 +35,17 @@ async function openStore(env: Env): Promise<AgentStore> {
   };
 }
 
+async function openDeviceStore(env: Env): Promise<DeviceStore> {
+  const stub = await getAgentByName(env.Orchestrator, "local-agent");
+  const call = ((op: string, arg?: unknown) => (stub as unknown as { agentStore: StoreCall }).agentStore(op, arg)) as StoreCall;
+  return {
+    getDevice: () => call("getDevice") as Promise<AgentDevice | null>,
+    setDevice: async (device) => void (await call("setDevice", device)),
+    getPairing: () => call("getPairing") as Promise<AgentPairing | null>,
+    setPairing: async (pairing) => void (await call("setPairing", pairing)),
+  };
+}
+
 async function requireOwner(request: Request, env: Env): Promise<void> {
   const auth = await authenticate(request, env);
   if (!auth.ok || !auth.principal) throw new AccessError(auth.error ?? "Войдите в аккаунт.", 401);
@@ -48,9 +59,20 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
   const path = url.pathname.slice("/api/agent/".length);
   const method = request.method;
 
+  if (path === "pair/start" && method === "POST") {
+    const started = await startPairing(await openDeviceStore(env));
+    return Response.json(started, { status: 201 });
+  }
+  if (path === "pair/poll" && method === "POST") {
+    const body = await readJsonRecord(request, 2_000);
+    return Response.json(await pollPairing(await openDeviceStore(env), body.secret));
+  }
+
   if (path === "poll" && method === "GET") {
     const store = await openStore(env);
-    if (!(await authenticateAgent(store, request.headers.get("Authorization"), Date.now(), request.headers.get("X-Agent-Root"), request.headers.get("X-Agent-Roots")))) throw new AccessError("Ключ агента недействителен.", 401);
+    const auth = await authenticateAnyAgent(store, await openDeviceStore(env), request.headers.get("Authorization"), Date.now(), request.headers.get("X-Agent-Root"), request.headers.get("X-Agent-Roots"));
+    if (!auth.ok) throw new AccessError("Ключ агента недействителен.", 401);
+    if (!auth.active) return Response.json({ job: null, idle: true });
     const job = await pollJob(store);
     return Response.json({ job: job ? { id: job.id, kind: job.kind, path: job.path, content: job.content, root: job.root ?? null } : null });
   }
@@ -58,7 +80,7 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
   const result = path.match(/^jobs\/([a-f0-9-]{36})\/result$/);
   if (result && method === "POST") {
     const store = await openStore(env);
-    if (!(await authenticateAgent(store, request.headers.get("Authorization"), Date.now(), request.headers.get("X-Agent-Root"), request.headers.get("X-Agent-Roots")))) throw new AccessError("Ключ агента недействителен.", 401);
+    if (!(await authenticateAnyAgent(store, await openDeviceStore(env), request.headers.get("Authorization"), Date.now(), request.headers.get("X-Agent-Root"), request.headers.get("X-Agent-Roots"))).ok) throw new AccessError("Ключ агента недействителен.", 401);
     await finishJob(store, result[1], await readJsonRecord(request, 400_000));
     return Response.json({ ok: true });
   }
@@ -66,7 +88,16 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
   await requireOwner(request, env);
   const store = await openStore(env);
 
-  if (path === "status" && method === "GET") return Response.json(await agentStatus(store));
+  if (path === "status" && method === "GET") return Response.json({ ...(await agentStatus(store)), ...(await deviceStatus(await openDeviceStore(env))) });
+  if (path === "pair/approve" && method === "POST") {
+    await approvePairing(await openDeviceStore(env), (await readJsonRecord(request, 2_000)).code);
+    return Response.json({ ok: true });
+  }
+  if (path === "pair/forget" && method === "POST") {
+    await forgetDevice(await openDeviceStore(env));
+    await disableAgent(store);
+    return Response.json({ ok: true });
+  }
   if (path === "enable" && method === "POST") return Response.json(await enableAgent(store));
   if (path === "disable" && method === "POST") {
     await disableAgent(store);
