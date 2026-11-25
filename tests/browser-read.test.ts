@@ -5,6 +5,16 @@ const calls: string[] = [];
 let requestHandler: ((r: { url: () => string; continue: () => void; abort: () => void }) => void) | undefined;
 let finalUrl = "https://example.com/";
 let failGoto = false;
+let shotSize = 1000;
+const saved: Array<{ account: string; name: string; bytes: number }> = [];
+let failSave = false;
+vi.mock("../src/unified/studios", () => ({
+  saveBrowserScreenshot: vi.fn(async (_env: unknown, account: string, name: string, bytes: Uint8Array) => {
+    if (failSave) throw new Error("r2 down");
+    saved.push({ account, name, bytes: bytes.byteLength });
+    return { url: "/api/studio/artifacts/abc-123" };
+  }),
+}));
 vi.mock("@cloudflare/puppeteer", () => ({
   default: {
     launch: vi.fn(async () => ({
@@ -16,12 +26,13 @@ vi.mock("@cloudflare/puppeteer", () => ({
         url: () => finalUrl,
         title: async () => "Пример",
         evaluate: async () => "Текст страницы\n\n\n\nещё строка",
+        screenshot: async () => new Uint8Array(shotSize),
       }),
       close: async () => { calls.push("close"); },
     })),
   },
 }));
-const { checkPublicUrl, readPage, pageToRead, asksBrowserBudget, browserSupplement } = await import("../src/lib/browser-read");
+const { checkPublicUrl, readPage, pageToRead, asksBrowserBudget, browserSupplement, wantsScreenshot } = await import("../src/lib/browser-read");
 const { browserBudget, reserveBrowserSeconds, settleBrowserSeconds } = await import("../src/lib/browser-budget");
 
 function kv() {
@@ -30,7 +41,7 @@ function kv() {
 }
 const env = (plan = "free", extra: Record<string, unknown> = {}) => ({ AZRAIL_KV: kv(), AZRAIL_BROWSER: {}, AZRAIL_WORKERS_PLAN: plan, ...extra }) as unknown as Env;
 
-beforeEach(() => { calls.length = 0; finalUrl = "https://example.com/"; failGoto = false; });
+beforeEach(() => { calls.length = 0; finalUrl = "https://example.com/"; failGoto = false; shotSize = 1000; failSave = false; saved.length = 0; });
 
 describe("проверка адреса", () => {
   it("публичные адреса проходят", () => {
@@ -130,3 +141,41 @@ describe("просьба в чате", () => {
     expect(text).toContain("9 мин");
   });
 });
+
+describe("скриншоты и остаток", () => {
+  it("распознаёт просьбу о скриншоте", () => {
+    for (const ok of ["сделай скриншот https://example.com", "покажи как выглядит https://example.com"]) {
+      expect(wantsScreenshot(ok), ok).toBe(true);
+      expect(pageToRead(ok), ok).toBe("https://example.com");
+    }
+    expect(wantsScreenshot("открой https://example.com")).toBe(false);
+  });
+  it("скриншот сохраняется за аккаунтом и отдаётся строкой для вставки", async () => {
+    const text = await browserSupplement(env(), "сделай скриншот https://example.com/", "acc-1");
+    expect(saved).toEqual([{ account: "acc-1", name: "screenshot-example.com.jpg", bytes: 1000 }]);
+    expect(text).toContain("![скриншот example.com](/api/studio/artifacts/abc-123?inline=1)");
+  });
+  it("без просьбы о скриншоте картинка не снимается", async () => {
+    await browserSupplement(env(), "открой https://example.com/", "acc-1");
+    expect(saved).toEqual([]);
+  });
+  it("слишком большой скриншот не сохраняется, модель предупреждена", async () => {
+    shotSize = 2_500_000;
+    const text = await browserSupplement(env(), "сделай скриншот https://example.com/", "acc-1");
+    expect(saved).toEqual([]);
+    expect(text).toContain("Скриншот не получился");
+  });
+  it("ошибка сохранения не ломает чтение текста", async () => {
+    failSave = true;
+    const text = await browserSupplement(env(), "сделай скриншот https://example.com/", "acc-1");
+    expect(text).toContain("Текст страницы");
+    expect(text).toContain("сохранить не удалось");
+  });
+  it("остаток показывается с секундами после использования", async () => {
+    const e = env("free");
+    await reserveBrowserSeconds(e, 45);
+    await settleBrowserSeconds(e, 45, 3.1);
+    expect(await browserSupplement(e, "сколько осталось браузера")).toContain("Осталось 8 мин 56 с на сегодня из 9 мин");
+  });
+});
+

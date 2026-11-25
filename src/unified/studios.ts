@@ -406,6 +406,8 @@ async function saveArtifactStream(env:Env,account:string,projectId:string|null,s
  return {id,name,mime,bytes,url:`/api/studio/artifacts/${id}`};
 }
 
+/** Скриншот страницы из облачного браузера: сохраняется как картинка аккаунта и показывается в чате. */
+export async function saveBrowserScreenshot(env:Env,account:string,name:string,bytes:Uint8Array){return saveArtifact(env,account,null,'image',name,'image/jpeg',bytes);}
 async function saveArtifact(env:Env,account:string,projectId:string|null,studioId:ReturnType<typeof normalizeStudioId>,name:string,mime:string,bytes:Uint8Array,extraStatements?:(artifactId:string,now:number)=>D1PreparedStatement[]) {
  const id=crypto.randomUUID(),key=`studio/${account}/${id}`;
  try {

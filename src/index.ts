@@ -529,7 +529,7 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         message += attachmentsToText(await loadAttachments(env, body.attachments as AttachmentRef[]));
       }
       const recallId = body.conversationId ?? body.projectId ?? "";
-      const supplements = (await chatSupplements(env, body.message)) + (wantsChatRecall(body.message) ? await recallChats(env, principal.id, recallId, body.message) : "") + (await browserSupplement(env, body.message));
+      const supplements = (await chatSupplements(env, body.message)) + (wantsChatRecall(body.message) ? await recallChats(env, principal.id, recallId, body.message) : "") + (await browserSupplement(env, body.message, principal.id));
 
       const cid = body.conversationId ?? body.projectId ?? crypto.randomUUID();
       await ensureConversation(env, cid, body.projectId);

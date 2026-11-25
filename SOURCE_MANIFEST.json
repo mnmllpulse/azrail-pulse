@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T06:03:38.036Z",
+  "generated_at": "2026-11-25T06:17:27.758Z",
   "excludes_self": true,
   "file_count": 1385,
   "files": [
@@ -3802,8 +3802,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 81167,
-      "sha256": "74e6d983b9f4729c17d1727d06d5b3a66a2bae651d412ac035b5fd1c47b3d5fd"
+      "bytes": 81181,
+      "sha256": "05766b5d2e5ef4780f66fa10b2c3a94abe4bb03f9aaecc4563c5bcab3fbfa629"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -3902,8 +3902,8 @@
     },
     {
       "path": "src/lib/browser-read.ts",
-      "bytes": 6924,
-      "sha256": "72ca444f62c5cb3f403506906d3492c57d17e15b61e4fe81c349d367a4524372"
+      "bytes": 8705,
+      "sha256": "0f171379363ba62dd1f74b1f4043d5e915bd7b08a5fad15107ea0b7b433b610f"
     },
     {
       "path": "src/lib/calc.ts",
@@ -4592,8 +4592,8 @@
     },
     {
       "path": "src/unified/studios.ts",
-      "bytes": 48399,
-      "sha256": "349a05b1b1d85f6579fa38aae8796090cbd58fc7e54b63751c86ba17d76a304d"
+      "bytes": 48756,
+      "sha256": "30a61617f97f4f82d844628ed49f13f09c3183b79c39b1629c867eddfe681c2f"
     },
     {
       "path": "src/unified/system-intelligence.ts",
@@ -4842,8 +4842,8 @@
     },
     {
       "path": "tests/browser-read.test.ts",
-      "bytes": 7565,
-      "sha256": "c8b453316af061043178991fa545d77f945ba15f5174da3fae88024c3a382374"
+      "bytes": 10461,
+      "sha256": "ad6118014a60dbd68dafd85d54f965ca43638bf47725a01a0655d91da2efdc21"
     },
     {
       "path": "tests/calc.test.ts",
