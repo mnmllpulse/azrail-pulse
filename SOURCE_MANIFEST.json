@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T00:41:44.690Z",
+  "generated_at": "2026-11-25T01:00:48.429Z",
   "excludes_self": true,
-  "file_count": 1379,
+  "file_count": 1381,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3846,6 +3846,11 @@
       "sha256": "16be64db596ee5849c85d7b44426e2ddd18714ee6b5e1f546f637f1ebe5188ec"
     },
     {
+      "path": "src/lib/approval-resume.ts",
+      "bytes": 2883,
+      "sha256": "7ccd190616533dd6c7bef13d02161c46b10bfad0bc6229073563391ca170be67"
+    },
+    {
       "path": "src/lib/approval-types.ts",
       "bytes": 1349,
       "sha256": "df54a9a46663428658f825076c08d75e8d1726839ba419b26c62ac6f0198175e"
@@ -4497,8 +4502,8 @@
     },
     {
       "path": "src/unified/connectors.ts",
-      "bytes": 34257,
-      "sha256": "119fb51460ea3cf11a7522c2ca5637e99e7310c7654a72809b868f0f83e4a4e5"
+      "bytes": 34522,
+      "sha256": "de854480ed9de05fecbde713684d726b1d16e91850b39adddddb36c2c9fb2e6f"
     },
     {
       "path": "src/unified/contracts.ts",
@@ -4719,6 +4724,11 @@
       "path": "tests/approval-engine.test.ts",
       "bytes": 3124,
       "sha256": "096e013aee058841d81d3b031e09a38ca7883e01d2be7d2853eb847f9972fbc0"
+    },
+    {
+      "path": "tests/approval-resume.test.ts",
+      "bytes": 3495,
+      "sha256": "5e08944ef89d73fc178977a6ccf24149c5f8ebf27812282d658fd3e7b462779d"
     },
     {
       "path": "tests/approvals-route.test.ts",
