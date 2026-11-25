@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { execFile } from "node:child_process";
+import { execFile, spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, realpath, rename, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, resolve, sep, join } from "node:path";
 import { homedir } from "node:os";
@@ -180,13 +181,26 @@ export function pickRoot(roots, name) {
   return found;
 }
 
-/** Один раз открывает окно браузера агента: войди в нужные сайты, закрой окно, входы сохранятся в профиле. */
-export async function browserLogin(env = process.env, loader = () => import("playwright")) {
-  const playwright = await loader();
+/** Путь к обычному Google Chrome или null. */
+export function findChrome(env = process.env, platform = process.platform, exists = existsSync) {
+  const candidates = platform === "win32"
+    ? [env.ProgramFiles, env["ProgramFiles(x86)"], env.LOCALAPPDATA].filter(Boolean).map((base) => join(base, "Google", "Chrome", "Application", "chrome.exe"))
+    : platform === "darwin"
+      ? ["/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"]
+      : ["/usr/bin/google-chrome", "/usr/bin/google-chrome-stable"];
+  return candidates.find((path) => exists(path)) ?? null;
+}
+
+/** Один раз открывает обычный Chrome с профилем агента, без управления из программы: Google и другие сайты пускают войти. Закрой окно, входы сохранятся. */
+export async function browserLogin(env = process.env, spawner = spawn, chrome = findChrome(env)) {
   const dir = browserProfileDir(env);
-  const context = await playwright.chromium.launchPersistentContext(dir, { channel: env.AZRAIL_BROWSER_CHANNEL || "chrome", headless: false, chromiumSandbox: true, viewport: null });
-  console.log(`Окно открыто. Войди в нужные сайты и закрой окно. Профиль: ${dir}`);
-  await new Promise((done) => context.on("close", done));
+  if (!chrome) throw new Error("Не найден Google Chrome. Установи его и повтори.");
+  console.log(`Открываю Chrome. Войди в нужные сайты и закрой окно. Профиль: ${dir}`);
+  await new Promise((done, fail) => {
+    const child = spawner(chrome, [`--user-data-dir=${dir}`, "--no-first-run", "--no-default-browser-check", "about:blank"], { stdio: "ignore" });
+    child.once("error", fail);
+    child.once("exit", done);
+  });
 }
 
 async function main() {
