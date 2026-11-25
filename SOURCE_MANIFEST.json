@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T01:00:48.429Z",
+  "generated_at": "2026-11-25T05:50:23.004Z",
   "excludes_self": true,
-  "file_count": 1381,
+  "file_count": 1384,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -787,13 +787,13 @@
     },
     {
       "path": "package-lock.json",
-      "bytes": 156368,
-      "sha256": "4676bb5b01c18fdc3047a222274f8456ff04c641dfd02c201b30bc8f4222be09"
+      "bytes": 159780,
+      "sha256": "f8022cced540dc545f3a359de6bf7b5a04e11063cac09d04041447415e20941e"
     },
     {
       "path": "package.json",
-      "bytes": 10876,
-      "sha256": "48dd52ac1e6970574ede669aa773771fed9e3de7f8fea7186ac11e534fa7319e"
+      "bytes": 10914,
+      "sha256": "7894b5dc9cbf94182679337451916c7c0ef0666c1892c2c80f2a1d66caf77e10"
     },
     {
       "path": "public/_headers",
@@ -3802,8 +3802,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 81064,
-      "sha256": "00b71f6e91b934ac53f0404b324218f9b771d718314380242503f26399e3a150"
+      "bytes": 81167,
+      "sha256": "74e6d983b9f4729c17d1727d06d5b3a66a2bae651d412ac035b5fd1c47b3d5fd"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -3894,6 +3894,16 @@
       "path": "src/lib/billing.ts",
       "bytes": 13088,
       "sha256": "c5ad85ed61ac54ebdbfd53ca10f953ae0a9c79fcbd1754dcc99f3ce988f8fc4f"
+    },
+    {
+      "path": "src/lib/browser-budget.ts",
+      "bytes": 2757,
+      "sha256": "3ae01754df377027d88aa3a4a90aa23a291f14117ac0e47d17f59fb6a21c6e70"
+    },
+    {
+      "path": "src/lib/browser-read.ts",
+      "bytes": 6924,
+      "sha256": "72ca444f62c5cb3f403506906d3492c57d17e15b61e4fe81c349d367a4524372"
     },
     {
       "path": "src/lib/calc.ts",
@@ -4824,6 +4834,11 @@
       "path": "tests/billing-route.test.ts",
       "bytes": 2777,
       "sha256": "a7961d5853502d05279ed295e525fc6ebc1833e58b887d06124672ac5a3a7cbc"
+    },
+    {
+      "path": "tests/browser-read.test.ts",
+      "bytes": 7565,
+      "sha256": "c8b453316af061043178991fa545d77f945ba15f5174da3fae88024c3a382374"
     },
     {
       "path": "tests/calc.test.ts",
@@ -6842,8 +6857,8 @@
     },
     {
       "path": "verification/sbom.spdx.json",
-      "bytes": 215341,
-      "sha256": "e02ab352b275fca6f1a1bec4f0f32f3215865ab369b75fbadd36abd07d554486"
+      "bytes": 267798,
+      "sha256": "a9c2b90ef2d2419224cf54171ea432ead54f6f68f6bc2b20232265affd7d88c3"
     },
     {
       "path": "verification/security-permission-matrix.json",

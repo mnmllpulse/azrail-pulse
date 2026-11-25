@@ -3,9 +3,9 @@
   "dataLicense": "CC0-1.0",
   "SPDXID": "SPDXRef-DOCUMENT",
   "name": "azrail-pulse-unified-1.5.0-rc.63-sbom",
-  "documentNamespace": "https://azrail.local/sbom/1.5.0-rc.63/3d423a05eda75fd01ed35d97265fb06e8e50fc8cf66325d04c5af5791d8cd63e",
+  "documentNamespace": "https://azrail.local/sbom/1.5.0-rc.63/641ce86917924d86b6dd27d2c967f4563191b61545e8d247da5a1c49d6cbc5a2",
   "creationInfo": {
-    "created": "2026-11-21T16:11:56.103Z",
+    "created": "2026-11-25T05:54:01.511Z",
     "creators": [
       "Tool: AZRAIL build-sbom.mjs"
     ]
@@ -417,6 +417,54 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:npm/%40cloudflare%2Fkv-asset-handler@0.5.0"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-51824bc17eabf784e9693495",
+      "name": "@cloudflare/puppeteer",
+      "versionInfo": "2.0.1",
+      "downloadLocation": "https://registry.npmjs.org/@cloudflare/puppeteer/-/puppeteer-2.0.1.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40cloudflare%2Fpuppeteer@2.0.1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-009cc826de7ec260337ab661",
+      "name": "@cloudflare/puppeteer/node_modules/@types/node",
+      "versionInfo": "18.19.130",
+      "downloadLocation": "https://registry.npmjs.org/@types/node/-/node-18.19.130.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40cloudflare%2Fpuppeteer%2Fnode_modules%2F%40types%2Fnode@18.19.130"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-a20b29d1d0618b3195dbd541",
+      "name": "@cloudflare/puppeteer/node_modules/undici-types",
+      "versionInfo": "5.26.5",
+      "downloadLocation": "https://registry.npmjs.org/undici-types/-/undici-types-5.26.5.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/%40cloudflare%2Fpuppeteer%2Fnode_modules%2Fundici-types@5.26.5"
         }
       ]
     },
@@ -2837,6 +2885,22 @@
       ]
     },
     {
+      "SPDXID": "SPDXRef-Package-cb301dc07f5ac22e32a2e824",
+      "name": "devtools-protocol",
+      "versionInfo": "0.0.1666840",
+      "downloadLocation": "https://registry.npmjs.org/devtools-protocol/-/devtools-protocol-0.0.1666840.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/devtools-protocol@0.0.1666840"
+        }
+      ]
+    },
+    {
       "SPDXID": "SPDXRef-Package-550970cdda4184ada4885b7c",
       "name": "entities",
       "versionInfo": "7.0.1",
@@ -3477,6 +3541,22 @@
       ]
     },
     {
+      "SPDXID": "SPDXRef-Package-64abc9b43391ecdbb59e1032",
+      "name": "mitt",
+      "versionInfo": "3.0.1",
+      "downloadLocation": "https://registry.npmjs.org/mitt/-/mitt-3.0.1.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/mitt@3.0.1"
+        }
+      ]
+    },
+    {
       "SPDXID": "SPDXRef-Package-41b8431ce0150c34b5bfd769",
       "name": "nanoid",
       "versionInfo": "5.1.16",
@@ -3505,6 +3585,22 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:npm/obug@2.1.4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-f7620644e0d67d0ab4888743",
+      "name": "parsel-js",
+      "versionInfo": "1.2.2",
+      "downloadLocation": "https://registry.npmjs.org/parsel-js/-/parsel-js-1.2.2.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/parsel-js@1.2.2"
         }
       ]
     },
@@ -3717,6 +3813,38 @@
       ]
     },
     {
+      "SPDXID": "SPDXRef-Package-db0c96180e0a7e028fbdf78e",
+      "name": "rxjs",
+      "versionInfo": "7.8.2",
+      "downloadLocation": "https://registry.npmjs.org/rxjs/-/rxjs-7.8.2.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/rxjs@7.8.2"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-302f8da5f167ba57bc8e1543",
+      "name": "semver",
+      "versionInfo": "7.8.6",
+      "downloadLocation": "https://registry.npmjs.org/semver/-/semver-7.8.6.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/semver@7.8.6"
+        }
+      ]
+    },
+    {
       "SPDXID": "SPDXRef-Package-939087f848623246bd15a48a",
       "name": "sharp",
       "versionInfo": "0.35.5",
@@ -3729,22 +3857,6 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:npm/sharp@0.35.5"
-        }
-      ]
-    },
-    {
-      "SPDXID": "SPDXRef-Package-225b076b77ff87069800e8d5",
-      "name": "sharp/node_modules/semver",
-      "versionInfo": "7.8.5",
-      "downloadLocation": "https://registry.npmjs.org/semver/-/semver-7.8.5.tgz",
-      "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "externalRefs": [
-        {
-          "referenceCategory": "PACKAGE-MANAGER",
-          "referenceType": "purl",
-          "referenceLocator": "pkg:npm/sharp%2Fnode_modules%2Fsemver@7.8.5"
         }
       ]
     },
@@ -3957,6 +4069,22 @@
       ]
     },
     {
+      "SPDXID": "SPDXRef-Package-4880b3ba2da74b783387304a",
+      "name": "typed-query-selector",
+      "versionInfo": "2.12.4",
+      "downloadLocation": "https://registry.npmjs.org/typed-query-selector/-/typed-query-selector-2.12.4.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/typed-query-selector@2.12.4"
+        }
+      ]
+    },
+    {
       "SPDXID": "SPDXRef-Package-44bd9e04e2c25408450ce177",
       "name": "typescript",
       "versionInfo": "5.9.3",
@@ -4017,6 +4145,22 @@
           "referenceCategory": "PACKAGE-MANAGER",
           "referenceType": "purl",
           "referenceLocator": "pkg:npm/unenv@2.0.0-rc.24"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-Package-33965ba5e160af7ec4d54e8e",
+      "name": "urlpattern-polyfill",
+      "versionInfo": "10.1.0",
+      "downloadLocation": "https://registry.npmjs.org/urlpattern-polyfill/-/urlpattern-polyfill-10.1.0.tgz",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:npm/urlpattern-polyfill@10.1.0"
         }
       ]
     },
@@ -4838,6 +4982,21 @@
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-51824bc17eabf784e9693495"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-009cc826de7ec260337ab661"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-a20b29d1d0618b3195dbd541"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-e3413fca2a132905691fc9fd"
     },
     {
@@ -5593,6 +5752,11 @@
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-cb301dc07f5ac22e32a2e824"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-550970cdda4184ada4885b7c"
     },
     {
@@ -5793,12 +5957,22 @@
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-64abc9b43391ecdbb59e1032"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-41b8431ce0150c34b5bfd769"
     },
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-8a8c83bb5f2ab3f814103d93"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-f7620644e0d67d0ab4888743"
     },
     {
       "spdxElementId": "SPDXRef-Root",
@@ -5868,12 +6042,17 @@
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-939087f848623246bd15a48a"
+      "relatedSpdxElement": "SPDXRef-Package-db0c96180e0a7e028fbdf78e"
     },
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
-      "relatedSpdxElement": "SPDXRef-Package-225b076b77ff87069800e8d5"
+      "relatedSpdxElement": "SPDXRef-Package-302f8da5f167ba57bc8e1543"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-939087f848623246bd15a48a"
     },
     {
       "spdxElementId": "SPDXRef-Root",
@@ -5943,6 +6122,11 @@
     {
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-4880b3ba2da74b783387304a"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-44bd9e04e2c25408450ce177"
     },
     {
@@ -5959,6 +6143,11 @@
       "spdxElementId": "SPDXRef-Root",
       "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-9853b73c9d61f3af50b835f9"
+    },
+    {
+      "spdxElementId": "SPDXRef-Root",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-33965ba5e160af7ec4d54e8e"
     },
     {
       "spdxElementId": "SPDXRef-Root",
