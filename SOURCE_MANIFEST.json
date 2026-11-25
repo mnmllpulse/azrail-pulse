@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-24T23:59:48.597Z",
+  "generated_at": "2026-11-25T00:12:20.110Z",
   "excludes_self": true,
   "file_count": 1375,
   "files": [
@@ -2942,8 +2942,8 @@
     },
     {
       "path": "scripts/check-series-f-metatron-runtime.mjs",
-      "bytes": 5928,
-      "sha256": "3aa78c4f66bd16eda95dca89bbee8d08d52fcd9e447a69b50ed0ec71472c75c1"
+      "bytes": 5959,
+      "sha256": "9a470b929cd3514b603348c1fafdd8382939541ecd9d191da945bf8c18919c3a"
     },
     {
       "path": "scripts/check-series-f-music-runtime.mjs",
