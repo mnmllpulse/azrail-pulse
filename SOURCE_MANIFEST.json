@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T00:26:49.643Z",
+  "generated_at": "2026-11-25T00:41:44.690Z",
   "excludes_self": true,
-  "file_count": 1377,
+  "file_count": 1379,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3802,8 +3802,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 80826,
-      "sha256": "aad02e34efcbc22b193b0162d3b3b892bdff4c4ff2a9875ac4f0fb12925eef5e"
+      "bytes": 81064,
+      "sha256": "00b71f6e91b934ac53f0404b324218f9b771d718314380242503f26399e3a150"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -3914,6 +3914,11 @@
       "path": "src/lib/chat-context.ts",
       "bytes": 5929,
       "sha256": "1c03c31b3e233aeb6c495cac662296858ef6f4e0d7c2e8c4a86880b8ebf5c5c8"
+    },
+    {
+      "path": "src/lib/chat-recall.ts",
+      "bytes": 5169,
+      "sha256": "c5396b56829b7c3c3b2118b276a3a0db053eabf9841e6be9d19c9cdd492a7bf4"
     },
     {
       "path": "src/lib/chat-store.ts",
@@ -4884,6 +4889,11 @@
       "path": "tests/chat-no-fabrication.test.ts",
       "bytes": 2249,
       "sha256": "099997dd547030b6a178187d959f3e7cc5df4494b8a721a875f38a0c9edf24a0"
+    },
+    {
+      "path": "tests/chat-recall.test.ts",
+      "bytes": 3737,
+      "sha256": "1dfaf8b46616f45467b7c4534f2799e6b8f17739dbcd3695fb6bc462be82c47a"
     },
     {
       "path": "tests/chat-recency.test.ts",
