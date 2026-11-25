@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T06:17:27.758Z",
+  "generated_at": "2026-11-25T06:32:18.348Z",
   "excludes_self": true,
   "file_count": 1385,
   "files": [
@@ -3902,8 +3902,8 @@
     },
     {
       "path": "src/lib/browser-read.ts",
-      "bytes": 8705,
-      "sha256": "0f171379363ba62dd1f74b1f4043d5e915bd7b08a5fad15107ea0b7b433b610f"
+      "bytes": 9203,
+      "sha256": "fe39efd286bc4d7cfeec73439408353e0266eea8be051df2fd5ba746fb8cd71a"
     },
     {
       "path": "src/lib/calc.ts",
@@ -4842,8 +4842,8 @@
     },
     {
       "path": "tests/browser-read.test.ts",
-      "bytes": 10461,
-      "sha256": "ad6118014a60dbd68dafd85d54f965ca43638bf47725a01a0655d91da2efdc21"
+      "bytes": 10814,
+      "sha256": "9243b818a8f840e90514d653c44676d8a77f4d05de9032bbee962d1b1c5c2d40"
     },
     {
       "path": "tests/calc.test.ts",
