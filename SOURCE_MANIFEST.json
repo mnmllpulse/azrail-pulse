@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T00:12:20.110Z",
+  "generated_at": "2026-11-25T00:26:49.643Z",
   "excludes_self": true,
-  "file_count": 1375,
+  "file_count": 1377,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -3802,8 +3802,8 @@
     },
     {
       "path": "src/index.ts",
-      "bytes": 83353,
-      "sha256": "90aaa494d2051e783ce7340b9c50e5e485d53b8eeec0262de483a5b85db5288b"
+      "bytes": 80826,
+      "sha256": "aad02e34efcbc22b193b0162d3b3b892bdff4c4ff2a9875ac4f0fb12925eef5e"
     },
     {
       "path": "src/lib/ableton-lab.ts",
@@ -4416,6 +4416,11 @@
       "sha256": "53881dfaf03a980c955c3f2fe15b9f862ff127478215392d7cdfcdbe92e6704f"
     },
     {
+      "path": "src/routes/conversations.ts",
+      "bytes": 3625,
+      "sha256": "f2fdc0de310a15075cf2324fa6293ac2a1fcaa75e74b428618d61360cb2100b4"
+    },
+    {
       "path": "src/routes/health.ts",
       "bytes": 1820,
       "sha256": "ba632840717821ff484bbefb65d531e0131d647d08cd00ed7cba3348750a2aeb"
@@ -4949,6 +4954,11 @@
       "path": "tests/conversational-workspace.test.ts",
       "bytes": 15134,
       "sha256": "98fdd3dc0e002bedbe5d6d689c29f5697b3aaf28e03ab69ff0b9f01eca2debdd"
+    },
+    {
+      "path": "tests/conversations-route.test.ts",
+      "bytes": 1139,
+      "sha256": "53cc21aff14c117bc78ba3b34eed5fa95d61d8f2d4daea938c4bf2113ea13f91"
     },
     {
       "path": "tests/cost-protection.test.ts",
@@ -5512,8 +5522,8 @@
     },
     {
       "path": "tests/regressions.test.ts",
-      "bytes": 197371,
-      "sha256": "35473f9402a80ff0acd4a336eb486bae7c39da65c1798f55da3dbf2a5a761d58"
+      "bytes": 197485,
+      "sha256": "b27716ea30b7dc46f32efd992821b8ed8f042099f703a90176a001e9f4073863"
     },
     {
       "path": "tests/replan.test.ts",
