@@ -1,7 +1,7 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T11:13:15.286Z",
+  "generated_at": "2026-11-25T11:28:24.080Z",
   "excludes_self": true,
   "file_count": 1387,
   "files": [
@@ -132,8 +132,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 14501,
-      "sha256": "55ec5f96917933d6a44cf1cec0f10ef06dc8aadab76c864b0d25aa45526ea77c"
+      "bytes": 14655,
+      "sha256": "e0aa0579b87296dfb07ca053e7f1b4d78af7550cfffb53504999f39bea856a76"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -3112,8 +3112,8 @@
     },
     {
       "path": "scripts/local-agent/azrail-agent.mjs",
-      "bytes": 13129,
-      "sha256": "02ec5d7cb9fb9ff80ac1964eef2f7024245e2b86181b03d6ee3cddc81c6ec707"
+      "bytes": 13932,
+      "sha256": "f339eb75e00733bce6264f9a550036f9dc2acfe6a00a7bc957464831adbca0ec"
     },
     {
       "path": "scripts/local-contrast.mjs",
@@ -4682,8 +4682,8 @@
     },
     {
       "path": "tests/agent-web.test.ts",
-      "bytes": 8146,
-      "sha256": "b373efd41cd74987ece62f2ab39f8b6b85f708a6d33f7802adb035809840e4ef"
+      "bytes": 9608,
+      "sha256": "f8df7798daf1fb01b93bad5c4fc83e743df004df0e42a52e3d0e476cb8222ea7"
     },
     {
       "path": "tests/als-music-parser.test.ts",

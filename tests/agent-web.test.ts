@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { browserProfileDir, isPublicUrl, readWeb } from "../scripts/local-agent/azrail-agent.mjs";
+import { browserLogin, browserProfileDir, findChrome, isPublicUrl, readWeb } from "../scripts/local-agent/azrail-agent.mjs";
 import { AccessError } from "../src/lib/accounts";
 import { createJob, enableAgent, publicJob, type AgentJob, type AgentState, type AgentStore } from "../src/lib/local-agent";
 import { isPublicUrl as serverIsPublic } from "../src/lib/public-url";
@@ -135,5 +135,29 @@ describe("фразы чата", () => {
     const job = { id: "1", kind: "web", path: "https://example.com/", status: "done", result: "Адрес: x", error: null };
     expect(jobReply(job)).toMatch(/^Страница:/);
     expect(jobReply({ ...job, status: "failed", result: null, error: "Не найден playwright" })).toContain("Не найден playwright");
+  });
+});
+
+describe("вход в сайты", () => {
+  it("находит обычный Chrome по платформам", () => {
+    expect(findChrome({ ProgramFiles: "C:\\PF" }, "win32", (p: string) => p.startsWith("C:\\PF"))).toMatch(/Chrome.Application.chrome\.exe$/);
+    expect(findChrome({}, "win32", () => false)).toBeNull();
+    expect(findChrome({}, "linux", (p: string) => p === "/usr/bin/google-chrome")).toBe("/usr/bin/google-chrome");
+  });
+  it("запускает Chrome без управления программой, с профилем агента, и ждёт закрытия", async () => {
+    const calls: Array<{ cmd: string; args: string[] }> = [];
+    const spawner = (cmd: string, args: string[]) => {
+      calls.push({ cmd, args });
+      const handlers: Record<string, () => void> = {};
+      setTimeout(() => handlers.exit?.(), 0);
+      return { once: (event: string, fn: () => void) => void (handlers[event] = fn) };
+    };
+    await browserLogin({ AZRAIL_BROWSER_PROFILE: "/p" }, spawner as never, "/chrome");
+    expect(calls[0].cmd).toBe("/chrome");
+    expect(calls[0].args).toContain("--user-data-dir=/p");
+    expect(calls[0].args.join(" ")).not.toMatch(/remote-debugging|enable-automation/);
+  });
+  it("без Chrome — понятная ошибка", async () => {
+    await expect(browserLogin({}, (() => undefined) as never, null)).rejects.toThrow(/Не найден Google Chrome/);
   });
 });
