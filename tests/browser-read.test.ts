@@ -158,6 +158,8 @@ describe("скриншоты и остаток", () => {
     const text = await browserSupplement(env(), "сделай скриншот https://example.com/", "acc-1");
     expect(saved).toEqual([{ account: "acc-1", name: "screenshot-example.com.jpg", bytes: 1000 }]);
     expect(text).toContain("![скриншот example.com](/api/studio/artifacts/abc-123?inline=1)");
+    expect(text.indexOf("РЕЗУЛЬТАТ СЕРВИСА")).toBeGreaterThan(text.indexOf("СТРАНИЦА"));
+    expect(text.slice(text.indexOf("СТРАНИЦА"), text.indexOf("РЕЗУЛЬТАТ СЕРВИСА"))).not.toContain("![скриншот");
   });
   it("без просьбы о скриншоте картинка не снимается", async () => {
     await browserSupplement(env(), "открой https://example.com/", "acc-1");
