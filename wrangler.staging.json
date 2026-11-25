@@ -49,6 +49,9 @@
   "ai": {
     "binding": "AI"
   },
+  "browser": {
+    "binding": "AZRAIL_BROWSER"
+  },
   "triggers": {
     "crons": [
       "*/10 * * * *"
