@@ -109,7 +109,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
   );
 
   const paint = async () => {
-    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; root?: string | null; roots?: AgentRootView[]; jobs: JobView[] };
+    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; paired?: boolean; deviceOnline?: boolean; root?: string | null; roots?: AgentRootView[]; jobs: JobView[] };
     try {
       state = await api('/api/agent/status');
     } catch {
@@ -132,6 +132,28 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         ? `Включён до ${until}. Агент подключён${agentRoot ? `, папка: ${agentRoot}` : ''}.`
         : `Включён до ${until}. Агент на компьютере ещё не подключился.`;
     nodes.push(el('p', status));
+    const paired = !!state.paired;
+    if (paired) {
+      const forget = el('button', 'Забыть компьютер');
+      forget.type = 'button';
+      forget.onclick = () => void api('/api/agent/pair/forget', { method: 'POST', body: '{}' }).then(() => { notice('Компьютер отвязан, доступ выключен.'); return paint(); }).catch(failure);
+      nodes.push(el('p', state.deviceOnline ? 'Компьютер привязан и на связи.' : 'Компьютер привязан, но не на связи: запусти файл Start-Azrail-Agent.bat из папки azrail-pulse (двойной клик).', 'muted'), forget);
+    } else {
+      const code = el('input');
+      code.placeholder = 'Код из окна на компьютере, например 1234-5678';
+      code.maxLength = 12;
+      code.inputMode = 'numeric';
+      code.setAttribute('aria-label', 'Код привязки компьютера');
+      const confirmCode = el('button', 'Подтвердить компьютер');
+      confirmCode.type = 'button';
+      confirmCode.onclick = () => void api('/api/agent/pair/approve', { method: 'POST', body: JSON.stringify({ code: code.value }) }).then(() => { notice('Компьютер привязан. Теперь достаточно нажимать «Включить на 1 час».'); return paint(); }).catch(failure);
+      nodes.push(
+        el('strong', 'Привязать компьютер один раз'),
+        el('p', '1. В папке azrail-pulse дважды кликни файл Start-Azrail-Agent.bat. 2. В чёрном окне появится код. 3. Введи его здесь и нажми «Подтвердить компьютер». Дальше PowerShell и ключи не нужны.', 'muted'),
+        code,
+        confirmCode,
+      );
+    }
     if (state.enabled && roots.length > 1 && active) {
       const picker = el('select');
       picker.setAttribute('aria-label', 'Активная папка агента');
@@ -155,13 +177,14 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         return;
       }
       void api('/api/agent/enable', { method: 'POST', body: '{}' }).then(async (r: { token: string }) => {
-        token = r.token;
+        token = paired ? null : r.token;
         refreshCommand();
         await paint();
       }).catch(failure);
     };
     nodes.push(toggle);
-    if (state.enabled && !state.connected) {
+    if (state.enabled && !state.connected && paired) nodes.push(el('p', 'Доступ открыт. Жду компьютер: запусти файл Start-Azrail-Agent.bat, если он ещё не работает.', 'context-note'));
+    else if (state.enabled && !state.connected) {
       if (token) nodes.push(setup);
       else nodes.push(el('p', 'Ключ показывается один раз и после обновления страницы недоступен. Нажми «Выключить», затем «Включить на 1 час», чтобы получить новую команду.', 'context-note'));
     }

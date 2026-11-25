@@ -85,9 +85,9 @@ export function agentHint(message: string): string | null {
 }
 
 export const AGENT_OFF = 'Агент на компьютере выключен. Включи его в настройках: «Агент на компьютере» → «Включить на 1 час».';
-export const AGENT_OFFLINE = 'Агент включён, но на компьютере не запущен: сигнала нет больше 15 секунд. Запусти строки из «Настройки → Агент на компьютере» в PowerShell и оставь окно открытым. Если команда уже выполняется, дождись её конца.';
+export const AGENT_OFFLINE = 'Агент включён, но на компьютере не запущен: сигнала нет больше 15 секунд. Дважды кликни Start-Azrail-Agent.bat в папке azrail-pulse (или вставь строки из «Настройки → Агент на компьютере» в PowerShell) и оставь окно открытым. Если команда уже выполняется, дождись её конца.';
 
-export type AgentState = { enabled?: boolean; connected?: boolean };
+export type AgentState = { enabled?: boolean; connected?: boolean; paired?: boolean };
 
 /** Сообщение, почему агент не готов, либо null. Неизвестное значение connected не считается отказом. */
 export function agentGap(state: AgentState): string | null {

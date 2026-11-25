@@ -87,7 +87,18 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
       actions: [
         { label: 'Включить на 1 час', primary: true, run: async () => {
           try {
+            const before = (await api('/api/agent/status')) as AgentState;
             const { token } = (await api('/api/agent/enable', { method: 'POST', body: '{}' })) as { token: string };
+            if (before.paired) {
+              card.update({ title: 'Доступ открыт на 1 час', text: 'Жду компьютер. Если он не запущен, дважды кликни Start-Azrail-Agent.bat в папке azrail-pulse.', actions: [{ label: 'Закрыть', run: () => card.close() }] });
+              for (let i = 0; i < 40; i++) {
+                await sleep(3000);
+                const state = (await api('/api/agent/status')) as AgentState;
+                if (!state.enabled) return;
+                if (state.connected) { card.update({ title: 'Агент подключён', text: 'Теперь повтори свой запрос.', actions: [{ label: 'Хорошо', primary: true, run: () => card.close() }] }); return; }
+              }
+              return;
+            }
             let root = '';
             try { root = localStorage.getItem('pulse.agentRoot') ?? ''; } catch { /* хранилище недоступно */ }
             const command = agentCommand(location.origin, token, root);
