@@ -78,7 +78,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
   let autoOpened = false;
   let token: string | null = null;
   let agentRoot: string | null = null;
-  let known: { enabled: boolean; connected: boolean } | null = null;
+  let known: { enabled: boolean; connected: boolean; roots: string } | null = null;
 
   const setup = el('div', '', 'agent-setup');
   const rootInput = el('input');
@@ -124,7 +124,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
     else saveActiveRoot('');
     agentRoot = active?.path ?? state.root ?? null;
     browser.setRoot(agentRoot);
-    known = { enabled: state.enabled, connected: state.connected };
+    known = { enabled: state.enabled, connected: state.connected, roots: JSON.stringify(roots) };
     const until = new Date(state.expiresAt ?? 0).toLocaleTimeString();
     const status = !state.enabled
       ? 'Выключен.'
@@ -199,14 +199,42 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
           .then(() => { notice('Задача поставлена.'); return paint(); }).catch(failure);
       };
       nodes.push(
-        el('p', 'Папки задаются при запуске агента (одна или несколько через ;). Обзор показывает только их содержимое, выше подняться нельзя. Между запущенными папками можно переключаться без перезапуска; новую папку добавляет только перезапуск агента.', 'muted'),
+        el('p', 'При запуске агент берёт папку, где лежит Start-Azrail-Agent.bat, и добавленные раньше. Обзор показывает только содержимое выданных папок, выше подняться нельзя. Между папками можно переключаться без перезапуска.', 'muted'),
         browser.element,
         kind, path, pathHint, command, content, send,
       );
+      const foldersBox = el('div', '', 'agent-folders');
+      foldersBox.append(el('strong', 'Папки агента'));
+      for (const entry of roots) {
+        const row = el('div', '', 'provider-token');
+        row.append(el('span', `${entry.name} — ${entry.path}`));
+        if (roots.length > 1) {
+          const drop = el('button', 'Убрать');
+          drop.type = 'button';
+          drop.onclick = () => void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: 'droproot', path: entry.name }) }).then(() => { notice(`Папка «${entry.name}» будет убрана.`); return paint(); }).catch(failure);
+          row.append(drop);
+        }
+        foldersBox.append(row);
+      }
+      const preset = el('select');
+      preset.setAttribute('aria-label', 'Какую папку добавить');
+      for (const [value, label] of [['desktop', 'Рабочий стол'], ['documents', 'Документы'], ['downloads', 'Загрузки'], ['custom', 'Другая папка…']]) { const option = el('option', label); option.value = value; preset.append(option); }
+      const custom = el('input');
+      custom.placeholder = 'Полный путь, например C:\\Projects';
+      custom.maxLength = 300;
+      custom.hidden = true;
+      custom.setAttribute('aria-label', 'Путь к папке');
+      preset.onchange = () => { custom.hidden = preset.value !== 'custom'; };
+      const addFolder = el('button', 'Добавить папку');
+      addFolder.type = 'button';
+      addFolder.onclick = () => void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: 'addroot', path: preset.value === 'custom' ? custom.value : preset.value }) }).then(() => { notice('Подтверди ниже: «Разрешить добавить папку».'); return paint(); }).catch(failure);
+      foldersBox.append(preset, custom, addFolder, el('p', 'Корень диска, домашняя папка целиком, системные папки и места с ключами выдать нельзя. Новая папка добавляется после твоего «Разрешить» и без перезапуска агента.', 'muted'));
+      nodes.push(foldersBox);
       if (state.connected && !autoOpened) { autoOpened = true; void browser.open(''); }
       for (const job of state.jobs.filter((item) => !ownJobs.has(item.id))) {
         const row = el('div', '', 'provider-token');
-        row.append(el('strong', `${job.kind} ${job.path || '.'}`), el('small', STATUS[job.status] ?? job.status));
+        const title = job.kind === 'addroot' ? `Добавить папку: ${job.path}` : job.kind === 'droproot' ? `Убрать папку: ${job.path}` : `${job.kind} ${job.path || '.'}`;
+        row.append(el('strong', title), el('small', STATUS[job.status] ?? job.status));
         if (job.error) row.append(el('p', job.error, 'muted'));
         if (job.result) {
           const out = el('textarea');
@@ -218,7 +246,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
           row.append(el('p', 'Пустой вывод: команда выполнена и ничего не напечатала.', 'muted'));
         }
         if (job.status === 'awaiting_approval') {
-          const ok = el('button', job.kind === 'run' ? `Разрешить запуск: ${job.path}` : `Разрешить запись (${job.bytes ?? 0} симв.)`);
+          const ok = el('button', job.kind === 'run' ? `Разрешить запуск: ${job.path}` : job.kind === 'addroot' ? `Разрешить добавить папку: ${job.path}` : `Разрешить запись (${job.bytes ?? 0} симв.)`);
           ok.type = 'button';
           ok.onclick = () => void api(`/api/agent/jobs/${job.id}/approve`, { method: 'POST', body: '{}' }).then(paint).catch(failure);
           const no = el('button', 'Отклонить');
@@ -240,7 +268,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
     if (!root.isConnected) { clearInterval(timer); return; }
     if (!known?.enabled || document.hidden) return;
     void api('/api/agent/status')
-      .then((next: { enabled: boolean; connected: boolean }) => (next.enabled !== known?.enabled || next.connected !== known?.connected ? paint() : undefined))
+      .then((next: { enabled: boolean; connected: boolean; roots?: AgentRootView[] }) => (next.enabled !== known?.enabled || next.connected !== known?.connected || JSON.stringify(next.roots ?? []) !== known?.roots ? paint() : undefined))
       .catch(() => undefined);
   }, 3000);
   return root;
