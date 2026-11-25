@@ -100,3 +100,49 @@ describe("настройки: привязка компьютера", () => {
     expect(section.textContent).toContain("Start-Azrail-Agent.bat");
   });
 });
+
+describe("настройки: папки агента", () => {
+  const enabled = { enabled: true, expiresAt: Date.now() + 3600_000, connected: true, paired: true, deviceOnline: true, root: "C:\\a", roots: [{ name: "a", path: "C:\\a" }, { name: "b", path: "C:\\b" }] };
+
+  it("добавляет пресет и свой путь задачей addroot", async () => {
+    const { section, calls } = mount(enabled);
+    await tick();
+    const select = section.querySelector('select[aria-label="Какую папку добавить"]') as HTMLSelectElement;
+    const custom = section.querySelector('input[aria-label="Путь к папке"]') as HTMLInputElement;
+    expect(custom.hidden).toBe(true);
+    select.value = "desktop";
+    button(section, "Добавить папку")!.click();
+    await tick();
+    expect(calls.find((c) => (c.body as { kind?: string } | undefined)?.kind === "addroot")?.body).toEqual({ kind: "addroot", path: "desktop" });
+    const select2 = section.querySelector('select[aria-label="Какую папку добавить"]') as HTMLSelectElement;
+    const custom2 = section.querySelector('input[aria-label="Путь к папке"]') as HTMLInputElement;
+    select2.value = "custom";
+    select2.dispatchEvent(new win!.Event("change"));
+    expect(custom2.hidden).toBe(false);
+    custom2.value = "C:\\Projects";
+    button(section, "Добавить папку")!.click();
+    await tick();
+    expect(calls.filter((c) => (c.body as { kind?: string } | undefined)?.kind === "addroot").at(-1)?.body).toEqual({ kind: "addroot", path: "C:\\Projects" });
+  });
+
+  it("убирает папку, когда их больше одной; у единственной кнопки нет", async () => {
+    const two = mount(enabled);
+    await tick();
+    const drops = [...two.section.querySelectorAll("button")].filter((b) => b.textContent === "Убрать");
+    expect(drops).toHaveLength(2);
+    drops[1].click();
+    await tick();
+    expect(two.calls.find((c) => (c.body as { kind?: string } | undefined)?.kind === "droproot")?.body).toEqual({ kind: "droproot", path: "b" });
+    win?.close();
+    const one = mount({ ...enabled, roots: [{ name: "a", path: "C:\\a" }] });
+    await tick();
+    expect([...one.section.querySelectorAll("button")].some((b) => b.textContent === "Убрать")).toBe(false);
+  });
+
+  it("задача добавления папки ждёт «Разрешить добавить папку»", async () => {
+    const { section } = mount({ ...enabled, jobs: [{ id: "1", kind: "addroot", path: "desktop", status: "awaiting_approval", result: null, error: null }] });
+    await tick();
+    expect(button(section, "Разрешить добавить папку: desktop")).toBeDefined();
+    expect(section.textContent).toContain("Добавить папку: desktop");
+  });
+});

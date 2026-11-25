@@ -242,6 +242,77 @@ export async function pairWithServer(url, { fetchFn = fetch, sleep = (ms) => new
   throw new Error("Код не подтверждён вовремя. Запусти агента заново.");
 }
 
+const ROOT_LIMIT = 8;
+const DENIED_ROOT_SEGMENT = /^(\.ssh|\.gnupg|\.aws|\.git|node_modules|\.wrangler|appdata|\.azrail.*)$/i;
+const SYSTEM_ROOTS = [/^[a-z]:\/(windows|program files|program files \(x86\)|programdata|\$recycle\.bin|system volume information)(\/|$)/i, /^\/(etc|usr|bin|sbin|lib|lib64|sys|proc|dev|boot|var|system|library|private|applications)(\/|$)/i];
+const unifySlashes = (value) => value.replaceAll("\\", "/").replace(/\/+$/, "") || "/";
+
+export const rootsFile = (env = process.env) => env.AZRAIL_ROOTS_FILE || join(homedir(), ".azrail-roots.json");
+
+/** Можно ли выдать папку агенту: не корень диска, не домашняя папка целиком, не системные и не секретные места. */
+export function rootProblem(real, env = process.env) {
+  const path = unifySlashes(real);
+  if (path === "/" || /^[a-z]:$/i.test(path)) return "Корень диска выдавать нельзя.";
+  if (path.toLowerCase() === unifySlashes(homedir()).toLowerCase()) return "Домашнюю папку целиком выдавать нельзя: выбери вложенную.";
+  if (SYSTEM_ROOTS.some((re) => re.test(path))) return "Системные папки выдавать нельзя.";
+  if (path.split("/").some((part) => DENIED_ROOT_SEGMENT.test(part))) return "Эта папка содержит секретные или служебные данные.";
+  return null;
+}
+
+/** Рабочий стол, документы, загрузки: учитывает перенос в OneDrive. */
+export async function presetFolder(name, env = process.env, home = homedir(), exists = async (path) => stat(path).then((info) => info.isDirectory(), () => false)) {
+  const folder = { desktop: "Desktop", documents: "Documents", downloads: "Downloads" }[name];
+  if (!folder) throw new Error("Неизвестная папка.");
+  const bases = [home, env.OneDrive, env.OneDriveConsumer, env.OneDriveCommercial].filter(Boolean);
+  for (const base of bases) {
+    const candidate = join(base, folder);
+    if (await exists(candidate)) return candidate;
+  }
+  throw new Error(`Не нашёл папку «${folder}» на компьютере.`);
+}
+
+async function saveExtraRoots(roots, initial, env) {
+  const extra = roots.map((entry) => entry.path).filter((path) => !initial.has(path));
+  await writeFile(rootsFile(env), JSON.stringify(extra), { encoding: "utf8", mode: 0o600 });
+}
+
+/** Добавляет папку по просьбе владельца (после его «Разрешить»). Живой список `roots` меняется на месте. */
+export async function addRoot(roots, spec, env = process.env, initial = new Set()) {
+  if (roots.length >= ROOT_LIMIT) throw new Error(`Больше ${ROOT_LIMIT} папок нельзя.`);
+  const raw = ["desktop", "documents", "downloads"].includes(spec) ? await presetFolder(spec, env) : spec.startsWith("~") ? join(homedir(), spec.slice(2)) : spec;
+  const real = await realpath(raw).catch(() => { throw new Error("Такой папки нет на компьютере."); });
+  if (!(await stat(real)).isDirectory()) throw new Error("Это не папка.");
+  const problem = rootProblem(real, env);
+  if (problem) throw new Error(problem);
+  if (roots.some((entry) => entry.path === real)) throw new Error("Эта папка уже добавлена.");
+  const base = (basename(real) || "диск").slice(0, 36);
+  const used = new Set(roots.map((entry) => entry.name));
+  let name = base;
+  for (let n = 2; used.has(name); n += 1) name = `${base}-${n}`;
+  roots.push({ name, path: real });
+  await saveExtraRoots(roots, initial, env);
+  return `Папка добавлена: ${name} — ${real}`;
+}
+
+export async function dropRoot(roots, name, env = process.env, initial = new Set()) {
+  const index = roots.findIndex((entry) => entry.name === name);
+  if (index < 0) throw new Error("Такой папки у агента нет.");
+  if (roots.length < 2) throw new Error("Последнюю папку убрать нельзя.");
+  const [gone] = roots.splice(index, 1);
+  await saveExtraRoots(roots, initial, env);
+  return `Папка убрана: ${gone.name}`;
+}
+
+/** Папки, добавленные раньше через интерфейс: возвращаются после перезапуска, плохие пропускаются. */
+export async function loadExtraRoots(roots, env = process.env, initial = new Set(roots.map((entry) => entry.path))) {
+  let saved = [];
+  try { saved = JSON.parse(await readFile(rootsFile(env), "utf8")); } catch { return; }
+  for (const item of Array.isArray(saved) ? saved.slice(0, ROOT_LIMIT) : []) {
+    if (typeof item !== "string") continue;
+    await addRoot(roots, item, env, initial).catch(() => undefined);
+  }
+}
+
 /** Откуда взять ключ: переменные окружения (старый способ) или сохранённая привязка; иначе новая привязка. */
 export async function resolveCredentials(env, deps = {}) {
   if (env.AZRAIL_AGENT_TOKEN) return { url: env.AZRAIL_URL?.replace(/\/$/, ""), token: env.AZRAIL_AGENT_TOKEN, device: false };
@@ -256,13 +327,15 @@ export async function resolveCredentials(env, deps = {}) {
   return { url, token, device: true };
 }
 
-async function runAgent({ url, token, device }, roots) {
-  const headers = { Authorization: `Bearer ${token}`, "Content-Type": "application/json", "X-Agent-Root": encodeURIComponent(roots[0].path), "X-Agent-Roots": encodeURIComponent(JSON.stringify(roots)) };
+async function runAgent({ url, token, device }, roots, initial) {
+  const makeHeaders = () => ({ Authorization: `Bearer ${token}`, "Content-Type": "application/json", "X-Agent-Root": encodeURIComponent(roots[0].path), "X-Agent-Roots": encodeURIComponent(JSON.stringify(roots)) });
+  let headers = makeHeaders();
   console.log(`AZRAIL agent: ${roots.length === 1 ? "папка" : "папки"} ${roots.map((entry) => `${entry.name} = ${entry.path}`).join("; ")}. Остановка: Ctrl+C.`);
   let hotUntil = 0;
   let waiting = false;
   for (;;) {
     try {
+      headers = makeHeaders();
       const res = await fetch(`${url}/api/agent/poll`, { headers });
       if (res.status === 401) {
         if (device) {
@@ -282,6 +355,8 @@ async function runAgent({ url, token, device }, roots) {
         let body;
         try {
           if (job.kind === "web") body = { ok: true, output: await readWeb(job.path) };
+          else if (job.kind === "addroot") body = { ok: true, output: await addRoot(roots, job.path, process.env, initial) };
+          else if (job.kind === "droproot") body = { ok: true, output: await dropRoot(roots, job.path, process.env, initial) };
           else {
             const root = pickRoot(roots, job.root).path;
             body = job.kind === "run" ? await runCommand(root, job.path) : { ok: true, output: await runJob(root, job) };
@@ -307,6 +382,8 @@ async function main() {
     return;
   }
   const roots = await resolveRoots(process.env, process.cwd());
+  const initial = new Set(roots.map((entry) => entry.path));
+  await loadExtraRoots(roots, process.env, initial);
   for (;;) {
     let creds;
     try {
@@ -319,7 +396,7 @@ async function main() {
       console.error("Нужен AZRAIL_URL (адрес AZRAIL) для первой привязки компьютера.");
       process.exit(2);
     }
-    if ((await runAgent(creds, roots)) !== "repair") return;
+    if ((await runAgent(creds, roots, initial)) !== "repair") return;
   }
 }
 

@@ -1,7 +1,9 @@
 import { AccessError } from "./accounts";
 import { checkPublicUrl, PublicUrlError } from "./public-url";
 
-export type AgentJobKind = "list" | "read" | "write" | "run" | "web";
+export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot";
+
+export const AGENT_ROOT_PRESETS = ["desktop", "documents", "downloads"] as const;
 export type AgentJobStatus = "awaiting_approval" | "queued" | "running" | "done" | "failed" | "rejected" | "expired";
 
 export interface AgentRoot {
@@ -136,7 +138,7 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
   const state = await store.getState();
   if (!state || state.expiresAt <= now) throw new AccessError("Агент выключен. Включи его, чтобы ставить задачи.", 409);
   const kind = input.kind;
-  if (kind !== "list" && kind !== "read" && kind !== "write" && kind !== "run" && kind !== "web") throw new AccessError("Допустимые действия: list, read, write, run, web.", 400);
+  if (kind !== "list" && kind !== "read" && kind !== "write" && kind !== "run" && kind !== "web" && kind !== "addroot" && kind !== "droproot") throw new AccessError("Допустимые действия: list, read, write, run, web, addroot, droproot.", 400);
   let path: string;
   if (kind === "web") {
     if (typeof input.path !== "string" || input.path.length > 2000) throw new AccessError("Укажи адрес страницы.", 400);
@@ -145,12 +147,23 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     } catch (error) {
       throw new AccessError(error instanceof PublicUrlError ? error.message : "Адрес страницы не распознан.", 400);
     }
+  } else if (kind === "addroot") {
+    const value = typeof input.path === "string" ? input.path.trim() : "";
+    const preset = (AGENT_ROOT_PRESETS as readonly string[]).includes(value);
+    if (!preset && (value.length < 3 || value.length > 300 || /[\0-\x1f]/.test(value) || !/^([a-z]:[\\/]|\/|~[\\/])/i.test(value))) throw new AccessError("Укажи рабочий стол, документы, загрузки или полный путь к папке, например C:\\Projects.", 400);
+    path = value;
+  } else if (kind === "droproot") {
+    const known = agentRoots(state);
+    const name = typeof input.path === "string" ? input.path.trim() : "";
+    if (!known.some((entry) => entry.name === name)) throw new AccessError("Такой папки у агента нет.", 400);
+    if (known.length < 2) throw new AccessError("Последнюю папку убрать нельзя.", 400);
+    path = name;
   } else if (kind === "run") {
     if (typeof input.path !== "string" || !Object.hasOwn(AGENT_COMMANDS, input.path)) throw new AccessError(`Команда не из белого списка. Доступны: ${Object.keys(AGENT_COMMANDS).join(", ")}.`, 400);
     path = input.path;
   } else path = safeAgentPath(input.path, kind === "list");
   let root: string | null = null;
-  if (input.root !== undefined && input.root !== null && input.root !== "") {
+  if (kind !== "addroot" && kind !== "droproot" && input.root !== undefined && input.root !== null && input.root !== "") {
     if (typeof input.root !== "string") throw new AccessError("Имя папки должно быть строкой.", 400);
     const known = agentRoots(state);
     if (!known.length) throw new AccessError("Агент ещё не сообщил свои папки. Запусти его и повтори.", 409);
@@ -169,7 +182,7 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     root,
     path,
     content,
-    status: kind === "write" || kind === "run" ? "awaiting_approval" : "queued",
+    status: kind === "write" || kind === "run" || kind === "addroot" ? "awaiting_approval" : "queued",
     result: null,
     error: null,
     createdAt: now,
