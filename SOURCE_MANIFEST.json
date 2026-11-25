@@ -1,9 +1,9 @@
 {
   "release": "1.5.0-rc.63",
   "algorithm": "sha256",
-  "generated_at": "2026-11-25T11:28:24.080Z",
+  "generated_at": "2026-11-25T12:26:45.804Z",
   "excludes_self": true,
-  "file_count": 1387,
+  "file_count": 1390,
   "files": [
     {
       "path": ".cursor/mcp.json",
@@ -132,8 +132,8 @@
     },
     {
       "path": "docs/LOCAL_AGENT.md",
-      "bytes": 14655,
-      "sha256": "e0aa0579b87296dfb07ca053e7f1b4d78af7550cfffb53504999f39bea856a76"
+      "bytes": 16036,
+      "sha256": "fc763e5bd9f0258b7051bf4d37cbd217728b43919f22e043e0d65febef8958c2"
     },
     {
       "path": "docs/NEURON_BUDGET.md",
@@ -3112,8 +3112,8 @@
     },
     {
       "path": "scripts/local-agent/azrail-agent.mjs",
-      "bytes": 13932,
-      "sha256": "f339eb75e00733bce6264f9a550036f9dc2acfe6a00a7bc957464831adbca0ec"
+      "bytes": 17814,
+      "sha256": "f88efc186281c4a8dd10746883b91411bf9ebd06070348af676c4f65c3f47283"
     },
     {
       "path": "scripts/local-contrast.mjs",
@@ -3631,6 +3631,11 @@
       "sha256": "212e93c246f4f36b4d8f6687fb3961fc34605e25b384a18dd5f843ae21ff5295"
     },
     {
+      "path": "src/agents/orchestrator-agent-store.ts",
+      "bytes": 7334,
+      "sha256": "1f6d18e4ff09d2bb7fdef7b6b7c5a7527450405eb33241d8f821c9279ab66489"
+    },
+    {
       "path": "src/agents/orchestrator-capabilities.ts",
       "bytes": 4785,
       "sha256": "1dec50b85a60b20bd97c53ebae18eff4e35e3cb7a2618f3035cebe19cdf8ed59"
@@ -3652,8 +3657,8 @@
     },
     {
       "path": "src/agents/orchestrator.ts",
-      "bytes": 31186,
-      "sha256": "76a00197e8a26fc2d6951cc3af40d7285ba12fb3ca6b8fb154e30c597e2bf6e9"
+      "bytes": 27064,
+      "sha256": "5dc9bc6971bbbc75e83ed2fac29a77b692bd9783a23b7dff81c5c20f617c6864"
     },
     {
       "path": "src/agents/qa-agent.ts",
@@ -3814,6 +3819,11 @@
       "path": "src/lib/accounts.ts",
       "bytes": 8541,
       "sha256": "be57fba13ea20a3f160cb62de4d759ca34a3024fbe16ed40b4bb643d298a2d6f"
+    },
+    {
+      "path": "src/lib/agent-device.ts",
+      "bytes": 7296,
+      "sha256": "9c487f600ec01b65fb89ce8b18def6a7e4c3e9c2a3a9ca36e7123764ecb9f6a8"
     },
     {
       "path": "src/lib/agent-registry.ts",
@@ -4547,8 +4557,8 @@
     },
     {
       "path": "src/unified/local-agent.ts",
-      "bytes": 4275,
-      "sha256": "8a1f07e9416ede625e2ed32d201a3361239bafb34ebb2b705d4697913543e439"
+      "bytes": 5990,
+      "sha256": "99ef937900711dfc1602e935b751f5f0b6444e0b7129fde861da4522804d101d"
     },
     {
       "path": "src/unified/mcp-client.ts",
@@ -4659,6 +4669,11 @@
       "path": "tests/agent-browser.test.ts",
       "bytes": 17048,
       "sha256": "5c08f8fc874848f6cfd1694b66bed453951ce8779bb21b2058cd8a0125124e02"
+    },
+    {
+      "path": "tests/agent-device.test.ts",
+      "bytes": 11810,
+      "sha256": "838741722a1b462f96571198b01891b617b6b8a2e23c111997e54c4290aca1c8"
     },
     {
       "path": "tests/agent-multi-root.test.ts",
@@ -5572,8 +5587,8 @@
     },
     {
       "path": "tests/regressions.test.ts",
-      "bytes": 197485,
-      "sha256": "b27716ea30b7dc46f32efd992821b8ed8f042099f703a90176a001e9f4073863"
+      "bytes": 197564,
+      "sha256": "240a74696a6127713cfeeac0fa65b55eeefa28d5d7360b5e2cbdcee4734870fa"
     },
     {
       "path": "tests/replan.test.ts",

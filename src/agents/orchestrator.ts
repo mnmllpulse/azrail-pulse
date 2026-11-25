@@ -3,6 +3,7 @@ import { isEffortLevel } from "../lib/answer-depth";
 import { withBillingScope, projectBillingScope } from "../lib/billing-context";
 import { withProjectLock } from "../lib/project-control";
 import { activeAccount, requireResource } from "../lib/accounts";
+import { agentStoreOp, ensureAgentSchema, type SqlTag } from "./orchestrator-agent-store";
 import { checkRateLimit } from "../lib/auth";
 import { Agent } from "agents";
 import { log } from "../lib/resilience";
@@ -215,64 +216,14 @@ export class Orchestrator extends Agent<Env, OrchestratorState> {
    */
   private agentSchemaReady = false;
 
-  /**
-   * Очередь локального агента: хранится в SQLite этого объекта (экземпляр
-   * "local-agent"), без миграций D1. Задачи недолговечны по замыслу.
-   */
+  /** Очередь локального агента и привязка компьютера: см. orchestrator-agent-store.ts. */
   async agentStore(op: string, arg?: unknown): Promise<unknown> {
+    const sql = this.sql.bind(this) as SqlTag;
     if (!this.agentSchemaReady) {
-      this.sql`CREATE TABLE IF NOT EXISTS agent_state (id INTEGER PRIMARY KEY CHECK (id=1), token_hash TEXT NOT NULL, expires_at INTEGER NOT NULL, last_seen INTEGER, root TEXT)`;
-      try { this.sql`ALTER TABLE agent_state ADD COLUMN root TEXT`; } catch { /* колонка уже есть */ }
-      try { this.sql`ALTER TABLE agent_state ADD COLUMN roots TEXT`; } catch { /* колонка уже есть */ }
-      this.sql`CREATE TABLE IF NOT EXISTS agent_jobs (id TEXT PRIMARY KEY, kind TEXT NOT NULL, path TEXT NOT NULL, content TEXT, status TEXT NOT NULL, result TEXT, error TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)`;
-      try { this.sql`ALTER TABLE agent_jobs ADD COLUMN root TEXT`; } catch { /* колонка уже есть */ }
+      ensureAgentSchema(sql);
       this.agentSchemaReady = true;
     }
-    type Row = { id: string; kind: string; path: string; content: string | null; status: string; result: string | null; error: string | null; created_at: number; updated_at: number; root?: string | null };
-    const job = (r: Row) => ({ id: r.id, root: r.root ?? null, kind: r.kind, path: r.path, content: r.content, status: r.status, result: r.result, error: r.error, createdAt: r.created_at, updatedAt: r.updated_at });
-    if (op === "getState") {
-      const r = this.sql<{ token_hash: string; expires_at: number; last_seen: number | null; root: string | null; roots: string | null }>`SELECT token_hash, expires_at, last_seen, root, roots FROM agent_state WHERE id=1`[0];
-      if (!r) return null;
-      let roots: unknown[] = [];
-      try { roots = r.roots ? JSON.parse(r.roots) : []; } catch { /* повреждённое значение игнорируется */ }
-      return { tokenHash: r.token_hash, expiresAt: r.expires_at, lastSeen: r.last_seen, root: r.root, roots };
-    }
-    if (op === "setState") {
-      const s = arg as { tokenHash: string; expiresAt: number; lastSeen: number | null; root?: string | null; roots?: unknown[] } | null;
-      if (!s) {
-        this.sql`DELETE FROM agent_state`;
-        this.sql`DELETE FROM agent_jobs`;
-      } else {
-        this.sql`INSERT INTO agent_state (id, token_hash, expires_at, last_seen, root, roots) VALUES (1, ${s.tokenHash}, ${s.expiresAt}, ${s.lastSeen}, ${s.root ?? null}, ${JSON.stringify(s.roots ?? [])}) ON CONFLICT(id) DO UPDATE SET token_hash=excluded.token_hash, expires_at=excluded.expires_at, last_seen=excluded.last_seen, root=excluded.root, roots=excluded.roots`;
-      }
-      return null;
-    }
-    if (op === "insertJob") {
-      const j = arg as ReturnType<typeof job>;
-      this.sql`INSERT INTO agent_jobs (id, kind, path, content, status, result, error, created_at, updated_at, root) VALUES (${j.id}, ${j.kind}, ${j.path}, ${j.content}, ${j.status}, ${j.result}, ${j.error}, ${j.createdAt}, ${j.updatedAt}, ${j.root ?? null})`;
-      return null;
-    }
-    if (op === "getJob") {
-      const r = this.sql<Row>`SELECT * FROM agent_jobs WHERE id=${String(arg)}`[0];
-      return r ? job(r) : null;
-    }
-    if (op === "updateJob") {
-      const { id, patch } = arg as { id: string; patch: { status?: string; result?: string | null; error?: string | null; updatedAt?: number } };
-      const cur = this.sql<Row>`SELECT * FROM agent_jobs WHERE id=${id}`[0];
-      if (!cur) return null;
-      this.sql`UPDATE agent_jobs SET status=${patch.status ?? cur.status}, result=${patch.result === undefined ? cur.result : patch.result}, error=${patch.error === undefined ? cur.error : patch.error}, updated_at=${patch.updatedAt ?? cur.updated_at} WHERE id=${id}`;
-      return null;
-    }
-    if (op === "claimQueued") {
-      const since = Number(arg);
-      this.sql`UPDATE agent_jobs SET status='expired' WHERE status IN ('queued','awaiting_approval') AND created_at < ${since}`;
-      const r = this.sql<Row>`SELECT * FROM agent_jobs WHERE status='queued' ORDER BY created_at LIMIT 1`[0];
-      if (!r) return null;
-      this.sql`UPDATE agent_jobs SET status='running', updated_at=${Date.now()} WHERE id=${r.id}`;
-      return job(r);
-    }
-    if (op === "recentJobs") return this.sql<Row>`SELECT * FROM agent_jobs ORDER BY created_at DESC LIMIT ${Number(arg) || 10}`.map(job);
-    throw new Error(`Неизвестная операция очереди: ${op}`);
+    return agentStoreOp(sql, op, arg);
   }
 
   async selfTest(): Promise<OrchestratorSelfTestResult> {

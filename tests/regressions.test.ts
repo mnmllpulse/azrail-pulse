@@ -1406,11 +1406,12 @@ describe("SQL совпадает со схемой", () => {
 
   // Внутренняя таблица Durable Object: живёт в его собственном SQLite и в
   // schema.sql отсутствовать ДОЛЖНА — это не общая база.
-  const doLocal = new Set(["local_tasks", "agent_state", "agent_jobs"]);
+  const doLocal = new Set(["local_tasks", "agent_state", "agent_jobs", "agent_device", "agent_pairing"]);
 
   const files = [
     "src/index.ts",
     "src/agents/orchestrator.ts",
+    "src/agents/orchestrator-agent-store.ts",
     "src/core/execution-engine.ts",
     "src/lib/chat-store.ts",
     "src/lib/event-store.ts",
