@@ -119,6 +119,11 @@ export async function executeLocalTool(tool: ToolName, input: Record<string, unk
         : tool === "local_shell" ? await create(store, input, "shell", text(input.command, 1000))
         : tool === "local_trash" ? await create(store, input, "trash", path)
         : await create(store, input, "addroot", path);
+      if (job.status === "queued") {
+        const done = await waitFor(store, job.id, { ...deps, waitMs: 50_000 });
+        if (!TERMINAL.has(done.status)) return { id: done.id, status: done.status, trusted: true, note: "Выполняется по режиму доверия. Прочитай результат позже через local_status.", trust: TRUST };
+        return { ...view(done), trusted: true };
+      }
       return {
         id: job.id,
         status: "prepared",

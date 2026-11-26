@@ -9,6 +9,7 @@ export function ensureAgentSchema(sql: SqlTag): void {
   sql`CREATE TABLE IF NOT EXISTS agent_state (id INTEGER PRIMARY KEY CHECK (id=1), token_hash TEXT NOT NULL, expires_at INTEGER NOT NULL, last_seen INTEGER, root TEXT)`;
   try { sql`ALTER TABLE agent_state ADD COLUMN root TEXT`; } catch { /* колонка уже есть */ }
   try { sql`ALTER TABLE agent_state ADD COLUMN roots TEXT`; } catch { /* колонка уже есть */ }
+  try { sql`ALTER TABLE agent_state ADD COLUMN trust TEXT`; } catch { /* колонка уже есть */ }
   sql`CREATE TABLE IF NOT EXISTS agent_jobs (id TEXT PRIMARY KEY, kind TEXT NOT NULL, path TEXT NOT NULL, content TEXT, status TEXT NOT NULL, result TEXT, error TEXT, created_at INTEGER NOT NULL, updated_at INTEGER NOT NULL)`;
   try { sql`ALTER TABLE agent_jobs ADD COLUMN root TEXT`; } catch { /* колонка уже есть */ }
   sql`CREATE TABLE IF NOT EXISTS agent_device (id INTEGER PRIMARY KEY CHECK (id=1), token_hash TEXT NOT NULL, paired_at INTEGER NOT NULL, last_seen INTEGER, root TEXT, roots TEXT)`;
@@ -19,19 +20,21 @@ export function agentStoreOp(sql: SqlTag, op: string, arg?: unknown): unknown {
   type Row = { id: string; kind: string; path: string; content: string | null; status: string; result: string | null; error: string | null; created_at: number; updated_at: number; root?: string | null };
   const job = (r: Row) => ({ id: r.id, root: r.root ?? null, kind: r.kind, path: r.path, content: r.content, status: r.status, result: r.result, error: r.error, createdAt: r.created_at, updatedAt: r.updated_at });
   if (op === "getState") {
-    const r = sql<{ token_hash: string; expires_at: number; last_seen: number | null; root: string | null; roots: string | null }>`SELECT token_hash, expires_at, last_seen, root, roots FROM agent_state WHERE id=1`[0];
+    const r = sql<{ token_hash: string; expires_at: number; last_seen: number | null; root: string | null; roots: string | null; trust: string | null }>`SELECT token_hash, expires_at, last_seen, root, roots, trust FROM agent_state WHERE id=1`[0];
     if (!r) return null;
     let roots: unknown[] = [];
     try { roots = r.roots ? JSON.parse(r.roots) : []; } catch { /* повреждённое значение игнорируется */ }
-    return { tokenHash: r.token_hash, expiresAt: r.expires_at, lastSeen: r.last_seen, root: r.root, roots };
+    let trust: unknown = null;
+    try { trust = r.trust ? JSON.parse(r.trust) : null; } catch { /* повреждённое значение игнорируется */ }
+    return { tokenHash: r.token_hash, expiresAt: r.expires_at, lastSeen: r.last_seen, root: r.root, roots, trust };
   }
   if (op === "setState") {
-    const s = arg as { tokenHash: string; expiresAt: number; lastSeen: number | null; root?: string | null; roots?: unknown[] } | null;
+    const s = arg as { tokenHash: string; expiresAt: number; lastSeen: number | null; root?: string | null; roots?: unknown[]; trust?: unknown } | null;
     if (!s) {
       sql`DELETE FROM agent_state`;
       sql`DELETE FROM agent_jobs`;
     } else {
-      sql`INSERT INTO agent_state (id, token_hash, expires_at, last_seen, root, roots) VALUES (1, ${s.tokenHash}, ${s.expiresAt}, ${s.lastSeen}, ${s.root ?? null}, ${JSON.stringify(s.roots ?? [])}) ON CONFLICT(id) DO UPDATE SET token_hash=excluded.token_hash, expires_at=excluded.expires_at, last_seen=excluded.last_seen, root=excluded.root, roots=excluded.roots`;
+      sql`INSERT INTO agent_state (id, token_hash, expires_at, last_seen, root, roots, trust) VALUES (1, ${s.tokenHash}, ${s.expiresAt}, ${s.lastSeen}, ${s.root ?? null}, ${JSON.stringify(s.roots ?? [])}, ${s.trust ? JSON.stringify(s.trust) : null}) ON CONFLICT(id) DO UPDATE SET token_hash=excluded.token_hash, expires_at=excluded.expires_at, last_seen=excluded.last_seen, root=excluded.root, roots=excluded.roots, trust=excluded.trust`;
     }
     return null;
   }
