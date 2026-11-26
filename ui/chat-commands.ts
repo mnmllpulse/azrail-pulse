@@ -1,4 +1,4 @@
-import { agentGap, agentHint, agentIntent, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView, type AgentState } from './chat-agent';
+import { agentGap, agentHint, agentIntent, computerTask, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView, type AgentState } from './chat-agent';
 import { activeRootField } from './agent-roots';
 import { agentCommand } from './agent-paths';
 import type { CardHandle, CardSpec } from './approval-card';
@@ -22,6 +22,8 @@ export type ChatCommandContext = {
   labelOf: (slug: string) => string;
   /** Карточка разрешения над полем ввода. */
   showCard: (spec: CardSpec) => CardHandle;
+  /** Запускает миссию с инструментами (в том числе агента на компьютере). */
+  startMission?: (goal: string) => Promise<void>;
 };
 
 const FIX_RESTORE_KEY = 'azrail.fixRestore.v1';
@@ -196,6 +198,14 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
         if (made.status === 'awaiting_approval') { agentWaiting = made.id; noteLocal(message, approvalText(made)); askApproval(made); return true; }
         noteLocal(message, jobReply(await waitJob(api, made.id, sleep, forAgent.kind === 'web' ? 40 : 20)));
       } catch (error) { failed(message, error, 'Агент недоступен.'); }
+      return true;
+    }
+    if (ctx.startMission && computerTask(message)) {
+      try {
+        const state = (await api('/api/agent/status')) as AgentState;
+        if (!state.paired) { noteLocal(message, 'Компьютер ещё не привязан. Один раз: Настройки → Локальный агент → «Подтвердить компьютер» (код покажет Start-Azrail-Agent.bat).'); return true; }
+        await ctx.startMission(message);
+      } catch (error) { failed(message, error, 'Не удалось запустить задачу на компьютере.'); }
       return true;
     }
     const hint = agentHint(message);
