@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 import { execFile, spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { mkdir, readdir, readFile, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
-import { basename, dirname, resolve, sep, join } from "node:path";
+import { cp, lstat, mkdir, readdir, readFile, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
+import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 
@@ -152,7 +152,107 @@ export async function runJob(root, job) {
     await rename(temp, file);
     return `Записано ${job.content.length} символов в ${job.path}`;
   }
+  if (job.kind === "search") return await searchFiles(root, job.path, job.content);
+  if (job.kind === "edit") return await editFile(root, job.path, job.content);
+  if (job.kind === "mkdir") {
+    await mkdir(await resolveInside(root, job.path), { recursive: true });
+    return `Папка создана: ${job.path}`;
+  }
+  if (job.kind === "move") {
+    const from = await resolveInside(root, job.path);
+    const to = await resolveInside(root, job.content);
+    await lstat(from);
+    if (await lstat(to).then(() => true, () => false)) throw new Error("Назначение уже существует.");
+    await mkdir(dirname(to), { recursive: true });
+    await rename(from, to);
+    return `Перемещено: ${job.path} → ${job.content}`;
+  }
+  if (job.kind === "trash") return await trashPath(root, job.path);
   throw new Error(`Неизвестное действие: ${job.kind}`);
+}
+
+const SEARCH_SKIP = /(^|\/)(\.git|node_modules|\.wrangler|\.azrail-trash|dist|build)(\/|$)/;
+const MAX_SEARCH_FILES = 5000;
+const MAX_HITS = 100;
+
+/** Ищет по имени файла и по тексту (без регистра). Секреты и служебные каталоги пропускаются. */
+export async function searchFiles(root, start, query) {
+  const base = start ? await resolveInside(root, start) : await realpath(root);
+  const top = await realpath(root);
+  const needle = String(query).toLowerCase();
+  const hits = [];
+  let scanned = 0;
+  const walk = async (dir) => {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      if (hits.length >= MAX_HITS || scanned >= MAX_SEARCH_FILES) return;
+      const full = join(dir, entry.name);
+      const rel = relative(top, full).replaceAll("\\", "/");
+      if (isDenied(rel) || SEARCH_SKIP.test(rel) || entry.isSymbolicLink()) continue;
+      if (entry.isDirectory()) {
+        if (entry.name.toLowerCase().includes(needle)) hits.push(`${rel}/`);
+        await walk(full);
+        continue;
+      }
+      if (!entry.isFile()) continue;
+      scanned++;
+      if (entry.name.toLowerCase().includes(needle)) hits.push(rel);
+      const info = await stat(full);
+      if (info.size > 1_000_000) continue;
+      const text = await readFile(full, "utf8").catch(() => null);
+      if (text === null || text.includes("\0")) continue;
+      const lines = text.split("\n");
+      for (let i = 0; i < lines.length && hits.length < MAX_HITS; i++) {
+        if (lines[i].toLowerCase().includes(needle)) hits.push(`${rel}:${i + 1}: ${lines[i].trim().slice(0, 160)}`);
+      }
+    }
+  };
+  await walk(base);
+  return hits.length ? hits.join("\n") + (hits.length >= MAX_HITS ? "\n…(показаны первые 100)" : "") : "Ничего не найдено.";
+}
+
+const TRASH = ".azrail-trash";
+
+async function backupToTrash(root, relative, file) {
+  const top = await realpath(root);
+  const stamp = new Date().toISOString().replaceAll(":", "-");
+  const target = join(top, TRASH, stamp, relative);
+  await mkdir(dirname(target), { recursive: true });
+  await cp(file, target, { recursive: true });
+  return relative_(top, target);
+}
+const relative_ = (top, target) => relative(top, target).replaceAll("\\", "/");
+
+/** Заменяет ровно одно вхождение. Перед правкой копия оригинала уходит в .azrail-trash. */
+export async function editFile(root, path, content) {
+  let edit;
+  try {
+    edit = JSON.parse(content);
+  } catch {
+    throw new Error("Правка повреждена.");
+  }
+  if (typeof edit.old !== "string" || !edit.old || typeof edit.new !== "string") throw new Error("Правка повреждена.");
+  const file = await resolveInside(root, path);
+  const info = await stat(file);
+  if (!info.isFile()) throw new Error("Это не файл.");
+  if (info.size > MAX_READ) throw new Error(`Файл больше ${MAX_READ} байт.`);
+  const text = await readFile(file, "utf8");
+  const count = text.split(edit.old).length - 1;
+  if (count === 0) throw new Error("Фрагмент не найден. Прочитай файл и укажи точный текст.");
+  if (count > 1) throw new Error(`Фрагмент встречается ${count} раз. Добавь соседние строки, чтобы он был уникальным.`);
+  const backup = await backupToTrash(root, path, file);
+  const temp = join(dirname(file), `.azrail-${process.pid}-${Date.now()}.tmp`);
+  await writeFile(temp, text.replace(edit.old, () => edit.new), "utf8");
+  await rename(temp, file);
+  return `Исправлено: ${path}. Копия до правки: ${backup}`;
+}
+
+/** Не удаляет, а переносит в .azrail-trash/<время>/… внутри той же папки: всё можно вернуть. */
+export async function trashPath(root, path) {
+  const file = await resolveInside(root, path);
+  await lstat(file);
+  const backup = await backupToTrash(root, path, file);
+  await rm(file, { recursive: true });
+  return `В корзину: ${path}. Вернуть: ${backup}`;
 }
 
 /** AZRAIL_ROOTS — список папок через ; иначе AZRAIL_ROOT или текущая. Имя — последнее звено пути, повтор получает -2, -3. */

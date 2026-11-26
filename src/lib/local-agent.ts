@@ -1,7 +1,13 @@
 import { AccessError } from "./accounts";
 import { checkPublicUrl, PublicUrlError } from "./public-url";
 
-export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot";
+export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot" | "search" | "edit" | "mkdir" | "move" | "trash";
+
+/** Задачи, которые меняют компьютер: ждут «Разрешить». */
+export const AGENT_APPROVAL_KINDS: ReadonlySet<string> = new Set(["write", "run", "addroot", "edit", "mkdir", "move", "trash"]);
+/** Инструменты миссии, которые ждут «Разрешить» владельца. */
+export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot", "local_edit", "local_mkdir", "local_move", "local_trash"]);
+const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash"]);
 
 export const AGENT_ROOT_PRESETS = ["desktop", "documents", "downloads"] as const;
 export type AgentJobStatus = "awaiting_approval" | "queued" | "running" | "done" | "failed" | "rejected" | "expired";
@@ -126,6 +132,8 @@ export function publicJob(job: AgentJob) {
     ...(job.root ? { root: job.root } : {}),
     status: job.status,
     ...(job.kind === "write" ? { bytes: job.content?.length ?? 0 } : {}),
+    ...(job.kind === "move" ? { dest: job.content } : {}),
+    ...(job.kind === "search" ? { query: job.content } : {}),
     ...(job.kind === "run" ? { command: AGENT_COMMANDS[job.path] ?? job.path } : {}),
     result: job.result,
     error: job.error,
@@ -137,8 +145,8 @@ export function publicJob(job: AgentJob) {
 export async function createJob(store: AgentStore, input: { kind?: unknown; path?: unknown; content?: unknown; root?: unknown }, now = Date.now()): Promise<AgentJob> {
   const state = await store.getState();
   if (!state || state.expiresAt <= now) throw new AccessError("Агент выключен. Включи его, чтобы ставить задачи.", 409);
-  const kind = input.kind;
-  if (kind !== "list" && kind !== "read" && kind !== "write" && kind !== "run" && kind !== "web" && kind !== "addroot" && kind !== "droproot") throw new AccessError("Допустимые действия: list, read, write, run, web, addroot, droproot.", 400);
+  if (typeof input.kind !== "string" || !AGENT_KINDS.has(input.kind)) throw new AccessError(`Допустимые действия: ${[...AGENT_KINDS].join(", ")}.`, 400);
+  const kind = input.kind as AgentJobKind;
   let path: string;
   if (kind === "web") {
     if (typeof input.path !== "string" || input.path.length > 2000) throw new AccessError("Укажи адрес страницы.", 400);
@@ -161,7 +169,7 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
   } else if (kind === "run") {
     if (typeof input.path !== "string" || !Object.hasOwn(AGENT_COMMANDS, input.path)) throw new AccessError(`Команда не из белого списка. Доступны: ${Object.keys(AGENT_COMMANDS).join(", ")}.`, 400);
     path = input.path;
-  } else path = safeAgentPath(input.path, kind === "list");
+  } else path = safeAgentPath(input.path, kind === "list" || kind === "search");
   let root: string | null = null;
   if (kind !== "addroot" && kind !== "droproot" && input.root !== undefined && input.root !== null && input.root !== "") {
     if (typeof input.root !== "string") throw new AccessError("Имя папки должно быть строкой.", 400);
@@ -176,13 +184,31 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     if (input.content.length > AGENT_MAX_CONTENT) throw new AccessError("Файл для записи слишком большой.", 413);
     content = input.content;
   }
+  if (kind === "search") {
+    const query = typeof input.content === "string" ? input.content.trim() : "";
+    if (query.length < 1 || query.length > 200) throw new AccessError("Укажи, что искать (до 200 символов).", 400);
+    content = query;
+  }
+  if (kind === "edit") {
+    const raw = typeof input.content === "string" ? input.content : "";
+    let edit: { old?: unknown; new?: unknown } = {};
+    try { edit = JSON.parse(raw); } catch { /* ниже ошибка */ }
+    if (typeof edit.old !== "string" || !edit.old || typeof edit.new !== "string") throw new AccessError("Для правки нужны old (что заменить) и new (на что).", 400);
+    if (edit.old.length + edit.new.length > AGENT_MAX_CONTENT) throw new AccessError("Правка слишком большая.", 413);
+    content = JSON.stringify({ old: edit.old, new: edit.new });
+  }
+  if (kind === "move") {
+    content = safeAgentPath(input.content);
+    if (content === path) throw new AccessError("Откуда и куда совпадают.", 400);
+  }
+  if (kind === "mkdir" || kind === "trash" || kind === "move") safeAgentPath(path);
   const job: AgentJob = {
     id: crypto.randomUUID(),
     kind,
     root,
     path,
     content,
-    status: kind === "write" || kind === "run" || kind === "addroot" ? "awaiting_approval" : "queued",
+    status: AGENT_APPROVAL_KINDS.has(kind) ? "awaiting_approval" : "queued",
     result: null,
     error: null,
     createdAt: now,
