@@ -49,6 +49,59 @@ export function runCommand(root, id) {
   });
 }
 
+const SHELL_MAX = 1000;
+export const SHELL_BLOCKED = [
+  { re: /\b(sudo|su|doas|runas)\b/i, why: "повышение прав" },
+  { re: /\brm\s+(-[a-z]*\s+)*-[a-z]*[rf][a-z]*\s+(--\s+)?(\/|~|\$home|\*|\.\.|[a-z]:[\\/])/i, why: "рекурсивное удаление вне проекта" },
+  { re: /\b(rmdir|rd|del|erase)\b[^|&;]*\s\/[sq]\b/i, why: "массовое удаление" },
+  { re: /\b(format|mkfs(\.\w+)?|diskpart|fdisk|dd)\b\s*[^|&;]*(\bof=|\/dev\/|[a-z]:)/i, why: "работа с диском" },
+  { re: /\b(shutdown|reboot|halt|poweroff|init\s+0)\b/i, why: "выключение компьютера" },
+  { re: /(curl|wget|iwr|invoke-webrequest|irm|invoke-restmethod)\b[^|;&]*\|\s*(sh|bash|zsh|iex|invoke-expression|powershell|pwsh|cmd)\b/i, why: "запуск скачанного кода" },
+  { re: /\b(iex|invoke-expression)\b/i, why: "выполнение строки как кода" },
+  { re: /\b(powershell|pwsh)\b[^|;&]*-(e|enc|encodedcommand)\b/i, why: "скрытая команда" },
+  { re: /\breg(\.exe)?\s+(delete|add|import)\b/i, why: "изменение реестра" },
+  { re: /\bgit\s+push\b[^|;&]*(--force\b|--force-with-lease\b|\s-f\b)/i, why: "принудительная отправка в git" },
+  { re: /\bchmod\s+(-[a-z]+\s+)*[0-7]*777\b|\bchown\s+-R\b/i, why: "массовая смена прав" },
+  { re: /(\.env\b|\.dev\.vars|\.ssh|\.gnupg|\.aws|id_rsa|id_ed25519|\.pem\b|\.kdbx|\.azrail-agent|\.azrail-roots|\.azrail-browser)/i, why: "секреты и ключи" },
+  { re: /\b(printenv|export\s+-p|get-childitem\s+env:|gci\s+env:)|(^|[|&;]\s*)(env|set)\s*($|[|&;])/i, why: "вывод переменных окружения" },
+  { re: /\b(nc|ncat|netcat|telnet|ssh|scp|sftp|ftp)\b/i, why: "сетевое соединение в обход AZRAIL" },
+  { re: /:\(\)\s*\{/, why: "fork-бомба" },
+  { re: /[\0-\x08\x0b\x0c\x0e-\x1f]/, why: "управляющие символы" },
+];
+
+export function shellProblem(command) {
+  if (typeof command !== "string") return "Команда должна быть строкой.";
+  const text = command.trim();
+  if (!text) return "Пустая команда.";
+  if (text.length > SHELL_MAX) return `Команда длиннее ${SHELL_MAX} символов.`;
+  for (const rule of SHELL_BLOCKED) if (rule.re.test(text)) return `Команда заблокирована: ${rule.why}.`;
+  return null;
+}
+
+const SHELL_TIMEOUT_MS = 300_000;
+
+/** Любая команда в папке проекта через оболочку системы. Секреты AZRAIL_* дочернему процессу не передаются. */
+export function runShell(root, command, spawner = spawn) {
+  const problem = shellProblem(command);
+  if (problem) return Promise.reject(new Error(problem));
+  return new Promise((done, fail) => {
+    const child = spawner(command, { cwd: root, shell: true, env: { ...childEnv(process.env), NO_COLOR: "1", FORCE_COLOR: "0" }, windowsHide: true, stdio: ["ignore", "pipe", "pipe"] });
+    let text = "";
+    let killed = false;
+    const add = (chunk) => { text = (text + chunk).slice(-RUN_MAX_OUTPUT); };
+    child.stdout?.on("data", (chunk) => add(String(chunk)));
+    child.stderr?.on("data", (chunk) => add(String(chunk)));
+    const timer = setTimeout(() => { killed = true; child.kill(); }, SHELL_TIMEOUT_MS);
+    child.on("error", (error) => { clearTimeout(timer); fail(new Error(`Не запустилась: ${error.code ?? error.message}`)); });
+    child.on("close", (code) => {
+      clearTimeout(timer);
+      const out = stripAnsi(text).trim();
+      if (killed) return fail(new Error(`Команда остановлена по таймауту ${SHELL_TIMEOUT_MS / 1000} с.\n${out}`.slice(0, 1000)));
+      done({ ok: code === 0, output: `${out}\n[код выхода ${code}]`.trim() });
+    });
+  });
+}
+
 const WEB_TIMEOUT_MS = 45_000;
 const WEB_TEXT_LIMIT = 20_000;
 const PRIVATE_V4 = [/^0\./, /^10\./, /^127\./, /^169\.254\./, /^172\.(1[6-9]|2\d|3[01])\./, /^192\.168\./, /^100\.(6[4-9]|[7-9]\d|1[01]\d|12[0-7])\./, /^(22[4-9]|2[3-5]\d)\./];
@@ -459,7 +512,7 @@ async function runAgent({ url, token, device }, roots, initial) {
           else if (job.kind === "droproot") body = { ok: true, output: await dropRoot(roots, job.path, process.env, initial) };
           else {
             const root = pickRoot(roots, job.root).path;
-            body = job.kind === "run" ? await runCommand(root, job.path) : { ok: true, output: await runJob(root, job) };
+            body = job.kind === "run" ? await runCommand(root, job.path) : job.kind === "shell" ? await runShell(root, job.path) : { ok: true, output: await runJob(root, job) };
           }
         } catch (error) {
           body = { ok: false, error: error instanceof Error ? error.message : String(error) };

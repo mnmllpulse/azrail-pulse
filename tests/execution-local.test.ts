@@ -31,7 +31,7 @@ describe("инструменты миссии на компьютере", () => 
   it("распознаёт локальные инструменты и опасные", () => {
     expect(isLocalTool("local_read")).toBe(true);
     expect(isLocalTool("connector_call")).toBe(false);
-    expect([...LOCAL_APPROVAL_TOOLS].sort()).toEqual(["local_addroot", "local_edit", "local_mkdir", "local_move", "local_run", "local_trash", "local_write"]);
+    expect([...LOCAL_APPROVAL_TOOLS].sort()).toEqual(["local_addroot", "local_edit", "local_mkdir", "local_move", "local_run", "local_shell", "local_trash", "local_write"]);
   });
 
   it("выключенный агент отклоняет инструмент", async () => {

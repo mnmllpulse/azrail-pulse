@@ -233,7 +233,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       if (state.connected && !autoOpened) { autoOpened = true; void browser.open(''); }
       for (const job of state.jobs.filter((item) => !ownJobs.has(item.id))) {
         const row = el('div', '', 'provider-token');
-        const title = job.kind === 'addroot' ? `Добавить папку: ${job.path}` : job.kind === 'droproot' ? `Убрать папку: ${job.path}` : job.kind === 'move' ? `Переместить: ${job.path} → ${job.dest}` : job.kind === 'trash' ? `В корзину: ${job.path}` : job.kind === 'mkdir' ? `Создать папку: ${job.path}` : job.kind === 'edit' ? `Правка файла: ${job.path}` : job.kind === 'search' ? `Поиск «${job.query}» в ${job.path || '.'}` : `${job.kind} ${job.path || '.'}`;
+        const title = job.kind === 'addroot' ? `Добавить папку: ${job.path}` : job.kind === 'droproot' ? `Убрать папку: ${job.path}` : job.kind === 'shell' ? `Команда: ${job.path}` : job.kind === 'move' ? `Переместить: ${job.path} → ${job.dest}` : job.kind === 'trash' ? `В корзину: ${job.path}` : job.kind === 'mkdir' ? `Создать папку: ${job.path}` : job.kind === 'edit' ? `Правка файла: ${job.path}` : job.kind === 'search' ? `Поиск «${job.query}» в ${job.path || '.'}` : `${job.kind} ${job.path || '.'}`;
         row.append(el('strong', title), el('small', STATUS[job.status] ?? job.status));
         if (job.error) row.append(el('p', job.error, 'muted'));
         if (job.result) {
@@ -246,7 +246,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
           row.append(el('p', 'Пустой вывод: команда выполнена и ничего не напечатала.', 'muted'));
         }
         if (job.status === 'awaiting_approval') {
-          const ok = el('button', job.kind === 'run' ? `Разрешить запуск: ${job.path}` : job.kind === 'addroot' ? `Разрешить добавить папку: ${job.path}` : job.kind === 'move' ? `Разрешить перенос: ${job.path} → ${job.dest}` : job.kind === 'trash' ? `Разрешить убрать в корзину: ${job.path}` : job.kind === 'mkdir' ? `Разрешить создать папку: ${job.path}` : job.kind === 'edit' ? `Разрешить правку: ${job.path}` : `Разрешить запись (${job.bytes ?? 0} симв.)`);
+          const ok = el('button', job.kind === 'run' ? `Разрешить запуск: ${job.path}` : job.kind === 'addroot' ? `Разрешить добавить папку: ${job.path}` : job.kind === 'shell' ? `Разрешить команду: ${job.path.slice(0, 80)}` : job.kind === 'move' ? `Разрешить перенос: ${job.path} → ${job.dest}` : job.kind === 'trash' ? `Разрешить убрать в корзину: ${job.path}` : job.kind === 'mkdir' ? `Разрешить создать папку: ${job.path}` : job.kind === 'edit' ? `Разрешить правку: ${job.path}` : `Разрешить запись (${job.bytes ?? 0} симв.)`);
           ok.type = 'button';
           ok.onclick = () => void api(`/api/agent/jobs/${job.id}/approve`, { method: 'POST', body: '{}' }).then(paint).catch(failure);
           const no = el('button', 'Отклонить');

@@ -62,6 +62,7 @@ export const TOOL_REGISTRY: ToolDefinition[] = [
   { name: "local_mkdir", description: "Создать папку на компьютере владельца: {path,root?}. Подготовить к подтверждению владельцем", risk: "review", available: true },
   { name: "local_move", description: "Переместить или переименовать: {path,to,root?}. Подготовить к подтверждению владельцем", risk: "review", available: true },
   { name: "local_trash", description: "Убрать файл или папку в корзину .azrail-trash (можно вернуть): {path,root?}. Подготовить к подтверждению владельцем", risk: "review", available: true },
+  { name: "local_shell", description: "Выполнить команду в терминале папки на компьютере владельца: {command,root?}. Опасные команды заблокированы; владелец видит команду целиком и подтверждает. Подготовить к подтверждению", risk: "review", available: true },
   { name: "local_status", description: "Результат или статус задачи на компьютере: {jobId}", risk: "safe", available: true },
   // ── Работают сейчас ─────────────────────────────────────────────────
   { name: "read_file", description: "Прочитать файл проекта", risk: "safe", available: true },

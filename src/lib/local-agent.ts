@@ -1,13 +1,14 @@
 import { AccessError } from "./accounts";
 import { checkPublicUrl, PublicUrlError } from "./public-url";
+import { shellProblem } from "./shell-guard";
 
-export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot" | "search" | "edit" | "mkdir" | "move" | "trash";
+export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot" | "search" | "edit" | "mkdir" | "move" | "trash" | "shell";
 
 /** Задачи, которые меняют компьютер: ждут «Разрешить». */
-export const AGENT_APPROVAL_KINDS: ReadonlySet<string> = new Set(["write", "run", "addroot", "edit", "mkdir", "move", "trash"]);
+export const AGENT_APPROVAL_KINDS: ReadonlySet<string> = new Set(["write", "run", "addroot", "edit", "mkdir", "move", "trash", "shell"]);
 /** Инструменты миссии, которые ждут «Разрешить» владельца. */
-export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot", "local_edit", "local_mkdir", "local_move", "local_trash"]);
-const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash"]);
+export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot", "local_edit", "local_mkdir", "local_move", "local_trash", "local_shell"]);
+const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash", "shell"]);
 
 export const AGENT_ROOT_PRESETS = ["desktop", "documents", "downloads"] as const;
 export type AgentJobStatus = "awaiting_approval" | "queued" | "running" | "done" | "failed" | "rejected" | "expired";
@@ -135,6 +136,7 @@ export function publicJob(job: AgentJob) {
     ...(job.kind === "move" ? { dest: job.content } : {}),
     ...(job.kind === "search" ? { query: job.content } : {}),
     ...(job.kind === "run" ? { command: AGENT_COMMANDS[job.path] ?? job.path } : {}),
+    ...(job.kind === "shell" ? { command: job.path } : {}),
     result: job.result,
     error: job.error,
     createdAt: job.createdAt,
@@ -166,6 +168,10 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     if (!known.some((entry) => entry.name === name)) throw new AccessError("Такой папки у агента нет.", 400);
     if (known.length < 2) throw new AccessError("Последнюю папку убрать нельзя.", 400);
     path = name;
+  } else if (kind === "shell") {
+    const problem = shellProblem(input.path);
+    if (problem) throw new AccessError(problem, 400);
+    path = (input.path as string).trim();
   } else if (kind === "run") {
     if (typeof input.path !== "string" || !Object.hasOwn(AGENT_COMMANDS, input.path)) throw new AccessError(`Команда не из белого списка. Доступны: ${Object.keys(AGENT_COMMANDS).join(", ")}.`, 400);
     path = input.path;
