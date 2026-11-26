@@ -181,3 +181,13 @@ describe("просьбы про компьютер", () => {
     expect(await handle("Создай страницу сайта про кофе")).toBe(false);
   });
 });
+
+describe("чат после запуска задачи на компьютере", () => {
+  it("не остаётся заблокированным: миссия из чата не nested, она сама снимает блокировку", async () => {
+    const { readFileSync } = await import("node:fs");
+    const app = readFileSync("ui/app.ts", "utf8");
+    const line = app.split("\n").find((row) => row.includes("startMission:async goal=>{await runMission(goal"))!;
+    expect(line).toContain("{stay:true}");
+    expect(line).not.toContain("nested");
+  });
+});
