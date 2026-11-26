@@ -113,8 +113,32 @@ export function validateReplayableCheckpoints(
  * waiting_approval without at least one durable approval gate is inconsistent
  * state and must not be resumed automatically.
  */
+export function requiredApprovals(points: ReplayableCheckpoint[]): { calls: string[]; jobs: string[] } {
+  const calls = new Set<string>();
+  const jobs = new Set<string>();
+  for (const point of points) {
+    const local = point.tool === "local_write" || point.tool === "local_run" || point.tool === "local_addroot";
+    if ((point.tool !== "connector_call" && !local) || point.status !== "completed") continue;
+    const label = local ? "действия на компьютере" : "внешнего действия";
+    if (!point.result || typeof point.result !== "object" || Array.isArray(point.result)) {
+      throw new Error(`Checkpoint ${label} шага ${point.step} повреждён.`);
+    }
+    const result = point.result as { id?: unknown; approvalRequired?: unknown };
+    if (typeof result.approvalRequired !== "boolean") {
+      throw new Error(`Checkpoint ${label} шага ${point.step} не содержит признака approval.`);
+    }
+    if (!result.approvalRequired) continue;
+    if (typeof result.id !== "string" || !result.id) {
+      throw new Error(`Checkpoint ${label} шага ${point.step} не содержит ${local ? "id задачи" : "callId"}.`);
+    }
+    (local ? jobs : calls).add(result.id);
+  }
+  if (!calls.size && !jobs.size) throw new Error("Durable checkpoint подтверждения отсутствует.");
+  return { calls: [...calls], jobs: [...jobs] };
+}
+
 export function requiredApprovalCallIds(points: ReplayableCheckpoint[]): string[] {
-  const ids = new Set<string>();
+  const calls = new Set<string>();
   for (const point of points) {
     if (point.tool !== "connector_call" || point.status !== "completed") continue;
     if (!point.result || typeof point.result !== "object" || Array.isArray(point.result)) {
@@ -128,10 +152,10 @@ export function requiredApprovalCallIds(points: ReplayableCheckpoint[]): string[
     if (typeof result.id !== "string" || !result.id) {
       throw new Error(`Checkpoint внешнего действия шага ${point.step} не содержит callId.`);
     }
-    ids.add(result.id);
+    calls.add(result.id);
   }
-  if (!ids.size) throw new Error("Durable checkpoint подтверждения отсутствует.");
-  return [...ids];
+  if (!calls.size) throw new Error("Durable checkpoint подтверждения отсутствует.");
+  return [...calls];
 }
 
 async function readPair(env: Env, mission: string, step: number): Promise<DurablePair | null> {

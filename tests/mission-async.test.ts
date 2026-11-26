@@ -126,7 +126,7 @@ describe("Миссия исполняется в фоне, а не внутри 
   it("ожидание connector approval нельзя обойти кнопкой восстановления", () => {
     const recovery = missions.slice(missions.indexOf("export async function recoverMission("), missions.indexOf("export async function runScheduledMission("));
     expect(recovery).toContain('mission.status === "waiting_approval"');
-    expect(recovery).toContain('requiredApprovalCallIds(replay)');
+    expect(recovery).toContain('requiredApprovals(replay)');
     expect(recovery).toContain("JOIN resource_owners o ON o.kind='project'");
     expect(recovery).toContain('o.account_id=c.account_id');
     expect(recovery).toContain('call.status !== "succeeded"');

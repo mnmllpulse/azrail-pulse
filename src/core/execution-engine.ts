@@ -11,6 +11,7 @@ import { withBillingScope } from "../lib/billing-context";
 import type { Env, TaskRequest, TaskResult, ToolName } from "../types";
 import { readFile } from "../lib/workspace";
 import { availableTools, TOOL_REGISTRY } from "../lib/tool-registry";
+import { LOCAL_APPROVAL_TOOLS } from "./execution-local";
 import { extractText, runModel } from "../lib/model-router";
 import { diffWorkspace, renderChanges, type WorkspaceFile } from "./verification";
 import { reviewChanges } from "../lib/change-review";
@@ -853,7 +854,7 @@ export class ExecutionEngine {
         const mutating = MUTATING_TOOLS.has(known.name) && !!stepPath && !!ctx.projectId;
         // Текст ДО правки — чтобы предупреждать только об ухудшении.
         const before = mutating ? ((await readFile(this.env, ctx.projectId!, stepPath).catch(() => null))?.content ?? null) : null;
-        const mayHaveEffects = !["read_file","list_files","search_files","git_diff"].includes(known.name);
+        const mayHaveEffects = !["read_file","list_files","search_files","git_diff","local_list","local_read","local_web","local_status"].includes(known.name);
         // A mission Worker may outlive a reaped project lock. Put BOTH fence
         // checks inside checkpointTool's work boundary: if the generation
         // changes while a side effect is in flight, the step is persisted as
@@ -868,9 +869,10 @@ export class ExecutionEngine {
           return value;
         };
         const output = await checkpointTool(this.env,ctx.missionId,i,known.name,decision.input??{},fencedWork,mayHaveEffects,callId);
-        if(known.name==='connector_call'&&output&&typeof output==='object'&&'approvalRequired'in output&&output.approvalRequired&&'status'in output&&output.status==='prepared') {
+        if((known.name==='connector_call'||LOCAL_APPROVAL_TOOLS.has(known.name))&&output&&typeof output==='object'&&'approvalRequired'in output&&output.approvalRequired&&'status'in output&&output.status==='prepared') {
           await this.recordToolCall(toolCtx,callId,known.name,"done",decision.input,JSON.stringify(output),null,startedAt);
-          return {status:'needs_input',agent:'execution-engine',summary:'Внешнее действие подготовлено. Откройте Подключения → История и ожидающие действия, проверьте параметры и подтвердите. Затем нажмите Продолжить миссию.',data:output};
+          const summary=known.name==='connector_call'?'Внешнее действие подготовлено. Откройте Подключения → История и ожидающие действия, проверьте параметры и подтвердите. Затем нажмите Продолжить миссию.':'Действие на компьютере подготовлено. Откройте Настройки → Локальный агент и нажмите «Разрешить» у этой задачи. Миссия продолжится сама.';
+          return {status:'needs_input',agent:'execution-engine',summary,data:output};
         }
         const rendered = this.renderResult(output);
         const stepInput = decision.input ?? {};
