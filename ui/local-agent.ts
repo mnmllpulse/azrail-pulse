@@ -27,7 +27,7 @@ function el<K extends keyof HTMLElementTagNameMap>(tag: K, text = '', className 
 
 export { agentCommand } from './agent-paths';
 
-export function agentSettings(api: Api, notice: (text: string, bad?: boolean) => void, failure: (error: unknown) => void): HTMLElement {
+export function agentSettings(api: Api, notice: (text: string, bad?: boolean) => void, failure: (error: unknown) => void, projectId = ''): HTMLElement {
   const root = el('section', '', 'settings-block');
   root.append(el('h3', 'Агент на компьютере'));
   root.append(el('p', 'Выключен по умолчанию. Включается на 1 час, видит только одну папку, секреты (.env, .git, ключи) закрыты, запись только после твоего «ок».', 'muted'));
@@ -259,6 +259,20 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       }
       trustBox.append(el('p', 'Добавление папок и перенос доступа всегда требуют «Разрешить». Доверие заканчивается само и при выключении агента. Выбирай только то, что понимаешь.', 'muted'));
       nodes.push(trustBox);
+      const permitBox = el('div', '', 'agent-permit');
+      permitBox.append(el('strong', 'Миссии и компьютер'));
+      if (!projectId) permitBox.append(el('p', 'Открой проект, чтобы разрешить его миссиям пользоваться агентом.', 'muted'));
+      else {
+        const setPermit = (enabled: boolean) => void api('/api/admin/permissions', { method: 'POST', body: JSON.stringify({ projectId, capability: 'local', enabled }) }).then(() => notice(enabled ? `Миссии проекта «${projectId}» могут пользоваться агентом.` : `Миссиям проекта «${projectId}» агент закрыт.`)).catch(failure);
+        const allow = el('button', `Разрешить миссиям проекта «${projectId}»`);
+        allow.type = 'button';
+        allow.onclick = () => setPermit(true);
+        const deny = el('button', 'Запретить');
+        deny.type = 'button';
+        deny.onclick = () => setPermit(false);
+        permitBox.append(allow, deny, el('p', 'Без этого миссия не сможет вызывать инструменты агента. Действия всё равно идут через «Разрешить» или режим доверия.', 'muted'));
+      }
+      nodes.push(permitBox);
       if (state.connected && !autoOpened) { autoOpened = true; void browser.open(''); }
       for (const job of state.jobs.filter((item) => !ownJobs.has(item.id))) {
         const row = el('div', '', 'provider-token');
