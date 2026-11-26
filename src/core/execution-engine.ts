@@ -830,7 +830,8 @@ export class ExecutionEngine {
         continue;
       }
 
-      if (decide(levelOf(known), await readPermissionMode(this.env)) === "ask") {
+      // Инструменты агента сами просят «Разрешить» (задача ждёт владельца) или идут по режиму доверия: общий барьер им не нужен.
+      if (!isLocalToolName(known.name) && decide(levelOf(known), await readPermissionMode(this.env)) === "ask") {
         await this.recordApprovalRequest(ctx, known.name, decision.input ?? {}, decision.reason ?? "");
         await this.note(ctx, "approval.requested", { tool: known.name, reason: decision.reason });
         history.push({ tool: known.name, input: decision.input ?? {}, ok: false, result: `Инструмент "${known.name}" требует подтверждения человека и не выполнен.` });
