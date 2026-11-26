@@ -1526,7 +1526,7 @@ const chatCommands=createChatCommands({
  models:()=>pickerModels().map(m=>({slug:m.slug,label:modelLabel(m),free:!!m.freeAllowlisted&&m.availability!=='unavailable'})),
  labelOf:slug=>{const here=composerModels.find(slug);return here?modelLabel(here):(slug?modelDisplayName(slug):'Auto · AZRAIL');},
  showCard:spec=>showApprovalCard(spec),
- startMission:async goal=>{await runMission(goal,{stay:true,nested:true});},
+ startMission:async goal=>{await runMission(goal,{stay:true});},
 });
 async function answerLocally(message:string):Promise<boolean>{
  const opened=revealHeld(message);
