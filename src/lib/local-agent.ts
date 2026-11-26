@@ -47,6 +47,8 @@ export interface AgentState {
   roots?: AgentRoot[];
   /** Режим доверия: пока он идёт, выбранные виды действий выполняются без «Разрешить». */
   trust?: AgentTrust | null;
+  /** «Всегда разрешать»: области без срока (только файлы). Живёт, пока агента не выключили. */
+  always?: TrustScope[];
 }
 
 export const TRUST_SCOPES = ["files", "browser", "shell"] as const;
@@ -56,6 +58,17 @@ export interface AgentTrust {
   scopes: TrustScope[];
 }
 export const TRUST_MAX_MINUTES = 60;
+/** Навсегда можно разрешить только файлы: есть корзина и копии. Терминал и браузер — только на время. */
+export const ALWAYS_SCOPES: readonly TrustScope[] = ["files"];
+
+export async function setAlways(store: AgentStore, scopes: unknown, now = Date.now()): Promise<TrustScope[]> {
+  const state = await store.getState();
+  if (!state || state.expiresAt <= now) throw new AccessError("Агент выключен. Сначала включи его.", 409);
+  if (!Array.isArray(scopes) || !scopes.every((scope): scope is TrustScope => (ALWAYS_SCOPES as readonly unknown[]).includes(scope))) throw new AccessError(`Навсегда можно разрешить только: ${ALWAYS_SCOPES.join(", ")}.`, 400);
+  const always = [...new Set(scopes)];
+  await store.setState({ ...state, always });
+  return always;
+}
 
 const TRUST_FILE_KINDS: ReadonlySet<string> = new Set(["write", "edit", "mkdir", "move", "trash"]);
 
@@ -147,7 +160,8 @@ export function newAgentToken(): string {
 export async function enableAgent(store: AgentStore, now = Date.now()): Promise<{ token: string; expiresAt: number }> {
   const token = newAgentToken();
   const expiresAt = now + AGENT_SESSION_MS;
-  await store.setState({ tokenHash: await sha256Hex(token), expiresAt, lastSeen: null, root: null, roots: [] });
+  const always = (await store.getState())?.always ?? [];
+  await store.setState({ tokenHash: await sha256Hex(token), expiresAt, lastSeen: null, root: null, roots: [], always });
   return { token, expiresAt };
 }
 
@@ -167,6 +181,7 @@ export async function agentStatus(store: AgentStore, now = Date.now()) {
     root: enabled ? state!.root ?? null : null,
     roots: enabled ? agentRoots(state!) : [],
     trust: activeTrust(state, now),
+    always: enabled ? state!.always ?? [] : [],
     jobs: jobs.map(publicJob),
   };
 }
@@ -265,7 +280,7 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
   if (kind === "mkdir" || kind === "trash" || kind === "move") safeAgentPath(path);
   const needsApproval = AGENT_APPROVAL_KINDS.has(kind) || (kind === "browser" && BROWSER_WRITE_ACTIONS.has(path));
   const scope = trustScopeOf(kind, path);
-  const trusted = needsApproval && !!scope && !!activeTrust(state, now)?.scopes.includes(scope);
+  const trusted = needsApproval && !!scope && (!!activeTrust(state, now)?.scopes.includes(scope) || !!state?.always?.includes(scope));
   const job: AgentJob = {
     id: crypto.randomUUID(),
     kind,
