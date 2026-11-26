@@ -872,7 +872,7 @@ export class ExecutionEngine {
         const output = await checkpointTool(this.env,ctx.missionId,i,known.name,decision.input??{},fencedWork,mayHaveEffects,callId);
         if((known.name==='connector_call'||isLocalToolName(known.name))&&output&&typeof output==='object'&&'approvalRequired'in output&&output.approvalRequired&&'status'in output&&output.status==='prepared') {
           await this.recordToolCall(toolCtx,callId,known.name,"done",decision.input,JSON.stringify(output),null,startedAt);
-          const summary=known.name==='connector_call'?'Внешнее действие подготовлено. Откройте Подключения → История и ожидающие действия, проверьте параметры и подтвердите. Затем нажмите Продолжить миссию.':'Действие на компьютере подготовлено. Откройте Настройки → Локальный агент и нажмите «Разрешить» у этой задачи. Миссия продолжится сама.';
+          const summary=known.name==='connector_call'?'Внешнее действие подготовлено. Откройте Подключения → История и ожидающие действия, проверьте параметры и подтвердите. Затем нажмите Продолжить миссию.':'Нужно твоё разрешение на действие на компьютере: карточка над полем ввода. Миссия продолжится сама.';
           return {status:'needs_input',agent:'execution-engine',summary,data:output};
         }
         const rendered = this.renderResult(output);

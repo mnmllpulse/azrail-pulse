@@ -1,3 +1,4 @@
+import { showApprovalCard, type CardAction, type CardHandle } from './approval-card';
 type Api = (path: string, options?: RequestInit) => Promise<any>;
 export interface AgentJobView { id: string; kind: string; path: string; status: string; dest?: string; query?: string; command?: string; action?: string; args?: string; bytes?: number }
 interface Hooks { notice: (text: string, bad?: boolean) => void; failure: (error: unknown) => void; refresh: () => void }
@@ -28,66 +29,67 @@ export function describeAgentJob(job: AgentJobView): string {
   }
 }
 
+const cards = new WeakMap<Document, { key: string; handle: CardHandle }>();
+
 /**
- * Показывает запросы агента прямо в карточке задачи: без похода в настройки.
+ * Показывает запрос агента карточкой над полем ввода, как в Cursor: без настроек и без панели задачи.
  * Возвращает true, пока есть что ждать (запрос на подтверждение или выполнение на компьютере).
  */
 export async function renderAgentApprovals(root: Document, status: string, api: Api, hooks: Hooks): Promise<boolean> {
-  const panel = root.getElementById('mission-summary');
-  let box = root.getElementById('mission-agent');
-  if (status !== 'waiting_approval' || !panel) { box?.remove(); return false; }
+  const drop = () => {
+    cards.get(root)?.handle.close();
+    cards.delete(root);
+  };
+  if (status !== 'waiting_approval') { drop(); return false; }
   let jobs: AgentJobView[];
   try {
     jobs = ((await api('/api/agent/status')).jobs ?? []) as AgentJobView[];
-  } catch { box?.remove(); return false; }
+  } catch { drop(); return false; }
   const waiting = jobs.filter((job) => job.status === 'awaiting_approval');
   const running = jobs.filter((job) => job.status === 'queued' || job.status === 'running');
-  if (!waiting.length && !running.length) { box?.remove(); return false; }
-  if (!box) { box = root.createElement('div'); box.id = 'mission-agent'; panel.after(box); }
-  box.replaceChildren();
+  if (!waiting.length && !running.length) { drop(); return false; }
+
   const decide = (job: AgentJobView, approve: boolean, grant?: { path: string; body: unknown }) => {
     const run = async () => {
       if (grant) await api(grant.path, { method: 'POST', body: JSON.stringify(grant.body) });
       await api(`/api/agent/jobs/${job.id}/${approve ? 'approve' : 'reject'}`, { method: 'POST' });
+      drop();
       hooks.notice(approve ? 'Разрешено. Агент выполняет.' : 'Отклонено.');
       hooks.refresh();
     };
-    void run().catch(hooks.failure);
+    return run().catch(hooks.failure);
   };
-  const button = (text: string, onclick: () => void, primary = false) => {
-    const el = root.createElement('button');
-    el.type = 'button';
-    el.textContent = text;
-    if (primary) el.className = 'primary';
-    el.onclick = onclick;
-    return el;
-  };
-  for (const job of waiting) {
-    const card = root.createElement('div');
-    card.className = 'agent-approval';
-    const question = root.createElement('p');
-    question.textContent = `${describeAgentJob(job)}?`;
-    card.append(question);
-    const scope = trustScopeFor(job);
-    if (job.kind === 'addroot') {
-      card.append(button('Разрешить', () => decide(job, true), true), button('Отклонить', () => decide(job, false)));
-      const note = root.createElement('p');
-      note.className = 'muted';
-      note.textContent = 'Папка запомнится. Убрать её можно в настройках агента.';
-      card.append(note);
-    } else {
-      card.append(button('Разрешить один раз', () => decide(job, true), true));
-      if (scope === 'files') card.append(button('Всегда для файлов', () => decide(job, true, { path: '/api/agent/always', body: { scopes: ['files'] } })));
-      else if (scope) card.append(button(`Разрешать ${scope === 'shell' ? 'команды' : 'действия в браузере'} 30 мин`, () => decide(job, true, { path: '/api/agent/trust', body: { scopes: [scope], minutes: 30 } })));
-      card.append(button('Отклонить', () => decide(job, false)));
+
+  const job = waiting[0];
+  if (!job) {
+    const first = running[0]!;
+    const key = `run:${first.id}`;
+    if (cards.get(root)?.key !== key) {
+      drop();
+      cards.set(root, { key, handle: showApprovalCard({ title: 'Агент работает', text: `Выполняется на компьютере: ${describeAgentJob(first)}`, actions: [] }, root) });
     }
-    box.append(card);
+    return true;
   }
-  for (const job of running) {
-    const p = root.createElement('p');
-    p.className = 'muted';
-    p.textContent = `Выполняется на компьютере: ${describeAgentJob(job)}`;
-    box.append(p);
+  const key = `ask:${job.id}`;
+  if (cards.get(root)?.key === key) return true;
+  const scope = trustScopeFor(job);
+  const actions: CardAction[] = [];
+  if (job.kind === 'addroot') {
+    actions.push({ label: 'Разрешить', primary: true, run: () => decide(job, true) });
+  } else {
+    actions.push({ label: 'Разрешить один раз', primary: true, run: () => decide(job, true) });
+    if (scope === 'files') actions.push({ label: 'Всегда для файлов', run: () => decide(job, true, { path: '/api/agent/always', body: { scopes: ['files'] } }) });
+    else if (scope) actions.push({ label: `Разрешать ${scope === 'shell' ? 'команды' : 'действия в браузере'} 30 мин`, run: () => decide(job, true, { path: '/api/agent/trust', body: { scopes: [scope], minutes: 30 } }) });
   }
+  actions.push({ label: 'Отклонить', run: () => decide(job, false) });
+  drop();
+  cards.set(root, {
+    key,
+    handle: showApprovalCard({
+      title: 'Нужно твоё разрешение',
+      text: `${describeAgentJob(job)}?${job.kind === 'addroot' ? ' Папка запомнится, убрать её можно в настройках агента.' : ''}`,
+      actions,
+    }, root),
+  });
   return true;
 }
