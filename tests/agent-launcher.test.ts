@@ -45,7 +45,7 @@ describe("файлы для двойного клика", () => {
 let win: Window | undefined;
 afterEach(() => { vi.unstubAllGlobals(); win?.close(); win = undefined; });
 
-const mount = (status: Record<string, unknown>, projectId = "") => {
+const mount = (status: Record<string, unknown>) => {
   win = new Window({ url: "https://azrail.example/" });
   vi.stubGlobal("document", win.document);
   vi.stubGlobal("location", win.location);
@@ -58,7 +58,7 @@ const mount = (status: Record<string, unknown>, projectId = "") => {
     return { ok: true };
   });
   const notice = vi.fn();
-  const section = agentSettings(api, notice, vi.fn(), projectId);
+  const section = agentSettings(api, notice, vi.fn());
   win.document.body.append(section as unknown as Node);
   return { section, calls, notice };
 };
@@ -144,27 +144,5 @@ describe("настройки: папки агента", () => {
     await tick();
     expect(button(section, "Разрешить добавить папку: desktop")).toBeDefined();
     expect(section.textContent).toContain("Добавить папку: desktop");
-  });
-});
-
-const ON = { enabled: true, expiresAt: 4_000_000_000_000, connected: true, paired: true, root: "/p", roots: [{ name: "p", path: "/p" }] };
-
-describe("настройки: право проекта на агента", () => {
-  it("без проекта кнопок права нет", async () => {
-    const { section } = mount(ON);
-    await tick();
-    expect(section.textContent).toContain("Открой проект");
-    expect([...section.querySelectorAll("button")].some((b) => b.textContent?.startsWith("Разрешить миссиям"))).toBe(false);
-  });
-
-  it("с проектом разрешает и запрещает право local", async () => {
-    const { section, calls } = mount(ON, "proj-1");
-    await tick();
-    button(section, "Разрешить миссиям проекта «proj-1»")!.click();
-    await tick();
-    expect(calls.find((c) => c.path === "/api/admin/permissions")?.body).toEqual({ projectId: "proj-1", capability: "local", enabled: true });
-    button(section, "Запретить")!.click();
-    await tick();
-    expect(calls.filter((c) => c.path === "/api/admin/permissions").at(-1)?.body).toEqual({ projectId: "proj-1", capability: "local", enabled: false });
   });
 });

@@ -20,7 +20,9 @@ import { log } from "../lib/resilience";
 import type { ExecutionContext } from "./execution-types";
 import { childTrace } from "../lib/observability-context";
 import { executeLocalTool, isLocalTool } from "./execution-local";
-import { openStore as openAgentStore } from "../unified/local-agent";
+import { enableAgent } from "../lib/local-agent";
+import { deviceStatus } from "../lib/agent-device";
+import { openDeviceStore, openStore as openAgentStore } from "../unified/local-agent";
 
 /**
  * Исполняет конкретные инструменты миссии.
@@ -37,7 +39,15 @@ export class ExecutionToolExecutor {
     const def = describeTools(this.env).find((t) => t.name === tool);
     if (!def || !def.available) throw new Error(`Инструмент "${tool}" недоступен в текущем окружении.`);
 
-    if (isLocalTool(tool)) return executeLocalTool(tool, input, { store: await openAgentStore(this.env) });
+    if (isLocalTool(tool)) {
+      const store = await openAgentStore(this.env);
+      const autoEnable = async () => {
+        if (!(await deviceStatus(await openDeviceStore(this.env))).paired) return false;
+        await enableAgent(store);
+        return true;
+      };
+      return executeLocalTool(tool, input, { store, autoEnable });
+    }
 
     switch (tool) {
       case "connector_search": {

@@ -11,7 +11,7 @@ import { withBillingScope } from "../lib/billing-context";
 import type { Env, TaskRequest, TaskResult, ToolName } from "../types";
 import { readFile } from "../lib/workspace";
 import { availableTools, TOOL_REGISTRY } from "../lib/tool-registry";
-import { LOCAL_APPROVAL_TOOLS } from "./execution-local";
+import { isLocalToolName } from "../lib/local-agent";
 import { extractText, runModel } from "../lib/model-router";
 import { diffWorkspace, renderChanges, type WorkspaceFile } from "./verification";
 import { reviewChanges } from "../lib/change-review";
@@ -869,7 +869,7 @@ export class ExecutionEngine {
           return value;
         };
         const output = await checkpointTool(this.env,ctx.missionId,i,known.name,decision.input??{},fencedWork,mayHaveEffects,callId);
-        if((known.name==='connector_call'||LOCAL_APPROVAL_TOOLS.has(known.name))&&output&&typeof output==='object'&&'approvalRequired'in output&&output.approvalRequired&&'status'in output&&output.status==='prepared') {
+        if((known.name==='connector_call'||isLocalToolName(known.name))&&output&&typeof output==='object'&&'approvalRequired'in output&&output.approvalRequired&&'status'in output&&output.status==='prepared') {
           await this.recordToolCall(toolCtx,callId,known.name,"done",decision.input,JSON.stringify(output),null,startedAt);
           const summary=known.name==='connector_call'?'Внешнее действие подготовлено. Откройте Подключения → История и ожидающие действия, проверьте параметры и подтвердите. Затем нажмите Продолжить миссию.':'Действие на компьютере подготовлено. Откройте Настройки → Локальный агент и нажмите «Разрешить» у этой задачи. Миссия продолжится сама.';
           return {status:'needs_input',agent:'execution-engine',summary,data:output};

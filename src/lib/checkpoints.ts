@@ -1,4 +1,4 @@
-import { LOCAL_APPROVAL_TOOLS } from "./local-agent";
+import { isLocalToolName } from "./local-agent";
 import type { Env } from "../types";
 import { ToolRejectedError } from "./tool-errors";
 
@@ -118,8 +118,9 @@ export function requiredApprovals(points: ReplayableCheckpoint[]): { calls: stri
   const calls = new Set<string>();
   const jobs = new Set<string>();
   for (const point of points) {
-    const local = LOCAL_APPROVAL_TOOLS.has(point.tool);
+    const local = isLocalToolName(point.tool);
     if ((point.tool !== "connector_call" && !local) || point.status !== "completed") continue;
+    if (local && !(point.result && typeof point.result === "object" && (point.result as { approvalRequired?: unknown }).approvalRequired === true)) continue;
     const label = local ? "действия на компьютере" : "внешнего действия";
     if (!point.result || typeof point.result !== "object" || Array.isArray(point.result)) {
       throw new Error(`Checkpoint ${label} шага ${point.step} повреждён.`);

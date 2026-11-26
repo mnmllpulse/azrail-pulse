@@ -37,7 +37,7 @@ export async function openStore(env: Env): Promise<AgentStore> {
   };
 }
 
-async function openDeviceStore(env: Env): Promise<DeviceStore> {
+export async function openDeviceStore(env: Env): Promise<DeviceStore> {
   const stub = await getAgentByName(env.Orchestrator, "local-agent");
   const call = ((op: string, arg?: unknown) => (stub as unknown as { agentStore: StoreCall }).agentStore(op, arg)) as StoreCall;
   return {

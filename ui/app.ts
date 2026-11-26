@@ -650,7 +650,7 @@ function setAccountLabel(){
 }
 function openSettings(){navigation.navigate({page:'settings'});}
 
-const renderSettingsPage=createSettingsPage({$,local,notice,failure,api,setAccountLabel,navigation,chatHistory,VOICES,expertOn,setChatVoice,refreshMode,openModelPicker,openGlobalMemory,openAssetIntelligence,loadConnections,currentModelLabel,account:()=>account,chatVoice:()=>chatVoice,preferredModel:()=>preferredModel,chatStorage:()=>chatStorage,project:()=>project});
+const renderSettingsPage=createSettingsPage({$,local,notice,failure,api,setAccountLabel,navigation,chatHistory,VOICES,expertOn,setChatVoice,refreshMode,openModelPicker,openGlobalMemory,openAssetIntelligence,loadConnections,currentModelLabel,account:()=>account,chatVoice:()=>chatVoice,preferredModel:()=>preferredModel,chatStorage:()=>chatStorage});
 
 bind('settings',()=>openSettings());
 createAccountMenu({wrap:$('account-wrap'),button:$<HTMLButtonElement>('account'),menu:$('account-menu')});

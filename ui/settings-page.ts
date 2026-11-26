@@ -35,7 +35,6 @@ export type SettingsContext={
  chatVoice:()=>SettingsVoice;
  preferredModel:()=>string;
  chatStorage:()=>Storage|undefined;
- project?:()=>string;
 };
 
 export function createSettingsPage(ctx:SettingsContext){
@@ -186,7 +185,7 @@ function renderSettingsPage(route:Extract<Route,{page:'settings'}>){
 
  if(section==='agent'){
   settingsHeading(content,'Локальный агент','Безопасный доступ к одной папке на твоём компьютере.');
-  if(account?.role==='admin')content.append(agentSettings(api,notice,failure,ctx.project?.()??''));
+  if(account?.role==='admin')content.append(agentSettings(api,notice,failure));
   else settingsText(content,'Управление локальным агентом доступно администраторам.','context-note');
   return;
  }
