@@ -153,7 +153,7 @@ export async function currentProjectLease(env:Env,projectId:string):Promise<Proj
 }
 
 export async function requireCapability(env:Env,project:string|undefined,capability:string):Promise<void> {
-  if(!["git","deploy","sandbox","qa","local"].includes(capability)) return;
+  if(!["git","deploy","sandbox","qa"].includes(capability)) return;
   if(!project) throw new AccessError("Интеграция требует проект.");
   const row=await env.AZRAIL_D1.prepare("SELECT 1 AS ok FROM project_permissions WHERE project_id=? AND capability=?").bind(project,capability).first();
   if(!row) throw new AccessError(`Администратор не разрешил ${capability} для этого проекта.`);

@@ -1,7 +1,7 @@
 import { getAgentByName } from "agents";
 import type { Env } from "../types";
 import { loadCheckpoints } from "./checkpoints";
-import { LOCAL_APPROVAL_TOOLS } from "./local-agent";
+import { isLocalToolName } from "./local-agent";
 import { log } from "./resilience";
 
 export type ResumeOutcome = { missionId: string; resumed: boolean; reason?: string };
@@ -61,7 +61,7 @@ export async function resumeAfterLocalJob(env: Env, jobId: string): Promise<Resu
     for (const mission of results ?? []) {
       try {
         const points = await loadCheckpoints(env, mission.id);
-        if (!points.some((point) => LOCAL_APPROVAL_TOOLS.has(point.tool) && point.status === "completed" && mentionsCall(point.result_json, jobId))) continue;
+        if (!points.some((point) => isLocalToolName(point.tool) && point.status === "completed" && mentionsCall(point.result_json, jobId))) continue;
         const agent = await getAgentByName(env.Orchestrator, mission.project_id);
         const outcome = await agent.recoverMission(mission.id);
         outcomes.push({ missionId: mission.id, resumed: outcome.resumed, ...(outcome.reason ? { reason: outcome.reason } : {}) });

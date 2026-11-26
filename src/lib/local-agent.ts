@@ -8,6 +8,8 @@ export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot"
 /** Задачи, которые меняют компьютер: ждут «Разрешить». */
 export const AGENT_APPROVAL_KINDS: ReadonlySet<string> = new Set(["write", "run", "addroot", "edit", "mkdir", "move", "trash", "shell"]);
 /** Инструменты миссии, которые ждут «Разрешить» владельца. */
+/** Любой инструмент агента может запросить «Разрешить» (например, доступ к новой папке). */
+export const isLocalToolName = (tool: string): boolean => tool.startsWith("local_");
 export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot", "local_edit", "local_mkdir", "local_move", "local_trash", "local_shell", "local_browser_act"]);
 const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash", "shell", "browser"]);
 
