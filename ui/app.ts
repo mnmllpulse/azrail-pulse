@@ -1,4 +1,5 @@
 import {missionSteps,renderMission} from './mission-view';
+import {renderAgentApprovals} from './mission-agent';
 import {createSettingsPage} from './settings-page';
 import {APIError} from './api-error';
 import {localCommandOf,blockedReply,limitsText,type LimitsRead} from './chat-local-commands';
@@ -1814,7 +1815,9 @@ async function poll(version=epoch){
   }
   $('context-status').textContent=$('mission-status').textContent;syncChatUI();
   if(previous!==state.status&&!state.active&&!$('mission-panel').hidden)void refreshContextFiles();
-  if(state.active)pollTimer=window.setTimeout(()=>void poll(version),3000);
+  const waitingOnAgent=account?.role==='admin'?await renderAgentApprovals(document,state.status,api,{notice,failure,refresh:()=>void poll(version)}):false;
+  if(version!==epoch||observedMission!==mission)return;
+  if(state.active||waitingOnAgent)pollTimer=window.setTimeout(()=>void poll(version),3000);
  }
  catch(e){if(version!==epoch)return;pollFailures++;$('mission-connection').textContent=e instanceof APIError&&e.status===401?'Сессия завершена. Войдите снова, чтобы продолжить просмотр.':'Связь прервана. Задача может продолжать работу на сервере. Повторная отправка не выполняется.';if(!(e instanceof APIError&&[401,403,404].includes(e.status))&&pollFailures<6)pollTimer=window.setTimeout(()=>void poll(version),Math.min(30000,3000*2**pollFailures));}
 }
