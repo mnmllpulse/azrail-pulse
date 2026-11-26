@@ -10,6 +10,7 @@ import {
   enableAgent,
   finishJob,
   pollJob,
+  setAlways,
   setTrust,
   publicJob,
   type AgentJob,
@@ -104,6 +105,10 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
   if (path === "disable" && method === "POST") {
     await disableAgent(store);
     return Response.json({ ok: true });
+  }
+  if (path === "always" && method === "POST") {
+    const body = await readJsonRecord(request, 2_000);
+    return Response.json({ always: await setAlways(store, body.scopes) });
   }
   if (path === "trust" && method === "POST") {
     const trust = await setTrust(store, await readJsonRecord(request, 2_000));

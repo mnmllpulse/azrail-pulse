@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { executeLocalTool } from "../src/core/execution-local";
 import { AccessError } from "../src/lib/accounts";
-import { activeTrust, agentStatus, createJob, enableAgent, setTrust, trustScopeOf, type AgentJob, type AgentState, type AgentStore } from "../src/lib/local-agent";
+import { ALWAYS_SCOPES, activeTrust, setAlways, agentStatus, createJob, enableAgent, setTrust, trustScopeOf, type AgentJob, type AgentState, type AgentStore } from "../src/lib/local-agent";
 
 function memoryStore(): AgentStore {
   let state: AgentState | null = null;
@@ -113,5 +113,36 @@ describe("миссия при доверии", () => {
     const state = (await store.getState())!;
     await store.setState({ ...state, expiresAt: Date.now() + 3_600_000 });
     expect(await executeLocalTool("local_mkdir", { path: "proj" }, { store })).toMatchObject({ status: "prepared", approvalRequired: true });
+  });
+});
+
+describe("«всегда» для файлов", () => {
+  it("постоянное разрешение пропускает файлы, но не терминал, и переживает новую сессию", async () => {
+    const store = await ready();
+    expect(await setAlways(store, ["files"], NOW)).toEqual(["files"]);
+    expect(await status(store, { kind: "trash", path: "a" })).toBe("queued");
+    expect(await status(store, { kind: "shell", path: "npm test" })).toBe("awaiting_approval");
+    expect(await status(store, { kind: "addroot", path: "desktop" })).toBe("awaiting_approval");
+    await enableAgent(store, NOW + 5 * 60 * 60_000);
+    expect((await store.getState())!.always).toEqual(["files"]);
+    expect(await status(store, { kind: "mkdir", path: "d" }, NOW + 5 * 60 * 60_000 + 1)).toBe("queued");
+  });
+
+  it("навсегда нельзя разрешить терминал и браузер, можно отозвать", async () => {
+    const store = await ready();
+    expect(ALWAYS_SCOPES).toEqual(["files"]);
+    for (const scopes of [["shell"], ["browser"], ["files", "shell"], "files", undefined]) await expect(setAlways(store, scopes, NOW)).rejects.toBeInstanceOf(AccessError);
+    await setAlways(store, ["files"], NOW);
+    expect(await setAlways(store, [], NOW)).toEqual([]);
+    expect(await status(store, { kind: "mkdir", path: "d" })).toBe("awaiting_approval");
+  });
+
+  it("выключение агента снимает постоянное разрешение", async () => {
+    const store = await ready();
+    await setAlways(store, ["files"], NOW);
+    const { disableAgent } = await import("../src/lib/local-agent");
+    await disableAgent(store);
+    await enableAgent(store, NOW + 10);
+    expect((await store.getState())!.always).toEqual([]);
   });
 });

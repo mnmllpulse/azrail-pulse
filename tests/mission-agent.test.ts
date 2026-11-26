@@ -23,8 +23,8 @@ describe("запросы агента в карточке задачи", () => {
   it("показывает запрос и разрешает одной кнопкой", async () => {
     const { doc, api, calls, hooks } = setup([{ id: "j1", kind: "mkdir", path: "test-agent", status: "awaiting_approval" }]);
     expect(await renderAgentApprovals(doc, "waiting_approval", api as never, hooks)).toBe(true);
-    expect(doc.getElementById("mission-agent")?.textContent).toContain("Создать папку test-agent");
-    btn(doc, "Разрешить")!.click();
+    expect(doc.getElementById("mission-agent")?.textContent).toContain("Создать папку test-agent?");
+    btn(doc, "Разрешить один раз")!.click();
     await tick();
     expect(calls.at(-1)).toMatchObject({ path: "/api/agent/jobs/j1/approve" });
     expect(hooks.refresh).toHaveBeenCalled();
@@ -38,10 +38,25 @@ describe("запросы агента в карточке задачи", () => {
     expect(calls.at(-1)).toMatchObject({ path: "/api/agent/jobs/j1/reject" });
   });
 
+  it("«Всегда для файлов» запоминает область и разрешает", async () => {
+    const { doc, api, calls, hooks } = setup([{ id: "j9", kind: "edit", path: "a.ts", status: "awaiting_approval" }]);
+    await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
+    btn(doc, "Всегда для файлов")!.click();
+    await tick();
+    expect(calls.find((c) => c.path === "/api/agent/always")?.body).toEqual({ scopes: ["files"] });
+    expect(calls.at(-1)).toMatchObject({ path: "/api/agent/jobs/j9/approve" });
+  });
+
+  it("для терминала «всегда» нет, есть только 30 минут", async () => {
+    const { doc, api, hooks } = setup([{ id: "j8", kind: "shell", path: "npm test", status: "awaiting_approval" }]);
+    await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
+    expect([...doc.querySelectorAll("button")].map((b) => b.textContent)).toEqual(["Разрешить один раз", "Разрешать команды 30 мин", "Отклонить"]);
+  });
+
   it("«доверять 30 мин» включает область и разрешает", async () => {
     const { doc, api, calls, hooks } = setup([{ id: "j2", kind: "shell", path: "npm install", status: "awaiting_approval" }]);
     await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
-    btn(doc, "Разрешить и доверять 30 мин (терминал)")!.click();
+    btn(doc, "Разрешать команды 30 мин")!.click();
     await tick();
     const trust = calls.find((c) => c.path === "/api/agent/trust");
     expect(trust?.body).toEqual({ scopes: ["shell"], minutes: 30 });
@@ -51,8 +66,8 @@ describe("запросы агента в карточке задачи", () => {
   it("доступ к папке: понятный текст и без кнопки доверия", async () => {
     const { doc, api, hooks } = setup([{ id: "j3", kind: "addroot", path: "desktop", status: "awaiting_approval" }]);
     await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
-    expect(doc.getElementById("mission-agent")?.textContent).toContain("Открыть доступ к папке «Рабочий стол»");
-    expect([...doc.querySelectorAll("button")].some((b) => b.textContent?.includes("доверять"))).toBe(false);
+    expect(doc.getElementById("mission-agent")?.textContent).toContain("Открыть доступ к папке «Рабочий стол»?");
+    expect([...doc.querySelectorAll("button")].map((b) => b.textContent)).toEqual(["Разрешить", "Отклонить"]);
   });
 
   it("выполняющаяся задача держит опрос, пустой список снимает", async () => {

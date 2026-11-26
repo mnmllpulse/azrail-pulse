@@ -109,7 +109,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
   );
 
   const paint = async () => {
-    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; paired?: boolean; deviceOnline?: boolean; root?: string | null; roots?: AgentRootView[]; trust?: { until: number; scopes: string[] } | null; jobs: JobView[] };
+    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; paired?: boolean; deviceOnline?: boolean; root?: string | null; roots?: AgentRootView[]; trust?: { until: number; scopes: string[] } | null; always?: string[]; jobs: JobView[] };
     try {
       state = await api('/api/agent/status');
     } catch {
@@ -256,6 +256,12 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         stop.type = 'button';
         stop.onclick = () => void api('/api/agent/trust', { method: 'POST', body: JSON.stringify({ scopes: [] }) }).then(() => { notice('Доверие выключено.'); return paint(); }).catch(failure);
         trustBox.append(el('p', `Доверие идёт ещё ~${left} мин: выбранные действия выполняются без «Разрешить».`, 'context-note'), stop);
+      }
+      if (state.always?.length) {
+        const revoke = el('button', 'Отозвать «всегда»');
+        revoke.type = 'button';
+        revoke.onclick = () => void api('/api/agent/always', { method: 'POST', body: JSON.stringify({ scopes: [] }) }).then(() => { notice('Постоянное разрешение снято.'); return paint(); }).catch(failure);
+        trustBox.append(el('p', 'Всегда разрешено: файлы (запись, правка, перенос, корзина).', 'context-note'), revoke);
       }
       trustBox.append(el('p', 'Добавление папок и перенос доступа всегда требуют «Разрешить». Доверие заканчивается само и при выключении агента. Выбирай только то, что понимаешь.', 'muted'));
       nodes.push(trustBox);

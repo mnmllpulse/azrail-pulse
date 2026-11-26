@@ -4,7 +4,6 @@ interface Hooks { notice: (text: string, bad?: boolean) => void; failure: (error
 
 const FILE_KINDS = new Set(['write', 'edit', 'mkdir', 'move', 'trash']);
 const BROWSER_WRITE = new Set(['click', 'type', 'press', 'upload']);
-const SCOPE_LABEL: Record<string, string> = { files: 'файлы', browser: 'браузер', shell: 'терминал' };
 const FOLDER: Record<string, string> = { desktop: 'Рабочий стол', documents: 'Документы', downloads: 'Загрузки' };
 
 export function trustScopeFor(job: AgentJobView): string | null {
@@ -46,38 +45,43 @@ export async function renderAgentApprovals(root: Document, status: string, api: 
   if (!waiting.length && !running.length) { box?.remove(); return false; }
   if (!box) { box = root.createElement('div'); box.id = 'mission-agent'; panel.after(box); }
   box.replaceChildren();
-  const decide = (job: AgentJobView, approve: boolean, trust?: string) => {
+  const decide = (job: AgentJobView, approve: boolean, grant?: { path: string; body: unknown }) => {
     const run = async () => {
-      if (trust) await api('/api/agent/trust', { method: 'POST', body: JSON.stringify({ scopes: [trust], minutes: 30 }) });
+      if (grant) await api(grant.path, { method: 'POST', body: JSON.stringify(grant.body) });
       await api(`/api/agent/jobs/${job.id}/${approve ? 'approve' : 'reject'}`, { method: 'POST' });
       hooks.notice(approve ? 'Разрешено. Агент выполняет.' : 'Отклонено.');
       hooks.refresh();
     };
     void run().catch(hooks.failure);
   };
+  const button = (text: string, onclick: () => void, primary = false) => {
+    const el = root.createElement('button');
+    el.type = 'button';
+    el.textContent = text;
+    if (primary) el.className = 'primary';
+    el.onclick = onclick;
+    return el;
+  };
   for (const job of waiting) {
-    const row = root.createElement('div');
-    row.className = 'agent-approval';
-    const label = root.createElement('p');
-    label.textContent = describeAgentJob(job);
-    const ok = root.createElement('button');
-    ok.type = 'button';
-    ok.textContent = 'Разрешить';
-    ok.onclick = () => decide(job, true);
-    const no = root.createElement('button');
-    no.type = 'button';
-    no.textContent = 'Отклонить';
-    no.onclick = () => decide(job, false);
-    row.append(label, ok, no);
+    const card = root.createElement('div');
+    card.className = 'agent-approval';
+    const question = root.createElement('p');
+    question.textContent = `${describeAgentJob(job)}?`;
+    card.append(question);
     const scope = trustScopeFor(job);
-    if (scope) {
-      const trust = root.createElement('button');
-      trust.type = 'button';
-      trust.textContent = `Разрешить и доверять 30 мин (${SCOPE_LABEL[scope]})`;
-      trust.onclick = () => decide(job, true, scope);
-      row.append(trust);
+    if (job.kind === 'addroot') {
+      card.append(button('Разрешить', () => decide(job, true), true), button('Отклонить', () => decide(job, false)));
+      const note = root.createElement('p');
+      note.className = 'muted';
+      note.textContent = 'Папка запомнится. Убрать её можно в настройках агента.';
+      card.append(note);
+    } else {
+      card.append(button('Разрешить один раз', () => decide(job, true), true));
+      if (scope === 'files') card.append(button('Всегда для файлов', () => decide(job, true, { path: '/api/agent/always', body: { scopes: ['files'] } })));
+      else if (scope) card.append(button(`Разрешать ${scope === 'shell' ? 'команды' : 'действия в браузере'} 30 мин`, () => decide(job, true, { path: '/api/agent/trust', body: { scopes: [scope], minutes: 30 } })));
+      card.append(button('Отклонить', () => decide(job, false)));
     }
-    box.append(row);
+    box.append(card);
   }
   for (const job of running) {
     const p = root.createElement('p');
