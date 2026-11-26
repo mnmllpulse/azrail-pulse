@@ -1,287 +1,161 @@
-import {afterEach,describe,expect,it,vi} from 'vitest';
-import {Window} from 'happy-dom';
-import {childPath,crumbs,createAgentBrowser,LIST_LIMIT,parentPath,parseListing} from '../ui/agent-browser';
+import { mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+import { afterEach, describe, expect, it } from "vitest";
+import { closeBrowser, runBrowser } from "../scripts/local-agent/azrail-agent.mjs";
+import { executeLocalTool } from "../src/core/execution-local";
+import { AccessError } from "../src/lib/accounts";
+import { normalizeBrowserArgs } from "../src/lib/browser-actions";
+import { createJob, enableAgent, type AgentJob, type AgentState, type AgentStore } from "../src/lib/local-agent";
 
-describe('agent browser helpers',()=>{
-  it('parses listings: folders first, sorted, closed names skipped',()=>{
-    expect(parseListing('b.txt\nsrc/\n\na.md\nui/\n')).toEqual([{name:'src',dir:true},{name:'ui',dir:true},{name:'a.md',dir:false},{name:'b.txt',dir:false}]);
-    expect(parseListing('')).toEqual([]);
-  });
-  it('builds child, parent and breadcrumb paths without ".."',()=>{
-    expect(childPath('','src')).toBe('src');
-    expect(childPath('src','ui')).toBe('src/ui');
-    expect(parentPath('src/ui')).toBe('src');
-    expect(parentPath('src')).toBe('');
-    expect(parentPath('')).toBe('');
-    expect(crumbs('src/ui')).toEqual([{label:'Папка агента',path:''},{label:'src',path:'src'},{label:'ui',path:'src/ui'}]);
-  });
-});
+function memoryStore(): AgentStore {
+  let state: AgentState | null = null;
+  const jobs = new Map<string, AgentJob>();
+  return {
+    async getState() { return state && { ...state }; },
+    async setState(next) { state = next; },
+    async insertJob(job) { jobs.set(job.id, { ...job }); },
+    async getJob(id) { return jobs.get(id) ? { ...jobs.get(id)! } : null; },
+    async updateJob(id, patch) { Object.assign(jobs.get(id)!, patch); },
+    async claimQueued() { return null; },
+    async recentJobs() { return [...jobs.values()]; },
+  };
+}
+const enabled = async () => { const s = memoryStore(); await enableAgent(s); return s; };
 
-let win:Window|undefined;
-afterEach(()=>{vi.unstubAllGlobals();win?.close();win=undefined;});
+function fakePlaywright(opts: { inputKind?: string; count?: number } = {}) {
+  const calls: string[] = [];
+  let url = "about:blank";
+  const locator = {
+    first: () => locator,
+    count: async () => opts.count ?? 1,
+    click: async () => { calls.push("click"); },
+    fill: async (text: string) => { calls.push(`fill:${text}`); },
+    press: async (key: string) => { calls.push(`press:${key}`); },
+    evaluate: async () => opts.inputKind ?? "text|",
+    setInputFiles: async (file: string) => { calls.push(`upload:${file}`); },
+  };
+  const page = {
+    url: () => url,
+    goto: async (to: string) => { url = to; calls.push(`goto:${to}`); },
+    title: async () => "Тест",
+    evaluate: async (fn: unknown) => (String(fn).includes("querySelectorAll") ? ["[1] кнопка «Опубликовать»"] : "Текст страницы"),
+    waitForLoadState: async () => undefined,
+    locator: () => locator,
+    mouse: { wheel: async (_x: number, y: number) => { calls.push(`wheel:${y}`); } },
+    keyboard: { press: async (key: string) => { calls.push(`key:${key}`); } },
+    screenshot: async ({ path }: { path: string }) => { await writeFile(path, "png"); calls.push("shot"); },
+  };
+  const context = { pages: () => [page], newPage: async () => page, route: async () => undefined, close: async () => { calls.push("closed"); } };
+  return { calls, loader: async () => ({ chromium: { launchPersistentContext: async () => context } }) };
+}
+const job = (path: string, content: unknown = {}) => ({ path, content: JSON.stringify(content) });
 
-type Tree=Record<string,string>;
-const setup=(tree:Tree,state:{enabled?:boolean;connected?:boolean}={enabled:true,connected:true},reads:Record<string,string>={})=>{
-  win=new Window({url:'https://azrail.example/'});
-  vi.stubGlobal('document',win.document);
-  const calls:Array<{kind:string;path:string}>=[];
-  const jobs=new Map<string,{kind:string;path:string}>();
-  let n=0;
-  const api=vi.fn(async(path:string,init?:RequestInit)=>{
-    if(path==='/api/agent/status')return {...state,jobs:[]};
-    if(path==='/api/agent/jobs'){const body=JSON.parse(String(init?.body));const id=`j${++n}`;jobs.set(id,body);calls.push(body);return {job:{id,kind:body.kind,path:body.path,status:'queued',result:null,error:null}};}
-    const id=path.split('/').pop()!;const job=jobs.get(id)!;
-    if(job.kind==='list')return {job:{id,...job,status:job.path in tree?'done':'failed',result:tree[job.path]??null,error:job.path in tree?null:'Нет такой папки.'}};
-    return {job:{id,...job,status:'done',result:reads[job.path]??'',error:null}};
-  });
-  const picks:Array<{path:string;kind:string}>=[];
-  const ownJobs=new Set<string>();
-  const browser=createAgentBrowser({api,sleep:async()=>{},onSelect:s=>picks.push(s),failure:vi.fn(),ownJobs});
-  win.document.body.append(browser.element as unknown as Node);
-  const doc=win.document;
-  const rows=()=>Array.from(doc.querySelectorAll<HTMLButtonElement>('.agent-browser-entry'));
-  const crumbBtns=()=>Array.from(doc.querySelectorAll<HTMLButtonElement>('.agent-browser-crumb'));
-  const flush=()=>new Promise(r=>setTimeout(r,0));
-  return {browser,api,calls,picks,ownJobs,doc,rows,crumbBtns,flush};
-};
+afterEach(async () => { await closeBrowser(); });
 
-describe('agent browser',()=>{
-  it('opens the root and renders folders before files',async()=>{
-    const t=setup({'':'src/\nREADME.md\ndocs/'});
-    await t.browser.open('');
-    expect(t.rows().map(r=>r.textContent)).toEqual(['▸docs/','▸src/','·README.md']);
-    expect(t.picks.at(-1)).toEqual({path:'',kind:'list'});
-    expect(t.ownJobs.size).toBe(1);
+describe("аргументы действий браузера", () => {
+  it("нормализует и проверяет", () => {
+    expect(JSON.parse(normalizeBrowserArgs("open", { url: " https://Example.com/a " }))).toEqual({ url: "https://example.com/a" });
+    expect(JSON.parse(normalizeBrowserArgs("type", { ref: "3", text: "привет", submit: true }))).toEqual({ ref: 3, text: "привет", submit: true });
+    expect(JSON.parse(normalizeBrowserArgs("scroll", { dy: 99999 }))).toEqual({ dy: 3000 });
+    expect(JSON.parse(normalizeBrowserArgs("upload", { ref: 2, file: "video.mp4" }))).toEqual({ ref: 2, file: "video.mp4" });
   });
-  it('navigates into a folder, up and via breadcrumbs',async()=>{
-    const t=setup({'':'src/','src':'ui/\nindex.ts','src/ui':'app.ts'});
-    await t.browser.open('');
-    t.rows()[0].click();await t.flush();await t.flush();
-    expect(t.calls.at(-1)).toEqual({kind:'list',path:'src'});
-    expect(t.crumbBtns().map(b=>b.textContent)).toEqual(['Папка агента','src']);
-    expect(t.rows().map(r=>r.textContent)).toEqual(['↑ Вверх','▸ui/','·index.ts']);
-    t.rows()[1].click();await t.flush();await t.flush();
-    expect(t.calls.at(-1)).toEqual({kind:'list',path:'src/ui'});
-    t.rows()[0].click();await t.flush();await t.flush();
-    expect(t.calls.at(-1)).toEqual({kind:'list',path:'src'});
-    t.crumbBtns()[0].click();await t.flush();await t.flush();
-    expect(t.calls.at(-1)).toEqual({kind:'list',path:''});
-  });
-  it('opens a file in a read-only preview and reports the selection',async()=>{
-    const t=setup({'':'a.txt'},undefined,{'a.txt':'привет'});
-    await t.browser.open('');
-    t.rows()[0].click();await t.flush();await t.flush();
-    expect(t.calls.at(-1)).toEqual({kind:'read',path:'a.txt'});
-    expect(t.picks.at(-1)).toEqual({path:'a.txt',kind:'read'});
-    const area=t.doc.querySelector<HTMLTextAreaElement>('.agent-browser-preview textarea')!;
-    expect(area.value).toBe('привет');
-    expect(area.readOnly).toBe(true);
-  });
-  it('explains a disabled or disconnected agent without creating jobs',async()=>{
-    for(const [state,text] of [[{enabled:false},'выключен'],[{enabled:true,connected:false},'не запущен']] as const){
-      const t=setup({'':''},state);
-      await t.browser.open('');
-      expect(t.doc.querySelector('.agent-browser-list')!.textContent).toContain(text);
-      expect(t.calls).toEqual([]);
+  it("отклоняет плохое", () => {
+    for (const [action, input] of [["open", { url: "http://localhost" }], ["open", {}], ["click", {}], ["click", { ref: 0 }], ["click", { ref: 1.5 }], ["type", { ref: 1, text: "x".repeat(2001) }], ["press", { key: "Delete" }], ["upload", { ref: 1, file: ".env" }], ["upload", { ref: 1, file: "../x" }], ["evaluate", {}]] as const) {
+      expect(() => normalizeBrowserArgs(action, input), action).toThrow(AccessError);
     }
   });
-  it('offline agent: shows launch steps and a retry button that re-checks the status',async()=>{
-    const t=setup({'':'src/\n'},{enabled:true,connected:false});
-    await t.browser.open('');
-    const steps=Array.from(t.doc.querySelectorAll('.agent-browser-steps li')).map(li=>li.textContent);
-    expect(steps).toHaveLength(4);
-    expect(steps.join(' ')).toContain('PowerShell');
-    const before=t.api.mock.calls.length;
-    const retry=Array.from(t.doc.querySelectorAll<HTMLButtonElement>('.agent-browser-list button')).find(b=>b.textContent==='Повторить')!;
-    retry.click();await t.flush();
-    expect(t.api.mock.calls.length).toBeGreaterThan(before);
-    expect(t.calls).toEqual([]);
+});
+
+describe("задача browser на сервере", () => {
+  it("просмотр идёт сразу, клик и ввод ждут «Разрешить»", async () => {
+    const store = await enabled();
+    expect((await createJob(store, { kind: "browser", path: "open", content: JSON.stringify({ url: "https://example.com" }) })).status).toBe("queued");
+    expect((await createJob(store, { kind: "browser", path: "snapshot" })).status).toBe("queued");
+    for (const [path, content] of [["click", { ref: 1 }], ["type", { ref: 1, text: "a" }], ["press", { key: "Enter" }], ["upload", { ref: 1, file: "a.mp4" }]] as const) {
+      expect((await createJob(store, { kind: "browser", path, content: JSON.stringify(content) })).status, path).toBe("awaiting_approval");
+    }
   });
-  it('disabled agent: retry button but no launch steps',async()=>{
-    const t=setup({'':''},{enabled:false});
-    await t.browser.open('');
-    expect(t.doc.querySelector('.agent-browser-steps')).toBeNull();
-    expect(Array.from(t.doc.querySelectorAll('.agent-browser-list button')).some(b=>b.textContent==='Повторить')).toBe(true);
-  });
-  it('shows the agent error for a failed listing',async()=>{
-    const t=setup({'':'x/'});
-    await t.browser.open('missing');
-    expect(t.doc.querySelector('.agent-browser-list')!.textContent).toContain('Нет такой папки.');
-  });
-  it('says so when a folder is empty or truncated',async()=>{
-    const empty=setup({'':''});
-    await empty.browser.open('');
-    expect(empty.doc.querySelector('.agent-browser-list')!.textContent).toContain('пуста');
-    const big=setup({'':Array.from({length:LIST_LIMIT},(_,i)=>`f${i}.txt`).join('\n')});
-    await big.browser.open('');
-    expect(big.doc.querySelector('.agent-browser-list')!.textContent).toContain(`первые ${LIST_LIMIT}`);
-  });
-  it('treats entry names as text, not markup',async()=>{
-    const t=setup({'':'<img src=x onerror=alert(1)>.txt'});
-    await t.browser.open('');
-    expect(t.doc.querySelector('.agent-browser-list img')).toBeNull();
-    expect(t.rows()[0].textContent).toContain('<img');
+  it("плохое действие не попадает в очередь", async () => {
+    const store = await enabled();
+    await expect(createJob(store, { kind: "browser", path: "evaluate" })).rejects.toBeInstanceOf(AccessError);
+    await expect(createJob(store, { kind: "browser", path: "open", content: "не json" })).rejects.toBeInstanceOf(AccessError);
   });
 });
 
-describe('agent settings form',()=>{
-  const mount=async(state:Record<string,unknown>)=>{
-    const {agentSettings}=await import('../ui/local-agent');
-    win=new Window({url:'https://azrail.example/'});
-    vi.stubGlobal('document',win.document);
-    vi.stubGlobal('location',win.location);
-    vi.stubGlobal('localStorage',win.localStorage);
-    const posted:any[]=[];
-    const api=vi.fn(async(path:string,init?:RequestInit)=>{
-      if(path==='/api/agent/status')return state;
-      if(path==='/api/agent/jobs'&&init?.method==='POST'){const body=JSON.parse(String(init.body));posted.push(body);return {job:{id:`j${posted.length}`,kind:body.kind,path:body.path,status:'queued',result:null,error:null}};}
-      const id=path.split('/').pop()!;
-      return {job:{id,kind:'list',path:'',status:'done',result:'src/\na.txt',error:null}};
-    });
-    const host=agentSettings(api,vi.fn(),vi.fn());
-    win.document.body.append(host as unknown as Node);
-    for(let i=0;i<10;i++)await new Promise(r=>setTimeout(r,0));
-    return {host,api,posted,doc:win.document};
-  };
-  it('shows the browser and a whitelist select for commands when the agent is connected',async()=>{
-    const t=await mount({enabled:true,connected:true,expiresAt:Date.now()+3600_000,jobs:[]});
-    expect(t.doc.querySelector('.agent-browser')).not.toBeNull();
-    expect(t.doc.querySelectorAll('.agent-browser-entry').length).toBeGreaterThan(0);
-    const [kind,command]=Array.from(t.doc.querySelectorAll<HTMLSelectElement>('.settings-block select'));
-    kind.value='run';kind.dispatchEvent(new t.doc.defaultView!.Event('change'));
-    expect(command.hidden).toBe(false);
-    expect(Array.from(command.options).map(o=>o.value)).toContain('npm_test');
-    const send=Array.from(t.doc.querySelectorAll<HTMLButtonElement>('button')).find(b=>b.textContent==='Поставить задачу')!;
-    command.value='git_status';
-    send.click();
-    await new Promise(r=>setTimeout(r,0));
-    expect(t.posted.at(-1)).toEqual({kind:'run',path:'git_status'});
+describe("инструменты миссии для браузера", () => {
+  it("local_browser не принимает клики, local_browser_act не принимает просмотр", async () => {
+    const store = await enabled();
+    const state = (await store.getState())!;
+    await store.setState({ ...state, lastSeen: Date.now() });
+    await expect(executeLocalTool("local_browser", { action: "click", ref: 1 }, { store })).rejects.toThrow(/local_browser_act/);
+    await expect(executeLocalTool("local_browser_act", { action: "open", url: "https://example.com" }, { store })).rejects.toThrow(/click, type/);
   });
-  it('several agent folders: shows a picker, switching saves the choice and tags later jobs',async()=>{
-    const roots=[{name:'app',path:'C:\\app'},{name:'docs',path:'C:\\docs'}];
-    const t=await mount({enabled:true,connected:true,expiresAt:Date.now()+3600_000,root:'C:\\app',roots,jobs:[]});
-    const picker=t.doc.querySelector<HTMLSelectElement>('select[aria-label="Активная папка агента"]')!;
-    expect(Array.from(picker.options).map(o=>o.value)).toEqual(['app','docs']);
-    expect(picker.value).toBe('app');
-    expect(t.posted[0]).toMatchObject({kind:'list',root:'app'});
-    picker.value='docs';picker.dispatchEvent(new t.doc.defaultView!.Event('change'));
-    for(let i=0;i<10;i++)await new Promise(r=>setTimeout(r,0));
-    expect(t.doc.defaultView!.localStorage.getItem('pulse.agentActiveRoot')).toBe('docs');
-    expect(t.posted.at(-1)).toMatchObject({kind:'list',root:'docs'});
-    expect(t.doc.body.textContent).toContain('Папка агента: C:\\docs');
-  });
-  it('one agent folder: no picker and the saved choice is cleared',async()=>{
-    const t0=await mount({enabled:true,connected:true,expiresAt:Date.now()+3600_000,root:'C:\\app',roots:[{name:'app',path:'C:\\app'}],jobs:[]});
-    expect(t0.doc.querySelector('select[aria-label="Активная папка агента"]')).toBeNull();
-    expect(t0.doc.defaultView!.localStorage.getItem('pulse.agentActiveRoot')).toBeNull();
-  });
-  it('copy button puts the whole command with a trailing newline on the clipboard',async()=>{
-    const {agentSettings}=await import('../ui/local-agent');
-    win=new Window({url:'https://azrail.example/'});
-    vi.stubGlobal('document',win.document);vi.stubGlobal('location',win.location);vi.stubGlobal('localStorage',win.localStorage);
-    const writeText=vi.fn(async()=>undefined);
-    vi.stubGlobal('navigator',{clipboard:{writeText}});
-    let enabled=false;
-    const api=vi.fn(async(path:string)=>{
-      if(path==='/api/agent/enable'){enabled=true;return {token:'azagent_'+'a'.repeat(64),expiresAt:Date.now()+3600_000};}
-      if(path==='/api/agent/status')return {enabled,connected:false,expiresAt:enabled?Date.now()+3600_000:null,roots:[],jobs:[]};
-      return {};
-    });
-    const host=agentSettings(api,vi.fn(),vi.fn());
-    win.document.body.append(host as unknown as Node);
-    for(let i=0;i<10;i++)await new Promise(r=>setTimeout(r,0));
-    const buttons=()=>Array.from(win.document.querySelectorAll<HTMLButtonElement>('button'));
-    buttons().find(b=>b.textContent==='Включить на 1 час')!.click();
-    for(let i=0;i<10;i++)await new Promise(r=>setTimeout(r,0));
-    buttons().find(b=>b.textContent==='Скопировать команду')!.click();
-    await new Promise(r=>setTimeout(r,0));
-    const text=writeText.mock.calls[0][0] as string;
-    expect(text.endsWith('node scripts\\local-agent\\azrail-agent.mjs\n')).toBe(true);
-    expect(text).toContain('azagent_'+'a'.repeat(64));
-  });
-  it('does not render the browser for a disabled agent',async()=>{
-    const t=await mount({enabled:false,connected:false,expiresAt:null,jobs:[]});
-    expect(t.doc.querySelector('.agent-browser')).toBeNull();
+  it("local_browser_act просит разрешение", async () => {
+    const store = await enabled();
+    const out = (await executeLocalTool("local_browser_act", { action: "click", ref: 4 }, { store })) as { approvalRequired: boolean; id: string };
+    expect(out.approvalRequired).toBe(true);
+    expect((await store.getJob(out.id))?.status).toBe("awaiting_approval");
   });
 });
 
-describe('agent setup and path conversion',()=>{
-  type S={enabled:boolean;connected:boolean;root:string|null;expiresAt:number|null;jobs:unknown[]};
-  const mountLive=async(initial:Partial<S>)=>{
-    const {agentSettings}=await import('../ui/local-agent');
-    win=new Window({url:'https://azrail.example/settings/agent'});
-    vi.stubGlobal('document',win.document);
-    vi.stubGlobal('location',win.location);
-    vi.stubGlobal('localStorage',win.localStorage);
-    const state:S={enabled:false,connected:false,root:null,expiresAt:null,jobs:[],...initial};
-    const posted:any[]=[];
-    const notice=vi.fn();
-    const api=vi.fn(async(path:string,init?:RequestInit)=>{
-      if(path==='/api/agent/status')return {...state};
-      if(path==='/api/agent/enable'){state.enabled=true;state.expiresAt=Date.now()+3600_000;return {token:'azagent_'+'a'.repeat(64)};}
-      if(path==='/api/agent/jobs'&&init?.method==='POST'){const b=JSON.parse(String(init.body));posted.push(b);return {job:{id:`j${posted.length}`,kind:b.kind,path:b.path,status:'queued',result:null,error:null}};}
-      const id=path.split('/').pop()!;
-      return {job:{id,kind:'list',path:'',status:'done',result:'src/\na.ts',error:null}};
-    });
-    const host=agentSettings(api,notice,vi.fn());
-    win.document.body.append(host as unknown as Node);
-    const tick=async(n=10)=>{for(let i=0;i<n;i++)await new Promise(r=>setTimeout(r,0));};
-    await tick();
-    const doc=win.document;
-    const button=(text:string)=>Array.from(doc.querySelectorAll<HTMLButtonElement>('button')).find(b=>b.textContent===text)!;
-    return {state,posted,notice,api,doc,tick,button};
-  };
-  it('after enabling shows the key once with a command that follows the typed folder',async()=>{
-    const t=await mountLive({});
-    t.button('Включить на 1 час').click();
-    await t.tick();
-    const setup=t.doc.querySelector('.agent-setup')!;
-    expect(setup).not.toBeNull();
-    const box=setup.querySelector('textarea')!;
-    expect(box.value).toContain('azagent_'+'a'.repeat(64));
-    expect(box.value).toContain('(Get-Location).Path');
-    const input=setup.querySelector<HTMLInputElement>('input')!;
-    input.value='C:\\Users\\Tech No\\azrail-pulse';
-    input.dispatchEvent(new win!.Event('input'));
-    expect(box.value).toContain("AZRAIL_ROOT='C:\\Users\\Tech No\\azrail-pulse'");
-    expect(win!.localStorage.getItem('pulse.agentRoot')).toBe('C:\\Users\\Tech No\\azrail-pulse');
+describe("агент управляет страницей", () => {
+  const root = () => mkdtemp(join(tmpdir(), "az-br-"));
+
+  it("открывает адрес и отдаёт нумерованные элементы", async () => {
+    const fake = fakePlaywright();
+    const out = await runBrowser(await root(), job("open", { url: "https://example.com" }), { loader: fake.loader });
+    expect(out).toContain("[1] кнопка «Опубликовать»");
+    expect(fake.calls).toContain("goto:https://example.com");
   });
-  it('without a fresh key explains that the key is shown once',async()=>{
-    const t=await mountLive({enabled:true,expiresAt:Date.now()+3600_000});
-    expect(t.doc.querySelector('.agent-setup')).toBeNull();
-    expect(t.doc.body.textContent).toContain('Ключ показывается один раз');
+
+  it("клик, ввод с отправкой, клавиша", async () => {
+    const fake = fakePlaywright();
+    const dir = await root();
+    await runBrowser(dir, job("open", { url: "https://example.com" }), { loader: fake.loader });
+    await runBrowser(dir, job("click", { ref: 1 }), { loader: fake.loader });
+    await runBrowser(dir, job("type", { ref: 1, text: "Заголовок", submit: true }), { loader: fake.loader });
+    await runBrowser(dir, job("press", { key: "Tab" }), { loader: fake.loader });
+    expect(fake.calls).toEqual(expect.arrayContaining(["click", "fill:Заголовок", "press:Enter", "key:Tab"]));
   });
-  it('shows the agent folder once connected and hides the setup panel',async()=>{
-    const t=await mountLive({enabled:true,connected:true,root:'C:\\Users\\Tech No\\azrail-pulse',expiresAt:Date.now()+3600_000});
-    expect(t.doc.querySelector('.agent-setup')).toBeNull();
-    expect(t.doc.body.textContent).toContain('Агент подключён, папка: C:\\Users\\Tech No\\azrail-pulse');
-    expect(t.doc.querySelector('.agent-browser-root')?.textContent).toBe('Папка агента: C:\\Users\\Tech No\\azrail-pulse');
+
+  it("пароли не вводит", async () => {
+    const fake = fakePlaywright({ inputKind: "password|" });
+    await expect(runBrowser(await root(), job("type", { ref: 1, text: "secret" }), { loader: fake.loader })).rejects.toThrow(/Пароли/);
+    expect(fake.calls).not.toContain("fill:secret");
   });
-  it('converts an absolute path inside the folder and blocks one outside it',async()=>{
-    const t=await mountLive({enabled:true,connected:true,root:'C:\\Users\\Tech No\\azrail-pulse',expiresAt:Date.now()+3600_000});
-    const [kind]=Array.from(t.doc.querySelectorAll<HTMLSelectElement>('.settings-block select'));
-    kind.value='read';kind.dispatchEvent(new win!.Event('change'));
-    const pathInput=t.doc.querySelector<HTMLInputElement>('input[aria-label="Путь относительно папки агента"]')!;
-    pathInput.value='C:\\Users\\Tech No\\azrail-pulse\\src\\a.ts';
-    t.button('Поставить задачу').click();
-    await t.tick();
-    expect(t.posted.at(-1)).toEqual({kind:'read',path:'src/a.ts'});
-    const before=t.posted.length;
-    pathInput.value='C:\\Windows\\System32';
-    t.button('Поставить задачу').click();
-    await t.tick();
-    expect(t.posted).toHaveLength(before);
-    expect(t.notice).toHaveBeenLastCalledWith(expect.stringContaining('вне папки агента'),true);
+
+  it("нет элемента — понятная ошибка", async () => {
+    const fake = fakePlaywright({ count: 0 });
+    await expect(runBrowser(await root(), job("click", { ref: 9 }), { loader: fake.loader })).rejects.toThrow(/snapshot заново/);
   });
-  it('repaints by itself when the agent connects',async()=>{
-    vi.useFakeTimers({toFake:['setInterval','clearInterval']});
-    try{
-      const t=await mountLive({enabled:true,expiresAt:Date.now()+3600_000});
-      expect(t.doc.body.textContent).toContain('ещё не подключился');
-      t.state.connected=true;t.state.root='C:\\proj';
-      await vi.advanceTimersByTimeAsync(3100);
-      await t.tick();
-      expect(t.doc.body.textContent).toContain('Агент подключён, папка: C:\\proj');
-    }finally{vi.useRealTimers();}
+
+  it("загрузка берёт файл только внутри папки", async () => {
+    const fake = fakePlaywright();
+    const dir = await root();
+    await writeFile(join(dir, "video.mp4"), "x");
+    await runBrowser(dir, job("open", { url: "https://example.com" }), { loader: fake.loader });
+    await runBrowser(dir, job("upload", { ref: 1, file: "video.mp4" }), { loader: fake.loader });
+    expect(fake.calls.some((call) => call.startsWith("upload:") && call.endsWith("video.mp4"))).toBe(true);
+    await expect(runBrowser(dir, job("upload", { ref: 1, file: "../etc/passwd" }), { loader: fake.loader })).rejects.toThrow();
+    await expect(runBrowser(dir, job("upload", { ref: 1, file: ".env" }), { loader: fake.loader })).rejects.toThrow();
+  });
+
+  it("без open снимок отказывает понятно", async () => {
+    await expect(runBrowser(await root(), job("snapshot"), { loader: fakePlaywright().loader })).rejects.toThrow(/Сначала action open/);
+  });
+
+  it("скриншот сохраняется в .azrail-shots", async () => {
+    const fake = fakePlaywright();
+    const out = await runBrowser(await root(), job("screenshot"), { loader: fake.loader });
+    expect(out).toMatch(/\.azrail-shots\/.*\.png/);
+  });
+
+  it("внутренний адрес не открывается, close закрывает браузер", async () => {
+    const fake = fakePlaywright();
+    const dir = await root();
+    await expect(runBrowser(dir, job("open", { url: "http://localhost/" }), { loader: fake.loader })).rejects.toThrow(/не публичный/);
+    expect(await runBrowser(dir, job("close"), { loader: fake.loader })).toBe("Браузер закрыт.");
+    expect(fake.calls).toContain("closed");
   });
 });

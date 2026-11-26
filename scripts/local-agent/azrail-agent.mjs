@@ -128,6 +128,7 @@ export function browserProfileDir(env) {
 /** Читает страницу в браузере компьютера под сохранёнными входами. Только чтение: кликов и ввода нет. */
 export async function readWeb(url, env = process.env, loader = () => import("playwright")) {
   if (!isPublicUrl(url)) throw new Error("Адрес не публичный.");
+  await closeBrowser();
   let playwright;
   try { playwright = await loader(); } catch { throw new Error("Не найден playwright. В папке проекта выполни: npm install"); }
   const channel = env.AZRAIL_BROWSER_CHANNEL || "chrome";
@@ -148,6 +149,127 @@ export async function readWeb(url, env = process.env, loader = () => import("pla
     await context.close().catch(() => undefined);
   }
 }
+
+const BROWSER_IDLE_MS = 300_000;
+const BROWSER_KEYS = new Set(["Enter", "Tab", "Escape", "ArrowDown", "ArrowUp", "PageDown", "PageUp", "Backspace"]);
+let browserSession = null;
+
+/** Закрывает живой браузер агента (тесты и остановка). */
+export async function closeBrowser() {
+  const session = browserSession;
+  browserSession = null;
+  if (session) {
+    clearTimeout(session.timer);
+    await session.context.close().catch(() => undefined);
+  }
+}
+
+async function openBrowser(env, loader) {
+  if (browserSession) {
+    clearTimeout(browserSession.timer);
+  } else {
+    let playwright;
+    try { playwright = await loader(); } catch { throw new Error("Не найден playwright. В папке проекта выполни: npm install"); }
+    const channel = env.AZRAIL_BROWSER_CHANNEL || "chrome";
+    const context = await playwright.chromium.launchPersistentContext(browserProfileDir(env), { channel, headless: env.AZRAIL_BROWSER_HEADED !== "1", chromiumSandbox: true, acceptDownloads: false, viewport: { width: 1280, height: 800 } }).catch((error) => {
+      throw new Error(`Браузер не запустился: ${String(error?.message ?? error).split("\n")[0].slice(0, 200)}. Закрой окна браузера агента или поставь Google Chrome.`);
+    });
+    await context.route("**/*", (route) => (isPublicUrl(route.request().url()) ? route.continue() : route.abort()));
+    browserSession = { context, page: context.pages()[0] ?? (await context.newPage()), timer: null };
+  }
+  browserSession.timer = setTimeout(() => void closeBrowser(), BROWSER_IDLE_MS);
+  browserSession.timer.unref?.();
+  return browserSession.page;
+}
+
+/** Нумерует кнопки, ссылки и поля страницы. Модель ссылается на номер (ref), а не на произвольный селектор. */
+async function snapshotPage(page) {
+  if (page.url() === "about:blank") throw new Error("Страница не открыта. Сначала action open с адресом.");
+  if (!isPublicUrl(page.url())) throw new Error("Страница на внутреннем адресе.");
+  const items = await page.evaluate(() => {
+    const visible = (el) => { const r = el.getBoundingClientRect(); const st = getComputedStyle(el); return st.visibility !== "hidden" && st.display !== "none" && ((r.width > 0 && r.height > 0) || el.type === "file"); };
+    const nodes = [...document.querySelectorAll('a[href], button, input, textarea, select, [role="button"], [role="link"], [role="menuitem"], [role="tab"], [contenteditable="true"]')].filter(visible).slice(0, 120);
+    document.querySelectorAll("[data-az-ref]").forEach((el) => el.removeAttribute("data-az-ref"));
+    return nodes.map((el, i) => {
+      el.setAttribute("data-az-ref", String(i + 1));
+      const tag = el.tagName.toLowerCase();
+      const type = el.getAttribute("type") || "";
+      const label = (el.getAttribute("aria-label") || el.innerText || el.getAttribute("placeholder") || el.getAttribute("title") || el.getAttribute("name") || el.value || "").replace(/\s+/g, " ").trim().slice(0, 80);
+      const kind = tag === "a" ? "ссылка" : tag === "button" || el.getAttribute("role") === "button" ? "кнопка" : type === "file" ? "выбор файла" : type === "password" ? "поле пароля" : tag === "select" ? "список" : "поле";
+      return `[${i + 1}] ${kind} «${label}»`;
+    });
+  });
+  const title = (await page.title()).slice(0, 200);
+  const text = String(await page.evaluate(() => (document.body ? document.body.innerText : ""))).replace(/\n{3,}/g, "\n\n").trim().slice(0, 4000);
+  return `Адрес: ${page.url()}\nЗаголовок: ${title || "нет"}\n\nЭлементы:\n${items.join("\n") || "нет"}\n\nТекст страницы:\n${text}`;
+}
+
+/** Действие в живом браузере агента. Пароли не вводятся: логин делает владелец через Login-Sites.bat. */
+export async function runBrowser(root, job, { env = process.env, loader = () => import("playwright") } = {}) {
+  const action = job.path;
+  let args;
+  try { args = JSON.parse(job.content || "{}"); } catch { throw new Error("Аргументы повреждены."); }
+  if (action === "close") {
+    await closeBrowser();
+    return "Браузер закрыт.";
+  }
+  const page = await openBrowser(env, loader);
+  const target = () => page.locator(`[data-az-ref="${Number(args.ref)}"]`).first();
+  const settle = async () => {
+    await page.waitForLoadState("domcontentloaded", { timeout: 5000 }).catch(() => undefined);
+    await page.waitForLoadState("networkidle", { timeout: 3000 }).catch(() => undefined);
+  };
+  if (action === "open") {
+    if (!isPublicUrl(args.url)) throw new Error("Адрес не публичный.");
+    await page.goto(args.url, { waitUntil: "domcontentloaded", timeout: WEB_TIMEOUT_MS });
+    await settle();
+    return await snapshotPage(page);
+  }
+  if (action === "snapshot") return await snapshotPage(page);
+  if (action === "scroll") {
+    await page.mouse.wheel(0, Number(args.dy) || 0);
+    return await snapshotPage(page);
+  }
+  if (action === "screenshot") {
+    const top = await realpath(root);
+    const file = join(top, ".azrail-shots", `${new Date().toISOString().replaceAll(":", "-")}.png`);
+    await mkdir(dirname(file), { recursive: true });
+    await page.screenshot({ path: file });
+    return `Скриншот сохранён: ${relative(top, file).replaceAll("\\", "/")}`;
+  }
+  if (action === "click") {
+    if (!(await target().count())) throw new Error("Элемента с таким номером нет. Сделай snapshot заново.");
+    await target().click({ timeout: 10_000 });
+    await settle();
+    return await snapshotPage(page);
+  }
+  if (action === "type") {
+    if (typeof args.text !== "string") throw new Error("Нет текста.");
+    if (!(await target().count())) throw new Error("Элемента с таким номером нет. Сделай snapshot заново.");
+    const kind = await target().evaluate((el) => `${el.getAttribute("type") || ""}|${el.getAttribute("autocomplete") || ""}`);
+    if (/^password\||current-password|new-password/i.test(kind)) throw new Error("Пароли агент не вводит. Войди сам через Login-Sites.bat.");
+    await target().fill(args.text, { timeout: 10_000 });
+    if (args.submit === true) await target().press("Enter");
+    await settle();
+    return await snapshotPage(page);
+  }
+  if (action === "press") {
+    if (!BROWSER_KEYS.has(args.key)) throw new Error("Клавиша не разрешена.");
+    await page.keyboard.press(args.key);
+    await settle();
+    return await snapshotPage(page);
+  }
+  if (action === "upload") {
+    if (!(await target().count())) throw new Error("Элемента с таким номером нет. Сделай snapshot заново.");
+    const file = await resolveInside(root, args.file);
+    const info = await stat(file);
+    if (!info.isFile()) throw new Error("Это не файл.");
+    await target().setInputFiles(file, { timeout: 30_000 });
+    return `Файл выбран: ${args.file}\n\n${await snapshotPage(page)}`;
+  }
+  throw new Error(`Неизвестное действие браузера: ${action}`);
+}
+
 const MAX_LIST = 500;
 const DENIED = /(^|\/)(\.git|\.ssh|\.gnupg|\.aws|node_modules|\.wrangler)(\/|$)|(^|\/)(\.env[^/]*|\.dev\.vars|id_rsa[^/]*|id_ed25519[^/]*|[^/]*\.(pem|key|pfx|p12|kdbx))$/i;
 
@@ -508,6 +630,7 @@ async function runAgent({ url, token, device }, roots, initial) {
         let body;
         try {
           if (job.kind === "web") body = { ok: true, output: await readWeb(job.path) };
+          else if (job.kind === "browser") body = { ok: true, output: await runBrowser(pickRoot(roots, job.root).path, job) };
           else if (job.kind === "addroot") body = { ok: true, output: await addRoot(roots, job.path, process.env, initial) };
           else if (job.kind === "droproot") body = { ok: true, output: await dropRoot(roots, job.path, process.env, initial) };
           else {
