@@ -143,7 +143,7 @@ export const accountCreateSchema = z.object({
 export const accountRevokeSchema = z.object({ accountId: idSchema("accountId") }).strict();
 export const permissionSchema = z.object({
   projectId: projectIdSchema,
-  capability: z.enum(["git", "deploy", "sandbox", "qa"], { error: "Неверное разрешение." }),
+  capability: z.enum(["git", "deploy", "sandbox", "qa", "local"], { error: "Неверное разрешение." }),
   enabled: z.boolean().optional(),
 }).strict();
 export const ownershipSchema = z.object({

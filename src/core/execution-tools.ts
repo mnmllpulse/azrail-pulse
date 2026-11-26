@@ -19,6 +19,8 @@ import { syncWorkspaceToSandbox, SANDBOX_WORKDIR } from "./workspace-sync";
 import { log } from "../lib/resilience";
 import type { ExecutionContext } from "./execution-types";
 import { childTrace } from "../lib/observability-context";
+import { executeLocalTool, isLocalTool } from "./execution-local";
+import { openStore as openAgentStore } from "../unified/local-agent";
 
 /**
  * Исполняет конкретные инструменты миссии.
@@ -34,6 +36,8 @@ export class ExecutionToolExecutor {
     await requireCapability(this.env,ctx.projectId,toolCapability(tool));
     const def = describeTools(this.env).find((t) => t.name === tool);
     if (!def || !def.available) throw new Error(`Инструмент "${tool}" недоступен в текущем окружении.`);
+
+    if (isLocalTool(tool)) return executeLocalTool(tool, input, { store: await openAgentStore(this.env) });
 
     switch (tool) {
       case "connector_search": {

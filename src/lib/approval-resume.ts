@@ -48,3 +48,31 @@ export async function resumeAfterConnectorCall(env: Env, account: string, callId
   }
   return outcomes;
 }
+
+const LOCAL_APPROVAL_POINTS = new Set(["local_write", "local_run", "local_addroot"]);
+
+/** После завершения или отклонения задачи на компьютере продолжает миссии, которые ждали именно её. */
+export async function resumeAfterLocalJob(env: Env, jobId: string): Promise<ResumeOutcome[]> {
+  const outcomes: ResumeOutcome[] = [];
+  try {
+    const { results } = await env.AZRAIL_D1.prepare(
+      `SELECT id, project_id FROM missions WHERE status='waiting_approval' ORDER BY updated_at DESC LIMIT 10`,
+    ).all<{ id: string; project_id: string }>();
+    for (const mission of results ?? []) {
+      try {
+        const points = await loadCheckpoints(env, mission.id);
+        if (!points.some((point) => LOCAL_APPROVAL_POINTS.has(point.tool) && point.status === "completed" && mentionsCall(point.result_json, jobId))) continue;
+        const agent = await getAgentByName(env.Orchestrator, mission.project_id);
+        const outcome = await agent.recoverMission(mission.id);
+        outcomes.push({ missionId: mission.id, resumed: outcome.resumed, ...(outcome.reason ? { reason: outcome.reason } : {}) });
+      } catch (error) {
+        const reason = error instanceof Error ? error.message : "Не удалось продолжить миссию.";
+        log("warn", "approval_resume.local_failed", { missionId: mission.id, error: reason });
+        outcomes.push({ missionId: mission.id, resumed: false, reason });
+      }
+    }
+  } catch (error) {
+    log("warn", "approval_resume.local_lookup_failed", { error: error instanceof Error ? error.message : String(error) });
+  }
+  return outcomes;
+}

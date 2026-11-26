@@ -1,5 +1,6 @@
 import { initializeMissionBudget } from "../lib/billing";
-import { loadCheckpoints, requiredApprovalCallIds, validateReplayableCheckpoints } from "../lib/checkpoints";
+import { loadCheckpoints, requiredApprovals, validateReplayableCheckpoints } from "../lib/checkpoints";
+import { openStore as openAgentStore } from "../unified/local-agent";
 import {
   claimMissionDelivery,
   loadMissionDelivery,
@@ -231,8 +232,9 @@ export async function recoverMission(host: MissionCoordinatorHost, missionId: st
 
   if (mission.status === "waiting_approval") {
     let callIds: string[];
+    let jobIds: string[];
     try {
-      callIds = requiredApprovalCallIds(replay);
+      ({ calls: callIds, jobs: jobIds } = requiredApprovals(replay));
     } catch (error) {
       return { resumed: false, reason: `Миссия помечена waiting_approval, но checkpoint подтверждения повреждён: ${error instanceof Error ? error.message : String(error)} Автоматическое восстановление запрещено.` };
     }
@@ -245,6 +247,15 @@ export async function recoverMission(host: MissionCoordinatorHost, missionId: st
       if (!call || call.status !== "succeeded") {
         const state = call?.status ?? "missing_or_wrong_owner";
         return { resumed: false, reason: `Внешнее действие ещё не подтверждено и не завершено (статус: ${state}). Сначала завершите его в Подключениях; автоматический пропуск запрещён.` };
+      }
+    }
+    if (jobIds.length) {
+      const agent = await openAgentStore(host.env);
+      for (const jobId of jobIds) {
+        const job = await agent.getJob(jobId);
+        if (!job || !["done", "failed", "rejected", "expired"].includes(job.status)) {
+          return { resumed: false, reason: `Действие на компьютере ещё не подтверждено или не выполнено (статус: ${job?.status ?? "задачи нет"}). Нажмите «Разрешить» в Настройки → Локальный агент; автоматический пропуск запрещён.` };
+        }
       }
     }
   }

@@ -15,12 +15,13 @@ import {
   type AgentState,
   type AgentStore,
 } from "../lib/local-agent";
+import { resumeAfterLocalJob } from "../lib/approval-resume";
 import type { Env } from "../types";
 import { readJsonRecord } from "./request-json";
 
 type StoreCall = (op: string, arg?: unknown) => Promise<unknown>;
 
-async function openStore(env: Env): Promise<AgentStore> {
+export async function openStore(env: Env): Promise<AgentStore> {
   const stub = await getAgentByName(env.Orchestrator, "local-agent");
   // Через RPC-стаб возвращаемый тип схлопывается, поэтому вызов приводится явно.
   const call = ((op: string, arg?: unknown) => (stub as unknown as { agentStore: StoreCall }).agentStore(op, arg)) as StoreCall;
@@ -82,7 +83,7 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
     const store = await openStore(env);
     if (!(await authenticateAnyAgent(store, await openDeviceStore(env), request.headers.get("Authorization"), Date.now(), request.headers.get("X-Agent-Root"), request.headers.get("X-Agent-Roots"))).ok) throw new AccessError("Ключ агента недействителен.", 401);
     await finishJob(store, result[1], await readJsonRecord(request, 400_000));
-    return Response.json({ ok: true });
+    return Response.json({ ok: true, resumed: await resumeAfterLocalJob(env, result[1]) });
   }
 
   await requireOwner(request, env);
@@ -113,7 +114,9 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
     return Response.json({ job: publicJob(job) });
   }
   if (one && method === "POST" && one[2]) {
-    return Response.json({ job: publicJob(await decideJob(store, one[1], one[2] === "approve")) });
+    const approve = one[2] === "approve";
+    const decided = publicJob(await decideJob(store, one[1], approve));
+    return Response.json({ job: decided, resumed: approve ? [] : await resumeAfterLocalJob(env, one[1]) });
   }
   throw new AccessError("Неизвестный путь агента.", 404);
 }
