@@ -150,3 +150,34 @@ describe("команды чата", () => {
     expect(calls).toContain("POST /api/agent/jobs/j1/reject");
   });
 });
+
+describe("просьбы про компьютер", () => {
+  const ask = "Создай на рабочем столе папку test-agent и запиши в неё файл hello.txt с текстом привет";
+
+  it("привязанный компьютер: запускается миссия с инструментами", async () => {
+    const started: string[] = [];
+    const { handle, notes } = setup({
+      startMission: async (goal) => { started.push(goal); },
+      api: async (path: string) => (path === "/api/agent/status" ? { enabled: false, paired: true, jobs: [] } : {}),
+    });
+    expect(await handle(ask)).toBe(true);
+    expect(started).toEqual([ask]);
+    expect(notes).toEqual([]);
+  });
+
+  it("не привязан: понятный ответ, миссия не стартует", async () => {
+    const started: string[] = [];
+    const { handle, notes } = setup({
+      startMission: async (goal) => { started.push(goal); },
+      api: async (path: string) => (path === "/api/agent/status" ? { enabled: false, paired: false, jobs: [] } : {}),
+    });
+    expect(await handle(ask)).toBe(true);
+    expect(started).toEqual([]);
+    expect(notes[0]).toContain("не привязан");
+  });
+
+  it("без startMission обычное поведение не меняется", async () => {
+    const { handle } = setup();
+    expect(await handle("Создай страницу сайта про кофе")).toBe(false);
+  });
+});
