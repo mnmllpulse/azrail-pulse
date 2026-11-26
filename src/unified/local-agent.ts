@@ -10,6 +10,7 @@ import {
   enableAgent,
   finishJob,
   pollJob,
+  setTrust,
   publicJob,
   type AgentJob,
   type AgentState,
@@ -103,6 +104,10 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
   if (path === "disable" && method === "POST") {
     await disableAgent(store);
     return Response.json({ ok: true });
+  }
+  if (path === "trust" && method === "POST") {
+    const trust = await setTrust(store, await readJsonRecord(request, 2_000));
+    return Response.json({ trust });
   }
   if (path === "jobs" && method === "POST") {
     return Response.json({ job: publicJob(await createJob(store, await readJsonRecord(request, 300_000))) }, { status: 201 });

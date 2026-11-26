@@ -109,7 +109,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
   );
 
   const paint = async () => {
-    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; paired?: boolean; deviceOnline?: boolean; root?: string | null; roots?: AgentRootView[]; jobs: JobView[] };
+    let state: { enabled: boolean; expiresAt: number | null; connected: boolean; paired?: boolean; deviceOnline?: boolean; root?: string | null; roots?: AgentRootView[]; trust?: { until: number; scopes: string[] } | null; jobs: JobView[] };
     try {
       state = await api('/api/agent/status');
     } catch {
@@ -230,6 +230,35 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       addFolder.onclick = () => void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: 'addroot', path: preset.value === 'custom' ? custom.value : preset.value }) }).then(() => { notice('Подтверди ниже: «Разрешить добавить папку».'); return paint(); }).catch(failure);
       foldersBox.append(preset, custom, addFolder, el('p', 'Корень диска, домашняя папка целиком, системные папки и места с ключами выдать нельзя. Новая папка добавляется после твоего «Разрешить» и без перезапуска агента.', 'muted'));
       nodes.push(foldersBox);
+      const trustBox = el('div', '', 'agent-trust');
+      trustBox.append(el('strong', 'Режим доверия'));
+      const SCOPES: Array<[string, string]> = [['files', 'Файлы (запись, правка, перенос, корзина)'], ['browser', 'Браузер (клики, ввод, загрузка файла)'], ['shell', 'Терминал (команды)']];
+      const boxes = SCOPES.map(([value, label]) => {
+        const wrap = el('label', '', 'agent-trust-scope');
+        const box = el('input');
+        box.type = 'checkbox';
+        box.value = value;
+        box.checked = !!state.trust?.scopes.includes(value);
+        wrap.append(box, el('span', ` ${label}`));
+        trustBox.append(wrap);
+        return box;
+      });
+      const startTrust = (minutes: number) => void api('/api/agent/trust', { method: 'POST', body: JSON.stringify({ scopes: boxes.filter((box) => box.checked).map((box) => box.value), minutes }) }).then(() => { notice(`Доверие включено на ${minutes} мин.`); return paint(); }).catch(failure);
+      for (const minutes of [15, 30, 60]) {
+        const button = el('button', `Доверять ${minutes} мин`);
+        button.type = 'button';
+        button.onclick = () => startTrust(minutes);
+        trustBox.append(button);
+      }
+      if (state.trust) {
+        const left = Math.max(1, Math.ceil((state.trust.until - Date.now()) / 60_000));
+        const stop = el('button', 'Остановить доверие');
+        stop.type = 'button';
+        stop.onclick = () => void api('/api/agent/trust', { method: 'POST', body: JSON.stringify({ scopes: [] }) }).then(() => { notice('Доверие выключено.'); return paint(); }).catch(failure);
+        trustBox.append(el('p', `Доверие идёт ещё ~${left} мин: выбранные действия выполняются без «Разрешить».`, 'context-note'), stop);
+      }
+      trustBox.append(el('p', 'Добавление папок и перенос доступа всегда требуют «Разрешить». Доверие заканчивается само и при выключении агента. Выбирай только то, что понимаешь.', 'muted'));
+      nodes.push(trustBox);
       if (state.connected && !autoOpened) { autoOpened = true; void browser.open(''); }
       for (const job of state.jobs.filter((item) => !ownJobs.has(item.id))) {
         const row = el('div', '', 'provider-token');

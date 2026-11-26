@@ -43,6 +43,48 @@ export interface AgentState {
   root?: string | null;
   /** Все папки, которые агент открыл при запуске (имя + путь). */
   roots?: AgentRoot[];
+  /** Режим доверия: пока он идёт, выбранные виды действий выполняются без «Разрешить». */
+  trust?: AgentTrust | null;
+}
+
+export const TRUST_SCOPES = ["files", "browser", "shell"] as const;
+export type TrustScope = (typeof TRUST_SCOPES)[number];
+export interface AgentTrust {
+  until: number;
+  scopes: TrustScope[];
+}
+export const TRUST_MAX_MINUTES = 60;
+
+const TRUST_FILE_KINDS: ReadonlySet<string> = new Set(["write", "edit", "mkdir", "move", "trash"]);
+
+/** Какая область режима доверия покрывает задачу. addroot и droproot не покрываются никогда: они меняют, что агенту видно. */
+export function trustScopeOf(kind: string, path: string): TrustScope | null {
+  if (TRUST_FILE_KINDS.has(kind)) return "files";
+  if (kind === "shell" || kind === "run") return "shell";
+  if (kind === "browser" && BROWSER_WRITE_ACTIONS.has(path)) return "browser";
+  return null;
+}
+
+export function activeTrust(state: AgentState | null, now = Date.now()): AgentTrust | null {
+  const trust = state?.trust;
+  if (!state || !trust || state.expiresAt <= now || trust.until <= now) return null;
+  return trust;
+}
+
+export async function setTrust(store: AgentStore, input: { scopes?: unknown; minutes?: unknown }, now = Date.now()): Promise<AgentTrust | null> {
+  const state = await store.getState();
+  if (!state || state.expiresAt <= now) throw new AccessError("Агент выключен. Сначала включи его.", 409);
+  if (Array.isArray(input.scopes) && input.scopes.length === 0) {
+    await store.setState({ ...state, trust: null });
+    return null;
+  }
+  const scopes = Array.isArray(input.scopes) ? [...new Set(input.scopes)] : [];
+  if (!scopes.length || !scopes.every((scope): scope is TrustScope => (TRUST_SCOPES as readonly unknown[]).includes(scope))) throw new AccessError(`Выбери области: ${TRUST_SCOPES.join(", ")}.`, 400);
+  const minutes = Number(input.minutes);
+  if (!Number.isFinite(minutes) || minutes < 1 || minutes > TRUST_MAX_MINUTES) throw new AccessError(`Время доверия: от 1 до ${TRUST_MAX_MINUTES} минут.`, 400);
+  const trust: AgentTrust = { until: Math.min(now + Math.round(minutes) * 60_000, state.expiresAt), scopes };
+  await store.setState({ ...state, trust });
+  return trust;
 }
 
 export interface AgentStore {
@@ -122,6 +164,7 @@ export async function agentStatus(store: AgentStore, now = Date.now()) {
     lastSeen: state?.lastSeen ?? null,
     root: enabled ? state!.root ?? null : null,
     roots: enabled ? agentRoots(state!) : [],
+    trust: activeTrust(state, now),
     jobs: jobs.map(publicJob),
   };
 }
@@ -218,13 +261,16 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     if (content === path) throw new AccessError("Откуда и куда совпадают.", 400);
   }
   if (kind === "mkdir" || kind === "trash" || kind === "move") safeAgentPath(path);
+  const needsApproval = AGENT_APPROVAL_KINDS.has(kind) || (kind === "browser" && BROWSER_WRITE_ACTIONS.has(path));
+  const scope = trustScopeOf(kind, path);
+  const trusted = needsApproval && !!scope && !!activeTrust(state, now)?.scopes.includes(scope);
   const job: AgentJob = {
     id: crypto.randomUUID(),
     kind,
     root,
     path,
     content,
-    status: AGENT_APPROVAL_KINDS.has(kind) || (kind === "browser" && BROWSER_WRITE_ACTIONS.has(path)) ? "awaiting_approval" : "queued",
+    status: needsApproval && !trusted ? "awaiting_approval" : "queued",
     result: null,
     error: null,
     createdAt: now,
