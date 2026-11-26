@@ -1,11 +1,11 @@
 import { AccessError } from "../lib/accounts";
-import { agentStatus, createJob, type AgentJob, type AgentStore } from "../lib/local-agent";
+import { agentStatus, createJob, LOCAL_APPROVAL_TOOLS, type AgentJob, type AgentStore } from "../lib/local-agent";
 import { ToolRejectedError } from "../lib/tool-errors";
 import type { ToolName } from "../types";
 
 /** Инструменты миссии на компьютере владельца. Чтение идёт сразу, запись, команды и новая папка ждут «Разрешить». */
-export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status"] as const;
-export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot"]);
+export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status", "local_search", "local_edit", "local_mkdir", "local_move", "local_trash"] as const;
+export { LOCAL_APPROVAL_TOOLS };
 export const isLocalTool = (tool: string): boolean => (LOCAL_TOOLS as readonly string[]).includes(tool);
 
 const RESULT_LIMIT = 12_000;
@@ -69,6 +69,13 @@ export async function executeLocalTool(tool: ToolName, input: Record<string, unk
       if (!job) throw new ToolRejectedError("Такой задачи нет.");
       return view(job);
     }
+    case "local_search": {
+      await ensureEnabled(store, true);
+      const job = await create(store, input, "search", text(input.path, 300), { content: text(input.query, 200) });
+      const done = await waitFor(store, job.id, { ...deps, waitMs: 40_000 });
+      if (!TERMINAL.has(done.status)) return { id: done.id, status: done.status, note: "Агент ещё ищет. Прочитай результат позже через local_status.", trust: TRUST };
+      return view(done);
+    }
     case "local_list":
     case "local_read":
     case "local_web": {
@@ -82,12 +89,21 @@ export async function executeLocalTool(tool: ToolName, input: Record<string, unk
     }
     case "local_write":
     case "local_run":
-    case "local_addroot": {
+    case "local_addroot":
+    case "local_edit":
+    case "local_mkdir":
+    case "local_move":
+    case "local_trash": {
       await ensureEnabled(store, false);
+      const path = text(input.path, 300);
       const job =
-        tool === "local_write" ? await create(store, input, "write", text(input.path, 300), { content: typeof input.content === "string" ? input.content : "" })
+        tool === "local_write" ? await create(store, input, "write", path, { content: typeof input.content === "string" ? input.content : "" })
         : tool === "local_run" ? await create(store, input, "run", text(input.command, 80))
-        : await create(store, input, "addroot", text(input.path, 300));
+        : tool === "local_edit" ? await create(store, input, "edit", path, { content: JSON.stringify({ old: input.old, new: input.new }) })
+        : tool === "local_mkdir" ? await create(store, input, "mkdir", path)
+        : tool === "local_move" ? await create(store, input, "move", path, { content: text(input.to, 300) })
+        : tool === "local_trash" ? await create(store, input, "trash", path)
+        : await create(store, input, "addroot", path);
       return {
         id: job.id,
         status: "prepared",
