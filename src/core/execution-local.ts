@@ -149,7 +149,7 @@ async function runLocalTool(tool: ToolName, input: Record<string, unknown>, deps
         approvalRequired: true,
         kind: job.kind,
         path: job.path,
-        message: "Откройте Настройки → Локальный агент и нажмите «Разрешить» у этой задачи. Миссия продолжится сама, когда агент её выполнит.",
+        message: "Владелец подтверждает в карточке над полем ввода. Миссия продолжится сама, когда агент выполнит задачу.",
       };
     }
     default:

@@ -23,7 +23,7 @@ describe("запросы агента в карточке задачи", () => {
   it("показывает запрос и разрешает одной кнопкой", async () => {
     const { doc, api, calls, hooks } = setup([{ id: "j1", kind: "mkdir", path: "test-agent", status: "awaiting_approval" }]);
     expect(await renderAgentApprovals(doc, "waiting_approval", api as never, hooks)).toBe(true);
-    expect(doc.getElementById("mission-agent")?.textContent).toContain("Создать папку test-agent?");
+    expect(doc.getElementById("approval-card")?.textContent).toContain("Создать папку test-agent?");
     btn(doc, "Разрешить один раз")!.click();
     await tick();
     expect(calls.at(-1)).toMatchObject({ path: "/api/agent/jobs/j1/approve" });
@@ -66,17 +66,17 @@ describe("запросы агента в карточке задачи", () => {
   it("доступ к папке: понятный текст и без кнопки доверия", async () => {
     const { doc, api, hooks } = setup([{ id: "j3", kind: "addroot", path: "desktop", status: "awaiting_approval" }]);
     await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
-    expect(doc.getElementById("mission-agent")?.textContent).toContain("Открыть доступ к папке «Рабочий стол»?");
+    expect(doc.getElementById("approval-card")?.textContent).toContain("Открыть доступ к папке «Рабочий стол»?");
     expect([...doc.querySelectorAll("button")].map((b) => b.textContent)).toEqual(["Разрешить", "Отклонить"]);
   });
 
   it("выполняющаяся задача держит опрос, пустой список снимает", async () => {
     const running = setup([{ id: "j4", kind: "mkdir", path: "x", status: "running" }]);
     expect(await renderAgentApprovals(running.doc, "waiting_approval", running.api as never, running.hooks)).toBe(true);
-    expect(running.doc.getElementById("mission-agent")?.textContent).toContain("Выполняется на компьютере");
+    expect(running.doc.getElementById("approval-card")?.textContent).toContain("Выполняется на компьютере");
     const none = setup([{ id: "j5", kind: "mkdir", path: "x", status: "done" }]);
     expect(await renderAgentApprovals(none.doc, "waiting_approval", none.api as never, none.hooks)).toBe(false);
-    expect(none.doc.getElementById("mission-agent")).toBeNull();
+    expect(none.doc.getElementById("approval-card")).toBeNull();
   });
 
   it("не в ожидании подтверждения: блок убран и запросов нет", async () => {
@@ -85,13 +85,13 @@ describe("запросы агента в карточке задачи", () => {
     api.mockClear();
     expect(await renderAgentApprovals(doc, "completed", api as never, hooks)).toBe(false);
     expect(api).not.toHaveBeenCalled();
-    expect(doc.getElementById("mission-agent")).toBeNull();
+    expect(doc.getElementById("approval-card")).toBeNull();
   });
 
   it("нет доступа к агенту (не админ): тихо ничего не показывает", async () => {
     const { doc, api, hooks } = setup([], true);
     expect(await renderAgentApprovals(doc, "waiting_approval", api as never, hooks)).toBe(false);
-    expect(doc.getElementById("mission-agent")).toBeNull();
+    expect(doc.getElementById("approval-card")).toBeNull();
   });
 
   it("описания и области доверия", () => {
@@ -99,5 +99,23 @@ describe("запросы агента в карточке задачи", () => {
     expect(trustScopeFor({ id: "1", kind: "browser", path: "click", status: "x" })).toBe("browser");
     expect(trustScopeFor({ id: "1", kind: "browser", path: "open", status: "x" })).toBeNull();
     expect(trustScopeFor({ id: "1", kind: "addroot", path: "desktop", status: "x" })).toBeNull();
+  });
+
+  it("опрос не перерисовывает ту же карточку и ставит её над полем ввода", async () => {
+    const { win, doc, api, hooks } = setup([{ id: "j7", kind: "mkdir", path: "x", status: "awaiting_approval" }]);
+    win.document.body.innerHTML = '<div class="composer-dock"><form id="composer"></form></div><p id="mission-summary"></p>';
+    await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
+    const first = doc.getElementById("approval-card");
+    expect(first?.nextElementSibling?.id).toBe("composer");
+    await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
+    expect(doc.getElementById("approval-card")).toBe(first);
+  });
+
+  it("после решения карточка закрывается", async () => {
+    const { doc, api, hooks } = setup([{ id: "j6", kind: "trash", path: "x", status: "awaiting_approval" }]);
+    await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
+    btn(doc, "Разрешить один раз")!.click();
+    await tick();
+    expect(doc.getElementById("approval-card")).toBeNull();
   });
 });
