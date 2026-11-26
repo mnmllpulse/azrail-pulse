@@ -4,7 +4,7 @@ import { ToolRejectedError } from "../lib/tool-errors";
 import type { ToolName } from "../types";
 
 /** Инструменты миссии на компьютере владельца. Чтение идёт сразу, запись, команды и новая папка ждут «Разрешить». */
-export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status", "local_search", "local_edit", "local_mkdir", "local_move", "local_trash"] as const;
+export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status", "local_search", "local_edit", "local_mkdir", "local_move", "local_trash", "local_shell"] as const;
 export { LOCAL_APPROVAL_TOOLS };
 export const isLocalTool = (tool: string): boolean => (LOCAL_TOOLS as readonly string[]).includes(tool);
 
@@ -93,7 +93,8 @@ export async function executeLocalTool(tool: ToolName, input: Record<string, unk
     case "local_edit":
     case "local_mkdir":
     case "local_move":
-    case "local_trash": {
+    case "local_trash":
+    case "local_shell": {
       await ensureEnabled(store, false);
       const path = text(input.path, 300);
       const job =
@@ -102,6 +103,7 @@ export async function executeLocalTool(tool: ToolName, input: Record<string, unk
         : tool === "local_edit" ? await create(store, input, "edit", path, { content: JSON.stringify({ old: input.old, new: input.new }) })
         : tool === "local_mkdir" ? await create(store, input, "mkdir", path)
         : tool === "local_move" ? await create(store, input, "move", path, { content: text(input.to, 300) })
+        : tool === "local_shell" ? await create(store, input, "shell", text(input.command, 1000))
         : tool === "local_trash" ? await create(store, input, "trash", path)
         : await create(store, input, "addroot", path);
       return {
