@@ -30,7 +30,7 @@ export { agentCommand } from './agent-paths';
 export function agentSettings(api: Api, notice: (text: string, bad?: boolean) => void, failure: (error: unknown) => void): HTMLElement {
   const root = el('section', '', 'settings-block');
   root.append(el('h3', 'Агент на компьютере'));
-  root.append(el('p', 'Выключен по умолчанию. Включается на 1 час, видит только одну папку, секреты (.env, .git, ключи) закрыты, запись только после твоего «ок».', 'muted'));
+  root.append(el('p', 'Работает на твоём компьютере, когда ты просишь в чате. Секреты (.env, .git, ключи) закрыты, любое изменение — только после твоего «Разрешить».', 'muted'));
   const body = el('div');
   root.append(body);
 
@@ -108,6 +108,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
     copy,
   );
 
+  let openAdvanced = false;
   const paint = async () => {
     let state: { enabled: boolean; expiresAt: number | null; connected: boolean; paired?: boolean; deviceOnline?: boolean; root?: string | null; roots?: AgentRootView[]; trust?: { until: number; scopes: string[] } | null; always?: string[]; jobs: JobView[] };
     try {
@@ -117,6 +118,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       return;
     }
     const nodes: HTMLElement[] = [];
+    const adv: HTMLElement[] = [];
     if (!state.enabled) { autoOpened = false; token = null; }
     const roots = state.roots ?? [];
     const active = pickActive(roots, readActiveRoot());
@@ -127,7 +129,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
     known = { enabled: state.enabled, connected: state.connected, roots: JSON.stringify(roots) };
     const until = new Date(state.expiresAt ?? 0).toLocaleTimeString();
     const status = !state.enabled
-      ? 'Выключен.'
+      ? (state.paired ? 'Агент включится сам, когда понадобится.' : 'Выключен.')
       : state.connected
         ? `Включён до ${until}. Агент подключён${agentRoot ? `, папка: ${agentRoot}` : ''}.`
         : `Включён до ${until}. Агент на компьютере ещё не подключился.`;
@@ -137,7 +139,8 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       const forget = el('button', 'Забыть компьютер');
       forget.type = 'button';
       forget.onclick = () => void api('/api/agent/pair/forget', { method: 'POST', body: '{}' }).then(() => { notice('Компьютер отвязан, доступ выключен.'); return paint(); }).catch(failure);
-      nodes.push(el('p', state.deviceOnline ? 'Компьютер привязан и на связи.' : 'Компьютер привязан, но не на связи: запусти файл Start-Azrail-Agent.bat из папки azrail-pulse (двойной клик).', 'muted'), forget);
+      nodes.push(el('p', state.deviceOnline ? 'Компьютер привязан и на связи.' : 'Компьютер привязан, но не на связи: запусти файл Start-Azrail-Agent.bat из папки azrail-pulse (двойной клик).', 'muted'));
+      adv.push(forget);
     } else {
       const code = el('input');
       code.placeholder = 'Код из окна на компьютере, например 1234-5678';
@@ -167,7 +170,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         void browser.open('');
         notice(`Активная папка: ${picker.value}. Чат и терминал работают в ней.`);
       };
-      nodes.push(el('label', 'Активная папка (смена без перезапуска агента)'), picker);
+      adv.push(el('label', 'Активная папка (смена без перезапуска агента)'), picker);
     }
     const toggle = el('button', state.enabled ? 'Выключить' : 'Включить на 1 час');
     toggle.type = 'button';
@@ -182,10 +185,10 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         await paint();
       }).catch(failure);
     };
-    nodes.push(toggle);
+    adv.push(toggle);
     if (state.enabled && !state.connected && paired) nodes.push(el('p', 'Доступ открыт. Жду компьютер: запусти файл Start-Azrail-Agent.bat, если он ещё не работает.', 'context-note'));
     else if (state.enabled && !state.connected) {
-      if (token) nodes.push(setup);
+      if (token) adv.push(setup);
       else nodes.push(el('p', 'Ключ показывается один раз и после обновления страницы недоступен. Нажми «Выключить», затем «Включить на 1 час», чтобы получить новую команду.', 'context-note'));
     }
 
@@ -198,7 +201,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: kind.value, path: target.path, ...(kind.value === 'write' ? { content: content.value } : {}), ...activeRootField() }) })
           .then(() => { notice('Задача поставлена.'); return paint(); }).catch(failure);
       };
-      nodes.push(
+      adv.push(
         el('p', 'При запуске агент берёт папку, где лежит Start-Azrail-Agent.bat, и добавленные раньше. Обзор показывает только содержимое выданных папок, выше подняться нельзя. Между папками можно переключаться без перезапуска.', 'muted'),
         browser.element,
         kind, path, pathHint, command, content, send,
@@ -228,8 +231,10 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       const addFolder = el('button', 'Добавить папку');
       addFolder.type = 'button';
       addFolder.onclick = () => void api('/api/agent/jobs', { method: 'POST', body: JSON.stringify({ kind: 'addroot', path: preset.value === 'custom' ? custom.value : preset.value }) }).then(() => { notice('Подтверди ниже: «Разрешить добавить папку».'); return paint(); }).catch(failure);
-      foldersBox.append(preset, custom, addFolder, el('p', 'Корень диска, домашняя папка целиком, системные папки и места с ключами выдать нельзя. Новая папка добавляется после твоего «Разрешить» и без перезапуска агента.', 'muted'));
+      const addBox = el('div', '', 'agent-folders-add');
+      addBox.append(el('strong', 'Добавить папку вручную'), preset, custom, addFolder, el('p', 'Корень диска, домашняя папка целиком, системные папки и места с ключами выдать нельзя. Новая папка добавляется после твоего «Разрешить» и без перезапуска агента.', 'muted'));
       nodes.push(foldersBox);
+      adv.push(addBox);
       const trustBox = el('div', '', 'agent-trust');
       trustBox.append(el('strong', 'Режим доверия'));
       const SCOPES: Array<[string, string]> = [['files', 'Файлы (запись, правка, перенос, корзина)'], ['browser', 'Браузер (клики, ввод, загрузка файла)'], ['shell', 'Терминал (команды)']];
@@ -263,8 +268,9 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         revoke.onclick = () => void api('/api/agent/always', { method: 'POST', body: JSON.stringify({ scopes: [] }) }).then(() => { notice('Постоянное разрешение снято.'); return paint(); }).catch(failure);
         trustBox.append(el('p', 'Всегда разрешено: файлы (запись, правка, перенос, корзина).', 'context-note'), revoke);
       }
+      if (state.always?.length) nodes.push(el('p', 'Всегда разрешено: файлы (запись, правка, перенос, корзина). Снять можно в «Дополнительно».', 'context-note'));
       trustBox.append(el('p', 'Добавление папок и перенос доступа всегда требуют «Разрешить». Доверие заканчивается само и при выключении агента. Выбирай только то, что понимаешь.', 'muted'));
-      nodes.push(trustBox);
+      adv.push(trustBox);
       if (state.connected && !autoOpened) { autoOpened = true; void browser.open(''); }
       for (const job of state.jobs.filter((item) => !ownJobs.has(item.id))) {
         const row = el('div', '', 'provider-token');
@@ -289,12 +295,22 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
           no.onclick = () => void api(`/api/agent/jobs/${job.id}/reject`, { method: 'POST', body: '{}' }).then(paint).catch(failure);
           row.append(ok, no);
         }
-        nodes.push(row);
+        (job.status === 'awaiting_approval' ? nodes : adv).push(row);
       }
       const refresh = el('button', 'Обновить');
       refresh.type = 'button';
       refresh.onclick = () => void paint();
-      nodes.push(refresh);
+      adv.push(refresh);
+    }
+    if (adv.length) {
+      const more = document.createElement('details');
+      more.className = 'agent-advanced';
+      const summary = document.createElement('summary');
+      summary.textContent = 'Дополнительно';
+      more.append(summary, ...adv);
+      if (openAdvanced) more.open = true;
+      more.ontoggle = () => { openAdvanced = more.open; };
+      nodes.push(more);
     }
     body.replaceChildren(...nodes);
   };

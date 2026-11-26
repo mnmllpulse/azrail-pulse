@@ -146,3 +146,39 @@ describe("настройки: папки агента", () => {
     expect(section.textContent).toContain("Добавить папку: desktop");
   });
 });
+
+const JOBS = [{ id: "a1", kind: "mkdir", path: "demo", status: "awaiting_approval" }, { id: "a2", kind: "list", path: "", status: "done", result: "x" }];
+const ON_FULL = { enabled: true, expiresAt: 4_000_000_000_000, connected: true, paired: true, root: "/p", roots: [{ name: "p", path: "/p" }, { name: "Desktop", path: "/d" }], jobs: JOBS, always: ["files"] };
+
+describe("настройки агента: простой экран", () => {
+  it("сверху только нужное, инженерные блоки свёрнуты в «Дополнительно»", async () => {
+    const { section } = mount(ON_FULL);
+    await tick();
+    const more = section.querySelector("details.agent-advanced") as HTMLDetailsElement;
+    expect(more).not.toBeNull();
+    expect(more.open).toBe(false);
+    expect(more.querySelector("summary")?.textContent).toBe("Дополнительно");
+    const advanced = more.textContent ?? "";
+    for (const text of ["Режим доверия", "Добавить папку вручную", "Выключить", "Поставить задачу", "Забыть компьютер"]) expect(advanced, text).toContain(text);
+    const top = [...more.parentElement!.children].filter((node) => node !== more).map((node) => node.textContent).join(" ");
+    for (const text of ["Режим доверия", "Добавить папку вручную", "Поставить задачу", "Забыть компьютер"]) expect(top, text).not.toContain(text);
+  });
+
+  it("сверху видны разрешённые папки, ожидающий запрос и постоянное разрешение", async () => {
+    const { section } = mount(ON_FULL);
+    await tick();
+    const more = section.querySelector("details.agent-advanced")!;
+    const top = [...more.parentElement!.children].filter((node) => node !== more).map((node) => node.textContent).join(" ");
+    expect(top).toContain("Desktop");
+    expect(top).toContain("Убрать");
+    expect(top).toContain("Разрешить");
+    expect(top).toContain("Всегда разрешено: файлы");
+    expect(top).not.toContain("list ");
+  });
+
+  it("привязанный, но выключенный агент не выглядит сломанным", async () => {
+    const { section } = mount({ enabled: false, expiresAt: null, connected: false, paired: true, deviceOnline: true, jobs: [] });
+    await tick();
+    expect(section.textContent).toContain("Агент включится сам");
+  });
+});
