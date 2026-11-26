@@ -1,10 +1,11 @@
 import { AccessError } from "../lib/accounts";
 import { agentStatus, createJob, LOCAL_APPROVAL_TOOLS, type AgentJob, type AgentStore } from "../lib/local-agent";
+import { BROWSER_READ_ACTIONS, BROWSER_WRITE_ACTIONS } from "../lib/browser-actions";
 import { ToolRejectedError } from "../lib/tool-errors";
 import type { ToolName } from "../types";
 
 /** Инструменты миссии на компьютере владельца. Чтение идёт сразу, запись, команды и новая папка ждут «Разрешить». */
-export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status", "local_search", "local_edit", "local_mkdir", "local_move", "local_trash", "local_shell"] as const;
+export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status", "local_search", "local_edit", "local_mkdir", "local_move", "local_trash", "local_shell", "local_browser", "local_browser_act"] as const;
 export { LOCAL_APPROVAL_TOOLS };
 export const isLocalTool = (tool: string): boolean => (LOCAL_TOOLS as readonly string[]).includes(tool);
 
@@ -76,6 +77,15 @@ export async function executeLocalTool(tool: ToolName, input: Record<string, unk
       if (!TERMINAL.has(done.status)) return { id: done.id, status: done.status, note: "Агент ещё ищет. Прочитай результат позже через local_status.", trust: TRUST };
       return view(done);
     }
+    case "local_browser": {
+      await ensureEnabled(store, true);
+      const action = text(input.action, 20);
+      if (!BROWSER_READ_ACTIONS.has(action)) throw new ToolRejectedError("local_browser: действия open, snapshot, screenshot, scroll, close. Клики и ввод — через local_browser_act.");
+      const job = await create(store, input, "browser", action, { content: JSON.stringify({ url: input.url, dy: input.dy }) });
+      const done = await waitFor(store, job.id, { ...deps, waitMs: 50_000 });
+      if (!TERMINAL.has(done.status)) return { id: done.id, status: done.status, note: "Браузер ещё работает. Прочитай результат позже через local_status.", trust: TRUST };
+      return view(done);
+    }
     case "local_list":
     case "local_read":
     case "local_web": {
@@ -94,8 +104,10 @@ export async function executeLocalTool(tool: ToolName, input: Record<string, unk
     case "local_mkdir":
     case "local_move":
     case "local_trash":
-    case "local_shell": {
+    case "local_shell":
+    case "local_browser_act": {
       await ensureEnabled(store, false);
+      if (tool === "local_browser_act" && !BROWSER_WRITE_ACTIONS.has(text(input.action, 20))) throw new ToolRejectedError("local_browser_act: действия click, type, press, upload.");
       const path = text(input.path, 300);
       const job =
         tool === "local_write" ? await create(store, input, "write", path, { content: typeof input.content === "string" ? input.content : "" })
@@ -103,6 +115,7 @@ export async function executeLocalTool(tool: ToolName, input: Record<string, unk
         : tool === "local_edit" ? await create(store, input, "edit", path, { content: JSON.stringify({ old: input.old, new: input.new }) })
         : tool === "local_mkdir" ? await create(store, input, "mkdir", path)
         : tool === "local_move" ? await create(store, input, "move", path, { content: text(input.to, 300) })
+        : tool === "local_browser_act" ? await create(store, input, "browser", text(input.action, 20), { content: JSON.stringify({ ref: input.ref, text: input.text, submit: input.submit, key: input.key, file: input.file }) })
         : tool === "local_shell" ? await create(store, input, "shell", text(input.command, 1000))
         : tool === "local_trash" ? await create(store, input, "trash", path)
         : await create(store, input, "addroot", path);

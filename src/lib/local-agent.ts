@@ -1,14 +1,15 @@
 import { AccessError } from "./accounts";
 import { checkPublicUrl, PublicUrlError } from "./public-url";
+import { BROWSER_WRITE_ACTIONS, isBrowserAction, normalizeBrowserArgs } from "./browser-actions";
 import { shellProblem } from "./shell-guard";
 
-export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot" | "search" | "edit" | "mkdir" | "move" | "trash" | "shell";
+export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot" | "search" | "edit" | "mkdir" | "move" | "trash" | "shell" | "browser";
 
 /** Задачи, которые меняют компьютер: ждут «Разрешить». */
 export const AGENT_APPROVAL_KINDS: ReadonlySet<string> = new Set(["write", "run", "addroot", "edit", "mkdir", "move", "trash", "shell"]);
 /** Инструменты миссии, которые ждут «Разрешить» владельца. */
-export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot", "local_edit", "local_mkdir", "local_move", "local_trash", "local_shell"]);
-const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash", "shell"]);
+export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot", "local_edit", "local_mkdir", "local_move", "local_trash", "local_shell", "local_browser_act"]);
+const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash", "shell", "browser"]);
 
 export const AGENT_ROOT_PRESETS = ["desktop", "documents", "downloads"] as const;
 export type AgentJobStatus = "awaiting_approval" | "queued" | "running" | "done" | "failed" | "rejected" | "expired";
@@ -137,6 +138,7 @@ export function publicJob(job: AgentJob) {
     ...(job.kind === "search" ? { query: job.content } : {}),
     ...(job.kind === "run" ? { command: AGENT_COMMANDS[job.path] ?? job.path } : {}),
     ...(job.kind === "shell" ? { command: job.path } : {}),
+    ...(job.kind === "browser" ? { action: job.path, args: job.content } : {}),
     result: job.result,
     error: job.error,
     createdAt: job.createdAt,
@@ -168,6 +170,9 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     if (!known.some((entry) => entry.name === name)) throw new AccessError("Такой папки у агента нет.", 400);
     if (known.length < 2) throw new AccessError("Последнюю папку убрать нельзя.", 400);
     path = name;
+  } else if (kind === "browser") {
+    if (!isBrowserAction(input.path)) throw new AccessError("Неизвестное действие браузера.", 400);
+    path = input.path;
   } else if (kind === "shell") {
     const problem = shellProblem(input.path);
     if (problem) throw new AccessError(problem, 400);
@@ -189,6 +194,11 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     if (typeof input.content !== "string") throw new AccessError("Для записи нужен текст файла.", 400);
     if (input.content.length > AGENT_MAX_CONTENT) throw new AccessError("Файл для записи слишком большой.", 413);
     content = input.content;
+  }
+  if (kind === "browser") {
+    let args: unknown = {};
+    try { args = typeof input.content === "string" && input.content ? JSON.parse(input.content) : {}; } catch { throw new AccessError("Аргументы действия должны быть JSON.", 400); }
+    content = normalizeBrowserArgs(path, args);
   }
   if (kind === "search") {
     const query = typeof input.content === "string" ? input.content.trim() : "";
@@ -214,7 +224,7 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     root,
     path,
     content,
-    status: AGENT_APPROVAL_KINDS.has(kind) ? "awaiting_approval" : "queued",
+    status: AGENT_APPROVAL_KINDS.has(kind) || (kind === "browser" && BROWSER_WRITE_ACTIONS.has(path)) ? "awaiting_approval" : "queued",
     result: null,
     error: null,
     createdAt: now,
