@@ -99,3 +99,20 @@ describe("подтверждения миссии", () => {
     expect((await store.getJob(out.id))?.status).toBe("rejected");
   });
 });
+
+describe("общий барьер подтверждений миссии", () => {
+  it("инструменты агента не блокируются общим режимом «спрашивать», у них своё «Разрешить»", async () => {
+    const { readFileSync } = await import("node:fs");
+    const engine = readFileSync("src/core/execution-engine.ts", "utf8");
+    expect(engine).toContain('!isLocalToolName(known.name) && decide(levelOf(known), await readPermissionMode(this.env)) === "ask"');
+    expect(engine).toContain("isLocalToolName(known.name))&&output");
+  });
+
+  it("запись и команды агента всегда требуют approval, даже если барьер пропущен", async () => {
+    const store = memoryStore();
+    await enableAgent(store);
+    for (const [tool, input] of [["local_mkdir", { path: "d" }], ["local_write", { path: "a", content: "x" }], ["local_shell", { command: "npm test" }]] as const) {
+      expect(await executeLocalTool(tool, input, { store }), tool).toMatchObject({ status: "prepared", approvalRequired: true });
+    }
+  });
+});
