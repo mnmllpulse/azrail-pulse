@@ -1,4 +1,4 @@
-import { agentGap, agentHint, agentIntent, computerTask, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView, type AgentState } from './chat-agent';
+import { agentGap, agentHint, agentIntent, computerTask, maybeComputerTask, APPROVE as AGENT_APPROVE, REJECT as AGENT_REJECT, approvalText, jobReply, waitJob, type AgentJobView, type AgentState } from './chat-agent';
 import { activeRootField } from './agent-roots';
 import { agentCommand } from './agent-paths';
 import type { CardHandle, CardSpec } from './approval-card';
@@ -207,6 +207,15 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
         await ctx.startMission(message);
       } catch (error) { failed(message, error, 'Не удалось запустить задачу на компьютере.'); }
       return true;
+    }
+    if (ctx.startMission && maybeComputerTask(message)) {
+      try {
+        const state = (await api('/api/agent/status')) as AgentState;
+        if (state.paired && ((await api('/api/agent/intent', { method: 'POST', body: JSON.stringify({ message }) })) as { computer?: boolean }).computer) {
+          await ctx.startMission(message);
+          return true;
+        }
+      } catch { /* обычный ответ модели */ }
     }
     const hint = agentHint(message);
     if (hint) { noteLocal(message, hint); return true; }
