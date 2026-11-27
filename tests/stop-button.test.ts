@@ -18,6 +18,11 @@ describe("остановка задачи кнопкой отправки", () =
     expect(app).toMatch(/\$\('cancel'\)\.hidden=true;setStopMode\(false\);/);
   });
 
+  it("Esc тоже останавливает, подсказка как в Claude", () => {
+    expect(app).toContain("event.key==='Escape'&&$('submit').dataset.mode==='stop'");
+    expect(app).toContain("button.title='Остановить ответ · Esc'");
+  });
+
   it("в режиме остановки клик отменяет задачу, а не отправляет форму", () => {
     expect(app).toMatch(/\$\('submit'\)\.addEventListener\('click',event=>\{if\(\$\('submit'\)\.dataset\.mode!=='stop'\)return;event\.preventDefault\(\);event\.stopImmediatePropagation\(\);\$\('cancel'\)\.click\(\);\},true\)/);
   });
