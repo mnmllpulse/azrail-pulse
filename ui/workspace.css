@@ -239,12 +239,17 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .thinking-chevron { margin-left: auto; display: inline-flex; transition: transform .2s ease; }
 .app-shell .thinking-block[open] .thinking-chevron { transform: rotate(180deg); }
 .app-shell .thinking-body { padding: 2px 14px 12px; color: var(--muted); font-size: var(--fs-small); animation: thinking-open .2s ease; }
-/* Строка «Выполнил команд» и шторка со списком, как у Claude */
+/* Строка «Ход выполнения» и шторка со списком, как у Claude */
 .app-shell .commands-block { width: min(100%, 560px); margin: 2px 0 10px; }
 .app-shell .commands-row { display: flex; align-items: center; gap: 10px; width: 100%; padding: 8px 4px; border: 0; background: none; color: var(--muted); font: inherit; font-size: var(--fs-small); text-align: left; cursor: pointer; }
 .app-shell .commands-row:hover { color: var(--heading); }
 .app-shell .commands-row-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .app-shell .commands-block[data-live="true"] .commands-row-label { animation: commands-pulse 1.6s ease-in-out infinite; }
+.app-shell .commands-row-lead { display: inline-flex; flex: none; }
+.app-shell .commands-block[data-live="true"] .commands-row-lead { animation: commands-spin 1.1s linear infinite; color: var(--heading); }
+.app-shell .commands-block[data-live="false"] .commands-row-lead { color: #6ee7a8; }
+.app-shell .commands-block[data-live="false"] .commands-row-lead:has(.ui-icon path[d="M18 6 6 18"]) { color: #ff8a8a; }
+.app-shell .commands-row-count { margin-left: auto; padding-left: 10px; color: var(--muted); font-size: var(--fs-micro); white-space: nowrap; }
 .commands-row-chevron { display: inline-flex; transform: rotate(-90deg); transition: transform .2s ease; }
 .steps-timeline { margin: 4px 0 8px; padding: 0; list-style: none; }
 .steps-timeline[hidden] { display: none; }
@@ -267,8 +272,9 @@ li[data-state="running"] .steps-badge { animation: commands-pulse 1.6s ease-in-o
 .step-body pre { margin: 0; padding: 9px 11px; max-height: 260px; overflow: auto; border: 1px solid var(--line); border-radius: 8px; background: rgba(0,0,0,.32); font-size: var(--fs-micro); white-space: pre-wrap; overflow-wrap: anywhere; }
 .step-body pre[data-kind="err"] { border-color: #ff8a8a55; color: #ffb4b4; }
 .step-body pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+@keyframes commands-spin { to { transform: rotate(360deg); } }
 @keyframes commands-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
-@media (prefers-reduced-motion: reduce) { .app-shell .commands-block[data-live="true"] .commands-row-label { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .app-shell .commands-block[data-live="true"] .commands-row-label, .app-shell .commands-block[data-live="true"] .commands-row-lead { animation: none; } }
 @keyframes thinking-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .app-shell .thinking-body { animation: none; } .app-shell .thinking-chevron { transition: none; } }
 .app-shell .message-attachments { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }

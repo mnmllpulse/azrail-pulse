@@ -170,14 +170,17 @@ describe("подпись под картинкой и блок команд", ()
     expect(users[1].textContent).toContain("напиши промпт");
     expect(users[1].querySelector(".message-actions")).not.toBeNull();
   });
-  it("у ответа с командами — строка «Выполнил команд», список раскрывается прямо в сообщении", () => {
+  it("у ответа с командами — строка «Ход выполнения», список раскрывается прямо в сообщении", () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "сделай", reply: "готово" }]);
     thread.turns[0].steps = [{ t: "Чтение файла", s: "готово", d: "Вход:\nsrc/a.ts\n\nРезультат:\nconst a = 1;" }, { t: "Правка файла", s: "ошибка" }];
     renderChatMessages(host, thread, "");
     const row = host.querySelector(".commands-block .commands-row") as HTMLButtonElement;
     const list = host.querySelector(".commands-block .steps-timeline") as HTMLElement;
-    expect(row.textContent).toContain("Выполнил команд: 2");
+    expect(row.textContent).toContain("Остановлено на ошибке");
+    expect(row.textContent).toContain("2 шага");
+    expect(row.textContent).not.toContain("Выполнил команд");
+    expect(row.querySelector(".commands-row-lead")).not.toBeNull();
     expect(row.getAttribute("aria-expanded")).toBe("false");
     expect(list.hidden).toBe(true);
     row.click();
@@ -192,6 +195,24 @@ describe("подпись под картинкой и блок команд", ()
     expect(blocks[1].textContent).toBe("const a = 1;");
     expect((list.querySelectorAll(":scope > li")[1] as HTMLElement).dataset.state).toBe("failed");
     expect(host.ownerDocument.querySelector(".steps-sheet")).toBeNull();
+  });
+  it("пока агент работает: крутится значок и написано текущее действие; при ошибке в конце — «Остановлено на ошибке»", () => {
+    const { host } = setup();
+    const { thread } = threadWith([{ user: "сделай", reply: "" }]);
+    thread.turns[0].missionId = "m1";
+    thread.turns[0].status = "running";
+    thread.turns[0].steps = [{ t: "Смотрю папку: Рабочий стол", s: "готово" }, { t: "Переношу: demo", s: "в работе" }];
+    renderChatMessages(host, thread, "m1");
+    const block = host.querySelector(".commands-block") as HTMLElement;
+    expect(block.dataset.live).toBe("true");
+    expect(block.querySelector(".commands-row-label")?.textContent).toBe("Переношу: demo…");
+    expect(block.querySelector(".commands-row-count")?.textContent).toBe("");
+    thread.turns[0].reply = "не вышло";
+    thread.turns[0].steps = [{ t: "Переношу: demo", s: "ошибка" }];
+    renderChatMessages(host, thread, "");
+    const done = host.querySelector(".commands-block") as HTMLElement;
+    expect(done.dataset.live).toBe("false");
+    expect(done.querySelector(".commands-row-label")?.textContent).toBe("Остановлено на ошибке");
   });
   it("команда из JSON показывается как код, а раскрытое состояние переживает перерисовку", () => {
     const { host } = setup();
