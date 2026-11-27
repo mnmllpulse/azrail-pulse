@@ -70,7 +70,7 @@ export async function setAlways(store: AgentStore, scopes: unknown, now = Date.n
   return always;
 }
 
-const TRUST_FILE_KINDS: ReadonlySet<string> = new Set(["write", "edit", "mkdir", "move", "trash"]);
+const TRUST_FILE_KINDS: ReadonlySet<string> = new Set(["write", "mkdir"]);
 
 /** Какая область режима доверия покрывает задачу. addroot и droproot не покрываются никогда: они меняют, что агенту видно. */
 export function trustScopeOf(kind: string, path: string): TrustScope | null {
