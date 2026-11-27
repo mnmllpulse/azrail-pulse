@@ -112,17 +112,14 @@ export function commandsBlock(doc: Document, steps: ChatStep[], live = false, ke
   const count = doc.createElement('span');
   count.className = 'commands-row-count';
   count.textContent = failed ? total : '';
-  const lead = live ? doc.createElement('span') : failed ? iconElement('close', 16, doc) : null;
-  if (lead) {
-    lead.classList.add('commands-row-lead');
-    if (live) lead.classList.add('commands-spinner');
-  }
+  const lead = doc.createElement('span');
+  lead.classList.add('commands-row-lead', 'commands-spinner');
+  if (failed) lead.dataset.failed = 'true';
   const chevron = doc.createElement('span');
   chevron.className = 'commands-row-chevron';
   chevron.setAttribute('aria-hidden', 'true');
   chevron.innerHTML = icon('chevron', 16);
-  if (lead) row.append(lead);
-  row.append(label, count, chevron);
+  row.append(lead, label, count, chevron);
   const list = doc.createElement('ol');
   list.className = 'steps-timeline';
   steps.forEach((step, index) => list.append(stepItem(doc, step, `${key}#${index}`)));

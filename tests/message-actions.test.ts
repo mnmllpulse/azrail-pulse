@@ -180,7 +180,7 @@ describe("подпись под картинкой и блок команд", ()
     expect(row.textContent).toContain("Остановлено на ошибке");
     expect(row.textContent).toContain("2 шага");
     expect(row.textContent).not.toContain("Выполнил команд");
-    expect(row.querySelector(".commands-row-lead")).not.toBeNull(); // ошибка: красный крестик
+    expect((row.querySelector(".commands-row-lead") as HTMLElement).dataset.failed).toBe("true");
     expect(row.getAttribute("aria-expanded")).toBe("false");
     expect(list.hidden).toBe(true);
     row.click();
@@ -214,7 +214,7 @@ describe("подпись под картинкой и блок команд", ()
     expect(done.dataset.live).toBe("false");
     expect(done.querySelector(".commands-row-label")?.textContent).toBe("Остановлено на ошибке");
   });
-  it("успех: без галочки и без «Ход выполнения», только «N шагов»; до первого шага — крутящийся кружок", () => {
+  it("успех: кружок остаётся (не крутится), без галочки и без «Ход выполнения», только «N шагов»; до первого шага — крутящийся кружок", () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "сделай", reply: "готово" }]);
     thread.turns[0].steps = [{ t: "Создаю папку", s: "готово" }, { t: "Смотрю папку", s: "готово" }];
@@ -222,7 +222,7 @@ describe("подпись под картинкой и блок команд", ()
     const row = host.querySelector(".commands-row") as HTMLElement;
     expect(row.textContent).toContain("2 шага");
     expect(row.textContent).not.toContain("Ход выполнения");
-    expect(row.querySelector(".commands-row-lead")).toBeNull();
+    expect(row.querySelector(".commands-row-lead.commands-spinner")).not.toBeNull();
     const live = threadWith([{ user: "сделай", reply: "" }]).thread;
     live.turns[0].missionId = "m2";
     live.turns[0].status = "running";
