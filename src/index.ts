@@ -457,11 +457,16 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         return json({ error: "Этот путь только для WebSocket-подключения (заголовок Upgrade: websocket)." }, env, 426);
       }
       const instanceName = url.searchParams.get("projectId") ?? "default";
-      const orchestrator = await getAgentByName(env.Orchestrator, instanceName);
-      const forwarded=new Request(request);
-      forwarded.headers.set("X-Azrail-Account",principal.id);
-      forwarded.headers.set("X-Azrail-Project",instanceName);
-      return orchestrator.fetch(forwarded);
+      try {
+        const orchestrator = await getAgentByName(env.Orchestrator, instanceName);
+        const forwarded=new Request(request);
+        forwarded.headers.set("X-Azrail-Account",principal.id);
+        forwarded.headers.set("X-Azrail-Project",instanceName);
+        return await orchestrator.fetch(forwarded);
+      } catch (err) {
+        log("error", "stream.upgrade_failed", { error: err instanceof Error ? `${err.name}: ${err.message}` : String(err), ...traceLog(trace) });
+        return json({ error: "Живой канал недоступен, задачи обновляются обычным опросом." }, env, 503);
+      }
     }
 
     if (url.pathname === "/api/models" && request.method === "GET") {

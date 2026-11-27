@@ -18,6 +18,7 @@ import {
   type AgentStore,
 } from "../lib/local-agent";
 import { resumeAfterLocalJob } from "../lib/approval-resume";
+import { classifyComputerTask } from "../lib/computer-intent";
 import type { Env } from "../types";
 import { readJsonRecord } from "./request-json";
 
@@ -92,6 +93,10 @@ export async function agentRoute(request: Request, env: Env): Promise<Response |
   const store = await openStore(env);
 
   if (path === "status" && method === "GET") return Response.json({ ...(await agentStatus(store)), ...(await deviceStatus(await openDeviceStore(env))) });
+  if (path === "intent" && method === "POST") {
+    const body = await readJsonRecord(request, 6_000);
+    return Response.json({ computer: await classifyComputerTask(env, typeof body.message === "string" ? body.message : "") });
+  }
   if (path === "pair/approve" && method === "POST") {
     await approvePairing(await openDeviceStore(env), (await readJsonRecord(request, 2_000)).code);
     return Response.json({ ok: true });
