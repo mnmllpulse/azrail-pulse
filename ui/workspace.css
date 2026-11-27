@@ -246,8 +246,7 @@ html[data-expert="off"] .assignment-live { display: none !important; }
 .app-shell .commands-row-label { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .app-shell .commands-block[data-live="true"] .commands-row-label { animation: commands-pulse 1.6s ease-in-out infinite; }
 .app-shell .commands-row-lead { display: inline-flex; flex: none; }
-.app-shell .commands-block[data-live="true"] .commands-row-lead { animation: commands-spin 1.1s linear infinite; color: var(--heading); }
-.app-shell .commands-block[data-live="false"] .commands-row-lead { color: #6ee7a8; }
+.app-shell .commands-spinner { width: 16px; height: 16px; box-sizing: border-box; border: 2px solid color-mix(in srgb, var(--accent) 28%, transparent); border-top-color: var(--accent); border-radius: 50%; animation: commands-spin .9s linear infinite; }
 .app-shell .commands-block[data-live="false"] .commands-row-lead:has(.ui-icon path[d="M18 6 6 18"]) { color: #ff8a8a; }
 .app-shell .commands-row-count { margin-left: auto; padding-left: 10px; color: var(--muted); font-size: var(--fs-micro); white-space: nowrap; }
 .commands-row-chevron { display: inline-flex; transform: rotate(-90deg); transition: transform .2s ease; }
@@ -274,7 +273,7 @@ li[data-state="running"] .steps-badge { animation: commands-pulse 1.6s ease-in-o
 .step-body pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
 @keyframes commands-spin { to { transform: rotate(360deg); } }
 @keyframes commands-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .55; } }
-@media (prefers-reduced-motion: reduce) { .app-shell .commands-block[data-live="true"] .commands-row-label, .app-shell .commands-block[data-live="true"] .commands-row-lead { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .app-shell .commands-block[data-live="true"] .commands-row-label, .app-shell .commands-spinner { animation: none; } }
 @keyframes thinking-open { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .app-shell .thinking-body { animation: none; } .app-shell .thinking-chevron { transition: none; } }
 .app-shell .message-attachments { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }

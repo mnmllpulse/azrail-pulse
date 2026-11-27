@@ -170,7 +170,7 @@ describe("подпись под картинкой и блок команд", ()
     expect(users[1].textContent).toContain("напиши промпт");
     expect(users[1].querySelector(".message-actions")).not.toBeNull();
   });
-  it("у ответа с командами — строка «Ход выполнения», список раскрывается прямо в сообщении", () => {
+  it("у ответа с командами — строка со счётчиком шагов, список раскрывается прямо в сообщении", () => {
     const { host } = setup();
     const { thread } = threadWith([{ user: "сделай", reply: "готово" }]);
     thread.turns[0].steps = [{ t: "Чтение файла", s: "готово", d: "Вход:\nsrc/a.ts\n\nРезультат:\nconst a = 1;" }, { t: "Правка файла", s: "ошибка" }];
@@ -180,7 +180,7 @@ describe("подпись под картинкой и блок команд", ()
     expect(row.textContent).toContain("Остановлено на ошибке");
     expect(row.textContent).toContain("2 шага");
     expect(row.textContent).not.toContain("Выполнил команд");
-    expect(row.querySelector(".commands-row-lead")).not.toBeNull();
+    expect(row.querySelector(".commands-row-lead")).not.toBeNull(); // ошибка: красный крестик
     expect(row.getAttribute("aria-expanded")).toBe("false");
     expect(list.hidden).toBe(true);
     row.click();
@@ -213,6 +213,22 @@ describe("подпись под картинкой и блок команд", ()
     const done = host.querySelector(".commands-block") as HTMLElement;
     expect(done.dataset.live).toBe("false");
     expect(done.querySelector(".commands-row-label")?.textContent).toBe("Остановлено на ошибке");
+  });
+  it("успех: без галочки и без «Ход выполнения», только «N шагов»; до первого шага — крутящийся кружок", () => {
+    const { host } = setup();
+    const { thread } = threadWith([{ user: "сделай", reply: "готово" }]);
+    thread.turns[0].steps = [{ t: "Создаю папку", s: "готово" }, { t: "Смотрю папку", s: "готово" }];
+    renderChatMessages(host, thread, "");
+    const row = host.querySelector(".commands-row") as HTMLElement;
+    expect(row.textContent).toContain("2 шага");
+    expect(row.textContent).not.toContain("Ход выполнения");
+    expect(row.querySelector(".commands-row-lead")).toBeNull();
+    const live = threadWith([{ user: "сделай", reply: "" }]).thread;
+    live.turns[0].missionId = "m2";
+    live.turns[0].status = "running";
+    renderChatMessages(host, live, "m2");
+    expect(host.querySelector(".commands-block[data-live=\"true\"] .commands-spinner")).not.toBeNull();
+    expect(host.querySelector(".commands-row-label")?.textContent).toBe("Начинаю работу…");
   });
   it("команда из JSON показывается как код, а раскрытое состояние переживает перерисовку", () => {
     const { host } = setup();
