@@ -593,6 +593,10 @@ body {
   color: var(--heading);
 }
 
+.app-shell .stop-button { margin-right: 6px; color: #ff9a9a; border-color: rgba(255,138,138,.4); }
+.app-shell .stop-button:hover:not(:disabled) { border-color: rgba(255,138,138,.7); background: rgba(255,138,138,.12); color: #ffb4b4; }
+.app-shell .stop-button[hidden] { display: none; }
+
 .app-shell .send-button:disabled {
   opacity: .5;
 }

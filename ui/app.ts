@@ -203,7 +203,7 @@ function syncChatUI(messages=true){
 }
 function resetMissionView(){
  ++epoch;clearTimeout(pollTimer);pollFailures=0;contextGeneration++;
- missionPanel.hidden=true;$('mission-done').hidden=true;$('cancel').hidden=true;
+ missionPanel.hidden=true;$('mission-done').hidden=true;$('cancel').hidden=true;$('stop-run').hidden=true;
  for(const id of ['mission-status','mission-summary','mission-output','mission-activity','mission-plan','mission-connection','mission-checks','mission-progress-label'])$(id).textContent='';
  $('mission-progress').hidden=true;$('recover').hidden=true;$('permit-sandbox').hidden=true;
  $('context-status').textContent='Активной задачи пока нет.';
@@ -1814,6 +1814,7 @@ async function poll(version=epoch){
    const live=$('mission-status').textContent?.trim();
    if(live)$('assignment-now').textContent=live;
   }
+  $('stop-run').hidden=$('cancel').hidden;
   $('context-status').textContent=$('mission-status').textContent;syncChatUI();
   if(previous!==state.status&&!state.active&&!$('mission-panel').hidden)void refreshContextFiles();
   const waitingOnAgent=account?.role==='admin'?await renderAgentApprovals(document,state.status,api,{notice,failure,refresh:()=>void poll(version)}):false;
@@ -1829,6 +1830,7 @@ document.addEventListener('visibilitychange',()=>{
 });
 bind('resume',()=>poll(++epoch));
 bind('cancel',async()=>{if(mission){await api('/api/mission/cancel',{method:'POST',body:JSON.stringify({missionId:mission,projectId:project})});await poll(++epoch);}});
+bind('stop-run',()=>$('cancel').click());
 bind('export-project',async()=>{if(!project)throw Error('Выберите проект.');const {download}=await import('./media');download(await blobAPI(`/api/studio/project-zip?projectId=${encodeURIComponent(project)}`),'azrail-project.zip');});
 bind('mission-download',()=>$('export-project').click());
 bind('recover',async()=>{if(!mission)throw Error('Выберите миссию.');const r=await api('/api/mission/recover',{method:'POST',body:JSON.stringify({projectId:project,missionId:mission})});notice(r.resumed?'Миссия возобновлена.':r.reason);await poll(++epoch);});
