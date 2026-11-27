@@ -462,7 +462,15 @@ async function handleRequest(request: Request, env: Env, ingressTrace?: TraceCon
         const forwarded=new Request(request);
         forwarded.headers.set("X-Azrail-Account",principal.id);
         forwarded.headers.set("X-Azrail-Project",instanceName);
-        return await orchestrator.fetch(forwarded);
+        const upstream = await orchestrator.fetch(forwarded);
+        if (upstream.status >= 500) {
+          // Объект ответил ошибкой, а не бросил её: без тела причины не видно.
+          let body = "";
+          try { body = (await upstream.clone().text()).slice(0, 800); } catch { /* тело недоступно */ }
+          log("error", "stream.upstream_error", { status: upstream.status, body, ...traceLog(trace) });
+          return json({ error: "Живой канал недоступен, задачи обновляются обычным опросом." }, env, 503);
+        }
+        return upstream;
       } catch (err) {
         log("error", "stream.upgrade_failed", { error: err instanceof Error ? `${err.name}: ${err.message}` : String(err), ...traceLog(trace) });
         return json({ error: "Живой канал недоступен, задачи обновляются обычным опросом." }, env, 503);
