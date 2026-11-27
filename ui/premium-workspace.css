@@ -593,6 +593,9 @@ body {
   color: var(--heading);
 }
 
+.app-shell .send-button[data-mode="stop"] { border-color: transparent; background: #5a5a62; color: #fff; }
+.app-shell .send-button[data-mode="stop"]:hover:not(:disabled) { background: #6b6b74; color: #fff; border-color: transparent; }
+
 .app-shell .send-button:disabled {
   opacity: .5;
 }

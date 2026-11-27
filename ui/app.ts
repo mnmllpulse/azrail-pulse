@@ -160,6 +160,12 @@ async function previewAttachedSite(files:File[]){
 }
 let contextGeneration=0;
 let currentRoute:Route={page:'create'};
+function setStopMode(on:boolean){
+ const button=$<HTMLButtonElement>('submit');
+ if((button.dataset.mode==='stop')===on)return;
+ if(on){button.dataset.mode='stop';button.innerHTML='<svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><rect x="2" y="2" width="10" height="10" rx="2" fill="currentColor"/></svg>';button.title='Остановить ответ · Esc';button.setAttribute('aria-label','Остановить задачу');}
+ else{delete button.dataset.mode;button.innerHTML=icon('enter',16);button.title=composerPage==='mission'?'Старт · Enter':'Отправить · Enter';button.setAttribute('aria-label',composerPage==='mission'?'Старт':'Отправить сообщение');}
+}
 function syncChatUI(messages=true){
  closeChatMenus();
  const active=chatHistory.current(),query=$<HTMLInputElement>('chat-search').value.trim().toLocaleLowerCase();
@@ -203,7 +209,7 @@ function syncChatUI(messages=true){
 }
 function resetMissionView(){
  ++epoch;clearTimeout(pollTimer);pollFailures=0;contextGeneration++;
- missionPanel.hidden=true;$('mission-done').hidden=true;$('cancel').hidden=true;
+ missionPanel.hidden=true;$('mission-done').hidden=true;$('cancel').hidden=true;setStopMode(false);
  for(const id of ['mission-status','mission-summary','mission-output','mission-activity','mission-plan','mission-connection','mission-checks','mission-progress-label'])$(id).textContent='';
  $('mission-progress').hidden=true;$('recover').hidden=true;$('permit-sandbox').hidden=true;
  $('context-status').textContent='Активной задачи пока нет.';
@@ -1814,6 +1820,7 @@ async function poll(version=epoch){
    const live=$('mission-status').textContent?.trim();
    if(live)$('assignment-now').textContent=live;
   }
+  setStopMode(!$('cancel').hidden);
   $('context-status').textContent=$('mission-status').textContent;syncChatUI();
   if(previous!==state.status&&!state.active&&!$('mission-panel').hidden)void refreshContextFiles();
   const waitingOnAgent=account?.role==='admin'?await renderAgentApprovals(document,state.status,api,{notice,failure,refresh:()=>void poll(version)}):false;
@@ -1829,6 +1836,8 @@ document.addEventListener('visibilitychange',()=>{
 });
 bind('resume',()=>poll(++epoch));
 bind('cancel',async()=>{if(mission){await api('/api/mission/cancel',{method:'POST',body:JSON.stringify({missionId:mission,projectId:project})});await poll(++epoch);}});
+document.addEventListener('keydown',event=>{if(event.key==='Escape'&&$('submit').dataset.mode==='stop'&&!event.defaultPrevented){event.preventDefault();$('cancel').click();}});
+$('submit').addEventListener('click',event=>{if($('submit').dataset.mode!=='stop')return;event.preventDefault();event.stopImmediatePropagation();$('cancel').click();},true);
 bind('export-project',async()=>{if(!project)throw Error('Выберите проект.');const {download}=await import('./media');download(await blobAPI(`/api/studio/project-zip?projectId=${encodeURIComponent(project)}`),'azrail-project.zip');});
 bind('mission-download',()=>$('export-project').click());
 bind('recover',async()=>{if(!mission)throw Error('Выберите миссию.');const r=await api('/api/mission/recover',{method:'POST',body:JSON.stringify({projectId:project,missionId:mission})});notice(r.resumed?'Миссия возобновлена.':r.reason);await poll(++epoch);});
