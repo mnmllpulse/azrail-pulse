@@ -138,6 +138,8 @@ export class ExecutionEngine {
      * съедало шаг бюджета. Бесплатных — не больше двух, чтобы
      * упрямый повтор не крутил цикл бесконечно. */
     let freeLoopWarnings = 2;
+    /* «Сдался после первой ошибки»: пока последний шаг на компьютере упал, «готово» не принимается. Не больше двух напоминаний. */
+    let giveUpNudges = 2;
     let consecutiveFailures = 0;
     // This is not an authorization gate; it only preserves reflection/reporting
     // semantics across a restart. If D1 is unavailable we default to false, while
@@ -495,6 +497,21 @@ export class ExecutionEngine {
           await this.note(ctx,"plan.revise_limit",{reason:`достигнут лимит ${MAX_REVISIONS}`,iteration:i});
           // A pure replan decision has no tool to execute. Do not fall through
           // and accidentally treat it as successful completion.
+          continue;
+        }
+      }
+
+      if ((decision.done || !decision.tool) && giveUpNudges > 0) {
+        const lastLocal = [...history].reverse().find((step) => isLocalToolName(step.tool) && step.tool !== "local_status");
+        if (lastLocal && !lastLocal.ok) {
+          giveUpNudges--;
+          history.push({
+            tool: "loop",
+            input: {},
+            ok: false,
+            result: `Ты хочешь закончить, но последний шаг на компьютере (${lastLocal.tool}) завершился ошибкой: ${String(lastLocal.result).slice(0, 300)}\nНе сдавайся: смени путь или способ и повтори. Закончить можно после реальной попытки исправить или если нужно действие владельца — тогда назови одно конкретное.`,
+          });
+          i--;
           continue;
         }
       }
