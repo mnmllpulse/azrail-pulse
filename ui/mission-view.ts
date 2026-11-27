@@ -7,11 +7,20 @@ export interface MissionReport {
 }
 const labels: Record<string,string> = {queued:'Задача принята',planning:'Составляю план',executing:'Выполняю задачу',verifying:'Проверяю результат',waiting_approval:'Нужно ваше действие',completed:'Проверено · завершено',unverified:'Завершено без подтверждения',failed:'Работа остановлена',cancelling:'Останавливаю задачу',cancelled:'Задача отменена'};
 const tools: Record<string,string> = {read_file:'Чтение файла',write_file:'Создание файла',edit_file:'Правка файла',apply_patch:'Изменение кода',list_files:'Просмотр проекта',search_files:'Поиск в проекте',call_model:'Анализ задачи',sandbox_test:'Проверка проекта',sandbox_exec:'Выполнение команды',run_tests:'Запуск тестов',connector_call:'Внешний инструмент',connector_search:'Поиск инструмента'};
+const LOCAL: Record<string,[string,string]> = {local_list:['Смотрю папку','path'],local_read:['Читаю файл','path'],local_search:['Ищу на компьютере','query'],local_write:['Записываю файл','path'],local_edit:['Правлю файл','path'],local_mkdir:['Создаю папку','path'],local_move:['Переношу','path'],local_trash:['Убираю в корзину','path'],local_shell:['Выполняю команду','command'],local_run:['Запускаю','command'],local_addroot:['Открываю доступ к папке','path'],local_browser:['Открываю в браузере','url'],local_browser_act:['Действие в браузере','action'],local_status:['Проверяю выполнение','']};
+/** Понятное название шага: для действий на компьютере с путём или командой, для остальных общее. */
+export function stepTitle(tool:string,input:string):string {
+ const local=LOCAL[tool];
+ if(!local) return tools[tool]??'Инструмент';
+ let value='';
+ try {const parsed=JSON.parse(input) as Record<string,unknown>;const raw=local[1]&&parsed[local[1]];value=typeof raw==='string'?raw.trim().slice(0,80):'';} catch { /* без деталей */ }
+ return value?`${local[0]}: ${value}`:local[0];
+}
 const text=(value:unknown,fallback='')=>typeof value==='string'?value.slice(0,10000):fallback;
 export function missionSteps(report: MissionReport): ChatStep[] {
  return (report.calls??[]).slice(0,40).map(call=>{
   const detail=[text(call.input)&&`Вход:\n${text(call.input).slice(0,1500)}`,text(call.output)&&`Результат:\n${text(call.output).slice(0,1500)}`,text(call.error)&&`Ошибка:\n${text(call.error).slice(0,500)}`].filter(Boolean).join('\n\n');
-  return {t:tools[text(call.tool)]??'Инструмент',s:call.status==='done'?'готово':call.status==='failed'?'ошибка':'в работе',...(detail?{d:detail}:{})};
+  return {t:stepTitle(text(call.tool),text(call.input)),s:call.status==='done'?'готово':call.status==='failed'?'ошибка':'в работе',...(detail?{d:detail}:{})};
  });
 }
 export function renderMission(root: Document, report: MissionReport, operator=false) {
@@ -27,7 +36,7 @@ export function renderMission(root: Document, report: MissionReport, operator=fa
  const progress=get('mission-progress') as HTMLProgressElement;progress.hidden=!plan.length;progress.max=plan.length||1;progress.value=done;
  get('mission-progress-label').textContent=plan.length?`Завершено шагов: ${done} из ${plan.length}`:'';
  const activity=get('mission-activity');activity.replaceChildren();
- for(const call of (report.calls??[]).slice(-5)){const p=root.createElement('p');p.className='muted';p.textContent=`${tools[text(call.tool)]??'Инструмент'} · ${call.status==='done'?'готово':call.status==='failed'?'ошибка':'в работе'}`;activity.append(p);}
+ for(const call of (report.calls??[]).slice(-5)){const p=root.createElement('p');p.className='muted';p.textContent=`${stepTitle(text(call.tool),text(call.input))} · ${call.status==='done'?'готово':call.status==='failed'?'ошибка':'в работе'}`;activity.append(p);}
  // A permissive/unavailable model checker is not a successful code test.
  const check=(report.events??[]).filter(e=>['check.passed','check.unverified','check.rejected'].includes(text(e.type))).at(-1);
  const tests=(report.events??[]).filter(e=>['tests.verified','tests.failed','tests.unavailable'].includes(text(e.type))).at(-1);
