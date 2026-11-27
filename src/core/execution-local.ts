@@ -85,7 +85,7 @@ async function runLocalTool(tool: ToolName, input: Record<string, unknown>, deps
   const { store } = deps;
   switch (tool) {
     case "local_status": {
-      const job = await store.getJob(text(input.jobId, 64));
+      const job = await store.getJob(text(input.jobId ?? input.id, 64));
       if (!job) throw new ToolRejectedError("Такой задачи нет.");
       return view(job);
     }

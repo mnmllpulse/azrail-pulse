@@ -6,20 +6,21 @@ import {
 } from "../src/lib/mission-limits";
 
 describe("лимиты шагов миссии", () => {
-  it("дефолт — 12, потолок — 20", () => {
+  it("дефолт — 20, потолок — 30", () => {
     expect(clampIterations(undefined)).toBe(DEFAULT_MISSION_ITERATIONS);
-    expect(DEFAULT_MISSION_ITERATIONS).toBe(12);
+    expect(DEFAULT_MISSION_ITERATIONS).toBe(20);
+    expect(MAX_MISSION_ITERATIONS).toBe(30);
     expect(clampIterations(999)).toBe(MAX_MISSION_ITERATIONS);
   });
 
   it("мусор на входе даёт дефолт, а не NaN или 0", () => {
-    for (const bad of [null, "", "abc", 0, -5, NaN, {}]) expect(clampIterations(bad)).toBe(12);
+    for (const bad of [null, "", "abc", 0, -5, NaN, {}]) expect(clampIterations(bad)).toBe(20);
     expect(clampIterations("7")).toBe(7);
     expect(clampIterations(3.9)).toBe(3);
   });
 
   it("план всегда оставляет запас на исправления", () => {
-    for (let max = 2; max <= 20; max++) expect(planStepCap(max)).toBeLessThan(max);
+    for (let max = 2; max <= 30; max++) expect(planStepCap(max)).toBeLessThan(max);
     expect(planStepCap(12)).toBe(9);
     expect(planStepCap(1)).toBe(1);
   });

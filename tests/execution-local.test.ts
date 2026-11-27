@@ -116,3 +116,27 @@ describe("общий барьер подтверждений миссии", () =
     }
   });
 });
+
+describe("промпт и цикл для задач на компьютере", () => {
+  it("промпт запрещает «нет доступа», объясняет пути, проверку и повторы", async () => {
+    const { LOOP_SYSTEM_PROMPT } = await import("../src/core/execution-planning");
+    for (const part of ["Никогда не отвечай «у меня нет доступа к компьютеру»", "Рабочий стол/", "local_status", "local_list этой папки", "до трёх попыток", "ОДНО действие", "snapshot", "перебрал ВСЕ подходящие инструменты"]) expect(LOOP_SYSTEM_PROMPT, part).toContain(part);
+  });
+
+  it("local_status принимает и jobId, и id из ответа инструмента", async () => {
+    const store = memoryStore();
+    await enableAgent(store);
+    const made = (await executeLocalTool("local_mkdir", { path: "d" }, { store })) as { id: string };
+    expect(await executeLocalTool("local_status", { jobId: made.id }, { store })).toMatchObject({ id: made.id });
+    expect(await executeLocalTool("local_status", { id: made.id }, { store })).toMatchObject({ id: made.id });
+  });
+
+  it("цикл не принимает «готово» после упавшего шага на компьютере (не больше двух раз)", async () => {
+    const { readFileSync } = await import("node:fs");
+    const engine = readFileSync("src/core/execution-engine.ts", "utf8");
+    expect(engine).toContain("let giveUpNudges = 2;");
+    expect(engine).toContain('step.tool !== "local_status"');
+    expect(engine).toContain("Не сдавайся: смени путь или способ");
+    expect(engine).toMatch(/giveUpNudges--;[\s\S]{0,800}i--;\s*continue;/);
+  });
+});
