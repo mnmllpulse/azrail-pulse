@@ -66,6 +66,7 @@ import { accountsRoute } from "./routes/accounts";
 import { settingsRoute } from "./routes/settings";
 import { metatronRoute } from "./routes/metatron";
 import { conversationsRoute } from "./routes/conversations";
+import { isUpgradeResponse } from "./lib/upgrade-response";
 import { listTraceLinks, requestTrace, traceLog, type TraceContext } from "./lib/observability-context";
 import { projectRoute } from "./unified/projects";
 import { webWorkbenchRoute } from "./unified/web-workbench";
@@ -110,6 +111,7 @@ function json(data: unknown, env: Env, status = 200): Response {
 }
 
 function withTraceHeaders(response: Response, trace: TraceContext): Response {
+  if (isUpgradeResponse(response)) return response;
   const headers = new Headers(response.headers);
   headers.set("X-Request-Id", trace.requestId);
   headers.set("X-Trace-Id", trace.traceId);
