@@ -23,7 +23,8 @@ const status = async (store: AgentStore, input: Parameters<typeof createJob>[1],
 describe("область доверия", () => {
   it("сопоставляет задачи областям, addroot и droproot никогда", () => {
     expect(trustScopeOf("write", "a")).toBe("files");
-    expect(trustScopeOf("trash", "a")).toBe("files");
+    expect(trustScopeOf("mkdir", "a")).toBe("files");
+    for (const kind of ["edit", "move", "trash"]) expect(trustScopeOf(kind, "a"), kind).toBeNull();
     expect(trustScopeOf("shell", "npm i")).toBe("shell");
     expect(trustScopeOf("run", "npm_test")).toBe("shell");
     expect(trustScopeOf("browser", "click")).toBe("browser");
@@ -43,7 +44,8 @@ describe("режим доверия на сервере", () => {
     const store = await ready();
     await setTrust(store, { scopes: ["files"], minutes: 15 }, NOW);
     expect(await status(store, { kind: "mkdir", path: "d" })).toBe("queued");
-    expect(await status(store, { kind: "trash", path: "d" })).toBe("queued");
+    expect(await status(store, { kind: "write", path: "d/a.txt", content: "x" })).toBe("queued");
+    for (const kind of ["trash", "edit", "move"] as const) expect(await status(store, { kind, path: "d", content: kind === "move" ? "e" : kind === "edit" ? JSON.stringify({ old: "a", new: "b" }) : undefined }), kind).toBe("awaiting_approval");
     expect(await status(store, { kind: "shell", path: "npm install" })).toBe("awaiting_approval");
     expect(await status(store, { kind: "browser", path: "click", content: JSON.stringify({ ref: 1 }) })).toBe("awaiting_approval");
   });
@@ -120,7 +122,8 @@ describe("«всегда» для файлов", () => {
   it("постоянное разрешение пропускает файлы, но не терминал, и переживает новую сессию", async () => {
     const store = await ready();
     expect(await setAlways(store, ["files"], NOW)).toEqual(["files"]);
-    expect(await status(store, { kind: "trash", path: "a" })).toBe("queued");
+    expect(await status(store, { kind: "mkdir", path: "a" })).toBe("queued");
+    expect(await status(store, { kind: "trash", path: "a" })).toBe("awaiting_approval");
     expect(await status(store, { kind: "shell", path: "npm test" })).toBe("awaiting_approval");
     expect(await status(store, { kind: "addroot", path: "desktop" })).toBe("awaiting_approval");
     await enableAgent(store, NOW + 5 * 60 * 60_000);
