@@ -237,7 +237,7 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
       adv.push(addBox);
       const trustBox = el('div', '', 'agent-trust');
       trustBox.append(el('strong', 'Режим доверия'));
-      const SCOPES: Array<[string, string]> = [['files', 'Файлы (запись, правка, перенос, корзина)'], ['browser', 'Браузер (клики, ввод, загрузка файла)'], ['shell', 'Терминал (команды)']];
+      const SCOPES: Array<[string, string]> = [['files', 'Файлы (создание папок и запись файлов)'], ['browser', 'Браузер (клики, ввод, загрузка файла)'], ['shell', 'Терминал (команды)']];
       const boxes = SCOPES.map(([value, label]) => {
         const wrap = el('label', '', 'agent-trust-scope');
         const box = el('input');
@@ -266,10 +266,10 @@ export function agentSettings(api: Api, notice: (text: string, bad?: boolean) =>
         const revoke = el('button', 'Отозвать «всегда»');
         revoke.type = 'button';
         revoke.onclick = () => void api('/api/agent/always', { method: 'POST', body: JSON.stringify({ scopes: [] }) }).then(() => { notice('Постоянное разрешение снято.'); return paint(); }).catch(failure);
-        trustBox.append(el('p', 'Всегда разрешено: файлы (запись, правка, перенос, корзина).', 'context-note'), revoke);
+        trustBox.append(el('p', 'Всегда разрешено: файлы (создание папок и запись файлов).', 'context-note'), revoke);
       }
-      if (state.always?.length) nodes.push(el('p', 'Всегда разрешено: файлы (запись, правка, перенос, корзина). Снять можно в «Дополнительно».', 'context-note'));
-      trustBox.append(el('p', 'Добавление папок и перенос доступа всегда требуют «Разрешить». Доверие заканчивается само и при выключении агента. Выбирай только то, что понимаешь.', 'muted'));
+      if (state.always?.length) nodes.push(el('p', 'Всегда разрешено: файлы (создание папок и запись файлов). Снять можно в «Дополнительно».', 'context-note'));
+      trustBox.append(el('p', 'Правка, перенос, переименование и удаление существующих файлов, добавление папок и перенос доступа всегда требуют «Разрешить». Доверие заканчивается само и при выключении агента. Выбирай только то, что понимаешь.', 'muted'));
       adv.push(trustBox);
       if (state.connected && !autoOpened) { autoOpened = true; void browser.open(''); }
       for (const job of state.jobs.filter((item) => !ownJobs.has(item.id))) {

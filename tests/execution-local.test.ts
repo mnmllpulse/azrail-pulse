@@ -140,3 +140,10 @@ describe("промпт и цикл для задач на компьютере",
     expect(engine).toMatch(/giveUpNudges--;[\s\S]{0,800}i--;\s*continue;/);
   });
 });
+
+describe("правила для чужих файлов", () => {
+  it("промпт запрещает угадывать и переносить без просьбы", async () => {
+    const { LOOP_SYSTEM_PROMPT } = await import("../src/core/execution-planning");
+    for (const part of ["Чужие файлы и папки не угадывай", "в ТОМ ЖЕ каталоге", "закончи вопросом владельцу", "было → стало"]) expect(LOOP_SYSTEM_PROMPT, part).toContain(part);
+  });
+});
