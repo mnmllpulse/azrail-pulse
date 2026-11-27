@@ -197,7 +197,7 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
   const item=doc.createElement('article');item.className='chat-message';item.dataset.role=role;
   const heading=doc.createElement('h3');heading.className='message-heading';heading.textContent=role==='user'?'Вы':(handlers.assistantLabel||'AZRAIL');
   item.append(heading);
-  if(role==='assistant'&&steps?.length)item.append(commandsBlock(doc,steps,live,String(turn)));
+  if(role==='assistant'&&(steps?.length||live))item.append(commandsBlock(doc,steps??[],live,String(turn)));
   if(role==='assistant'&&content){
    const {process,rest,steps}=splitProcess(content);
    if(process){
@@ -231,7 +231,7 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
   const turn=turns[index];
   message('user',turn.user);
   const liveMissionTurn=!!liveMission&&turn.missionId===liveMission&&!turn.reply&&turn.status!=='queued'&&turn.status!=='failed';
-  if(liveMissionTurn){if(turn.steps?.length)message('assistant','','live',index,turn.steps,true);continue;}
+  if(liveMissionTurn){message('assistant','','live',index,turn.steps??[],true);continue;}
   if(turn.reply)message('assistant',turn.reply,undefined,index,turn.steps);
   else if(turn.status==='queued')message('assistant','', 'queued',-1,turn.steps,true);
   else if(turn.status==='failed')message('assistant',turn.reply||'Не удалось получить ответ.','failed');

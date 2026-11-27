@@ -104,20 +104,25 @@ export function commandsBlock(doc: Document, steps: ChatStep[], live = false, ke
   row.className = 'commands-row';
   const last = steps.at(-1);
   const failed = !live && last?.s === 'ошибка';
-  const title = live ? (last ? `${last.t}…` : 'Начинаю работу…') : failed ? 'Остановлено на ошибке' : 'Ход выполнения';
+  const total = `${steps.length} ${steps.length === 1 ? 'шаг' : steps.length < 5 ? 'шага' : 'шагов'}`;
+  const title = live ? (last ? `${last.t}…` : 'Начинаю работу…') : failed ? 'Остановлено на ошибке' : total;
   const label = doc.createElement('span');
   label.className = 'commands-row-label';
   label.textContent = title;
   const count = doc.createElement('span');
   count.className = 'commands-row-count';
-  count.textContent = live ? '' : `${steps.length} ${steps.length === 1 ? 'шаг' : steps.length < 5 ? 'шага' : 'шагов'}`;
-  const lead = live ? iconElement('mission', 16, doc) : iconElement(failed ? 'close' : 'check', 16, doc);
-  lead.classList.add('commands-row-lead');
+  count.textContent = failed ? total : '';
+  const lead = live ? doc.createElement('span') : failed ? iconElement('close', 16, doc) : null;
+  if (lead) {
+    lead.classList.add('commands-row-lead');
+    if (live) lead.classList.add('commands-spinner');
+  }
   const chevron = doc.createElement('span');
   chevron.className = 'commands-row-chevron';
   chevron.setAttribute('aria-hidden', 'true');
   chevron.innerHTML = icon('chevron', 16);
-  row.append(lead, label, count, chevron);
+  if (lead) row.append(lead);
+  row.append(label, count, chevron);
   const list = doc.createElement('ol');
   list.className = 'steps-timeline';
   steps.forEach((step, index) => list.append(stepItem(doc, step, `${key}#${index}`)));
