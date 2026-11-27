@@ -76,7 +76,7 @@ export interface Env {
 
   /** Токен доступа к платным эндпоинтам. Без него они закрыты (fail-closed). */
   AZRAIL_TOKEN?: string;
-  /** Лимит задач в час на вызывающего. По умолчанию 50. */
+  /** Лимит задач в час на вызывающего. По умолчанию 200 (миссия списывает по числу шагов, до 20–30 за раз). */
   AZRAIL_HOURLY_LIMIT?: string;
   /** Soft daily Chat request cap (owner testing). Default 200. */
   CHAT_DAILY_LIMIT?: string;

@@ -59,5 +59,5 @@ export function checkAuth(request: Request, env: Env): AuthResult {
 
 /** Atomic model-call reservations; unavailable storage fails closed. */
 export async function checkRateLimit(env: Env, caller: string, cost = 1) {
-  return reserveQuota(env, `models:${caller}`, cost, positiveLimit(env.AZRAIL_HOURLY_LIMIT, 50));
+  return reserveQuota(env, `models:${caller}`, cost, positiveLimit(env.AZRAIL_HOURLY_LIMIT, 200));
 }

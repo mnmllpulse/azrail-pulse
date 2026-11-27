@@ -50,3 +50,11 @@ describe("лимит плана — в коде, а не только в про�
     expect(eng).toContain(".slice(0, Math.min(planStepCap(remaining), 6))");
   });
 });
+
+describe("часовой лимит по умолчанию", () => {
+  it("вмещает не меньше восьми миссий с потолком шагов по умолчанию", async () => {
+    const { readFileSync } = await import("node:fs");
+    const match = /positiveLimit\(env\.AZRAIL_HOURLY_LIMIT, (\d+)\)/.exec(readFileSync("src/lib/auth.ts", "utf8"));
+    expect(Number(match?.[1])).toBeGreaterThanOrEqual(8 * DEFAULT_MISSION_ITERATIONS);
+  });
+});
