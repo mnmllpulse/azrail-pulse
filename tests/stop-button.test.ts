@@ -13,8 +13,8 @@ describe("остановка задачи кнопкой отправки", () =
     expect(css).toContain('.send-button[data-mode="stop"]');
   });
 
-  it("режим повторяет доступность отмены миссии и снимается в конце", () => {
-    expect(app).toContain("setStopMode(!$('cancel').hidden);");
+  it("квадрат только пока агент работает или ждёт «Разрешить»; на вопрос к владельцу кнопка остаётся «Отправить»", () => {
+    expect(app).toContain("setStopMode(!$('cancel').hidden&&(state.active||waitingOnAgent));");
     expect(app).toMatch(/\$\('cancel'\)\.hidden=true;setStopMode\(false\);/);
   });
 
