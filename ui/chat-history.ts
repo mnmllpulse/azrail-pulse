@@ -197,7 +197,7 @@ export function renderChatMessages(host:HTMLElement,thread:ChatThread|undefined,
   const item=doc.createElement('article');item.className='chat-message';item.dataset.role=role;
   const heading=doc.createElement('h3');heading.className='message-heading';heading.textContent=role==='user'?'Вы':(handlers.assistantLabel||'AZRAIL');
   item.append(heading);
-  if(role==='assistant'&&steps?.length)item.append(commandsBlock(doc,steps,live));
+  if(role==='assistant'&&steps?.length)item.append(commandsBlock(doc,steps,live,String(turn)));
   if(role==='assistant'&&content){
    const {process,rest,steps}=splitProcess(content);
    if(process){

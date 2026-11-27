@@ -18,17 +18,92 @@ function parts(count: number): string {
 
 export type ChatStep = { t: string; s?: string; d?: string };
 
-export function commandsBlock(doc: Document, steps: ChatStep[], live = false): HTMLElement {
+const openKeys = new Set<string>();
+
+type Section = { label: string; body: string; kind: 'in' | 'out' | 'err' };
+
+/** «Вход:/Результат:/Ошибка:» из шага → подписанные блоки; JSON команды показывается как код, а не как строка с кавычками. */
+export function detailSections(detail: string): Section[] {
+  return detail.split(/\n\n(?=(?:Вход|Результат|Ошибка):)/).flatMap((part): Section[] => {
+    const match = /^(Вход|Результат|Ошибка):\n?([\s\S]*)$/.exec(part);
+    if (!match || !match[2].trim()) return [];
+    let body = match[2];
+    if (match[1] === 'Вход') {
+      try {
+        const parsed = JSON.parse(body) as unknown;
+        if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+          const record = parsed as Record<string, unknown>;
+          body = typeof record.command === 'string' ? record.command : JSON.stringify(parsed, null, 2);
+        }
+      } catch { /* усечённый или не JSON — как есть */ }
+    }
+    const kind = match[1] === 'Вход' ? 'in' : match[1] === 'Ошибка' ? 'err' : 'out';
+    return [{ label: match[1] === 'Вход' ? 'Запрос' : match[1], body, kind }];
+  });
+}
+
+function stateIcon(status: string | undefined): { name: 'check' | 'close' | 'terminal'; state: 'done' | 'failed' | 'running' } {
+  if (status === 'готово') return { name: 'check', state: 'done' };
+  if (status === 'ошибка') return { name: 'close', state: 'failed' };
+  return { name: 'terminal', state: 'running' };
+}
+
+function stepItem(doc: Document, step: ChatStep, key: string): HTMLLIElement {
+  const li = doc.createElement('li');
+  const { name, state } = stateIcon(step.s);
+  li.dataset.state = state;
+  const badge = doc.createElement('span');
+  badge.className = 'steps-badge';
+  badge.setAttribute('aria-hidden', 'true');
+  badge.innerHTML = icon(name, 14);
+  const label = doc.createElement('span');
+  label.className = 'steps-name';
+  label.textContent = step.t;
+  if (!step.d) {
+    const row = doc.createElement('div');
+    row.className = 'steps-line';
+    row.append(badge, label);
+    li.append(row);
+    return li;
+  }
+  const item = doc.createElement('details');
+  item.className = 'command-step';
+  item.open = openKeys.has(key);
+  item.addEventListener('toggle', () => { if (item.open) openKeys.add(key); else openKeys.delete(key); });
+  const summary = doc.createElement('summary');
+  const chevron = doc.createElement('span');
+  chevron.className = 'commands-row-chevron';
+  chevron.setAttribute('aria-hidden', 'true');
+  chevron.innerHTML = icon('chevron', 14);
+  summary.append(badge, label, chevron);
+  const body = doc.createElement('div');
+  body.className = 'step-body';
+  for (const section of detailSections(step.d)) {
+    const caption = doc.createElement('div');
+    caption.className = 'step-caption';
+    caption.textContent = section.label;
+    const pre = doc.createElement('pre');
+    pre.dataset.kind = section.kind;
+    const code = doc.createElement('code');
+    code.textContent = section.body;
+    pre.append(code);
+    body.append(caption, pre);
+  }
+  item.append(summary, body);
+  li.append(item);
+  return li;
+}
+
+/** Ход выполнения как в Claude: строка со стрелкой раскрывает список шагов прямо в сообщении, каждый шаг раскрывает запрос и результат. */
+export function commandsBlock(doc: Document, steps: ChatStep[], live = false, key = ''): HTMLElement {
   const root = doc.createElement('div');
   root.className = 'commands-block';
   root.dataset.live = live ? 'true' : 'false';
   const row = doc.createElement('button');
   row.type = 'button';
   row.className = 'commands-row';
-  row.setAttribute('aria-haspopup', 'dialog');
   const last = steps.at(-1);
   const title = live && last ? `${last.t}…` : `Выполнил команд: ${steps.length}`;
-  row.setAttribute('aria-label', `${title}. Открыть список`);
   const label = doc.createElement('span');
   label.className = 'commands-row-label';
   label.textContent = title;
@@ -37,75 +112,21 @@ export function commandsBlock(doc: Document, steps: ChatStep[], live = false): H
   chevron.setAttribute('aria-hidden', 'true');
   chevron.innerHTML = icon('chevron', 16);
   row.append(iconElement('mission', 16, doc), label, chevron);
-  row.onclick = () => openStepsSheet(doc, steps, row);
-  root.append(row);
-  return root;
-}
-
-export function openStepsSheet(doc: Document, steps: ChatStep[], opener?: HTMLElement): HTMLElement {
-  doc.querySelector('.steps-sheet-backdrop')?.remove();
-  const backdrop = doc.createElement('div');
-  backdrop.className = 'steps-sheet-backdrop';
-  const sheet = doc.createElement('section');
-  sheet.className = 'steps-sheet';
-  sheet.setAttribute('role', 'dialog');
-  sheet.setAttribute('aria-modal', 'true');
-  sheet.setAttribute('aria-label', `Выполнил команд: ${steps.length}`);
-  const head = doc.createElement('header');
-  const close = doc.createElement('button');
-  close.type = 'button';
-  close.className = 'steps-sheet-close';
-  close.setAttribute('aria-label', 'Закрыть');
-  close.innerHTML = icon('close', 20);
-  const title = doc.createElement('h2');
-  title.textContent = `Выполнил команд: ${steps.length}`;
-  head.append(close, title);
   const list = doc.createElement('ol');
   list.className = 'steps-timeline';
-  for (const step of steps) {
-    const li = doc.createElement('li');
-    const label = step.s ? `${step.t} · ${step.s}` : step.t;
-    if (step.d) {
-      const item = doc.createElement('details');
-      item.className = 'command-step';
-      const summary = doc.createElement('summary');
-      const badge = doc.createElement('span');
-      badge.className = 'steps-badge';
-      badge.setAttribute('aria-hidden', 'true');
-      badge.innerHTML = icon('terminal', 16);
-      const name = doc.createElement('span');
-      name.className = 'steps-name';
-      name.textContent = label;
-      const chevron = doc.createElement('span');
-      chevron.className = 'commands-row-chevron';
-      chevron.setAttribute('aria-hidden', 'true');
-      chevron.innerHTML = icon('chevron', 16);
-      summary.append(badge, name, chevron);
-      const pre = doc.createElement('pre');
-      pre.textContent = step.d;
-      item.append(summary, pre);
-      li.append(item);
-    } else {
-      const dot = doc.createElement('span');
-      dot.className = 'steps-dot';
-      dot.setAttribute('aria-hidden', 'true');
-      const text = doc.createElement('span');
-      text.className = 'steps-text';
-      text.textContent = label;
-      li.append(dot, text);
-    }
-    list.append(li);
-  }
-  sheet.append(head, list);
-  backdrop.append(sheet);
-  const shut = () => { backdrop.remove(); doc.removeEventListener('keydown', onKey); opener?.focus(); };
-  const onKey = (event: Event) => { if ((event as KeyboardEvent).key === 'Escape') shut(); };
-  close.onclick = shut;
-  backdrop.onclick = (event) => { if (event.target === backdrop) shut(); };
-  doc.addEventListener('keydown', onKey);
-  doc.body.append(backdrop);
-  close.focus();
-  return backdrop;
+  steps.forEach((step, index) => list.append(stepItem(doc, step, `${key}#${index}`)));
+  const blockKey = `${key}:block`;
+  const apply = (open: boolean) => {
+    row.setAttribute('aria-expanded', String(open));
+    row.setAttribute('aria-label', `${title}. ${open ? 'Свернуть' : 'Показать'} список`);
+    root.dataset.open = String(open);
+    list.hidden = !open;
+    if (open) openKeys.add(blockKey); else openKeys.delete(blockKey);
+  };
+  row.onclick = () => apply(root.dataset.open !== 'true');
+  root.append(row, list);
+  apply(openKeys.has(blockKey));
+  return root;
 }
 
 export function stepsOf(value: unknown): ChatStep[] {
