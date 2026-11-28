@@ -67,3 +67,13 @@ export function pendingLocalChecks(history: StepRecord[]): LocalCheck[] {
   });
   return [...latest.values()].flatMap(checkFor);
 }
+
+const CODE_PATH = /\.(?:[cm]?[jt]sx?|py|go|rs|java|kt|cs|rb|php|swift|c|h|cpp|hpp|vue|svelte)$/i;
+const TEST_COMMAND = /\b(?:test|tests|vitest|jest|pytest|mocha|check|tsc|lint|build|typecheck)\b/i;
+
+/** Код правили, а после последней правки ни тестов, ни сборки не запускали. */
+export function testsMissingAfterCodeEdit(history: StepRecord[]): boolean {
+  const lastEdit = history.reduce((found, step, index) => (["local_edit", "local_write"].includes(step.tool) && succeeded(step) && CODE_PATH.test(str(step.input.path)) ? index : found), -1);
+  if (lastEdit < 0) return false;
+  return !history.some((step, index) => index > lastEdit && ["local_shell", "local_run"].includes(step.tool) && TEST_COMMAND.test(str(step.input.command) || str(step.input.path)));
+}

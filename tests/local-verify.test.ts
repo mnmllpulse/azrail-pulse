@@ -41,3 +41,23 @@ describe("проверка фактом", () => {
     expect(pendingLocalChecks([ok, { tool: "verify", input: {}, ok: true, result: "" }])).toHaveLength(0);
   });
 });
+
+import { testsMissingAfterCodeEdit } from "../src/core/local-verify";
+
+describe("тесты после правки кода", () => {
+  const edit = done("local_edit", { path: "src/a.ts" });
+  const shell = (command: string): StepRecord => ({ tool: "local_shell", input: { command }, ok: true, result: JSON.stringify({ status: "done" }) });
+  it("правка без последующего прогона — нужно напомнить", () => {
+    expect(testsMissingAfterCodeEdit([edit])).toBe(true);
+  });
+  it("прогон после правки — всё в порядке", () => {
+    expect(testsMissingAfterCodeEdit([edit, shell("pnpm test")])).toBe(false);
+  });
+  it("прогон был ДО последней правки — снова нужно", () => {
+    expect(testsMissingAfterCodeEdit([shell("npm test"), edit])).toBe(true);
+  });
+  it("правка не кода и не-тестовая команда не считаются", () => {
+    expect(testsMissingAfterCodeEdit([done("local_write", { path: "notes.txt", content: "x" })])).toBe(false);
+    expect(testsMissingAfterCodeEdit([edit, shell("ls")])).toBe(true);
+  });
+});

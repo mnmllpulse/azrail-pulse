@@ -35,7 +35,7 @@ import {
   MAX_REVISIONS,
 } from "./planner";
 import { checkResult, findTestEvidence, CHECK_LIMITS } from "./checker";
-import { pendingLocalChecks } from "./local-verify";
+import { pendingLocalChecks, testsMissingAfterCodeEdit } from "./local-verify";
 import { diagnoseLocalError, diagnoseOutput } from "./local-diagnose";
 import { detectBackend } from "./sandbox";
 import {
@@ -143,6 +143,7 @@ export class ExecutionEngine {
     /* «Сдался после первой ошибки»: пока последний шаг на компьютере упал, «готово» не принимается. Не больше двух напоминаний. */
     let giveUpNudges = 2;
     let verifyNudges = 2;
+    let testNudges = 1;
     let consecutiveFailures = 0;
     // This is not an authorization gate; it only preserves reflection/reporting
     // semantics across a restart. If D1 is unavailable we default to false, while
@@ -547,6 +548,12 @@ export class ExecutionEngine {
          * работаем как раньше. Недоступность песочницы — тоже: без неё
          * проверка возвращается к прежнему уровню, а не блокирует
          * сделанную работу. */
+        if (testNudges > 0 && testsMissingAfterCodeEdit(history)) {
+          testNudges--;
+          history.push({ tool: "loop", input: {}, ok: false, result: "Ты правил код, но после последней правки не запускал проверку. Запусти тесты или сборку проекта командой из local_overview. Упали — исправь и запусти снова. Если запускать нечего или нельзя — так и скажи в итоге." });
+          i--;
+          continue;
+        }
         const localChecks = pendingLocalChecks(history);
         if (localChecks.length) {
           const problems: string[] = [];
