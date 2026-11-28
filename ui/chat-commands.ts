@@ -171,7 +171,7 @@ export function createChatCommands(ctx: ChatCommandContext): (message: string) =
       } catch (error) { failed(message, error, 'Цикл прерван.'); }
       return true;
     }
-    if (rollbackIntent(message)) {
+    if (rollbackIntent(message) && (loadRestore().size || !ctx.startMission)) {
       try {
         if (!(await agentReady(message))) return true;
         const restore = loadRestore();
