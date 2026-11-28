@@ -329,6 +329,7 @@ export async function runJob(root, job) {
     await rename(temp, file);
     return `Записано ${job.content.length} символов в ${job.path}`;
   }
+  if (job.kind === "symbols") return await findSymbol(root, job.path, job.content);
   if (job.kind === "overview") return await projectOverview(root, job.path);
   if (job.kind === "search") return await searchFiles(root, job.path, job.content);
   if (job.kind === "edit") return await editFile(root, job.path, job.content);
@@ -391,6 +392,47 @@ export async function searchFiles(root, start, query) {
   };
   await walk(base);
   return hits.length ? hits.join("\n") + (hits.length >= MAX_HITS ? "\n…(показаны первые 100)" : "") : "Ничего не найдено.";
+}
+
+const CODE_FILE = /\.(?:[cm]?[jt]sx?|py|go|rs|java|kt|cs|rb|php|swift|c|h|cpp|hpp|vue|svelte)$/i;
+
+/** Где символ (функция, класс, тип, переменная) определён и где используется. Только чтение. */
+export async function findSymbol(root, start, name) {
+  const symbol = String(name ?? "").trim();
+  if (!/^[\w$]{1,80}$/.test(symbol)) throw new Error("Имя символа: буквы, цифры, _ и $, до 80 знаков.");
+  const base = start ? await resolveInside(root, start) : await realpath(root);
+  const top = await realpath(root);
+  const word = new RegExp(`(?<![\\w$])${symbol.replace(/\$/g, "\\$")}(?![\\w$])`);
+  const keyword = /\b(?:function\*?|class|interface|type|enum|namespace|const|let|var|def|fn|struct|trait|func|object|record)\s+$/;
+  const defs = [];
+  const uses = [];
+  let scanned = 0;
+  const walk = async (dir) => {
+    for (const entry of await readdir(dir, { withFileTypes: true })) {
+      if (scanned >= MAX_SEARCH_FILES || defs.length >= 30) return;
+      const full = join(dir, entry.name);
+      const rel = relative(top, full).replaceAll("\\", "/");
+      if (isDenied(rel) || SEARCH_SKIP.test(rel) || entry.isSymbolicLink()) continue;
+      if (entry.isDirectory()) { await walk(full); continue; }
+      if (!entry.isFile() || !CODE_FILE.test(entry.name)) continue;
+      scanned++;
+      if ((await stat(full)).size > 1_000_000) continue;
+      const lines = (await readFile(full, "utf8").catch(() => "")).split("\n");
+      lines.forEach((line, index) => {
+        const match = word.exec(line);
+        if (!match) return;
+        const before = line.slice(0, match.index);
+        const after = line.slice(match.index + symbol.length);
+        const isDef = keyword.test(before) || /^\s*(?:async\s+)?(?:static\s+|public\s+|private\s+|protected\s+)*$/.test(before) && /^\s*(?:\(.*\)\s*(?::[^=]+)?\{|[:=]\s*(?:async\s*)?(?:\(|function|\w+\s*=>))/.test(after) || /^\s*=\s*(?:async\s*)?(?:\(|function|\w+\s*=>)/.test(after) && /(?:const|let|var)\s+$/.test(before);
+        const row = `${rel}:${index + 1}: ${line.trim().slice(0, 140)}`;
+        if (isDef) defs.push(row);
+        else if (uses.length < 40) uses.push(row);
+      });
+    }
+  };
+  await walk(base);
+  if (!defs.length && !uses.length) return `Символ «${symbol}» не найден в ${scanned} файлах кода.`;
+  return [`Определения (${defs.length}):`, ...(defs.length ? defs : ["не найдено — возможно, импортируется из библиотеки"]), "", `Использования (${uses.length}${uses.length >= 40 ? "+" : ""}):`, ...uses].join("\n");
 }
 
 const TRASH = ".azrail-trash";

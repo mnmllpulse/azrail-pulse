@@ -907,7 +907,7 @@ export class ExecutionEngine {
         const mutating = MUTATING_TOOLS.has(known.name) && !!stepPath && !!ctx.projectId;
         // Текст ДО правки — чтобы предупреждать только об ухудшении.
         const before = mutating ? ((await readFile(this.env, ctx.projectId!, stepPath).catch(() => null))?.content ?? null) : null;
-        const mayHaveEffects = !["read_file","list_files","search_files","git_diff","local_list","local_read","local_web","local_status","local_search","local_overview","local_browser"].includes(known.name);
+        const mayHaveEffects = !["read_file","list_files","search_files","git_diff","local_list","local_read","local_web","local_status","local_search","local_overview","local_symbols","local_browser"].includes(known.name);
         // A mission Worker may outlive a reaped project lock. Put BOTH fence
         // checks inside checkpointTool's work boundary: if the generation
         // changes while a side effect is in flight, the step is persisted as
