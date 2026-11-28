@@ -3,7 +3,7 @@ import { checkPublicUrl, PublicUrlError } from "./public-url";
 import { BROWSER_WRITE_ACTIONS, isBrowserAction, normalizeBrowserArgs } from "./browser-actions";
 import { shellProblem } from "./shell-guard";
 
-export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot" | "search" | "edit" | "mkdir" | "move" | "trash" | "undo" | "overview" | "shell" | "browser";
+export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot" | "search" | "edit" | "mkdir" | "move" | "trash" | "undo" | "overview" | "symbols" | "shell" | "browser";
 
 /** Задачи, которые меняют компьютер: ждут «Разрешить». */
 export const AGENT_APPROVAL_KINDS: ReadonlySet<string> = new Set(["write", "run", "addroot", "edit", "mkdir", "move", "trash", "undo", "shell"]);
@@ -11,7 +11,7 @@ export const AGENT_APPROVAL_KINDS: ReadonlySet<string> = new Set(["write", "run"
 /** Любой инструмент агента может запросить «Разрешить» (например, доступ к новой папке). */
 export const isLocalToolName = (tool: string): boolean => tool.startsWith("local_");
 export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot", "local_edit", "local_mkdir", "local_move", "local_trash", "local_undo", "local_shell", "local_browser_act"]);
-const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash", "undo", "overview", "shell", "browser"]);
+const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash", "undo", "overview", "symbols", "shell", "browser"]);
 
 export const AGENT_ROOT_PRESETS = ["desktop", "documents", "downloads"] as const;
 export type AgentJobStatus = "awaiting_approval" | "queued" | "running" | "done" | "failed" | "rejected" | "expired";
@@ -257,7 +257,7 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
   } else if (kind === "run") {
     if (typeof input.path !== "string" || !Object.hasOwn(AGENT_COMMANDS, input.path)) throw new AccessError(`Команда не из белого списка. Доступны: ${Object.keys(AGENT_COMMANDS).join(", ")}.`, 400);
     path = input.path;
-  } else path = safeAgentPath(input.path, kind === "list" || kind === "search" || kind === "overview");
+  } else path = safeAgentPath(input.path, kind === "list" || kind === "search" || kind === "overview" || kind === "symbols");
   let root: string | null = null;
   if (kind !== "addroot" && kind !== "droproot" && input.root !== undefined && input.root !== null && input.root !== "") {
     if (typeof input.root !== "string") throw new AccessError("Имя папки должно быть строкой.", 400);
@@ -276,6 +276,10 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     let args: unknown = {};
     try { args = typeof input.content === "string" && input.content ? JSON.parse(input.content) : {}; } catch { throw new AccessError("Аргументы действия должны быть JSON.", 400); }
     content = normalizeBrowserArgs(path, args);
+  }
+  if (kind === "symbols") {
+    content = typeof input.content === "string" ? input.content.trim() : "";
+    if (!/^[\w$]{1,80}$/.test(content)) throw new AccessError("Имя символа: буквы, цифры, _ и $, до 80 знаков.", 400);
   }
   if (kind === "search") {
     const query = typeof input.content === "string" ? input.content.trim() : "";
