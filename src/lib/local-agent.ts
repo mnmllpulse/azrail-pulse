@@ -3,15 +3,15 @@ import { checkPublicUrl, PublicUrlError } from "./public-url";
 import { BROWSER_WRITE_ACTIONS, isBrowserAction, normalizeBrowserArgs } from "./browser-actions";
 import { shellProblem } from "./shell-guard";
 
-export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot" | "search" | "edit" | "mkdir" | "move" | "trash" | "shell" | "browser";
+export type AgentJobKind = "list" | "read" | "write" | "run" | "web" | "addroot" | "droproot" | "search" | "edit" | "mkdir" | "move" | "trash" | "undo" | "shell" | "browser";
 
 /** Задачи, которые меняют компьютер: ждут «Разрешить». */
-export const AGENT_APPROVAL_KINDS: ReadonlySet<string> = new Set(["write", "run", "addroot", "edit", "mkdir", "move", "trash", "shell"]);
+export const AGENT_APPROVAL_KINDS: ReadonlySet<string> = new Set(["write", "run", "addroot", "edit", "mkdir", "move", "trash", "undo", "shell"]);
 /** Инструменты миссии, которые ждут «Разрешить» владельца. */
 /** Любой инструмент агента может запросить «Разрешить» (например, доступ к новой папке). */
 export const isLocalToolName = (tool: string): boolean => tool.startsWith("local_");
-export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot", "local_edit", "local_mkdir", "local_move", "local_trash", "local_shell", "local_browser_act"]);
-const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash", "shell", "browser"]);
+export const LOCAL_APPROVAL_TOOLS: ReadonlySet<string> = new Set(["local_write", "local_run", "local_addroot", "local_edit", "local_mkdir", "local_move", "local_trash", "local_undo", "local_shell", "local_browser_act"]);
+const AGENT_KINDS: ReadonlySet<string> = new Set(["list", "read", "write", "run", "web", "addroot", "droproot", "search", "edit", "mkdir", "move", "trash", "undo", "shell", "browser"]);
 
 export const AGENT_ROOT_PRESETS = ["desktop", "documents", "downloads"] as const;
 export type AgentJobStatus = "awaiting_approval" | "queued" | "running" | "done" | "failed" | "rejected" | "expired";
@@ -230,6 +230,8 @@ export async function createJob(store: AgentStore, input: { kind?: unknown; path
     if (!known.some((entry) => entry.name === name)) throw new AccessError("Такой папки у агента нет.", 400);
     if (known.length < 2) throw new AccessError("Последнюю папку убрать нельзя.", 400);
     path = name;
+  } else if (kind === "undo") {
+    path = String(Math.max(1, Math.min(Math.trunc(Number(input.path)) || 1, 50)));
   } else if (kind === "browser") {
     if (!isBrowserAction(input.path)) throw new AccessError("Неизвестное действие браузера.", 400);
     path = input.path;

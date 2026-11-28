@@ -5,7 +5,7 @@ import { ToolRejectedError } from "../lib/tool-errors";
 import type { ToolName } from "../types";
 
 /** Инструменты миссии на компьютере владельца. Чтение идёт сразу, запись, команды и новая папка ждут «Разрешить». */
-export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status", "local_search", "local_edit", "local_mkdir", "local_move", "local_trash", "local_shell", "local_browser", "local_browser_act"] as const;
+export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status", "local_search", "local_edit", "local_mkdir", "local_move", "local_trash", "local_undo", "local_shell", "local_browser", "local_browser_act"] as const;
 export { LOCAL_APPROVAL_TOOLS };
 export const isLocalTool = (tool: string): boolean => (LOCAL_TOOLS as readonly string[]).includes(tool);
 
@@ -123,6 +123,7 @@ async function runLocalTool(tool: ToolName, input: Record<string, unknown>, deps
     case "local_mkdir":
     case "local_move":
     case "local_trash":
+    case "local_undo":
     case "local_shell":
     case "local_browser_act": {
       await ensureEnabled(deps, false);
@@ -137,6 +138,7 @@ async function runLocalTool(tool: ToolName, input: Record<string, unknown>, deps
         : tool === "local_browser_act" ? await create(store, input, "browser", text(input.action, 20), { content: JSON.stringify({ ref: input.ref, text: input.text, submit: input.submit, key: input.key, file: input.file }) })
         : tool === "local_shell" ? await create(store, input, "shell", text(input.command, 1000))
         : tool === "local_trash" ? await create(store, input, "trash", path)
+        : tool === "local_undo" ? await create(store, input, "undo", String(Math.max(1, Math.min(Math.trunc(Number(input.count)) || 1, 50))))
         : await create(store, input, "addroot", path);
       if (job.status === "queued") {
         const done = await waitFor(store, job.id, { ...deps, waitMs: 50_000 });
