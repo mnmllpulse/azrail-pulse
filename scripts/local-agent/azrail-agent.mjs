@@ -329,6 +329,7 @@ export async function runJob(root, job) {
     await rename(temp, file);
     return `Записано ${job.content.length} символов в ${job.path}`;
   }
+  if (job.kind === "overview") return await projectOverview(root, job.path);
   if (job.kind === "search") return await searchFiles(root, job.path, job.content);
   if (job.kind === "edit") return await editFile(root, job.path, job.content);
   if (job.kind === "mkdir") {
@@ -427,6 +428,36 @@ export async function editFile(root, path, content) {
   await writeFile(temp, text.replace(edit.old, () => edit.new), "utf8");
   await rename(temp, file);
   return `Исправлено: ${path}. Копия до правки: ${backup}`;
+}
+
+const LOCKS = [["pnpm-lock.yaml", "pnpm"], ["yarn.lock", "yarn"], ["bun.lockb", "bun"], ["bun.lock", "bun"], ["package-lock.json", "npm"]];
+const MARKERS = ["package.json", "pyproject.toml", "requirements.txt", "Cargo.toml", "go.mod", "pom.xml", "build.gradle", "Makefile", "Dockerfile", "wrangler.toml", "wrangler.jsonc", "tsconfig.json", ".git"];
+
+/** Обзор проекта: что за стек, чем запускать, где что лежит. Только чтение. */
+export async function projectOverview(root, path) {
+  const dir = path ? await resolveInside(root, path) : await realpath(root);
+  const all = await readdir(dir, { withFileTypes: true });
+  const names = new Set(all.map((entry) => entry.name));
+  const entries = all.filter((entry) => !isDenied(entry.name) && entry.name !== "node_modules" && entry.name !== TRASH);
+  const out = [`Папка: ${path || "."}`];
+  const found = MARKERS.filter((name) => names.has(name));
+  out.push(`Признаки проекта: ${found.length ? found.join(", ") : "нет — это не проект"}`);
+  if (names.has("package.json")) {
+    const pkg = JSON.parse(await readFile(join(dir, "package.json"), "utf8").catch(() => "{}") || "{}");
+    const manager = (LOCKS.find(([lock]) => names.has(lock)) ?? [null, pkg.packageManager?.split("@")[0] || "npm"])[1];
+    out.push(`Менеджер пакетов: ${manager}${names.has("node_modules") ? " (зависимости установлены)" : " (зависимости не установлены: сначала " + manager + " install)"}`);
+    const scripts = Object.keys(pkg.scripts ?? {}).slice(0, 25);
+    out.push(`Скрипты: ${scripts.length ? scripts.map((name) => `${manager === "npm" ? "npm run" : manager} ${name}`).join("; ") : "нет"}`);
+  }
+  if (names.has("pyproject.toml") || names.has("requirements.txt")) out.push("Python: тесты — python -m pytest; зависимости — pip install -r requirements.txt");
+  if (names.has("Cargo.toml")) out.push("Rust: cargo build; cargo test");
+  if (names.has("go.mod")) out.push("Go: go build ./...; go test ./...");
+  const readme = entries.find((entry) => /^readme(\.md)?$/i.test(entry.name));
+  if (readme) out.push(`README, начало:\n${(await readFile(join(dir, readme.name), "utf8").catch(() => "")).slice(0, 600)}`);
+  const folders = entries.filter((entry) => entry.isDirectory()).map((entry) => `${entry.name}/`).slice(0, 40);
+  const files = entries.filter((entry) => !entry.isDirectory()).map((entry) => entry.name).slice(0, 40);
+  out.push(`Папки: ${folders.join(" ") || "нет"}`, `Файлы: ${files.join(" ") || "нет"}`);
+  return out.join("\n");
 }
 
 const JOURNAL = "journal.jsonl";
