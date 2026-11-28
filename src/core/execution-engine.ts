@@ -35,7 +35,8 @@ import {
   MAX_REVISIONS,
 } from "./planner";
 import { checkResult, findTestEvidence, CHECK_LIMITS } from "./checker";
-import { pendingLocalChecks, testsMissingAfterCodeEdit } from "./local-verify";
+import { pendingLocalChecks } from "./local-verify";
+import { localGate } from "./local-gate";
 import { diagnoseLocalError, diagnoseOutput } from "./local-diagnose";
 import { detectBackend } from "./sandbox";
 import {
@@ -142,8 +143,7 @@ export class ExecutionEngine {
     let freeLoopWarnings = 2;
     /* «Сдался после первой ошибки»: пока последний шаг на компьютере упал, «готово» не принимается. Не больше двух напоминаний. */
     let giveUpNudges = 2;
-    let verifyNudges = 2;
-    let testNudges = 1;
+    const localNudges = { verify: 2, test: 1 };
     let consecutiveFailures = 0;
     // This is not an authorization gate; it only preserves reflection/reporting
     // semantics across a restart. If D1 is unavailable we default to false, while
@@ -548,44 +548,11 @@ export class ExecutionEngine {
          * работаем как раньше. Недоступность песочницы — тоже: без неё
          * проверка возвращается к прежнему уровню, а не блокирует
          * сделанную работу. */
-        if (testNudges > 0 && testsMissingAfterCodeEdit(history)) {
-          testNudges--;
-          history.push({ tool: "loop", input: {}, ok: false, result: "Ты правил код, но после последней правки не запускал проверку. Запусти тесты или сборку проекта командой из local_overview. Упали — исправь и запусти снова. Если запускать нечего или нельзя — так и скажи в итоге." });
-          i--;
-          continue;
-        }
-        const localChecks = pendingLocalChecks(history);
-        if (localChecks.length) {
-          const problems: string[] = [];
-          const unreachable: string[] = [];
-          for (const check of localChecks) {
-            try {
-              const out = (await this.executeTool(check.tool, check.input, { ...ctx, iteration: i, toolCallId: crypto.randomUUID() }, lease)) as { status?: string; output?: string; error?: string };
-              if (out?.status !== "done") unreachable.push(`${check.label}: ${out?.error ?? "агент не ответил"}`);
-              else {
-                const miss = check.test(out.output ?? "");
-                if (miss) problems.push(miss);
-              }
-            } catch (err) {
-              unreachable.push(`${check.label}: ${err instanceof Error ? err.message : String(err)}`);
-            }
-          }
-          const bad = [...problems, ...unreachable];
-          history.push({ tool: "verify", input: {}, ok: !problems.length && !unreachable.length, result: bad.length ? `Проверка фактом: ${bad.join("; ")}` : `Проверка фактом пройдена: ${localChecks.map((c) => c.label).join("; ")}` });
-          await this.note(ctx, problems.length ? "local.verify_failed" : unreachable.length ? "local.unverified" : "local.verified", { reason: bad.join("; ") || localChecks.length + " проверок", iteration: i });
-          if (problems.length && verifyNudges > 0) {
-            verifyNudges--;
-            history.push({ tool: "loop", input: {}, ok: false, result: `Результат не подтверждён: ${problems.join("; ")}. Исправь или объясни, что мешает. «Готово» без подтверждения не пиши.` });
-            i--;
-            continue;
-          }
-          if (problems.length) {
-            return { status: "failed", agent: "execution-engine", summary: `Результат не подтверждён: ${problems.join("; ")}`, error: "local_verify_failed", quality: { status: "failed", reason: problems.join("; "), gates: [{ name: "local_verify", status: "failed", detail: problems.join("; ") }] }, data: { missionId: ctx.missionId, steps: history } };
-          }
-          if (unreachable.length) {
-            return { status:"done", agent: "execution-engine", summary: `Сделано, но не проверено: ${unreachable.join("; ")}`, quality: { status: "unverified", reason: unreachable.join("; "), gates: [{ name: "local_verify", status: "blocked", detail: unreachable.join("; ") }] }, data: { missionId: ctx.missionId, steps: history } };
-          }
-        }
+        const gate = await localGate({ history, missionId: ctx.missionId, nudges: localNudges, iteration: i,
+          run: (check) => this.executeTool(check.tool, check.input, { ...ctx, iteration: i, toolCallId: crypto.randomUUID() }, lease),
+          note: (type, data) => this.note(ctx, type, data) });
+        if (gate?.kind === "retry") { i--; continue; }
+        if (gate?.kind === "result") return gate.value;
         let executionVerified = false;
         let executionAttempted = false;
         let executionFailureReason = "";
@@ -649,7 +616,16 @@ export class ExecutionEngine {
             quality:{status:"unverified",reason,gates:[{name:"tests",status:"blocked",detail:reason}]},
             data:{missionId:ctx.missionId,steps:history,verification:{status:"unverified"},changes}};
         }
-        const verdict = await checkResult(this.env, goal, history, ctx.preferredModel, renderChanges(changes), ctx.usage, ctx);
+        /* Факты сильнее мнения модели. Реальный случай из D1: папка и файл
+         * созданы верно, чтение назад совпало, а проверяющая модель отклонила
+         * задачу, потому что путь в отчёте агента — «demo» (от корня), а не
+         * «Рабочий стол/demo». Если мутации на компьютере подтверждены
+         * чтением и других изменений нет — решает проверка фактом. */
+        const lastVerify = [...history].reverse().find((step) => step.tool === "verify");
+        const localFactsOk = !!lastVerify?.ok && pendingLocalChecks(history).length === 0 && !history.some((step) => step.ok && ["write_file", "edit_file", "apply_patch", "sandbox_exec"].includes(step.tool));
+        const verdict = localFactsOk
+          ? { passed: true, verified: true, reason: "Подтверждено чтением с компьютера, без мнения модели." }
+          : await checkResult(this.env, goal, history, ctx.preferredModel, renderChanges(changes), ctx.usage, ctx);
         await this.recordCheck(ctx, rejections + 1, verdict.passed, verdict.reason);
         /* Три исхода, а не два.
          *
