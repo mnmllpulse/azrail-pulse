@@ -186,6 +186,20 @@ export async function agentStatus(store: AgentStore, now = Date.now()) {
   };
 }
 
+const cut = (value: unknown, max: number) => (typeof value === "string" && value.length > max ? `${value.slice(0, max)}…` : String(value ?? ""));
+
+/** Что изменится — для карточки «Разрешить»: владелец видит текст, а не только путь. */
+export function jobPreview(job: AgentJob): string | undefined {
+  if (job.kind === "write") return job.content ? cut(job.content, 500) : undefined;
+  if (job.kind === "edit") {
+    try {
+      const edit = JSON.parse(job.content ?? "{}") as { old?: string; new?: string };
+      return `было:\n${cut(edit.old, 300)}\n\nстало:\n${cut(edit.new, 300)}`;
+    } catch { return undefined; }
+  }
+  return undefined;
+}
+
 export function publicJob(job: AgentJob) {
   return {
     id: job.id,
@@ -194,6 +208,7 @@ export function publicJob(job: AgentJob) {
     ...(job.root ? { root: job.root } : {}),
     status: job.status,
     ...(job.kind === "write" ? { bytes: job.content?.length ?? 0 } : {}),
+    ...(jobPreview(job) ? { preview: jobPreview(job) } : {}),
     ...(job.kind === "move" ? { dest: job.content } : {}),
     ...(job.kind === "search" ? { query: job.content } : {}),
     ...(job.kind === "run" ? { command: AGENT_COMMANDS[job.path] ?? job.path } : {}),

@@ -59,7 +59,7 @@ export function showApprovalCard(
       code.readOnly = true;
       code.rows = Math.min(6, next.code.split("\n").length);
       code.value = next.code;
-      code.setAttribute("aria-label", "Команда для PowerShell");
+      code.setAttribute("aria-label", "Что именно будет выполнено или изменено");
       nodes.push(code);
     }
     nodes.push(row);
