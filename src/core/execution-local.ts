@@ -189,7 +189,13 @@ function wantedFolder(tool: ToolName, input: Record<string, unknown>): { preset:
  * Пользователь не добавляет папки в настройках: «создай папку на рабочем столе» подключает «Рабочий стол» сам.
  * Первый доступ к новой папке — один «Разрешить» (задача addroot), дальше папка запоминается.
  */
+const JOURNALED = new Set(["write", "edit", "mkdir", "move", "trash"]);
+
 export async function executeLocalTool(tool: ToolName, input: Record<string, unknown>, deps: LocalToolDeps): Promise<unknown> {
+  if (tool === "local_undo" && !(typeof input.root === "string" && input.root)) {
+    const last = (await deps.store.recentJobs(30)).find((job) => JOURNALED.has(job.kind) && job.status === "done");
+    if (last?.root) input = { ...input, root: last.root };
+  }
   const wanted = tool === "local_status" || tool === "local_addroot" ? null : wantedFolder(tool, input);
   if (!wanted) return runLocalTool(tool, input, deps);
   await ensureEnabled(deps, true);
