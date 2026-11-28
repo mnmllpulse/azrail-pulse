@@ -36,6 +36,7 @@ import {
 } from "./planner";
 import { checkResult, findTestEvidence, CHECK_LIMITS } from "./checker";
 import { pendingLocalChecks } from "./local-verify";
+import { diagnoseLocalError, diagnoseOutput } from "./local-diagnose";
 import { detectBackend } from "./sandbox";
 import {
   detectLoop,
@@ -929,6 +930,8 @@ export class ExecutionEngine {
         const rendered = this.renderResult(output);
         const stepInput = decision.input ?? {};
         let historyText = rendered;
+        const diagnosis = isLocalToolName(known.name) ? diagnoseOutput(output) : null;
+        if (diagnosis) historyText += `\nДиагноз: ${diagnosis}`;
         if (known.name === "read_file" && output && typeof output === "object" && "content" in output) {
           // Текст уходит в рабочий набор; в истории — только факт, без копии.
           const win = output as FileWindow;
@@ -954,7 +957,8 @@ export class ExecutionEngine {
         await this.note(toolCtx, "tool.finished", { tool: known.name, iteration: i });
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
-        history.push({ tool: known.name, input: decision.input ?? {}, ok: false, result: `Ошибка: ${msg}` });
+        const advice = isLocalToolName(known.name) ? diagnoseLocalError(msg) : null;
+        history.push({ tool: known.name, input: decision.input ?? {}, ok: false, result: `Ошибка: ${msg}${advice ? `\nДиагноз: ${advice}` : ""}` });
         consecutiveFailures++;
         await this.recordToolCall(toolCtx, callId, known.name, "failed", decision.input, null, msg, startedAt);
         await this.note(toolCtx, "tool.failed", { tool: known.name, error: msg, iteration: i });
