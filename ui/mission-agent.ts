@@ -1,6 +1,6 @@
 import { showApprovalCard, type CardAction, type CardHandle } from './approval-card';
 type Api = (path: string, options?: RequestInit) => Promise<any>;
-export interface AgentJobView { id: string; kind: string; path: string; status: string; dest?: string; query?: string; command?: string; action?: string; args?: string; bytes?: number }
+export interface AgentJobView { id: string; kind: string; path: string; status: string; dest?: string; query?: string; command?: string; action?: string; args?: string; bytes?: number; preview?: string }
 interface Hooks { notice: (text: string, bad?: boolean) => void; failure: (error: unknown) => void; refresh: () => void }
 
 const FILE_KINDS = new Set(['write', 'edit', 'mkdir', 'move', 'trash']);
@@ -22,6 +22,7 @@ export function describeAgentJob(job: AgentJobView): string {
     case 'mkdir': return `Создать папку ${job.path || '.'}`;
     case 'move': return `Переместить ${job.path} → ${job.dest ?? ''}`;
     case 'trash': return `Убрать в корзину ${job.path}`;
+    case 'undo': return `Откатить последних изменений: ${job.path}`;
     case 'shell': return `Выполнить команду: ${job.path.slice(0, 200)}`;
     case 'run': return `Запустить: ${job.command ?? job.path}`;
     case 'browser': return `В браузере: ${job.path} ${job.args && job.args !== '{}' ? job.args : ''}`.trim().slice(0, 200);
@@ -87,6 +88,7 @@ export async function renderAgentApprovals(root: Document, status: string, api: 
     key,
     handle: showApprovalCard({
       title: 'Нужно твоё разрешение',
+      ...(job.preview ? { code: job.preview } : {}),
       text: `${describeAgentJob(job)}?${job.kind === 'addroot' ? ' Папка запомнится, убрать её можно в настройках агента.' : ''}`,
       actions,
     }, root),

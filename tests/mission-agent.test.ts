@@ -30,6 +30,14 @@ describe("запросы агента в карточке задачи", () => {
     expect(hooks.refresh).toHaveBeenCalled();
   });
 
+  it("в карточке видно, что именно изменится: было → стало", async () => {
+    const { doc, api, hooks } = setup([{ id: "j2", kind: "edit", path: "a.ts", status: "awaiting_approval", preview: "было:\nconst a = 1\n\nстало:\nconst a = 2" }]);
+    await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
+    const code = doc.querySelector("#approval-card .approval-code") as HTMLTextAreaElement;
+    expect(code.value).toContain("было:\nconst a = 1");
+    expect(code.value).toContain("стало:\nconst a = 2");
+  });
+
   it("отклоняет", async () => {
     const { doc, api, calls, hooks } = setup([{ id: "j1", kind: "trash", path: "a", status: "awaiting_approval" }]);
     await renderAgentApprovals(doc, "waiting_approval", api as never, hooks);
