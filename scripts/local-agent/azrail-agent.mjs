@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 import { execFile, spawn } from "node:child_process";
 import { existsSync } from "node:fs";
-import { cp, lstat, mkdir, readdir, readFile, realpath, rename, rm, stat, writeFile } from "node:fs/promises";
+import { appendFile, cp, lstat, mkdir, readdir, readFile, realpath, rename, rm, rmdir, stat, writeFile } from "node:fs/promises";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
@@ -321,6 +321,8 @@ export async function runJob(root, job) {
   if (job.kind === "write") {
     if (typeof job.content !== "string") throw new Error("Нет содержимого.");
     const file = await resolveInside(root, job.path);
+    const backup = (await exists(file)) ? await backupToTrash(root, job.path, file) : null;
+    await record(root, { op: "write", path: job.path, backup });
     await mkdir(dirname(file), { recursive: true });
     const temp = join(dirname(file), `.azrail-${process.pid}-${Date.now()}.tmp`);
     await writeFile(temp, job.content, "utf8");
@@ -330,7 +332,10 @@ export async function runJob(root, job) {
   if (job.kind === "search") return await searchFiles(root, job.path, job.content);
   if (job.kind === "edit") return await editFile(root, job.path, job.content);
   if (job.kind === "mkdir") {
-    await mkdir(await resolveInside(root, job.path), { recursive: true });
+    const dir = await resolveInside(root, job.path);
+    const created = !(await exists(dir));
+    await mkdir(dir, { recursive: true });
+    await record(root, { op: "mkdir", path: job.path, created });
     return `Папка создана: ${job.path}`;
   }
   if (job.kind === "move") {
@@ -340,9 +345,11 @@ export async function runJob(root, job) {
     if (await lstat(to).then(() => true, () => false)) throw new Error("Назначение уже существует.");
     await mkdir(dirname(to), { recursive: true });
     await rename(from, to);
+    await record(root, { op: "move", path: job.path, to: job.content });
     return `Перемещено: ${job.path} → ${job.content}`;
   }
   if (job.kind === "trash") return await trashPath(root, job.path);
+  if (job.kind === "undo") return await undoLast(root, Number(job.path) || 1);
   throw new Error(`Неизвестное действие: ${job.kind}`);
 }
 
@@ -415,10 +422,81 @@ export async function editFile(root, path, content) {
   if (count === 0) throw new Error("Фрагмент не найден. Прочитай файл и укажи точный текст.");
   if (count > 1) throw new Error(`Фрагмент встречается ${count} раз. Добавь соседние строки, чтобы он был уникальным.`);
   const backup = await backupToTrash(root, path, file);
+  await record(root, { op: "edit", path, backup });
   const temp = join(dirname(file), `.azrail-${process.pid}-${Date.now()}.tmp`);
   await writeFile(temp, text.replace(edit.old, () => edit.new), "utf8");
   await rename(temp, file);
   return `Исправлено: ${path}. Копия до правки: ${backup}`;
+}
+
+const JOURNAL = "journal.jsonl";
+
+async function journalFile(root) {
+  return join(await realpath(root), TRASH, JOURNAL);
+}
+
+async function readJournal(root) {
+  const raw = await readFile(await journalFile(root), "utf8").catch(() => "");
+  return raw.split("\n").filter(Boolean).flatMap((line) => {
+    try {
+      return [JSON.parse(line)];
+    } catch {
+      return [];
+    }
+  });
+}
+
+async function saveJournal(root, entries) {
+  const file = await journalFile(root);
+  await mkdir(dirname(file), { recursive: true });
+  await writeFile(file, entries.map((entry) => JSON.stringify(entry)).join("\n") + "\n", "utf8");
+}
+
+/** Журнал «было → стало»: одна строка на изменение, по нему работает undo. */
+async function record(root, entry) {
+  const file = await journalFile(root);
+  await mkdir(dirname(file), { recursive: true });
+  await appendFile(file, JSON.stringify({ t: new Date().toISOString(), undone: false, ...entry }) + "\n", "utf8");
+}
+
+const exists = (file) => lstat(file).then(() => true, () => false);
+
+/** Откатывает последние N неотменённых изменений, от свежих к старым. */
+export async function undoLast(root, count = 1) {
+  const top = await realpath(root);
+  const entries = await readJournal(root);
+  const todo = entries.map((entry, index) => ({ entry, index })).filter((item) => !item.entry.undone).slice(-Math.max(1, Math.min(Number(count) || 1, 50))).reverse();
+  if (!todo.length) throw new Error("Откатывать нечего: журнал изменений пуст.");
+  const lines = [];
+  for (const { entry, index } of todo) {
+    const file = await resolveInside(root, entry.path);
+    if (entry.op === "mkdir") {
+      if (!entry.created) lines.push(`Пропущено: «${entry.path}» была и до задачи`);
+      else {
+        await rmdir(file).catch(() => { throw new Error(`Папка «${entry.path}» не пуста — сначала убери содержимое.`); });
+        lines.push(`Папка убрана: ${entry.path}`);
+      }
+    } else if (entry.op === "move") {
+      const to = await resolveInside(root, entry.to);
+      if (await exists(file)) throw new Error(`Не могу вернуть: «${entry.path}» уже занято.`);
+      await mkdir(dirname(file), { recursive: true });
+      await rename(to, file);
+      lines.push(`Возвращено: ${entry.to} → ${entry.path}`);
+    } else if (entry.backup) {
+      const copy = join(top, entry.backup);
+      if (entry.op === "trash" && (await exists(file))) throw new Error(`Не могу вернуть: «${entry.path}» уже занято.`);
+      if (entry.op !== "trash") await rm(file, { recursive: true, force: true });
+      await mkdir(dirname(file), { recursive: true });
+      await cp(copy, file, { recursive: true });
+      lines.push(`Восстановлено: ${entry.path}`);
+    } else if (entry.op === "write") {
+      await trashPath(root, entry.path);
+      lines.push(`Файл убран в корзину: ${entry.path}`);
+    }
+    entries[index] = { ...entry, undone: true };
+    await saveJournal(root, entries);
+  }
+  return lines.join("\n");
 }
 
 /** Не удаляет, а переносит в .azrail-trash/<время>/… внутри той же папки: всё можно вернуть. */
@@ -426,6 +504,7 @@ export async function trashPath(root, path) {
   const file = await resolveInside(root, path);
   await lstat(file);
   const backup = await backupToTrash(root, path, file);
+  await record(root, { op: "trash", path, backup });
   await rm(file, { recursive: true });
   return `В корзину: ${path}. Вернуть: ${backup}`;
 }
