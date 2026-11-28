@@ -159,7 +159,7 @@ export type ToolName =
   | "open_pr" | "git_diff"
   | "search_web" | "call_model"
   | "connector_search" | "connector_call" | "connector_status"
-  | "local_list" | "local_read" | "local_web" | "local_write" | "local_run" | "local_addroot" | "local_status" | "local_search" | "local_edit" | "local_mkdir" | "local_move" | "local_trash" | "local_undo" | "local_shell" | "local_browser" | "local_browser_act"
+  | "local_list" | "local_read" | "local_web" | "local_write" | "local_run" | "local_addroot" | "local_status" | "local_search" | "local_overview" | "local_edit" | "local_mkdir" | "local_move" | "local_trash" | "local_undo" | "local_shell" | "local_browser" | "local_browser_act"
   | "generate_image" | "generate_video" | "transcribe"
   | "browser_open" | "browser_click" | "browser_type" | "screenshot"
   | "sandbox_test" | "sandbox_exec" | "sandbox_preview";

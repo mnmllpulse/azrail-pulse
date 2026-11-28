@@ -5,7 +5,7 @@ import { ToolRejectedError } from "../lib/tool-errors";
 import type { ToolName } from "../types";
 
 /** Инструменты миссии на компьютере владельца. Чтение идёт сразу, запись, команды и новая папка ждут «Разрешить». */
-export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status", "local_search", "local_edit", "local_mkdir", "local_move", "local_trash", "local_undo", "local_shell", "local_browser", "local_browser_act"] as const;
+export const LOCAL_TOOLS = ["local_list", "local_read", "local_web", "local_write", "local_run", "local_addroot", "local_status", "local_search", "local_overview", "local_edit", "local_mkdir", "local_move", "local_trash", "local_undo", "local_shell", "local_browser", "local_browser_act"] as const;
 export { LOCAL_APPROVAL_TOOLS };
 export const isLocalTool = (tool: string): boolean => (LOCAL_TOOLS as readonly string[]).includes(tool);
 
@@ -107,9 +107,10 @@ async function runLocalTool(tool: ToolName, input: Record<string, unknown>, deps
     }
     case "local_list":
     case "local_read":
+    case "local_overview":
     case "local_web": {
       await ensureEnabled(deps, true);
-      const kind = tool === "local_list" ? "list" : tool === "local_read" ? "read" : "web";
+      const kind = tool === "local_list" ? "list" : tool === "local_read" ? "read" : tool === "local_overview" ? "overview" : "web";
       const path = tool === "local_web" ? text(input.url, 2000) : text(input.path, 300);
       const job = await create(store, input, kind, path);
       const done = await waitFor(store, job.id, { ...deps, waitMs: tool === "local_web" ? 45_000 : 25_000 });
@@ -164,7 +165,7 @@ const FOLDER_ALIASES: Record<(typeof AGENT_ROOT_PRESETS)[number], string[]> = {
   documents: ["documents", "документы", "документах", "документов"],
   downloads: ["downloads", "загрузки", "загрузках", "загрузок"],
 };
-const PATH_TOOLS = new Set(["local_list", "local_read", "local_write", "local_edit", "local_mkdir", "local_move", "local_trash", "local_search"]);
+const PATH_TOOLS = new Set(["local_list", "local_read", "local_write", "local_edit", "local_mkdir", "local_move", "local_trash", "local_search", "local_overview"]);
 const CONNECT_ROOT_WAIT_MS = 10_000;
 
 const presetOf = (value: unknown): (typeof AGENT_ROOT_PRESETS)[number] | null => {
